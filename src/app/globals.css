@@ -1,0 +1,229 @@
+@import "tailwindcss";
+
+:root {
+  /* Core palette - pulled from Figma (hero node 16:3616, portfolio node 16:3638).
+     Named distinctly from the @theme tokens below: giving a @theme entry the
+     same custom-property name as its own var() source creates a circular
+     reference that browsers treat as invalid, silently breaking the color.
+     Keep --raw-* and --color-* separate. */
+  --raw-ink: #0e0f12; /* near-black, dark section bg / body text on paper */
+  --raw-paper: #fafafa; /* off-white page background (confirmed via reference export) */
+  --raw-accent: #c64e31; /* terracotta - second line of two-line headings */
+  --raw-muted: #67696c; /* secondary/body text on paper */
+  --raw-muted-inverse: #a7a7ac; /* secondary text on ink */
+  --raw-line: #d7d7d9; /* hairline borders on paper */
+  --raw-line-inverse: rgba(252, 252, 252, 0.16); /* hairline borders on ink */
+  --raw-overlay: rgba(14, 15, 18, 0.28); /* hero image overlay */
+
+  --font-display: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Fluid type scale echoing the Figma hero (138.3px / -4.15px tracking at 1441 viewport) */
+  --fs-hero: clamp(3.25rem, 9.2vw, 8.64rem);
+}
+
+@theme inline {
+  --color-ink: var(--raw-ink);
+  --color-paper: var(--raw-paper);
+  --color-accent: var(--raw-accent);
+  --color-muted: var(--raw-muted);
+  --color-muted-inverse: var(--raw-muted-inverse);
+  --color-line: var(--raw-line);
+  --color-line-inverse: var(--raw-line-inverse);
+  --color-overlay: var(--raw-overlay);
+  --font-sans: var(--font-display);
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
+}
+
+body {
+  background: var(--raw-paper);
+  color: var(--raw-ink);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+::selection {
+  background: #e99a84;
+  color: var(--raw-ink);
+}
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.button-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid currentColor;
+  border-radius: 9999px;
+  padding: 0.75rem 1.5rem;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-align: center;
+  transition: color 250ms ease, background-color 250ms ease, border-color 250ms ease,
+    transform 250ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 250ms ease;
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+button,
+a,
+summary,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+select {
+  touch-action: manipulation;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+@media (hover: hover) {
+  .button-pill:hover {
+    border-color: var(--raw-accent);
+    background: var(--raw-accent);
+    color: var(--raw-paper);
+    box-shadow: 0 10px 28px rgba(198, 78, 49, 0.2);
+    transform: translateY(-2px);
+  }
+}
+
+.motion-media {
+  overflow: hidden;
+  will-change: transform;
+}
+
+.motion-media img,
+.motion-media video {
+  will-change: transform;
+  transform: translateZ(0);
+  transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1), filter 700ms ease;
+}
+
+@media (hover: hover) {
+  .motion-media:hover img,
+  .motion-media:hover video {
+    filter: saturate(1.04) contrast(1.02);
+    transform: translateZ(0) scale(1.025);
+  }
+
+  .motion-row {
+    transition: color 250ms ease, padding-left 400ms cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 250ms ease;
+  }
+
+  .motion-row:hover {
+    background-color: rgba(198, 78, 49, 0.035);
+    padding-left: 0.75rem;
+  }
+}
+
+input,
+textarea,
+select {
+  transition: border-color 250ms ease, background-color 250ms ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--raw-accent) !important;
+}
+
+.container-page {
+  padding-left: clamp(1.25rem, 3vw, 2.5rem);
+  padding-right: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+/*
+ * Single source of truth for the type/spacing rhythm - every section and
+ * page should reach for these classes instead of picking one-off Tailwind
+ * text sizes, so headings, body copy, and section spacing stay consistent
+ * site-wide by construction rather than by memory.
+ */
+
+/* Big route-level H1 (top of /about, /projects, /services, /contact). */
+.page-heading {
+  font-size: clamp(2.75rem, 6vw, 5.5rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+
+/* Huge uppercase index-style H1 ("ALL PROJECTS") - used on listing pages,
+   confirmed against the projects.svg reference (~135px cap height at 1456
+   viewport, stacked two-line, matches the hero wordmark scale). */
+.index-heading {
+  font-size: clamp(2.75rem, 9.2vw, 8.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+/* Section-level H2 ("Selected Works of...", "Everything...", FAQ, etc). */
+.section-heading {
+  font-size: clamp(2.25rem, 4.2vw, 3.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+
+/* Standard body copy - descriptions, paragraphs, list items. */
+.section-body {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--raw-muted);
+}
+
+/* Standard vertical rhythm between sections - same top and bottom padding
+   everywhere so no section feels cramped or overly spaced relative to its
+   neighbors. Kept tight on purpose: two adjacent sections combine to one
+   gap (not double), so the page reads as a continuous flow rather than a
+   stack of isolated blocks. */
+.section-py {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+@media (max-width: 767px) {
+  .section-py {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+}
+@media (min-width: 768px) {
+  .section-py {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
