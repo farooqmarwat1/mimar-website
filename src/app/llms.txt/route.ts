@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { siteConfig, contact, faqs, services } from "@/lib/site-config";
+import { siteConfig, contact, contactPhones, offices, faqs, services } from "@/lib/site-config";
 import { getProjects } from "@/lib/cms";
 import { legacySeoPages } from "@/lib/legacy-seo";
 
@@ -22,8 +22,8 @@ export async function GET() {
     "",
     "## Contact",
     `- Email: ${contact.email}`,
-    `- Phone: ${contact.phones.pakistanMobile}`,
-    `- Address: ${contact.address.line1}, ${contact.address.line2}`,
+    ...contactPhones.map((phone) => `- Phone (${phone.country}): ${phone.number}`),
+    ...offices.map((office) => `- ${office.city} office: ${office.lines.join(", ")}`),
     `- Website: ${siteConfig.url}`,
     "",
     "## Services",

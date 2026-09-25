@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { siteConfig, contact, social, services, faqs as defaultFaqs } from "./site-config";
+import { siteConfig, faqs as defaultFaqs } from "./site-config";
 
 type BuildMetadataArgs = {
   title: string;
@@ -73,95 +73,103 @@ export function articleJsonLd(article: {
 }
 
 /**
- * Organization + LocalBusiness structured data.
- * LocalBusiness fields (geo coordinates, address, phone) are what power
- * classic local/geographic SEO - map packs, "near me" queries, knowledge
- * panels.
+ * Site-wide structured data rendered in <head> on every page, supplied
+ * verbatim by the SEO team (Sep 2026). Replaces the earlier generated
+ * Organization/WebSite blocks, so keep the #organization and #website @ids
+ * unique - page-level schema (articles, services, projects) references them.
  */
-export function organizationJsonLd() {
-  return {
-    "@context": "https://schema.org",
-    "@type": ["Organization", "LocalBusiness", "ProfessionalService"],
-    "@id": `${siteConfig.url}/#organization`,
-    name: siteConfig.name,
-    legalName: siteConfig.legalName,
-    url: siteConfig.url,
-    logo: `${siteConfig.url}/logo.png`,
-    image: `${siteConfig.url}${siteConfig.ogImage}`,
-    description: siteConfig.description,
-    foundingDate: siteConfig.foundingDate,
-    founder: {
-      "@type": "Person",
-      name: "Naqi Ejaz",
-      jobTitle: "Founder",
-      url: `${siteConfig.url}/about`,
+export const siteJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://mim.archi/#organization",
+      name: "Mimar Studios",
+      url: "https://mim.archi",
+      logo: "https://mim.archi/logo.png",
+      email: "info@mim.archi",
+      description:
+        "Mimar Studios is an international architecture and 3D visualization studio offering 3D rendering, animation, VR tours, and digital property experiences.",
+      sameAs: [
+        "https://www.linkedin.com/company/mimar-studios",
+        "https://www.behance.net/mimARstudios",
+        "https://www.pinterest.com/mimarstudios",
+      ],
+      areaServed: ["Saudi Arabia", "United Arab Emirates", "Pakistan", "United States", "Worldwide"],
+      contactPoint: [
+        { "@type": "ContactPoint", telephone: "+966-59-743-9044", contactType: "customer service", areaServed: "SA" },
+        { "@type": "ContactPoint", telephone: "+971-54-146-5887", contactType: "customer service", areaServed: "AE" },
+        { "@type": "ContactPoint", telephone: "+92-300-511-2990", contactType: "customer service", areaServed: "PK" },
+        { "@type": "ContactPoint", telephone: "+1-786-761-9866", contactType: "customer service", areaServed: "US" },
+      ],
     },
-    foundingLocation: {
-      "@type": "Place",
-      name: siteConfig.foundingLocation,
-      address: { "@type": "PostalAddress", addressLocality: "Islamabad", addressCountry: "PK" },
+    {
+      "@type": "WebSite",
+      "@id": "https://mim.archi/#website",
+      url: "https://mim.archi",
+      name: "Mimar Studios",
+      publisher: { "@id": "https://mim.archi/#organization" },
+      inLanguage: "en",
     },
-    slogan: "Experience good. Build better.",
-    alternateName: ["mimAR", "mimAR Studio", "Mimar Architecture"],
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: contact.address.line1,
-      addressLocality: "Islamabad",
-      addressRegion: "Islamabad Capital Territory",
-      postalCode: "44000",
-      addressCountry: "PK",
+    {
+      "@type": "LocalBusiness",
+      "@id": "https://mim.archi/#localbusiness-jeddah",
+      name: "Mimar Studios - Jeddah",
+      image: "https://mim.archi/logo.png",
+      url: "https://mim.archi",
+      telephone: "+966597439044",
+      priceRange: "$$$",
+      hasMap: "https://maps.app.goo.gl/weNLH7xskTdbXjdL7",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "Prince Sultan Branch Rd, Al-Mohammadiyah",
+        addressLocality: "Jeddah",
+        postalCode: "23625",
+        addressCountry: "SA",
+      },
+      parentOrganization: { "@id": "https://mim.archi/#organization" },
     },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: contact.geo.latitude,
-      longitude: contact.geo.longitude,
+    {
+      "@type": "LocalBusiness",
+      "@id": "https://mim.archi/#localbusiness-islamabad",
+      name: "Mimar Studios - Islamabad",
+      image: "https://mim.archi/logo.png",
+      url: "https://mim.archi",
+      telephone: "+923005112990",
+      priceRange: "$$$",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "mimAR Studio, (NSTP) NUST, H-12",
+        addressLocality: "Islamabad",
+        postalCode: "44000",
+        addressCountry: "PK",
+      },
+      parentOrganization: { "@id": "https://mim.archi/#organization" },
     },
-    email: contact.email,
-    telephone: contact.phones.pakistanMobile,
-    contactPoint: [
-      { "@type": "ContactPoint", telephone: contact.phones.pakistanHQ, contactType: "customer service", areaServed: "PK", availableLanguage: ["English", "Urdu"] },
-      { "@type": "ContactPoint", telephone: contact.phones.uae, contactType: "sales", areaServed: "AE", availableLanguage: "English" },
-      { "@type": "ContactPoint", telephone: contact.phones.usa, contactType: "sales", areaServed: "US", availableLanguage: "English" },
-    ],
-    areaServed: [
-      { "@type": "Country", name: "Pakistan" },
-      { "@type": "Country", name: "United Arab Emirates" },
-      { "@type": "Country", name: "United States" },
-      { "@type": "AdministrativeArea", name: "Worldwide" },
-    ],
-    knowsAbout: [
-      "Architectural design",
-      "Interior design",
-      "Architectural visualization",
-      "3D rendering",
-      "Architectural animation",
-      "Virtual reality tours",
-      "Web 360 tours",
-      "Property technology",
-      "Real estate marketing",
-    ],
-    award: [
-      "National Winner in Pakistan - Uber Pitch, Karachi",
-      "Pakistan representative at 4YFN, Barcelona",
-      "Runner-up, Top 100 Entrepreneurship World Cup, Riyadh",
-      "Winner of the ISF Award by HEC, Islamabad",
-      "Runner-up, Pakistan Startup Cup, Islamabad",
-    ],
-    hasOfferCatalog: {
-      "@type": "OfferCatalog",
-      name: "Architecture, visualization and interactive services",
-      itemListElement: services.map((service) => ({
-        "@type": "Offer",
-        itemOffered: {
-          "@type": "Service",
-          name: service.title,
-          url: `${siteConfig.url}/services/${service.slug}`,
-        },
-      })),
+    {
+      "@type": "Service",
+      "@id": "https://mim.archi/#service-3d-visualization",
+      name: "3D Visualization & Architectural Rendering Services",
+      provider: { "@id": "https://mim.archi/#organization" },
+      serviceType: "3D Architectural Visualization",
+      areaServed: ["Saudi Arabia", "UAE", "Pakistan", "USA"],
+      description:
+        "Photorealistic 3D visualization, interior and exterior architectural rendering services for real estate developers and architects.",
+      url: "https://mim.archi/services/3d-visualization",
     },
-    sameAs: Object.values(social),
-  };
-}
+    {
+      "@type": "Service",
+      "@id": "https://mim.archi/#service-architectural-design",
+      name: "Architectural Design Services",
+      provider: { "@id": "https://mim.archi/#organization" },
+      serviceType: "Architectural Design",
+      areaServed: ["Saudi Arabia", "UAE", "Pakistan", "USA"],
+      description:
+        "Comprehensive architectural design services from schematic design and concept development to construction documentation.",
+      url: "https://mim.archi/services/architectural-design",
+    },
+  ],
+};
 
 export function itemListJsonLd(name: string, items: { name: string; path: string }[]) {
   return {
@@ -204,19 +212,6 @@ export function serviceJsonLd(service: {
           })),
         }
       : undefined,
-  };
-}
-
-export function websiteJsonLd() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "@id": `${siteConfig.url}/#website`,
-    url: siteConfig.url,
-    name: siteConfig.name,
-    description: siteConfig.description,
-    publisher: { "@id": `${siteConfig.url}/#organization` },
-    inLanguage: "en-US",
   };
 }
 

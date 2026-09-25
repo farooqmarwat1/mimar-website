@@ -7,3 +7,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# SEO migration
+
+This site is replacing the live WordPress site at mim.archi. Before touching routes, redirects, metadata, page copy, `sitemap.ts`, `robots.ts` or `next.config.ts`, read [SEO_MIGRATION.md](SEO_MIGRATION.md). Do not add the `/en` prefix or Arabic/English routing yet.

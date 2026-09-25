@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { contact, social } from "@/lib/site-config";
+import { contact, contactPhones, offices, social, telHref } from "@/lib/site-config";
 
 const socialLinks = [
   { label: "Instagram", href: social.instagram, icon: "/icons/icons8-instagram.svg" },
@@ -13,17 +13,14 @@ const socialLinks = [
 
 const columns = [
   {
-    heading: "Studio",
-    links: [
-      { label: "3407, National Science & Technology Park (NSTP), NUST", href: contact.address.mapsUrl },
-      { label: "H-12, Islamabad, Pakistan", href: contact.address.mapsUrl },
-    ],
+    heading: "Offices",
+    links: offices.map((office) => ({ label: `${office.city}: ${office.lines.join(", ")}`, href: office.mapsUrl })),
   },
   {
     heading: "Contact",
     links: [
       { label: contact.email, href: `mailto:${contact.email}` },
-      { label: contact.phones.pakistanMobile, href: `tel:${contact.phones.pakistanMobile.replace(/\s/g, "")}` },
+      ...contactPhones.map((phone) => ({ label: `${phone.country} ${phone.number}`, href: telHref(phone.number) })),
     ],
   },
   {
