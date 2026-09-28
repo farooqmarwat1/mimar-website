@@ -28,7 +28,7 @@ export default async function ArchitecturalSubServicePage({ params }: PageProps<
 
   const parent = serviceDetails[architecturalDesignSlug];
   const path = architecturalSubServicePath(slug);
-  const featuredProjects = service.featuredProjects
+  const featuredProjects = (service.featuredProjects ?? [])
     .map((projectSlug) => projects.find((project) => project.slug === projectSlug))
     .filter((project) => project !== undefined);
 
@@ -127,9 +127,13 @@ export default async function ArchitecturalSubServicePage({ params }: PageProps<
                 <p className="text-4xl font-light text-accent/40">{String(index + 1).padStart(2, "0")}</p>
                 <div>
                   <h3 className="text-lg">{step}</h3>
-                  <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
-                    {items.map((item) => <li key={item} className="section-body text-sm">{item}</li>)}
-                  </ul>
+                  {Array.isArray(items) ? (
+                    <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+                      {items.map((item) => <li key={item} className="section-body text-sm">{item}</li>)}
+                    </ul>
+                  ) : (
+                    <p className="section-body mt-3 max-w-xl text-sm">{items}</p>
+                  )}
                 </div>
               </div>
             </Reveal>

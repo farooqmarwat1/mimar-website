@@ -14,9 +14,10 @@ export type ArchitecturalSubService = {
   intro: string[];
   hero: string;
   introImage: string;
-  /** Project slugs from site-config shown under "Featured projects". */
-  featuredProjects: string[];
-  process: { step: string; items: string[] }[];
+  /** Project slugs from site-config shown under "Featured projects". Omit the section when empty. */
+  featuredProjects?: string[];
+  /** A step's detail is either a short bullet list or one descriptive sentence. */
+  process: { step: string; items: string[] | string }[];
   benefits: [string, string][];
   benefitsImage: string;
   /** Heading is split in two: the second part renders in the accent colour. */
@@ -50,6 +51,65 @@ export const architecturalSubServices: Record<string, ArchitecturalSubService> =
       ["Bring Designs to Life", "Detailed representation of spaces and concepts that allow stakeholders to visualize the final outcome before the actual construction."],
     ],
     benefitsImage: "/services/architectural-design/process.png",
+    cta: {
+      heading: ["Dream Now, Build Later:", "Why wait?"],
+      body: "With our Web Tours, your clients design and explore their future home before it even gets constructed.",
+    },
+  },
+  "interior-design-services": {
+    slug: "interior-design-services",
+    seoTitle: "Interior Design Services in Pakistan - mimAR",
+    seoDescription: "Transform your space with our expert interior design services in Pakistan. We create beautiful, functional spaces tailored to your style and needs.",
+    title: "Interior Design Services",
+    tagline: "Creativity and Innovation",
+    intro: [
+      "At mimAR, our interior design services are dedicated to creating spaces that are both aesthetically pleasing and functional.",
+      "Our approach combines creativity with practicality to deliver interiors that reflect your personal style and meet your unique needs.",
+    ],
+    hero: "/services/architectural-design/interior-design-services/living-room.webp",
+    introImage: "/services/architectural-design/interior-design-services/bedroom.webp",
+    featuredProjects: ["cafe-interior", "the-garden-residences", "abuja"],
+    process: [
+      { step: "Planning", items: ["Initial consultation", "Site analysis", "Feasibility studies"] },
+      { step: "Conceptualization", items: ["Creating initial Design concepts", "Client feedback"] },
+      { step: "Development", items: ["Detailed design", "Construction documents", "Project management"] },
+    ],
+    benefits: [
+      ["Realistic Material and Lighting", "Our team expertly selects material and lighting to craft realistic and immersive renders for true-to-life visualisations."],
+      ["Top Quality Renders", "Our 3D artists excel in producing high quality detailed renders, using the latest softwares that bring architectural designs to life."],
+      ["Attention to Detail", "We are dedicated to precision and excellence, ensuring every project, big or small is perfect to the tiniest detail."],
+      ["Bring Designs to Life", "Detailed representation of spaces and concepts that allow stakeholders to visualize the final outcome before the actual construction."],
+    ],
+    benefitsImage: "/services/architectural-design/interior-design-services/dining.webp",
+    cta: {
+      heading: ["Dream Now, Build Later:", "Why wait?"],
+      body: "With our Web Tours, your clients design and explore their future home before it even gets constructed.",
+    },
+  },
+  "urban-planning": {
+    slug: "urban-planning",
+    seoTitle: "Urban Planning - mimAR",
+    seoDescription: "At mimAR, our urban planning services are dedicated to creating well-organized, sustainable, and livable communities that balance growth with environmental responsibility.",
+    title: "Urban Planning",
+    tagline: "Shaping Sustainable and Livable Communities",
+    intro: [
+      "At mimAR, our urban planning services are dedicated to creating well-organized, sustainable, and livable communities. We focus on designing urban spaces that balance growth with environmental responsibility, enhancing the quality of life for residents and fostering economic development.",
+    ],
+    hero: "/services/architectural-design/urban-planning.jpg",
+    introImage: "/services/architectural-design/urban-planning/street.webp",
+    process: [
+      { step: "Planning", items: "Developing long-term plans that outline the vision for community growth and development." },
+      { step: "Land Use Planning", items: "Strategically planning land use to balance residential, commercial, industrial, and recreational needs." },
+      { step: "Zoning and Regulation", items: "Crafting zoning regulations that promote orderly development and protect community interests." },
+      { step: "Transportation Planning", items: "Designing efficient transportation networks that connect people and places." },
+    ],
+    benefits: [
+      ["Realistic Material and Lighting", "Our team expertly selects material and lighting to craft realistic and immersive renders for true-to-life visualisations."],
+      ["Top Quality Renders", "Our 3D artists excel in producing high quality detailed renders, using the latest softwares that bring architectural designs to life."],
+      ["Attention to Detail", "We are dedicated to precision and excellence, ensuring every project, big or small is perfect to the tiniest detail."],
+      ["Bring Designs to Life", "Detailed representation of spaces and concepts that allow stakeholders to visualize the final outcome before the actual construction."],
+    ],
+    benefitsImage: "/services/architectural-design/urban-planning/aerial.webp",
     cta: {
       heading: ["Dream Now, Build Later:", "Why wait?"],
       body: "With our Web Tours, your clients design and explore their future home before it even gets constructed.",

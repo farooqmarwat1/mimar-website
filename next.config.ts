@@ -69,7 +69,7 @@ const nextConfig: NextConfig = {
       // need individual content decisions, so keep their existing redirect.
       { source: "/meta/:path+", destination: "/services/interactive-services/vr-360-tours", permanent: true },
       { source: "/real-estate-360-tours", destination: "/services/interactive-services/web-tours", permanent: true },
-      { source: "/interior-design-services", destination: "/services/architectural-design", permanent: true },
+      { source: "/interior-design-services", destination: "/services/architectural-design/interior-design-services", permanent: true },
       { source: "/services/3d-visualization/3d-views", destination: "/services/3d-visualization", permanent: true },
       { source: "/services/3d-visualization/cinematics", destination: "/services/cinematics", permanent: true },
       { source: "/services/3d-visualization/property-explorer", destination: "/services/interactive-services/property-explorer", permanent: true },
@@ -82,10 +82,9 @@ const nextConfig: NextConfig = {
       { source: "/services/interactive-prints", destination: "/services/interactive-services/interactive-prints", permanent: true },
       { source: "/services/property-explorer", destination: "/services/interactive-services/property-explorer", permanent: true },
       { source: "/services/smart-home", destination: "/services/interactive-services/smart-home", permanent: true },
-      // /services/architectural-design/architectural-design-services is a real page again
-      // (src/app/services/architectural-design/[slug]); the other three still redirect.
-      { source: "/services/architectural-design/interior-design-services", destination: "/services/architectural-design", permanent: true },
-      { source: "/services/architectural-design/urban-planning", destination: "/services/architectural-design", permanent: true },
+      // architectural-design-services, interior-design-services and urban-planning
+      // are real pages again (src/app/services/architectural-design/[slug]);
+      // smart-topography-survey still redirects.
       { source: "/services/architectural-design/smart-topography-survey/:path*", destination: "/services/architectural-design", permanent: true },
       { source: "/services/marketing/:path+", destination: "/services/marketing", permanent: true },
       // Renamed 2026-08: service slugs/names were realigned to match the
