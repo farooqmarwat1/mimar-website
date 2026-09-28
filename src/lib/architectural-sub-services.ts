@@ -19,7 +19,8 @@ export type ArchitecturalSubService = {
   process: { step: string; items: string[] }[];
   benefits: [string, string][];
   benefitsImage: string;
-  cta: { heading: string; body: string };
+  /** Heading is split in two: the second part renders in the accent colour. */
+  cta: { heading: [string, string]; body: string };
 };
 
 export const architecturalSubServices: Record<string, ArchitecturalSubService> = {
@@ -50,7 +51,7 @@ export const architecturalSubServices: Record<string, ArchitecturalSubService> =
     ],
     benefitsImage: "/services/architectural-design/process.png",
     cta: {
-      heading: "Dream Now, Build Later: Why wait?",
+      heading: ["Dream Now, Build Later:", "Why wait?"],
       body: "With our Web Tours, your clients design and explore their future home before it even gets constructed.",
     },
   },

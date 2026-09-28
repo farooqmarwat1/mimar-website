@@ -157,7 +157,13 @@ export default async function ArchitecturalSubServicePage({ params }: PageProps<
       <section className="section-py">
         <div className="container-page mx-auto max-w-3xl text-center">
           <Reveal><h2 className="eyebrow text-muted">/ Get a free consultation</h2></Reveal>
-          <Reveal delay={0.05}><p className="section-heading mx-auto mt-6">{service.cta.heading}</p></Reveal>
+          <Reveal delay={0.05}>
+            <p className="section-heading mx-auto mt-6">
+              {service.cta.heading[0]}
+              <br />
+              <span className="text-accent">{service.cta.heading[1]}</span>
+            </p>
+          </Reveal>
           <Reveal delay={0.1}><p className="section-body mx-auto mt-6 max-w-md">{service.cta.body}</p></Reveal>
           <Reveal delay={0.15}>
             <div className="mt-9 flex flex-wrap justify-center gap-3">
