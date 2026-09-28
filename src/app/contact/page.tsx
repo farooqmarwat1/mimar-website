@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import ContactForm from "@/components/ContactForm";
 import Reveal from "@/components/ui/Reveal";
 import { buildMetadata, breadcrumbJsonLd, jsonLdScript } from "@/lib/seo";
-import { contact } from "@/lib/site-config";
+import { contact, contactPhones, offices, telHref } from "@/lib/site-config";
 
 export const metadata: Metadata = buildMetadata({
   title: "Contact Mimar Studios - Let’s Talk",
   description:
-    "Tell Mimar Studios what you are building. Contact our Islamabad studio for architecture, visualization, VR and interactive projects.",
+    "Tell Mimar Studios what you are building. Contact our Islamabad or Jeddah studio for architecture, visualization, VR and interactive projects.",
   path: "/contact",
 });
 
@@ -55,26 +55,32 @@ export default function ContactPage() {
               </div>
               <div>
                 <p className="eyebrow mb-2 text-accent">Phone</p>
-                <a
-                  href={`tel:${contact.phones.pakistanMobile.replace(/\s/g, "")}`}
-                  className="text-sm transition-colors hover:text-accent"
-                >
-                  {contact.phones.pakistanMobile}
-                </a>
+                <ul className="flex flex-col gap-1.5">
+                  {contactPhones.map((phone) => (
+                    <li key={phone.country} className="text-sm">
+                      <span className="text-muted">{phone.country}</span>{" "}
+                      <a href={telHref(phone.number)} className="transition-colors hover:text-accent">
+                        {phone.number}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <div>
-                <p className="eyebrow mb-2 text-accent">Studio</p>
-                <a
-                  href={contact.address.mapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block text-sm leading-relaxed transition-colors hover:text-accent"
-                >
-                  {contact.address.line1},
-                  <br />
-                  {contact.address.line2}
-                </a>
-              </div>
+              {offices.map((office) => (
+                <div key={office.city}>
+                  <p className="eyebrow mb-2 text-accent">{office.city} office</p>
+                  <a
+                    href={office.mapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-sm leading-relaxed transition-colors hover:text-accent"
+                  >
+                    {office.lines[0]},
+                    <br />
+                    {office.lines[1]}
+                  </a>
+                </div>
+              ))}
             </address>
           </Reveal>
         </div>

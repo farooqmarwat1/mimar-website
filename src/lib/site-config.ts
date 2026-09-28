@@ -33,8 +33,9 @@ export const contact = {
   phones: {
     pakistanHQ: "+92 51 8745047",
     pakistanMobile: "+92 300 511 2990",
-    uae: "+971 55 853 2811",
-    usa: "+1 251 316 0396",
+    saudiArabia: "+966 59 743 9044",
+    uae: "+971 54 146 5887",
+    usa: "+1 786 761 9866",
   },
   address: {
     line1: "3407, National Science & Technology Park (NSTP), NUST",
@@ -47,6 +48,33 @@ export const contact = {
     longitude: 72.9932,
   },
 } as const;
+
+// Shown on /contact, in the footer and in llms.txt. Keep in sync with the
+// ContactPoint / LocalBusiness entries in siteJsonLd (src/lib/seo.ts) -
+// structured data must match what the page visibly shows.
+export const contactPhones = [
+  { country: "Pakistan", number: contact.phones.pakistanMobile },
+  { country: "Saudi Arabia", number: contact.phones.saudiArabia },
+  { country: "UAE", number: contact.phones.uae },
+  { country: "USA", number: contact.phones.usa },
+] as const;
+
+export const offices = [
+  {
+    city: "Islamabad",
+    lines: [contact.address.line1, contact.address.line2],
+    phone: contact.phones.pakistanMobile,
+    mapsUrl: contact.address.mapsUrl,
+  },
+  {
+    city: "Jeddah",
+    lines: ["Prince Sultan Branch Rd, Al-Mohammadiyah", "Jeddah, Saudi Arabia (23625)"],
+    phone: contact.phones.saudiArabia,
+    mapsUrl: "https://maps.app.goo.gl/weNLH7xskTdbXjdL7",
+  },
+] as const;
+
+export const telHref = (number: string) => `tel:${number.replace(/\s/g, "")}`;
 
 export const social = {
   facebook: "https://www.facebook.com/360mimar",

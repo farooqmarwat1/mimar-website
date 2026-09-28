@@ -8,7 +8,7 @@ import "@fontsource/dm-sans/700.css";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { buildMetadata, organizationJsonLd, websiteJsonLd, jsonLdScript } from "@/lib/seo";
+import { buildMetadata, siteJsonLd, jsonLdScript } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
@@ -30,11 +30,10 @@ export const viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className="h-full antialiased">
+      <head>
+        <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(siteJsonLd)} />
+      </head>
       <body className="min-h-full flex flex-col bg-paper text-ink">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={jsonLdScript([organizationJsonLd(), websiteJsonLd()])}
-        />
         <Header />
         <main className="flex-1 isolate">{children}</main>
         <Footer />
