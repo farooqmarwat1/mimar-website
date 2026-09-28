@@ -103,18 +103,31 @@ export default function ServiceDetailView({ detail }: { detail: ServiceDetail })
             </div>
           ) : (
             <div className={`grid grid-cols-2 gap-3 ${detail.outputs.length === 3 ? "md:grid-cols-3" : "md:grid-cols-4"}`}>
-              {detail.outputs.map((output, index) => (
-                <Reveal key={output} delay={index * 0.05}>
-                  <div className="relative aspect-[.82] overflow-hidden bg-ink/5">
+              {detail.outputs.map((output, index) => {
+                const href = detail.outputLinks?.[index];
+                const tile = (
+                  <>
                     {detail.outputImages[index] ? (
                       <Image src={detail.outputImages[index]} alt="" fill unoptimized sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition-transform duration-700 hover:scale-105" />
                     ) : (
                       <div className="absolute inset-0 bg-ink" />
                     )}
-                    <p className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 pb-4 pt-12 text-sm text-paper">{output}</p>
-                  </div>
-                </Reveal>
-              ))}
+                    <p className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/70 to-transparent px-4 pb-4 pt-12 text-sm text-paper">
+                      <span>{output}</span>
+                      {href && <span aria-hidden="true" className="text-accent transition-transform group-hover:translate-x-1">↗</span>}
+                    </p>
+                  </>
+                );
+                return (
+                  <Reveal key={output} delay={index * 0.05}>
+                    {href ? (
+                      <Link href={href} className="group relative block aspect-[.82] overflow-hidden bg-ink/5">{tile}</Link>
+                    ) : (
+                      <div className="relative aspect-[.82] overflow-hidden bg-ink/5">{tile}</div>
+                    )}
+                  </Reveal>
+                );
+              })}
             </div>
           )}
           {detail.demoUrl && <Reveal><a href={detail.demoUrl} target="_blank" rel="noreferrer" className="button-pill mt-8 inline-flex text-ink">Open live demo</a></Reveal>}
