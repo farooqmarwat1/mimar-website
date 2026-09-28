@@ -52,6 +52,9 @@ def content_blocks(markup: str) -> list[dict[str, str]]:
     for node in root.xpath(".//h2|.//h3|.//p|.//li"):
         tag = node.tag.lower()
         text = clean_text(" ".join(node.itertext()))
+        if tag in ("h2", "h3"):
+            # WordPress headings used decorative markers (➢, •, ■, >) as text.
+            text = re.sub(r"^[➢•■>]\s*", "", text)
         if not text or text in seen:
             continue
         if tag == "p" and len(text) < 35:

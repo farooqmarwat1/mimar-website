@@ -13,7 +13,7 @@ export default defineType({
       name: "route",
       title: "Route",
       type: "string",
-      description: 'e.g. "/", "/about", "/contact"',
+      description: 'e.g. "/", "/about-us", "/contact"',
       validation: (Rule) => Rule.required(),
     }),
     defineField({ name: "seo", title: "SEO & GEO", type: "seo" }),

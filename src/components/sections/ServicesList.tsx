@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Reveal from "@/components/ui/Reveal";
 import type { Service } from "@/lib/site-config";
+import { servicePath } from "@/lib/service-details";
 
 export default function ServicesList({ services }: { services: Service[] }) {
   return (
@@ -20,7 +21,7 @@ export default function ServicesList({ services }: { services: Service[] }) {
         {services.map((service, i) => (
           <li key={service.slug} className="border-b border-line">
             <Link
-              href={`/services/${service.slug}`}
+              href={servicePath(service.slug)}
               className="motion-row group flex flex-col gap-2 py-8 md:flex-row md:items-center md:gap-10"
             >
               <span className="eyebrow text-muted w-16 shrink-0">{String(i + 1).padStart(2, "0")}</span>

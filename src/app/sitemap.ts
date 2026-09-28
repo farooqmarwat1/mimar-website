@@ -2,17 +2,22 @@ import type { MetadataRoute } from "next";
 import { siteConfig, services } from "@/lib/site-config";
 import { getProjects } from "@/lib/cms";
 import { legacySeoPages, blogCategories } from "@/lib/legacy-seo";
+import { interactiveServicesSlug, servicePath } from "@/lib/service-details";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const projects = await getProjects();
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: siteConfig.url, changeFrequency: "weekly", priority: 1 },
-    { url: `${siteConfig.url}/about`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${siteConfig.url}/about-us`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${siteConfig.url}/about-us/studio`, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${siteConfig.url}/meta`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${siteConfig.url}/projects`, changeFrequency: "weekly", priority: 0.9 },
     { url: `${siteConfig.url}/services`, changeFrequency: "monthly", priority: 0.9 },
     { url: `${siteConfig.url}/contact`, changeFrequency: "yearly", priority: 0.6 },
+    { url: `${siteConfig.url}/booking`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${siteConfig.url}/blog`, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${siteConfig.url}/category/metaverse`, changeFrequency: "monthly", priority: 0.6 },
   ];
 
   const blogCategoryRoutes: MetadataRoute.Sitemap = blogCategories.map((c) => ({
@@ -27,8 +32,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const serviceRoutes: MetadataRoute.Sitemap = services.map((s) => ({
-    url: `${siteConfig.url}/services/${s.slug}`,
+  const serviceRoutes: MetadataRoute.Sitemap = [...services.map((s) => s.slug), interactiveServicesSlug].map((slug) => ({
+    url: `${siteConfig.url}${servicePath(slug)}`,
     changeFrequency: "monthly",
     priority: 0.7,
   }));

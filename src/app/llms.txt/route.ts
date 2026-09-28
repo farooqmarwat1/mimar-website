@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { siteConfig, contact, contactPhones, offices, faqs, services } from "@/lib/site-config";
 import { getProjects } from "@/lib/cms";
 import { legacySeoPages } from "@/lib/legacy-seo";
+import { servicePath } from "@/lib/service-details";
 
 /**
  * llms.txt - an emerging convention (llmstxt.org) that gives AI assistants
@@ -27,7 +28,7 @@ export async function GET() {
     `- Website: ${siteConfig.url}`,
     "",
     "## Services",
-    ...services.map((s) => `- [${s.title}](${siteConfig.url}/services/${s.slug}): ${s.short}`),
+    ...services.map((s) => `- [${s.title}](${siteConfig.url}${servicePath(s.slug)}): ${s.short}`),
     "",
     "## Selected projects",
     ...projects.map((p) => `- [${p.title}](${siteConfig.url}/projects/${p.slug}): ${p.summary}`),

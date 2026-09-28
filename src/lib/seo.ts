@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { siteConfig, faqs as defaultFaqs } from "./site-config";
+import { servicePath } from "./service-details";
 
 type BuildMetadataArgs = {
   title: string;
@@ -195,10 +196,10 @@ export function serviceJsonLd(service: {
   return {
     "@context": "https://schema.org",
     "@type": "Service",
-    "@id": `${siteConfig.url}/services/${service.slug}#service`,
+    "@id": `${siteConfig.url}${servicePath(service.slug)}#service`,
     name: service.title,
     description: service.intro,
-    url: `${siteConfig.url}/services/${service.slug}`,
+    url: `${siteConfig.url}${servicePath(service.slug)}`,
     provider: { "@id": `${siteConfig.url}/#organization` },
     areaServed: "Worldwide",
     serviceType: service.title,
