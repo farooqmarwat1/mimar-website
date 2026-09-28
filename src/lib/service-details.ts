@@ -22,14 +22,35 @@ export type ServiceDetail = {
   facts?: [string, string][];
   process: [string, string][];
   included: string[];
+  includedLabel?: string;
+  /** Child services shown as cards in place of the outputs grid (hub pages). */
+  subServices?: string[];
   projects: string[];
   faqs: [string, string][];
   next: string;
 };
 
+// Same nesting as the old WordPress site: these live under
+// /services/interactive-services/{slug}, every other service at /services/{slug}.
+export const interactiveServicesSlug = "interactive-services";
+export const interactiveSubServiceSlugs = [
+  "vr-360-tours",
+  "web-tours",
+  "dual-screen-navigator",
+  "interactive-prints",
+  "property-explorer",
+  "smart-home",
+];
+
+export function servicePath(slug: string) {
+  return interactiveSubServiceSlugs.includes(slug)
+    ? `/services/${interactiveServicesSlug}/${slug}`
+    : `/services/${slug}`;
+}
+
 export const serviceDetails: Record<string, ServiceDetail> = {
   "architectural-design": {
-    slug: "architectural-design", title: "Architectural Design", eyebrow: "Service 01 / 11",
+    slug: "architectural-design", title: "Architectural Design", eyebrow: "Service 01 / 05",
     intro: "A building is a sequence of decisions before it is a structure. We carry each one from first sketch to a set a contractor can build from.",
     hero: "/services/architectural-design/hero.jpg",
     includedImage: "/services/architectural-design/architectural-design.jpg",
@@ -45,7 +66,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     next: "3d-visualization",
   },
   "3d-visualization": {
-    slug: "3d-visualization", title: "3D Visualization", eyebrow: "Service 02 / 11",
+    slug: "3d-visualization", title: "3D Visualization", eyebrow: "Service 02 / 05",
     intro: "Correct light, honest materials, a camera that behaves like a real lens. Judged, sold and built before it exists.",
     hero: "/services/3D_rendering.webp",
     includedImage: "/services/section-media/rendering-included.webp",
@@ -61,7 +82,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     next: "cinematics",
   },
   cinematics: {
-    slug: "cinematics", title: "Cinematics", eyebrow: "Service 03 / 11",
+    slug: "cinematics", title: "Cinematics", eyebrow: "3D Visualization / Cinematics",
     intro: "Movement changes the judgement. A space you move through reads differently to a space you photograph.",
     hero: "/services/animations.mp4", heroType: "video",
     includedImage: "/services/section-media/animation-included.webp",
@@ -78,10 +99,36 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     included: ["Interior animations", "Exterior animations", "Launch teasers", "Social cutdowns"],
     projects: ["faisal-town-ii", "amer-al-ghurair"],
     faqs: [["Can you animate a project you did not design?", "Yes. We work from any coordinated architectural package."], ["Do you provide the music licence?", "Yes, licensed music and a clean master can be included."], ["Can we get social versions?", "Vertical, square and short edits are available from the same master."], ["Can the animation be delivered in multiple languages?", "Yes. Voice-over, titles and captions can be produced in multiple languages."],],
-    next: "vr-360-tours",
+    next: "interactive-services",
+  },
+  "interactive-services": {
+    slug: "interactive-services", title: "Interactive Services", eyebrow: "Service 03 / 05",
+    intro: "Experience the future of real estate and architecture with our interactive services. Utilizing cutting-edge AR and VR technologies, we bring your projects to life and help captivate potential buyers and set you apart from the competition.",
+    hero: "/services/approved/vr-experiences.webp",
+    includedImage: "/services/section-media/vr-included.webp",
+    outputs: ["VR 360 Tours", "Web Tours", "Dual Screen Navigator", "Interactive Prints", "Property Explorer", "Virtual Smart Home"],
+    outputImages: [],
+    subServices: interactiveSubServiceSlugs,
+    showFacts: false,
+    processImage: "/services/approved/dual-screen.webp",
+    process: [
+      ["Concept and Planning", "We start by understanding the interactive idea and its purpose, and then we plan the next steps. We also get to know the audience and what they need, making sure our service meets their expectations."],
+      ["Design and Development", "Next, we focus on designing and building the project, making it look good and work well. This stage covers the look (UI), how it feels to use (UX), how it works, and its technical setup."],
+      ["Testing and Deployment", "We test everything to make sure it's high-quality, easy to use, and enjoyable. Based on feedback from users, we make any changes needed to enhance their experience."],
+      ["Maintenance and Updates", "We keep the project running smoothly, fixing any problems and adding new content or features as needed. Regular updates help keep the service engaging and working well over time."],
+    ],
+    included: ["Metaverse Development", "Virtual Orientation", "Dual Screen Nav", "Virtual Reality", "Augmented Reality"],
+    includedLabel: "Project types",
+    projects: ["karma-trinity", "the-garden-residences", "aark-residences"],
+    faqs: [
+      ["What’s the difference between AR and VR?", "The simplest difference is that AR enhances reality, while VR creates a virtual world. Augmented reality (AR) allows users to see and interact with virtual elements in their physical surroundings. Whereas, virtual reality (VR) creates a completely immersive environment."],
+      ["What is a web tour?", "A web tour is a digital environment that lets the users explore and navigate through a website or web-based application and interact with the visual elements like table chairs etc. Web tours are designed to showcase key features & highlight important information about a project."],
+      ["Are immersive services compatible with mobile devices?", "Yes, all of the immersive services that we offer at mimAR Studios are compatible with mobile devices. Our VR tours, web tours, augmented reality experiences and other interactive services can be accessed through VR headsets, mobile apps on smartphones and web browsers."],
+    ],
+    next: "branding",
   },
   "vr-360-tours": {
-    slug: "vr-360-tours", title: "VR 360 Tours", eyebrow: "Service 04 / 11",
+    slug: "vr-360-tours", title: "VR 360 Tours", eyebrow: "Interactive Services 01 / 06",
     intro: "One-to-one scale settles arguments a drawing cannot. Standing in the room is the fastest approval you will get.",
     hero: "/services/approved/vr-experiences.webp",
     includedImage: "/services/section-media/vr-included.webp",
@@ -98,7 +145,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     next: "web-tours",
   },
   "web-tours": {
-    slug: "web-tours", title: "Web Tours", eyebrow: "Service 05 / 11",
+    slug: "web-tours", title: "Web Tours", eyebrow: "Interactive Services 02 / 06",
     intro: "A link is the lowest-friction sales tool. High-end 3D opens on a phone in three seconds and never needs installing.",
     hero: "/services/approved/web-360-updated.webp",
     includedImage: "/services/section-media/web360-included.webp",
@@ -119,7 +166,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     next: "dual-screen-navigator",
   },
   "dual-screen-navigator": {
-    slug: "dual-screen-navigator", title: "Dual Screen Navigator", eyebrow: "Service 06 / 11",
+    slug: "dual-screen-navigator", title: "Dual Screen Navigator", eyebrow: "Interactive Services 03 / 06",
     intro: "The agent drives, the buyer watches. One interface for control, one for spectacle - never the same screen.",
     hero: "/services/approved/dual-screen.webp",
     includedImage: "/services/section-media/dual-included.webp",
@@ -136,7 +183,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     next: "interactive-prints",
   },
   "interactive-prints": {
-    slug: "interactive-prints", title: "Interactive Prints", eyebrow: "Service 07 / 11",
+    slug: "interactive-prints", title: "Interactive Prints", eyebrow: "Interactive Services 04 / 06",
     intro: "Paper still gets carried home. Make it open a model of the building when the buyer gets there.",
     hero: "/services/approved/interactive-prints.webp",
     includedImage: "/services/section-media/prints-included.webp",
@@ -153,7 +200,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     next: "property-explorer",
   },
   "property-explorer": {
-    slug: "property-explorer", title: "Property Explorer", eyebrow: "Service 08 / 11",
+    slug: "property-explorer", title: "Property Explorer", eyebrow: "Interactive Services 05 / 06",
     intro: "Buyers do not shop by unit number. They shop by floor, view and light - so the tool should let them.",
     hero: "/services/approved/property-explorer.webp",
     includedImage: "/services/section-media/property-included.webp",
@@ -170,7 +217,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     next: "smart-home",
   },
   "smart-home": {
-    slug: "smart-home", title: "Virtual Smart Home", eyebrow: "Service 09 / 11",
+    slug: "smart-home", title: "Virtual Smart Home", eyebrow: "Interactive Services 06 / 06",
     intro: "Automation is invisible in a brochure. Let the buyer dim the room, close the blinds and watch the house answer.",
     hero: "/services/approved/virtual-smart-home.webp",
     includedImage: "/services/section-media/smart-included.webp",
@@ -187,7 +234,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     next: "branding",
   },
   branding: {
-    slug: "branding", title: "Branding", eyebrow: "Service 10 / 11",
+    slug: "branding", title: "Branding", eyebrow: "Service 04 / 05",
     intro: "A strong project needs more than a logo. We build a clear identity system that holds together from the first presentation to the final campaign.",
     hero: "/services/branding/hero.png",
     includedImage: "/services/branding/hero.png",
@@ -214,7 +261,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     next: "marketing",
   },
   marketing: {
-    slug: "marketing", title: "Marketing", eyebrow: "Service 11 / 11",
+    slug: "marketing", title: "Marketing", eyebrow: "Service 05 / 05",
     intro: "Renders and animations only sell a project if the right people see them. We plan the campaign around the same visual assets we produce.",
     hero: "/service-media/marketing-hero.png",
     includedImage: "/service-media/marketing-hero.png",

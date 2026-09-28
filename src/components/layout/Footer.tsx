@@ -28,8 +28,11 @@ const columns = [
     links: [
       { label: "Projects", href: "/projects" },
       { label: "Services", href: "/services" },
-      { label: "Studio", href: "/about" },
+      { label: "XR Digital", href: "/meta" },
+      { label: "About Us", href: "/about-us" },
+      { label: "Studio", href: "/about-us/studio" },
       { label: "Contact", href: "/contact" },
+      { label: "Book a Meeting", href: "/booking" },
       { label: "Insights", href: "/blog" },
       { label: "Careers", href: "/careers" },
       { label: "Expos", href: "/expos" },

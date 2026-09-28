@@ -1,20 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Reveal from "@/components/ui/Reveal";
+import BlogArchiveView from "@/components/blog/BlogArchiveView";
+import { BlogArticleList, BlogCategoryLinks } from "@/components/blog/BlogCatalog";
 import { articleJsonLd, buildMetadata, breadcrumbJsonLd, itemListJsonLd, jsonLdScript } from "@/lib/seo";
 import { blogCategories, getArticlesForCategory, getLegacySeoPage, legacySeoPages } from "@/lib/legacy-seo";
+import { blogPageCount, getBlogArchivePage } from "@/lib/blog-archive";
 import LegacyArticle from "@/components/legacy/LegacyArticle";
 
-/**
- * This segment does double duty: it's both the category-listing route
- * (/blog/3d-visualization etc.) AND, for any segment that isn't a known
- * category, it falls back to rendering a single legacy article
- * (/blog/3d-rendering, /blog/brand-vs-company, ...). Those articles are a
- * single path segment under /blog/, which is exactly what this route
- * matches, so without this fallback they'd be shadowed and 404 instead of
- * reaching the root [...legacy] catch-all.
- */
+// This segment serves category listings, archive pagination (/blog/2),
+// and one-segment legacy articles (/blog/3d-rendering).
 export const dynamicParams = false;
 
 function articleSlugs() {
@@ -25,31 +20,52 @@ function articleSlugs() {
 }
 
 export function generateStaticParams() {
-  const categorySlugs = blogCategories.map((c) => c.slug);
-  return [...categorySlugs, ...articleSlugs()].map((category) => ({ category }));
+  const archivePages = Array.from({ length: Math.max(blogPageCount - 1, 0) }, (_, index) => String(index + 2));
+  return [...blogCategories.map((category) => category.slug), ...articleSlugs(), ...archivePages]
+    .map((category) => ({ category }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
   const { category: slug } = await params;
+  const archivePage = Number(slug);
+  if (String(archivePage) === slug && archivePage >= 2 && getBlogArchivePage(archivePage).length > 0) {
+    return buildMetadata({
+      title: "Latest Blogs by Mimar | Page " + archivePage,
+      description: "Browse more articles on architecture, 3D visualization and real estate technology from mimAR.",
+      path: "/blog/" + archivePage,
+    });
+  }
+
   const { category } = getArticlesForCategory(slug);
   if (category) {
     return buildMetadata({
-      title: `${category.label} Insights | Mimar Studios`,
-      description: category.description,
-      path: `/blog/${category.slug}`,
+      title: category.seoTitle,
+      description: category.metaDescription,
+      path: "/blog/" + category.slug,
     });
   }
-  const page = getLegacySeoPage(`blog/${slug}`);
+
+  const page = getLegacySeoPage("blog/" + slug);
   if (!page) return {};
-  return buildMetadata({ title: page.seoTitle, description: page.description, path: page.path, keywords: page.keywords });
+  return buildMetadata({
+    title: page.seoTitle,
+    description: page.description,
+    path: page.path,
+    keywords: page.keywords,
+  });
 }
 
 export default async function BlogCategoryPage({ params }: { params: Promise<{ category: string }> }) {
   const { category: slug } = await params;
-  const { category, articles } = getArticlesForCategory(slug);
+  const archivePage = Number(slug);
+  if (String(archivePage) === slug && archivePage >= 2) {
+    if (getBlogArchivePage(archivePage).length === 0) notFound();
+    return <BlogArchiveView page={archivePage} />;
+  }
 
+  const { category, articles } = getArticlesForCategory(slug);
   if (!category) {
-    const page = getLegacySeoPage(`blog/${slug}`);
+    const page = getLegacySeoPage("blog/" + slug);
     if (!page) notFound();
     return (
       <>
@@ -65,53 +81,42 @@ export default async function BlogCategoryPage({ params }: { params: Promise<{ c
     );
   }
 
-  const sorted = [...articles].sort((a, b) => (a.modified < b.modified ? 1 : -1));
-
   return (
-    <div className="pt-32 pb-24 md:pt-40 md:pb-32">
+    <div className="pb-24 pt-32 md:pb-32 md:pt-40">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={jsonLdScript([
           breadcrumbJsonLd([
             { name: "Home", path: "/" },
-            { name: "Insights", path: "/blog" },
-            { name: category.label, path: `/blog/${category.slug}` },
+            { name: "Blog", path: "/blog" },
+            { name: category.label, path: "/blog/" + category.slug },
           ]),
-          itemListJsonLd(`Mimar Studios ${category.label} insights`, sorted.map((a) => ({ name: a.title, path: a.path }))),
+          itemListJsonLd(
+            "Mimar Studios " + category.label + " blogs",
+            articles.map((article) => ({ name: article.title, path: article.path })),
+          ),
         ])}
       />
 
-      <div className="container-page">
-        <Reveal>
-          <p className="eyebrow text-muted mb-6"><Link href="/blog" className="hover:text-accent">/ Insights</Link> / {category.label}</p>
-        </Reveal>
-        <Reveal delay={0.05}>
-          <h1 className="index-heading">
-            <span className="block text-accent">{category.label}</span>
-          </h1>
-        </Reveal>
-        <Reveal delay={0.1}>
-          <p className="section-body mt-8 max-w-xl">{category.description}</p>
-        </Reveal>
-      </div>
+      <header className="container-page">
+        <p className="eyebrow mb-6 text-muted">
+          <Link href="/blog" className="hover:text-accent">/ Blog</Link> / {category.label}
+        </p>
+        <h1 className="index-heading">
+          <span className="text-ink">{category.headingLead}</span>{" "}
+          <span className="text-accent">{category.headingAccent}</span>
+        </h1>
+        <p className="section-body mt-8 max-w-2xl">{category.description}</p>
+        <div className="mt-10"><BlogCategoryLinks currentSlug={category.slug} /></div>
+      </header>
 
-      <div className="container-page mt-16 border-t border-line">
-        {sorted.length === 0 && <p className="section-body py-8">No articles in this category yet.</p>}
-        {sorted.map((article, index) => (
-          <Reveal key={article.path} delay={Math.min(index * 0.02, 0.15)}>
-            <Link
-              href={article.path}
-              className="motion-row group flex flex-col gap-2 border-b border-line py-8 md:flex-row md:items-center md:gap-10"
-            >
-              <span className="eyebrow text-muted w-16 shrink-0">{String(index + 1).padStart(2, "0")}</span>
-              <span className="flex-1 text-xl tracking-tight transition-opacity group-hover:opacity-60 md:text-2xl">
-                {article.title}
-              </span>
-              <span className="section-body max-w-md">{article.description}</span>
-            </Link>
-          </Reveal>
-        ))}
-      </div>
+      <section className="container-page mt-20" aria-labelledby="category-blogs-heading">
+        <div className="mb-10 flex items-end justify-between gap-5 border-t border-line pt-8">
+          <h2 id="category-blogs-heading" className="section-heading">Latest Blogs</h2>
+          <span className="eyebrow text-muted">{articles.length} articles</span>
+        </div>
+        <BlogArticleList articles={articles} />
+      </section>
     </div>
   );
 }

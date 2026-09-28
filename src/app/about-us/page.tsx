@@ -10,7 +10,7 @@ import { stats } from "@/lib/site-config";
 export const metadata: Metadata = buildMetadata({
   title: "Life at Mimar - About Us",
   description: "Experience the vibrant culture and dynamic environment at mimAR. Learn about our team of young professionals and our journey.",
-  path: "/about",
+  path: "/about-us",
   keywords: ["About Us", "life at Mimar", "Mimar team", "architecture studio Islamabad"],
 });
 
@@ -45,7 +45,7 @@ const testimonials = [
 ];
 export default function AboutPage() {
   return <div>
-    <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "About", path: "/about" }]))} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "About", path: "/about-us" }]))} />
 
     <section className="relative h-[100svh] min-h-[32rem] overflow-hidden bg-ink text-paper md:h-screen md:min-h-[38rem]">
       <video autoPlay muted loop playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover" aria-label="Animated aerial visualization introducing Mimar Studios">
@@ -114,7 +114,7 @@ export default function AboutPage() {
 
     <section className="container-page grid gap-12 py-16 md:grid-cols-12 md:gap-14 md:py-32">
       <Reveal><p className="eyebrow text-muted md:col-span-2">/ The studio</p></Reveal>
-      <div className="md:col-span-9 md:col-start-4">{studioNotes.map(([label, body], index) => <Reveal key={label} delay={index * 0.05}><div className="motion-row grid gap-5 border-t border-line py-9 md:grid-cols-[10rem_1fr]"><p className="eyebrow">{label}</p><p className="max-w-3xl text-xl leading-[1.25] tracking-[-.02em] md:text-2xl">{body}</p></div></Reveal>)}</div>
+      <div className="md:col-span-9 md:col-start-4">{studioNotes.map(([label, body], index) => <Reveal key={label} delay={index * 0.05}><div className="motion-row grid gap-5 border-t border-line py-9 md:grid-cols-[10rem_1fr]"><p className="eyebrow">{label}</p><p className="max-w-3xl text-xl leading-[1.25] tracking-[-.02em] md:text-2xl">{body}</p></div></Reveal>)}<Link href="/about-us/studio" className="button-pill mt-8 text-ink">Explore the studio</Link></div>
     </section>
 
     <section className="container-page grid gap-14 py-16 md:grid-cols-2 md:gap-16 md:py-32">{[["/ Awards", awards], ["/ Participations", participations]].map(([heading, items]) => <div key={heading as string}><Reveal><p className="eyebrow mb-10 text-muted">{heading as string}</p></Reveal><div className="border-t border-line">{(items as string[]).map((item, index) => <Reveal key={item} delay={index * 0.04}><p className="motion-row border-b border-line py-5 text-sm">{item}</p></Reveal>)}</div></div>)}</section>

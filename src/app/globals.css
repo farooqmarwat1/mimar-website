@@ -163,7 +163,7 @@ select:focus {
  * site-wide by construction rather than by memory.
  */
 
-/* Big route-level H1 (top of /about, /projects, /services, /contact). */
+/* Big route-level H1 (top of /about-us, /projects, /services, /contact). */
 .page-heading {
   font-size: clamp(2.75rem, 6vw, 5.5rem);
   line-height: 1;

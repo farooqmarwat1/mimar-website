@@ -57,7 +57,7 @@ export default function TeamStats() {
           ))}
         </div>
         <Reveal delay={0.24} className="mt-12 flex justify-center md:mt-14">
-          <Link href="/about" className="button-pill text-ink">
+          <Link href="/about-us" className="button-pill text-ink">
             Explore the studio
           </Link>
         </Reveal>

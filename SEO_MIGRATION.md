@@ -3,7 +3,7 @@
 Read this before changing routes, redirects, metadata, page copy, `sitemap.ts`, `robots.ts` or `next.config.ts`.
 It condenses the SEO team's migration plan and audits (sources listed at the bottom) into what matters for code.
 
-Last compiled: 25 Sep 2026.
+Last updated: 28 Sep 2026.
 
 ---
 
@@ -12,6 +12,11 @@ Last compiled: 25 Sep 2026.
 1. **Do NOT implement the `/en` prefix or any Arabic/English (i18n) routing yet.** The master plan's final structure is `https://mim.archi/en/...`, but that is a later phase. For now keep every route at the root (`/services/...`, `/blog/...`). When the plan says `/en/foo`, read it as `/foo`.
 2. **Preserve old content.** The SEO QA (Sheet5) says several pages had their *whole content changed* and must go back to the **old site's content exactly**, otherwise rankings drop. Redesigning layout is fine; removing or rewriting ranking copy is not.
 3. Do not mark a task done because it was coded. Verify the HTTP status, final destination and rendered HTML (title, meta, canonical, H1).
+4. **Owner-approved route decision (28 Sep 2026):** `/about-us` is the About page's canonical route and `/about` permanently redirects to it. `/about-us/studio` is a separate Studio page at its original URL, with its own canonical, metadata, breadcrumb, and sitemap entry. The Studio navigation points to that page; About Us remains linked from its breadcrumb and the footer.
+5. **Blog structure decision (28 Sep 2026):** Keep the old `/blog` title and description, its four category paths (including `/blog/architecture`), the old article links and nine-post pagination. The Latest Blogs list is text-only in the new design. `src/lib/blog-archive.ts` records the 34 WordPress archive links plus one newer article; `src/lib/legacy-seo.ts` records category membership. This restores navigation, not every old category page's body copy.
+6. **Booking route decision (28 Sep 2026):** `/booking` is a standalone meeting scheduler using the three Koalendar embeds from the old site; it must not redirect to `/contact`. Read `BOOKING_MIGRATION.md` before changing this page or any appointment-related redirects.
+7. **Metaverse category decision (28 Sep 2026):** `/category/metaverse` is a dedicated, indexable page (`src/app/category/metaverse/page.tsx`). It is no longer a redirect to `/blog/vr-real-estate`. It keeps the old title "Metaverse - mimAR" and the old five article links in their old order. It adds a Metaverse H1 and a meta description, which the old page lacked. It self-canonicals to `https://mim.archi/category/metaverse` and is in the sitemap. It is deliberately **not** in `blogCategories`, so it stays out of the header, footer, blog category cards/pills and other visible navigation. Do not add it there.
+8. **Services structure decision (28 Sep 2026):** `/services` lists the five old main services in the old order: Architectural Design, 3D Visualization, Interactive Services, Branding and Marketing. Cinematics is presented under 3D Visualization (the old site had "Animation" there) and keeps its page at `/services/cinematics`. `/services/interactive-services` is a real 200 hub page again. It uses the old title "Best Interactive Services in Pakistan | Mimar", the old meta description, H1 "Interactive Services", and the old process steps, project types and FAQs. It links to its six sub-services as cards. The sub-services use the old nested URL structure: `/services/interactive-services/{vr-360-tours,web-tours,dual-screen-navigator,interactive-prints,property-explorer,smart-home}`. The flat `/services/{slug}` URLs permanently redirect there, and every other legacy redirect points straight at the nested URL (one hop). Build links with `servicePath()` in `src/lib/service-details.ts`, never with a hand-written `/services/${slug}`. The old hub's "Our benefits" copy was not carried over because it duplicated the Architectural Design text.
 
 ## 1. Context
 
@@ -56,7 +61,7 @@ Findings the other sections don't cover:
 - **The 404 page and `/thank-you` output the homepage title/description and `canonical=/`.** The 404 page should have no canonical to home; `/thank-you` should be noindex.
 - **Junk query URLs on `/` return 200 with the homepage** (`/?shop/X472359913/`, `/?cate-12-1056`). Path junk (`/shop/...`, `/shopdetail/...`) already returns 404.
 - **The old site already 301s** `/tours/pandamart/`, `/tours/foodpanda/`, `/tours/serenetower/studio-apartment/`, `/events/` and `/1bed/` to its homepage, and `/tours/aarkresidences|parkone|oliviaresidences/2-bed-apartment/` to `/tours/aurumone/2-bed-apartment/`. Their GSC clicks are historical.
-- **Old pages that now redirect to a page that doesn't cover their topic** (old content, word count): `/services/interactive-services/` "Best Interactive Services in Pakistan" (655), `/meta/` (423), `/interior-design-services/` (357), `/services/architectural-design/interior-design-services/` "Interior Design Services in Pakistan" (202), `/services/architectural-design/urban-planning/` (226), `/services/architectural-design/smart-topography-survey/` (314) + `sample-spatial-data/` (583), `/services/3d-visualization/3d-views/` "Virtual Walk through Services" (281), `/services/interactive-services/dual-screen-navigator/` (396 → new page has ~100), `/about-us/studio/` "Studio – CEO message – our team" (164).
+- **Old pages that now redirect to a page that doesn't cover their topic** (old content, word count): `/services/interactive-services/` "Best Interactive Services in Pakistan" (655), `/interior-design-services/` (357), `/services/architectural-design/interior-design-services/` "Interior Design Services in Pakistan" (202), `/services/architectural-design/urban-planning/` (226), `/services/architectural-design/smart-topography-survey/` (314) + `sample-spatial-data/` (583), `/services/3d-visualization/3d-views/` "Virtual Walk through Services" (281), `/services/interactive-services/dual-screen-navigator/` (396 → new page has ~100). `/meta/` has since been restored as a standalone XR services hub; `/meta/app/*` still requires an individual content decision. `/about-us/studio/` has since been restored as a standalone page with its CEO message and studio sections; the old employee roster was omitted at the owner's request.
 - **Service pages' old titles/descriptions were replaced**, and the new body copy is much shorter (old → new words): Services 481→270, 3D Visualization 664→108, Architectural Design 690→154, Branding 578→201, Marketing 730→252, Careers 487→139, Expos 213→133. About kept its old title/description.
 
 ## 3. Page QA status (Sheet5 — the SEO team's latest review)
@@ -67,7 +72,7 @@ Findings the other sections don't cover:
 | `/` (Home) | Title ✔ Desc ✔, **H1 not matched**, whole content changed | Restore old homepage content exactly; fix H1 |
 | `/services/` | Title ✗ Desc ✗, content changed | Restore old content, title, description |
 | `/services/architectural-design/` | Title ✔ Desc ✗, content changed — **Fail** | Restore old content + description |
-| `/about-us/` → `/about` | 301 ok, content changed | Restore old content |
+| `/about-us/` | Slug restored on 28 Sep; content still changed | Restore old content |
 | `/3d-visualization-services-uae/` | Title ✔ Desc ✔, content changed | Restore old content |
 | `/contact/` | Title ✗ Desc ✗, H1 too short / no keyword, content changed | Restore content; better H1 |
 | `/services/3d-visualization/` | Title ✗ Desc ✗, content changed | Restore old content, title, description |
@@ -82,9 +87,11 @@ Findings the other sections don't cover:
 ### Pages that must exist, not be redirected away
 | Old URL | Current behaviour in repo | Required |
 |---|---|---|
-| `/services/interactive-services/` (26 clicks, 2.5K impr.) | 301 → `/services/vr-360-tours` | **Keep/create the page** (interactive-services hub) |
-| `/meta/` (+ `/meta/app/*`) | 301 → `/services/vr-360-tours` | **Keep the old page** (or redirect to the new interactive-services hub per PDF) |
-| `/about-us/studio/` (30 clicks) | 301 → `/about` | Sheet5 saw 404 on its preview — verify; studio content must be visible on `/about` |
+| `/services/interactive-services/` (26 clicks, 2.5K impr.) | Done 28 Sep: 200 hub page (see §0.8) | Keep 200 and self-canonical |
+| `/meta/` | Standalone page at `/meta` | Verify 200 HTML, old title/description, self-canonical and sitemap; old hero, services and Why Us content are restored. |
+| `/meta/app/*` | Redirect to `/services/vr-360-tours` | Audit exact old URLs and content before replacing this redirect. |
+| `/booking/` | Standalone page at `/booking` | Verify 200 HTML, old title/description, self-canonical, three working Koalendar calendars, and sitemap. See `BOOKING_MIGRATION.md`. |
+| `/about-us/studio/` (30 clicks) | Standalone page at `/about-us/studio` | Verify 200 HTML, title `Studio - mimAR`, description `award winning emerging company`, self-canonical, H1 `Studio` and sitemap. Keep the original CEO message and film, team sections (including Development and Creative), and Life at Mimar culture copy. The owner removed the old workspace photo from the hero and gallery; do not re-add it. Employee names and job titles are intentionally omitted until the owner supplies an approved roster. |
 | `/expos/` | Page exists in repo | Sheet5 saw 404 on its preview — verify it returns 200; add to sitemap |
 
 ### Pass (same content, title, description, H1) — do not regress
@@ -105,7 +112,7 @@ The audit's recommendation is **"Keep Same Title" / "Keep Same Description"** (i
 | `/services/branding` | Best Branding Services Provider in Pakistan | Transform your brand identity with our comprehensive branding services. Elevate your brand with our creative solutions. |
 | `/services/marketing` | Top Marketing Services in Pakistan | Elevate your business with our comprehensive marketing services. From digital strategies to offline campaigns, we help you achieve your goals. |
 | `/contact` | Contact - mimAR | Let's discuss how we can help you |
-| `/about` | Life at Mimar - About Us | Experience the vibrant culture and dynamic environment at mimAR. Learn about our team of young professionals and our journey. |
+| `/about-us` | Life at Mimar - About Us | Experience the vibrant culture and dynamic environment at mimAR. Learn about our team of young professionals and our journey. |
 | `/careers` | Careers : Mimar | Join the innovative team at mimAR and embark on an exciting career in architectural rendering. |
 | `/expos` | Mimar at International Expos: Fastest Growing Startup | Discover how mimAR is revolutionizing the real estate industry with cutting-edge 3D rendering technology at International Expos. |
 | `/blog` | Latest Blogs by Mimar | Stay updated with the latest trends and insights in architecture and 3D rendering technology. Explore the newest blogs by mimAR |
@@ -113,7 +120,7 @@ The audit's recommendation is **"Keep Same Title" / "Keep Same Description"** (i
 | `/category/3d-visualization` | 3D Architectural Visualization - mimAR | (none) |
 | `/meta` | meta - mimAR | Transforming ideas into captivating 3D visualizations for architectural brilliance. Unleash your vision with mimAR's immersive 3D visualization services. |
 
-New-only service pages (no old equivalent): `/services/cinematics`, `/vr-360-tours` (title: *increase length*), `/web-tours`, `/dual-screen-navigator`, `/interactive-prints`, `/property-explorer`, `/smart-home` — keep current titles, **add keywords** where the audit says "Missing", add image titles/alt.
+New-only service pages (no old equivalent): `/services/cinematics`, and under `/services/interactive-services/`: `vr-360-tours` (title: *increase length*), `web-tours`, `dual-screen-navigator`, `interactive-prints`, `property-explorer`, `smart-home` (VR, web tours and dual screen also existed at these nested URLs on the old site) — keep current titles, **add keywords** where the audit says "Missing", add image titles/alt.
 
 ⚠️ **Open question — confirm with the owner before bulk-editing titles:** the PDF master plan (§8.2) proposes *new* keyword-led titles/H1s (e.g. home H1 "3D Rendering & Architectural Visualization Studio"), while the newer audit sheets say keep the *old* titles/descriptions and old content. Default to the audit sheets (old values) unless told otherwise.
 
@@ -125,13 +132,15 @@ Current redirects already cover most legacy paths. These are the mismatches the 
 
 | Legacy source | Current target | Should be |
 |---|---|---|
-| `/services/interactive-services` | `/services/vr-360-tours` | Keep/create an interactive-services page (see §3) |
-| `/meta`, `/meta/:path*` | `/services/vr-360-tours` | Keep old page, or → interactive-services hub |
-| `/category/3d-visualization` (39 clicks) | `/services/3d-visualization` | `/blog/3d-visualization` |
-| `/category/blog` | `/services` | `/blog` |
-| `/category/vr-real-estate` | `/services/vr-360-tours` | `/blog/vr-real-estate` |
-| `/category/metaverse` | `/services/vr-360-tours` | `/blog/vr-real-estate` (closest) or `/metaverse` |
-| `/category/technology`, `/category/blog/real-estate-tech` | `/services/property-explorer` | `/blog/real-estate-tech` |
+| `/services/interactive-services` | Redirect removed 28 Sep; hub page restored | Keep; sub-services live under it (see §0.8) |
+| `/meta` | Standalone XR hub restored | Keep 200 and self-canonical |
+| `/meta/:path+` | `/services/vr-360-tours` | Audit nested old URLs individually |
+| `/category/3d-visualization` (39 clicks) | `/blog/3d-visualization` (fixed 28 Sep) | Keep |
+| `/category/blog` | `/blog` (fixed 28 Sep) | Keep |
+| `/category/vr-real-estate` | `/blog/vr-real-estate` (fixed 28 Sep) | Keep |
+| `/category/metaverse` | Redirect removed 28 Sep; dedicated page | Keep 200 and self-canonical, out of visible navigation (see §0.7) |
+| `/category/technology`, `/category/blog/real-estate-tech` | `/blog/real-estate-tech` (fixed 28 Sep) | Keep |
+| `/blog/architecture` | Category page restored 28 Sep | Keep its old article links |
 | `/tours/pandamart` (24 clicks) | `/services/web-tours` | Create/retain a Pandamart page; fallback web-tours |
 | `/tours/aurumone/*` | `/services/web-tours` | `/projects/aurum-one` |
 | `/tours/aarkresidences/*` | `/services/web-tours` | `/projects/aark-residences` |
