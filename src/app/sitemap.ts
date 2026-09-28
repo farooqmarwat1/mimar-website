@@ -3,6 +3,7 @@ import { siteConfig, services } from "@/lib/site-config";
 import { getProjects } from "@/lib/cms";
 import { legacySeoPages, blogCategories } from "@/lib/legacy-seo";
 import { interactiveServicesSlug, servicePath } from "@/lib/service-details";
+import { architecturalSubServicePath, architecturalSubServiceSlugs } from "@/lib/architectural-sub-services";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const projects = await getProjects();
@@ -38,6 +39,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  const architecturalSubServiceRoutes: MetadataRoute.Sitemap = architecturalSubServiceSlugs.map((slug) => ({
+    url: `${siteConfig.url}${architecturalSubServicePath(slug)}`,
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
   const legacyRoutes: MetadataRoute.Sitemap = legacySeoPages.map((page) => ({
     url: `${siteConfig.url}${page.path}`,
     lastModified: page.modified ? new Date(`${page.modified.replace(" ", "T")}Z`) : undefined,
@@ -45,5 +52,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...blogCategoryRoutes, ...projectRoutes, ...serviceRoutes, ...legacyRoutes];
+  return [...staticRoutes, ...blogCategoryRoutes, ...projectRoutes, ...serviceRoutes, ...architecturalSubServiceRoutes, ...legacyRoutes];
 }

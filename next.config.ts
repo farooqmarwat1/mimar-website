@@ -82,7 +82,8 @@ const nextConfig: NextConfig = {
       { source: "/services/interactive-prints", destination: "/services/interactive-services/interactive-prints", permanent: true },
       { source: "/services/property-explorer", destination: "/services/interactive-services/property-explorer", permanent: true },
       { source: "/services/smart-home", destination: "/services/interactive-services/smart-home", permanent: true },
-      { source: "/services/architectural-design/architectural-design-services", destination: "/services/architectural-design", permanent: true },
+      // /services/architectural-design/architectural-design-services is a real page again
+      // (src/app/services/architectural-design/[slug]); the other three still redirect.
       { source: "/services/architectural-design/interior-design-services", destination: "/services/architectural-design", permanent: true },
       { source: "/services/architectural-design/urban-planning", destination: "/services/architectural-design", permanent: true },
       { source: "/services/architectural-design/smart-topography-survey/:path*", destination: "/services/architectural-design", permanent: true },

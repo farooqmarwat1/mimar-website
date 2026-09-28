@@ -1,3 +1,5 @@
+import { architecturalSubServicePath } from "./architectural-sub-services";
+
 export type ServiceDetail = {
   slug: string;
   title: string;
@@ -8,6 +10,8 @@ export type ServiceDetail = {
   heroType?: "image" | "video";
   outputs: string[];
   outputImages: string[];
+  /** Optional link per output tile, by index, for outputs that have their own page. */
+  outputLinks?: (string | undefined)[];
   processImage?: string;
   portfolio?: { title: string; category: string; url: string }[];
   featuredMedia?: Array<
@@ -56,6 +60,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     includedImage: "/services/architectural-design/architectural-design.jpg",
     outputs: ["Architectural design", "Interior design", "Urban planning", "Smart Topography Survey"],
     outputImages: ["/services/architectural-design/architectural-design.jpg", "/services/architectural-design/interior-design.png", "/services/architectural-design/urban-planning.jpg", "/services/architectural-design/smart-topography.png"],
+    outputLinks: [architecturalSubServicePath("architectural-design-services")],
     processImage: "/services/architectural-design/process.png",
     showFacts: false,
     facts: [["7+ years practising", "Studio"], ["120+ B2B clients", "Track record"], ["Residential to civic scale", "Typologies"], ["Concept to CD set", "Scope"]],
