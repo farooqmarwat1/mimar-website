@@ -82,6 +82,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       architecturalSubServicePath("architectural-design-services"),
       architecturalSubServicePath("interior-design-services"),
       architecturalSubServicePath("urban-planning"),
+      architecturalSubServicePath("smart-topography-survey"),
     ],
     processImage: "/services/architectural-design/process.png",
     showFacts: false,
