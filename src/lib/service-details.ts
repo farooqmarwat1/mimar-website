@@ -1,4 +1,5 @@
 import { architecturalSubServicePath } from "./architectural-sub-services";
+import { threeDVisualizationSubServicePath } from "./three-d-visualization-sub-services";
 
 export type ServiceDetail = {
   slug: string;
@@ -80,8 +81,12 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     intro: "Correct light, honest materials, a camera that behaves like a real lens. Judged, sold and built before it exists.",
     hero: "/services/3D_rendering.webp",
     includedImage: "/services/section-media/rendering-included.webp",
-    outputs: ["Interior rendering", "Exterior rendering", "Aerial & context"],
-    outputImages: ["/services/3d-rendering/interior.webp", "/services/3d-rendering/exterior.webp", "/services/3d-rendering/aerial.webp"],
+    // Matches the old site: "3D Views" covers both interior and exterior renders as
+    // one page (Interior/Exterior were never separate cards there), plus Cinematics
+    // (the old site called it "Animation") and Aerial & context, unchanged.
+    outputs: ["3D Views", "Cinematics", "Aerial & context"],
+    outputImages: ["/services/3d-rendering/exterior.webp", "/projects/catalog/faisal-town-ii/image-1.jpg", "/services/3d-rendering/aerial.webp"],
+    outputLinks: [threeDVisualizationSubServicePath("3d-views"), servicePath("cinematics")],
     processImage: "/services/3d-rendering/process.webp",
     showFacts: false,
     facts: [["3 to 7 days per view", "Turnaround"], ["Up to 6000 px, 300 dpi", "Output"], ["Unlimited within scope", "Revisions"], ["JPG / TIFF / PNG", "Formats"]],

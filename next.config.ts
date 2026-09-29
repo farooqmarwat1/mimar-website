@@ -70,7 +70,7 @@ const nextConfig: NextConfig = {
       { source: "/meta/:path+", destination: "/services/interactive-services/vr-360-tours", permanent: true },
       { source: "/real-estate-360-tours", destination: "/services/interactive-services/web-tours", permanent: true },
       { source: "/interior-design-services", destination: "/services/architectural-design/interior-design-services", permanent: true },
-      { source: "/services/3d-visualization/3d-views", destination: "/services/3d-visualization", permanent: true },
+      // 3d-views is a real page again (src/app/services/3d-visualization/[slug]).
       { source: "/services/3d-visualization/cinematics", destination: "/services/cinematics", permanent: true },
       { source: "/services/3d-visualization/property-explorer", destination: "/services/interactive-services/property-explorer", permanent: true },
       { source: "/services/3d-visualization/property-explorer-online", destination: "/services/interactive-services/property-explorer", permanent: true },

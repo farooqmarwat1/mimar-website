@@ -4,6 +4,7 @@ import { getProjects } from "@/lib/cms";
 import { legacySeoPages, blogCategories } from "@/lib/legacy-seo";
 import { interactiveServicesSlug, servicePath } from "@/lib/service-details";
 import { architecturalSubServicePath, architecturalSubServiceSlugs } from "@/lib/architectural-sub-services";
+import { threeDVisualizationSubServicePath, threeDVisualizationSubServiceSlugs } from "@/lib/three-d-visualization-sub-services";
 import { legacyServicePages } from "@/lib/legacy-service-pages";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -46,6 +47,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  const threeDVisualizationSubServiceRoutes: MetadataRoute.Sitemap = threeDVisualizationSubServiceSlugs.map((slug) => ({
+    url: `${siteConfig.url}${threeDVisualizationSubServicePath(slug)}`,
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
   const legacyServiceRoutes: MetadataRoute.Sitemap = Object.values(legacyServicePages).map((page) => ({
     url: `${siteConfig.url}${page.path}`,
     changeFrequency: "monthly",
@@ -59,5 +66,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...blogCategoryRoutes, ...projectRoutes, ...serviceRoutes, ...architecturalSubServiceRoutes, ...legacyServiceRoutes, ...legacyRoutes];
+  return [...staticRoutes, ...blogCategoryRoutes, ...projectRoutes, ...serviceRoutes, ...architecturalSubServiceRoutes, ...threeDVisualizationSubServiceRoutes, ...legacyServiceRoutes, ...legacyRoutes];
 }
