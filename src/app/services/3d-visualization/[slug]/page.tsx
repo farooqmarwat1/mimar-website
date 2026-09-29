@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Reveal from "@/components/ui/Reveal";
+import DriveVideo from "@/components/ui/DriveVideo";
 import { threeDVisualizationSlug, threeDVisualizationSubServicePath, threeDVisualizationSubServiceSlugs, threeDVisualizationSubServices } from "@/lib/three-d-visualization-sub-services";
 import { breadcrumbJsonLd, buildMetadata, jsonLdScript } from "@/lib/seo";
 import { serviceDetails, servicePath } from "@/lib/service-details";
@@ -80,6 +81,13 @@ export default async function ThreeDVisualizationSubServicePage({ params }: Page
         return (
           <section key={section.heading} className={`container-page py-16 md:py-28 ${sectionIndex > 0 ? "border-t border-line" : ""}`}>
             <Reveal><p className="eyebrow text-muted">/ {section.heading}</p></Reveal>
+            {section.image && (
+              <Reveal delay={0.05}>
+                <div className="relative mt-8 aspect-video max-w-3xl overflow-hidden bg-ink/5">
+                  <Image src={section.image} alt="" fill unoptimized sizes="(max-width: 768px) 100vw, 60vw" className="object-cover" />
+                </div>
+              </Reveal>
+            )}
             <div className="mt-8 max-w-3xl">
               {section.body.map((paragraph, index) => (
                 <Reveal key={paragraph} delay={0.05 + index * 0.05}>
@@ -107,6 +115,25 @@ export default async function ThreeDVisualizationSubServicePage({ params }: Page
           </section>
         );
       })}
+
+      {service.media && (
+        <section className="container-page border-t border-line py-16 md:py-28" aria-labelledby="showreels-heading">
+          <div className="mb-8 flex flex-col gap-2 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
+            <h2 id="showreels-heading" className="eyebrow text-muted">/ Showreels</h2>
+            <p className="eyebrow text-accent">{service.title}</p>
+          </div>
+          <div className="grid gap-8 md:grid-cols-2">
+            {service.media.map((media, index) => (
+              <Reveal key={media.title} delay={index * 0.05}>
+                <div className="relative aspect-video overflow-hidden bg-ink text-paper">
+                  <DriveVideo src={media.src} title={media.title} />
+                </div>
+                <p className="mt-3 text-sm text-muted">{media.title}</p>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="relative overflow-hidden bg-ink py-16 text-paper md:py-24" aria-labelledby="benefits-heading">
         <Image src={service.benefitsImage} alt="" fill unoptimized sizes="100vw" className="object-cover opacity-25" />

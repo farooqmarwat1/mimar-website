@@ -6,9 +6,10 @@ import { interactiveServicesSlug, interactiveSubServiceSlugs, serviceDetails } f
 import { serviceMetadata } from "@/lib/service-metadata";
 
 // Interactive Services and its six sub-services have their own routes under
-// /services/interactive-services, matching the old WordPress URLs.
+// /services/interactive-services, and Cinematics under /services/3d-visualization,
+// matching the old WordPress URLs.
 function isNestedService(slug: string) {
-  return slug === interactiveServicesSlug || interactiveSubServiceSlugs.includes(slug);
+  return slug === interactiveServicesSlug || interactiveSubServiceSlugs.includes(slug) || slug === "cinematics";
 }
 
 export async function generateStaticParams() {

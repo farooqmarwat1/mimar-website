@@ -48,9 +48,10 @@ export const interactiveSubServiceSlugs = [
 ];
 
 export function servicePath(slug: string) {
-  return interactiveSubServiceSlugs.includes(slug)
-    ? `/services/${interactiveServicesSlug}/${slug}`
-    : `/services/${slug}`;
+  if (interactiveSubServiceSlugs.includes(slug)) return `/services/${interactiveServicesSlug}/${slug}`;
+  // Cinematics moved under 3D Visualization to match the old site's nested URL.
+  if (slug === "cinematics") return threeDVisualizationSubServicePath(slug);
+  return `/services/${slug}`;
 }
 
 export const serviceDetails: Record<string, ServiceDetail> = {
@@ -85,8 +86,8 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     // one page (Interior/Exterior were never separate cards there), plus Cinematics
     // (the old site called it "Animation") and Aerial & context, unchanged.
     outputs: ["3D Views", "Cinematics", "Aerial & context"],
-    outputImages: ["/services/3d-rendering/exterior.webp", "/projects/catalog/faisal-town-ii/image-1.jpg", "/services/3d-rendering/aerial.webp"],
-    outputLinks: [threeDVisualizationSubServicePath("3d-views"), servicePath("cinematics")],
+    outputImages: ["/services/3d-rendering/exterior.webp", "/services/3d-visualization/cinematics/hero.webp", "/services/3d-rendering/aerial.webp"],
+    outputLinks: [threeDVisualizationSubServicePath("3d-views"), threeDVisualizationSubServicePath("cinematics")],
     processImage: "/services/3d-rendering/process.webp",
     showFacts: false,
     facts: [["3 to 7 days per view", "Turnaround"], ["Up to 6000 px, 300 dpi", "Output"], ["Unlimited within scope", "Revisions"], ["JPG / TIFF / PNG", "Formats"]],
@@ -94,26 +95,9 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     included: ["Interior stills", "Exterior stills", "Aerials", "Day / dusk sets"],
     projects: ["cafe-interior", "nana-222", "abuja"],
     faqs: [["What do you need to start?", "Plans, elevations, a material direction and any useful references."], ["How fast can a rush job be done?", "A rush still can often be delivered in two to three working days after inputs are approved."], ["Do you charge per revision?", "Revisions within the agreed visual scope are included."],],
-    next: "cinematics",
-  },
-  cinematics: {
-    slug: "cinematics", title: "Cinematics", eyebrow: "3D Visualization / Cinematics",
-    intro: "Movement changes the judgement. A space you move through reads differently to a space you photograph.",
-    hero: "/services/animations.mp4", heroType: "video",
-    includedImage: "/services/section-media/animation-included.webp",
-    outputs: ["Storyboard", "Camera work", "Population", "Grade & mix"],
-    outputImages: ["/projects/catalog/faisal-town-ii/image-1.jpg", "/projects/catalog/aark-residences/image-4.jpg", "/projects/catalog/hmr/image-2.jpg", "/projects/catalog/the-garden-residences/image-1.jpg"],
-    featuredMedia: [
-      { type: "drive", src: "https://drive.google.com/file/d/1D-9jWxV8BQjlg_J0-NOIy38OFhBsnAb-/preview", title: "01 - Amer Al Ghurair" },
-      { type: "drive", src: "https://drive.google.com/file/d/1wfkXqTLNs-kI-BpG4uP5GQLIbEpN7YUA/preview", title: "02 - Zvërnec" },
-      { type: "drive", src: "https://drive.google.com/file/d/1wiPGLLVUSZcwSJIkU78Wr5QibLL-iYDn/preview", title: "03 - Faisal Town" },
-      { type: "drive", src: "https://drive.google.com/file/d/1TeozVJJjuAibo6Yg4cKhhZ3v2jPCD44P/preview", title: "04 - Barari Hills" },
-    ],
-    showFacts: false,
-    process: [["Storyboard", "Narrative, shot list and duration agreed in writing."], ["Cinematic setup", "Camera language, pacing, lighting direction and shot transitions are established."], ["Production", "Full lighting, materials and population, with optional voice-over, intros, outros, logo animation and sound design."], ["Delivery", "Graded master plus vertical and square cutdowns."]],
-    included: ["Interior animations", "Exterior animations", "Launch teasers", "Social cutdowns"],
-    projects: ["faisal-town-ii", "amer-al-ghurair"],
-    faqs: [["Can you animate a project you did not design?", "Yes. We work from any coordinated architectural package."], ["Do you provide the music licence?", "Yes, licensed music and a clean master can be included."], ["Can we get social versions?", "Vertical, square and short edits are available from the same master."], ["Can the animation be delivered in multiple languages?", "Yes. Voice-over, titles and captions can be produced in multiple languages."],],
+    // Cinematics is now a real sub-page at /services/3d-visualization/cinematics
+    // (src/lib/three-d-visualization-sub-services.ts), matching the old site's
+    // nested URL - not a main-chain "next service" any more.
     next: "interactive-services",
   },
   "interactive-services": {

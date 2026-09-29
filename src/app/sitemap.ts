@@ -66,5 +66,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...blogCategoryRoutes, ...projectRoutes, ...serviceRoutes, ...architecturalSubServiceRoutes, ...threeDVisualizationSubServiceRoutes, ...legacyServiceRoutes, ...legacyRoutes];
+  const allRoutes = [...staticRoutes, ...blogCategoryRoutes, ...projectRoutes, ...serviceRoutes, ...architecturalSubServiceRoutes, ...threeDVisualizationSubServiceRoutes, ...legacyServiceRoutes, ...legacyRoutes];
+
+  // Some sub-service slugs (e.g. cinematics) exist both in the flat `services`
+  // list, for servicePath()-driven surfaces like the contact form and llms.txt,
+  // and in their own sub-service route list above - de-dupe by final URL so
+  // neither produces a duplicate sitemap entry.
+  const seen = new Set<string>();
+  return allRoutes.filter((route) => {
+    if (seen.has(route.url)) return false;
+    seen.add(route.url);
+    return true;
+  });
 }
