@@ -20,8 +20,16 @@ export type ArchitecturalSubService = {
   process: { step: string; items: string[] | string }[];
   benefits: [string, string][];
   benefitsImage: string;
+  /** Defaults to "Get a free consultation"; smart-topography-survey uses its own copy. */
+  ctaEyebrow?: string;
   /** Heading is split in two: the second part renders in the accent colour. */
-  cta: { heading: [string, string]; body: string };
+  cta: {
+    heading: [string, string];
+    body: string;
+    /** Defaults to "Get a free consultation" / "/booking". */
+    primaryLabel?: string;
+    primaryHref?: string;
+  };
 };
 
 export const architecturalSubServices: Record<string, ArchitecturalSubService> = {
@@ -113,6 +121,45 @@ export const architecturalSubServices: Record<string, ArchitecturalSubService> =
     cta: {
       heading: ["Dream Now, Build Later:", "Why wait?"],
       body: "With our Web Tours, your clients design and explore their future home before it even gets constructed.",
+    },
+  },
+  "smart-topography-survey": {
+    slug: "smart-topography-survey",
+    seoTitle: "Smart Topography Survey - mimAR",
+    seoDescription: "Precision from the ground up. Leveraging advanced drone technology and LiDAR systems to provide high-fidelity terrain data for informed architectural and urban planning decisions.",
+    title: "Smart Topography Survey",
+    tagline: "Shaping Designs with Topographic Precision",
+    intro: [
+      "At mimAR, our Smart Topography Survey services are the foundation of every successful project. We utilize cutting-edge LiDAR and drone technology to capture high-resolution, real-time terrain data. By bridging the gap between physical land and digital design, we provide the clarity needed to optimize site layouts, manage environmental impact, and ensure structural integrity from day one.",
+    ],
+    // Reuses the same old-site renders already downloaded for the Urban Planning page.
+    hero: "/services/architectural-design/urban-planning/street.webp",
+    // Not nested under smart-topography-survey/ - that path is shadowed by
+    // next.config.ts's redirect for the not-yet-restored sample-spatial-data page.
+    introImage: "/services/architectural-design/topography-survey/intro.webp",
+    process: [
+      { step: "Site Reconnaissance", items: "Defining project boundaries and establishing high-precision ground control points (GCPs) to ensure absolute geodetic accuracy across the entire site." },
+      { step: "Aerial Data Acquisition", items: "Deploying advanced UAVs (drones) equipped with LiDAR and photogrammetric sensors to capture millions of data points and high-resolution imagery." },
+      { step: "Terrain Analysis & Modeling", items: "Processing raw point clouds into detailed 3D mesh models, contour maps, and digital elevation models (DEM) for a comprehensive understanding of the site." },
+      { step: "BIM & CAD Integration", items: "Delivering actionable data in industry-standard formats, allowing architects and engineers to begin design work with perfect spatial awareness." },
+    ],
+    benefits: [
+      ["Centimeter-Level Accuracy", "Our advanced sensors eliminate the margins of error common in manual surveying, providing a “digital twin” of your land with pinpoint precision."],
+      ["Rapid Data Turnaround", "What used to take weeks of ground-prowling now takes hours. We deliver comprehensive site data faster, keeping your project timeline ahead of schedule."],
+      ["Vegetation Penetration", "Using LiDAR technology, we can map the true ground surface even through dense forest or heavy brush, revealing hidden terrain features."],
+      ["Cost Risk Mitigation", "Identify drainage issues, soil movements, and slope challenges early. Precise data prevents expensive design changes and construction delays."],
+    ],
+    benefitsImage: "/services/architectural-design/urban-planning/aerial.webp",
+    ctaEyebrow: "Get a detailed site analysis",
+    cta: {
+      heading: ["Precision Now, Excellence Later:", "Why guess?"],
+      body: "With our Smart Topography Surveys, your project begins with total site clarity, ensuring a seamless transition from digital planning to physical construction.",
+      // The old "Get Details" button links to /sample-spatial-data, a nested
+      // page not yet restored (still redirects to the parent - see
+      // SEO_MIGRATION.md §0.9). Point at /booking (distinct from the
+      // "Contact us" button below) until that page exists.
+      primaryLabel: "Get details",
+      primaryHref: "/booking",
     },
   },
 };

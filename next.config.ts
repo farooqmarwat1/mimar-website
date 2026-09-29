@@ -82,10 +82,14 @@ const nextConfig: NextConfig = {
       { source: "/services/interactive-prints", destination: "/services/interactive-services/interactive-prints", permanent: true },
       { source: "/services/property-explorer", destination: "/services/interactive-services/property-explorer", permanent: true },
       { source: "/services/smart-home", destination: "/services/interactive-services/smart-home", permanent: true },
-      // architectural-design-services, interior-design-services and urban-planning
-      // are real pages again (src/app/services/architectural-design/[slug]);
-      // smart-topography-survey still redirects.
-      { source: "/services/architectural-design/smart-topography-survey/:path*", destination: "/services/architectural-design", permanent: true },
+      // architectural-design-services, interior-design-services, urban-planning
+      // and smart-topography-survey are real pages again
+      // (src/app/services/architectural-design/[slug]). Its child
+      // sample-spatial-data still needs its own content decision, so nested
+      // paths (:path+, one or more segments) still redirect to the parent -
+      // the exact smart-topography-survey URL is unmatched and falls
+      // through to the dynamic route.
+      { source: "/services/architectural-design/smart-topography-survey/:path+", destination: "/services/architectural-design", permanent: true },
       { source: "/services/marketing/:path+", destination: "/services/marketing", permanent: true },
       // Renamed 2026-08: service slugs/names were realigned to match the
       // pre-migration mim.archi site (see legacy /services/* redirects
