@@ -32,6 +32,9 @@ const securityHeaders = [
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
 ];
 
+// Old mim.archi HMR tour URLs whose Pano2VR files live in public/tours/hmr/{unit}.
+const hmrTourUnits = "one-bedroom|two-bedroom|three-bedroom|four-bedroom|penthouse|townhouse";
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -106,7 +109,10 @@ const nextConfig: NextConfig = {
       { source: "/services/dual-screen", destination: "/services/interactive-services/dual-screen-navigator", permanent: true },
       { source: "/magnetic-field-of-solenoid", destination: "/services/interactive-services/vr-360-tours", permanent: true },
       { source: "/galvanic-cell", destination: "/services/interactive-services/vr-360-tours", permanent: true },
-      { source: "/tours/:path*", destination: "/services/interactive-services/web-tours", permanent: true },
+      // The six HMR 360 tours are served from public/tours/hmr/{unit} (see rewrites below);
+      // their files must not be caught by this redirect. Every other tour still redirects.
+      { source: "/tours", destination: "/services/interactive-services/web-tours", permanent: true },
+      { source: `/tours/:path((?!hmr/(?:${hmrTourUnits})(?:/.*)?$).*)`, destination: "/services/interactive-services/web-tours", permanent: true },
       { source: "/gardenialivings-twobed", destination: "/services/interactive-services/web-tours", permanent: true },
       { source: "/gardenialivings-onebed", destination: "/services/interactive-services/web-tours", permanent: true },
       { source: "/ud-courtyard-type-:unit", destination: "/services/interactive-services/web-tours", permanent: true },
@@ -117,13 +123,26 @@ const nextConfig: NextConfig = {
       { source: "/visualization-proposal", destination: "/contact", permanent: true },
       { source: "/category/services", destination: "/services", permanent: true },
       { source: "/category/3d-visualization", destination: "/blog/3d-visualization", permanent: true },
-      { source: "/category/vr-real-estate", destination: "/blog/vr-real-estate", permanent: true },
       { source: "/category/technology", destination: "/blog/real-estate-tech", permanent: true },
       { source: "/category/meta/:path*", destination: "/services/interactive-services/vr-360-tours", permanent: true },
       { source: "/category/blog/real-estate-tech", destination: "/blog/real-estate-tech", permanent: true },
       { source: "/category/blog", destination: "/blog", permanent: true },
       { source: "/blog/top-7-elements-of-interior-design", destination: "/blog/elements-in-interior-design", permanent: true },
       { source: "/blog/best-ways-to-sell-your-real-estate", destination: "/technology/best-ways-to-sell-your-real-estate", permanent: true },
+    ];
+  },
+  async rewrites() {
+    return [
+      // Pano2VR exports: serve each tour's index.html at the old URL. The page
+      // sets <base href> so its relative files resolve without a trailing slash.
+      { source: `/tours/hmr/:unit(${hmrTourUnits})`, destination: "/tours/hmr/:unit/index.html" },
+      // The backlinked company profile keeps both old URLs. The file lives at
+      // public/storage/... because Vercel's firewall denies /wp-content/* until
+      // that rule is relaxed in the Vercel dashboard.
+      {
+        source: "/wp-content/uploads/2021/11/mimAR-Studios-Company-Profile.pdf",
+        destination: "/storage/2021/11/mimAR-Studios-Company-Profile.pdf",
+      },
     ];
   },
 };
