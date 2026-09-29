@@ -74,7 +74,9 @@ const nextConfig: NextConfig = {
       { source: "/services/3d-visualization/cinematics", destination: "/services/cinematics", permanent: true },
       { source: "/services/3d-visualization/property-explorer", destination: "/services/interactive-services/property-explorer", permanent: true },
       { source: "/services/3d-visualization/property-explorer-online", destination: "/services/interactive-services/property-explorer", permanent: true },
-      { source: "/services/3d-visualization-hamza/:path*", destination: "/services/3d-visualization", permanent: true },
+      // terrain-mapping is a real page again (src/app/services/3d-visualization-hamza/terrain-mapping).
+      { source: "/services/3d-visualization-hamza", destination: "/services/3d-visualization", permanent: true },
+      { source: "/services/3d-visualization-hamza/:path((?!terrain-mapping$).+)", destination: "/services/3d-visualization", permanent: true },
       // Interactive sub-services live under /services/interactive-services, as on the old site.
       { source: "/services/vr-360-tours", destination: "/services/interactive-services/vr-360-tours", permanent: true },
       { source: "/services/web-tours", destination: "/services/interactive-services/web-tours", permanent: true },
@@ -84,9 +86,11 @@ const nextConfig: NextConfig = {
       { source: "/services/smart-home", destination: "/services/interactive-services/smart-home", permanent: true },
       // architectural-design-services, interior-design-services and urban-planning
       // are real pages again (src/app/services/architectural-design/[slug]);
-      // smart-topography-survey still redirects.
-      { source: "/services/architectural-design/smart-topography-survey/:path*", destination: "/services/architectural-design", permanent: true },
-      { source: "/services/marketing/:path+", destination: "/services/marketing", permanent: true },
+      // smart-topography-survey still redirects; its sample-spatial-data child is a real page.
+      { source: "/services/architectural-design/smart-topography-survey", destination: "/services/architectural-design", permanent: true },
+      { source: "/services/architectural-design/smart-topography-survey/:path((?!sample-spatial-data$).+)", destination: "/services/architectural-design", permanent: true },
+      // tv-commercials-and-advertisements is a real page again.
+      { source: "/services/marketing/:path((?!tv-commercials-and-advertisements$).+)", destination: "/services/marketing", permanent: true },
       // Renamed 2026-08: service slugs/names were realigned to match the
       // pre-migration mim.archi site (see legacy /services/* redirects
       // above) to preserve historical SEO equity. These carry forward the
