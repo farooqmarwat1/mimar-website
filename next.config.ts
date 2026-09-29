@@ -84,10 +84,13 @@ const nextConfig: NextConfig = {
       { source: "/services/interactive-prints", destination: "/services/interactive-services/interactive-prints", permanent: true },
       { source: "/services/property-explorer", destination: "/services/interactive-services/property-explorer", permanent: true },
       { source: "/services/smart-home", destination: "/services/interactive-services/smart-home", permanent: true },
-      // architectural-design-services, interior-design-services and urban-planning
-      // are real pages again (src/app/services/architectural-design/[slug]);
-      // smart-topography-survey still redirects; its sample-spatial-data child is a real page.
-      { source: "/services/architectural-design/smart-topography-survey", destination: "/services/architectural-design", permanent: true },
+      // architectural-design-services, interior-design-services, urban-planning
+      // and smart-topography-survey are real pages again
+      // (src/app/services/architectural-design/[slug]), and so is
+      // smart-topography-survey's child sample-spatial-data
+      // (src/lib/legacy-service-pages.ts). The exact smart-topography-survey
+      // URL is unmatched here and falls through to the dynamic route; any
+      // other nested path still redirects to the parent.
       { source: "/services/architectural-design/smart-topography-survey/:path((?!sample-spatial-data$).+)", destination: "/services/architectural-design", permanent: true },
       // tv-commercials-and-advertisements is a real page again.
       { source: "/services/marketing/:path((?!tv-commercials-and-advertisements$).+)", destination: "/services/marketing", permanent: true },
