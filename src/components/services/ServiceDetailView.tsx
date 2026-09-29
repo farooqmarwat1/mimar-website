@@ -134,6 +134,32 @@ export default function ServiceDetailView({ detail }: { detail: ServiceDetail })
         </section>
       )}
 
+      {detail.tours?.length ? (
+        <section className="container-page pb-8 pt-8 md:pb-12 md:pt-12" aria-labelledby="live-tours-heading">
+          <div className="mb-8 flex flex-col gap-2 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
+            <h2 id="live-tours-heading" className="eyebrow text-muted">/ Live 360 tours</h2>
+            <p className="eyebrow text-accent">{detail.tours.length} tours</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+            {detail.tours.map((tour, index) => (
+              <Reveal key={tour.href} delay={(index % 3) * 0.05}>
+                {/* Plain <a>: tours are static Pano2VR pages, not Next.js routes. */}
+                <a href={tour.href} className="group relative block aspect-[4/3] overflow-hidden bg-ink/5">
+                  <Image src={tour.image} alt={`${tour.project} ${tour.title} 360° virtual tour`} fill unoptimized sizes="(max-width: 768px) 50vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent px-4 pb-4 pt-16 text-paper">
+                    <p className="eyebrow text-paper/60">{tour.project}</p>
+                    <h3 className="mt-1 flex items-end justify-between gap-3 text-sm md:text-base">
+                      <span>{tour.title}</span>
+                      <span aria-hidden="true" className="text-accent transition-transform group-hover:translate-x-1">↗</span>
+                    </h3>
+                  </div>
+                </a>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {detail.showFacts !== false && <section className="container-page grid grid-cols-2 md:grid-cols-4">
         {detail.facts?.map(([value, label], index) => (
           <Reveal key={label} delay={index * 0.04} className="border-r border-line px-3 py-9 first:pl-0 [&:nth-child(even)]:border-r-0 md:px-6 md:py-12 md:[&:nth-child(even)]:border-r md:last:border-r-0">

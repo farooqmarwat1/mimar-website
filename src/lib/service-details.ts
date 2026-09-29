@@ -20,6 +20,8 @@ export type ServiceDetail = {
     | { type: "placeholder"; title: string; note: string }
   >;
   demoUrl?: string;
+  /** Live 360 tours (static pages under public/tours) linked from the service page. */
+  tours?: { project: string; title: string; href: string; image: string }[];
   showFacts?: boolean;
   showProcessImage?: boolean;
   showProjects?: boolean;
@@ -51,6 +53,22 @@ export function servicePath(slug: string) {
     ? `/services/${interactiveServicesSlug}/${slug}`
     : `/services/${slug}`;
 }
+
+// HMR Pano2VR tours restored at their old mim.archi URLs (public/tours/hmr/{unit}).
+const hmrTours = [
+  ["one-bedroom", "One Bedroom Apartment"],
+  ["two-bedroom", "Two Bedroom Apartment"],
+  ["three-bedroom", "Three Bedroom Apartment"],
+  ["four-bedroom", "Four Bedroom Apartment"],
+  ["penthouse", "Penthouse"],
+  ["townhouse", "Townhouse"],
+].map(([unit, title]) => ({
+  project: "HMR",
+  title,
+  href: `/tours/hmr/${unit}`,
+  // The penthouse export's preview.jpg is a blank wall; its card uses a lounge view stitched from the tour tiles.
+  image: unit === "penthouse" ? "/tours/hmr/penthouse/penthouse-lounge.jpg" : `/tours/hmr/${unit}/preview.jpg`,
+}));
 
 export const serviceDetails: Record<string, ServiceDetail> = {
   "architectural-design": {
@@ -128,7 +146,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ],
     included: ["Metaverse Development", "Virtual Orientation", "Dual Screen Nav", "Virtual Reality", "Augmented Reality"],
     includedLabel: "Project types",
-    projects: ["karma-trinity", "the-garden-residences", "aark-residences"],
+    projects: ["hmr", "karma-trinity", "the-garden-residences"],
     faqs: [
       ["What’s the difference between AR and VR?", "The simplest difference is that AR enhances reality, while VR creates a virtual world. Augmented reality (AR) allows users to see and interact with virtual elements in their physical surroundings. Whereas, virtual reality (VR) creates a completely immersive environment."],
       ["What is a web tour?", "A web tour is a digital environment that lets the users explore and navigate through a website or web-based application and interact with the visual elements like table chairs etc. Web tours are designed to showcase key features & highlight important information about a project."],
@@ -144,6 +162,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     outputs: ["Headset builds", "360° stills", "Design review", "On-site kit"],
     outputImages: ["/projects/catalog/nomi-downtown/image-2.jpg", "/projects/catalog/the-garden-residences/image-1.jpg", "/projects/catalog/faisal-town-ii/image-1.jpg", "/projects/catalog/karma-trinity/image-9.jpg"],
     featuredMedia: [{ type: "youtube", src: "https://www.youtube.com/embed/FpS1b3TqV6k", title: "Virtual Model Apartments | VR 360° Walk-through" }],
+    tours: hmrTours,
     showFacts: false,
     showProcessImage: false,
     process: [["Scope", "Rooms, routes and required interactions are agreed."], ["Build", "The real-time environment is optimized for immersive use."], ["Interactive review", "Material changes and custom interactions are configured and tested."], ["Handover", "The experience is installed and the team is trained."]],
