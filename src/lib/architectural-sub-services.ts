@@ -2,6 +2,8 @@
 // old WordPress URLs. Copy is carried over from the old pages word for word
 // (see SEO_MIGRATION.md §0.2); only the layout follows the new design.
 
+import { legacyServicePages } from "./legacy-service-pages";
+
 export const architecturalDesignSlug = "architectural-design";
 
 export type ArchitecturalSubService = {
@@ -154,12 +156,10 @@ export const architecturalSubServices: Record<string, ArchitecturalSubService> =
     cta: {
       heading: ["Precision Now, Excellence Later:", "Why guess?"],
       body: "With our Smart Topography Surveys, your project begins with total site clarity, ensuring a seamless transition from digital planning to physical construction.",
-      // The old "Get Details" button links to /sample-spatial-data, a nested
-      // page not yet restored (still redirects to the parent - see
-      // SEO_MIGRATION.md §0.9). Point at /booking (distinct from the
-      // "Contact us" button below) until that page exists.
+      // The old "Get Details" button links to its child page,
+      // restored in src/lib/legacy-service-pages.ts.
       primaryLabel: "Get details",
-      primaryHref: "/booking",
+      primaryHref: legacyServicePages.sampleSpatialData.path,
     },
   },
 };
