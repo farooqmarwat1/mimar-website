@@ -125,14 +125,17 @@ export const threeDVisualizationSubServices: Record<string, ThreeDVisualizationS
           "Elevate your architectural projects with our cinematic VFX and CGI services. From stunning visual effects to lifelike renderings, we bring your designs to life with unparalleled realism and sophistication.",
         ],
         // None of the old site's 5 VFX slide videos still exist (same dead
-        // bucket) - the slider is still fully navigable, just not playable.
+        // bucket). The owner supplied 6 real VFX compilation clips instead
+        // (T:\01_Arch + 3D\0.Content\13. VFX compilation\{02..07}.mp4, ~19MB
+        // each); each was compressed to a web-friendly 720p MP4 (~1MB) and
+        // its poster extracted as a frame 2s in.
         slides: [
-          { image: "/services/3d-visualization/cinematics/vfx/1.webp" },
-          { image: "/services/3d-visualization/cinematics/vfx/2.webp" },
-          { image: "/services/3d-visualization/cinematics/vfx/3.webp" },
-          { image: "/services/3d-visualization/cinematics/vfx/4.webp" },
-          { image: "/services/3d-visualization/cinematics/vfx/5.webp" },
-          { image: "/services/3d-visualization/cinematics/vfx/6.webp" },
+          { image: "/services/3d-visualization/cinematics/vfx/thumb-1.webp", video: "/services/3d-visualization/cinematics/videos/vfx-1.mp4" },
+          { image: "/services/3d-visualization/cinematics/vfx/thumb-2.webp", video: "/services/3d-visualization/cinematics/videos/vfx-2.mp4" },
+          { image: "/services/3d-visualization/cinematics/vfx/thumb-3.webp", video: "/services/3d-visualization/cinematics/videos/vfx-3.mp4" },
+          { image: "/services/3d-visualization/cinematics/vfx/thumb-4.webp", video: "/services/3d-visualization/cinematics/videos/vfx-4.mp4" },
+          { image: "/services/3d-visualization/cinematics/vfx/thumb-5.webp", video: "/services/3d-visualization/cinematics/videos/vfx-5.mp4" },
+          { image: "/services/3d-visualization/cinematics/vfx/thumb-6.webp", video: "/services/3d-visualization/cinematics/videos/vfx-6.mp4" },
         ],
         projects: [],
       },
