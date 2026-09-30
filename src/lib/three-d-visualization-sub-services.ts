@@ -2,6 +2,8 @@
 // WordPress URLs. Copy is carried over from the old pages word for word (see
 // SEO_MIGRATION.md §0.2); only the layout follows the new design.
 
+import type { MediaSlide } from "@/components/ui/MediaSlider";
+
 export const threeDVisualizationSlug = "3d-visualization";
 
 export type ThreeDVisualizationSection = {
@@ -9,8 +11,13 @@ export type ThreeDVisualizationSection = {
   body: string[];
   /** Project slugs from site-config shown as a small linked gallery under this section. */
   projects: string[];
-  /** Optional small image gallery shown beside this section's copy, in place of a linked project grid. */
-  images?: string[];
+  /**
+   * Optional slide gallery shown beside this section's copy, in place of a
+   * linked project grid. A slide plays a real video on click only when one
+   * is given - most of the old site's per-slide videos were hosted on a
+   * third-party bucket that no longer exists (see SEO_MIGRATION.md).
+   */
+  slides?: MediaSlide[];
 };
 
 export type ThreeDVisualizationSubService = {
@@ -86,10 +93,12 @@ export const threeDVisualizationSubServices: Record<string, ThreeDVisualizationS
         body: [
           "Step into the future with cinematic 3D exterior views and renders. Visualize your architectural visions with realistic details that captivate, inspire, and bring your projects to life.",
         ],
-        images: [
-          "/services/3d-visualization/cinematics/exterior/1.webp",
-          "/services/3d-visualization/cinematics/exterior/2.webp",
-          "/services/3d-visualization/cinematics/exterior/3.webp",
+        // Only 2 of the old site's 3 exterior slide videos still exist - the
+        // third was hosted on a bucket that's been deleted (S3 NoSuchBucket).
+        slides: [
+          { image: "/services/3d-visualization/cinematics/exterior/1.webp", video: "/services/3d-visualization/cinematics/videos/exterior-1.webm" },
+          { image: "/services/3d-visualization/cinematics/exterior/2.webp", video: "/services/3d-visualization/cinematics/videos/exterior-2.webm" },
+          { image: "/services/3d-visualization/cinematics/exterior/3.webp" },
         ],
         projects: [],
       },
@@ -99,12 +108,14 @@ export const threeDVisualizationSubServices: Record<string, ThreeDVisualizationS
           "Experience immersive cinematic representations of your architectural designs.",
           "Our services showcase fine details, from ambient lighting to meticulous furnishings, providing true-to-life portrayals of interior spaces with unparalleled clarity and realism.",
         ],
-        images: [
-          "/services/3d-visualization/cinematics/interior/1.webp",
-          "/services/3d-visualization/cinematics/interior/2.webp",
-          "/services/3d-visualization/cinematics/interior/3.webp",
-          "/services/3d-visualization/cinematics/interior/4.webp",
-          "/services/3d-visualization/cinematics/interior/5.webp",
+        // Only 1 of the old site's 5 interior slide videos still exists -
+        // the other 4 were on the same now-deleted bucket.
+        slides: [
+          { image: "/services/3d-visualization/cinematics/interior/1.webp" },
+          { image: "/services/3d-visualization/cinematics/interior/2.webp" },
+          { image: "/services/3d-visualization/cinematics/interior/3.webp", video: "/services/3d-visualization/cinematics/videos/interior-3.mp4" },
+          { image: "/services/3d-visualization/cinematics/interior/4.webp" },
+          { image: "/services/3d-visualization/cinematics/interior/5.webp" },
         ],
         projects: [],
       },
@@ -113,13 +124,15 @@ export const threeDVisualizationSubServices: Record<string, ThreeDVisualizationS
         body: [
           "Elevate your architectural projects with our cinematic VFX and CGI services. From stunning visual effects to lifelike renderings, we bring your designs to life with unparalleled realism and sophistication.",
         ],
-        images: [
-          "/services/3d-visualization/cinematics/vfx/1.webp",
-          "/services/3d-visualization/cinematics/vfx/2.webp",
-          "/services/3d-visualization/cinematics/vfx/3.webp",
-          "/services/3d-visualization/cinematics/vfx/4.webp",
-          "/services/3d-visualization/cinematics/vfx/5.webp",
-          "/services/3d-visualization/cinematics/vfx/6.webp",
+        // None of the old site's 5 VFX slide videos still exist (same dead
+        // bucket) - the slider is still fully navigable, just not playable.
+        slides: [
+          { image: "/services/3d-visualization/cinematics/vfx/1.webp" },
+          { image: "/services/3d-visualization/cinematics/vfx/2.webp" },
+          { image: "/services/3d-visualization/cinematics/vfx/3.webp" },
+          { image: "/services/3d-visualization/cinematics/vfx/4.webp" },
+          { image: "/services/3d-visualization/cinematics/vfx/5.webp" },
+          { image: "/services/3d-visualization/cinematics/vfx/6.webp" },
         ],
         projects: [],
       },
