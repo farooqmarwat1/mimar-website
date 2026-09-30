@@ -408,5 +408,4 @@ export const navigation = [
   { label: "Services", href: "/services" },
   { label: "Studio", href: "/about-us" },
   { label: "Contact", href: "/contact" },
-  { label: "Book a meeting", href: "/booking" },
 ] as const;
