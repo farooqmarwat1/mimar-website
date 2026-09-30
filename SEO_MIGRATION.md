@@ -40,6 +40,13 @@ Last updated: 28 Sep 2026.
 
     The same zip has three unlabelled tours (`tourSource`, `tourSource_1`, `tourSource_2`, probably 360 Residences one-bed, two-bed and loft) that are not live until the owner confirms which URLs they belong to.
 14. **Cinematics VFX videos (30 Sep 2026, owner-supplied):** the VFX or CGI section's slider (point 12) now plays 6 real clips instead of images-only, from the owner's own asset drive at `T:\01_Arch + 3D\0.Content\13. VFX compilation\{02..07}.mp4` (~19 MB each, 1920x1080, silent). No system `ffmpeg` was available on the machine that did this; `pip install imageio-ffmpeg` provides a bundled static binary that works the same way. Each clip was re-encoded to a web-friendly 720p H.264 MP4 at CRF 23 (`-vf scale=1280:-2 -c:v libx264 -preset slow -crf 23 -an`, ~1 MB each, ~6.3 MB total vs. ~117 MB raw) and its own poster frame extracted 2 seconds in (past any fade-in) as the slide thumbnail, replacing the dead-video-era static images from point 12. Files live in `public/services/3d-visualization/cinematics/videos/vfx-{1..6}.mp4` and `.../vfx/thumb-{1..6}.webp`.
+16. **Branding and Marketing sub-pages (30 Sep 2026, owner request):** six new sub-pages, one per sub-service the old Branding and Marketing pages listed as sections:
+    - `/services/branding/branding-collateral`, `/services/branding/stationery`, `/services/branding/marketing-collateral`
+    - `/services/marketing/social-media-marketing`, `/services/marketing/web-development`, `/services/marketing/seo`
+
+    The old site had no separate URLs for these, so there is nothing to redirect. Each page carries the old section's copy word for word (one garbled old sentence on Social Media Marketing was repaired), plus the old page's benefits, "Our Process" steps (Marketing) and the FAQs relevant to that sub-service with FAQPage schema. The Branding process steps come from the old FAQ answer about the branding process. Portfolio images come from the old pages' "Project Types" gallery, filtered by that gallery's own category; they were resized to at most 1600 px WebP with descriptive filenames and alt text, under `public/service-media/{branding,marketing}/{slug}/` (not `/services/marketing/*`, which the parent redirect would catch).
+
+    Copy and images are in `src/lib/branding-marketing-sub-services.ts`; the shared layout (same as the architectural-design sub-pages, plus a "Selected work" gallery and FAQs) is `src/components/services/BrandingMarketingSubServiceView.tsx`. The Branding and Marketing output tiles link to them via `outputLinks`, the `/services/marketing/*` redirect exempts the three marketing slugs, and all six are in the sitemap. The Marketing "Digital Marketing" tile has no page, as on the old site.
 
 ## 1. Context
 

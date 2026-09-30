@@ -1,4 +1,5 @@
 import { architecturalSubServicePath } from "./architectural-sub-services";
+import { brandingMarketingSubServicePath } from "./branding-marketing-sub-services";
 import { threeDVisualizationSubServicePath } from "./three-d-visualization-sub-services";
 
 export type ServiceDetail = {
@@ -256,6 +257,11 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     includedImage: "/services/branding/hero.png",
     outputs: ["Brand Identity", "Corporate stationery", "Marketing collateral"],
     outputImages: ["/service-media/branding-identity.png", "/services/branding/corporate-stationery.jpg", "/services/branding/marketing-collateral.jpg"],
+    outputLinks: [
+      brandingMarketingSubServicePath("branding", "branding-collateral"),
+      brandingMarketingSubServicePath("branding", "stationery"),
+      brandingMarketingSubServicePath("branding", "marketing-collateral"),
+    ],
     showFacts: false,
     processImage: "/services/branding/process.png",
     portfolio: [
@@ -283,6 +289,12 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     includedImage: "/service-media/marketing-hero.png",
     outputs: ["Digital Marketing", "Social Media Marketing", "Web Development", "SEO & Online Visibility"],
     outputImages: ["/service-media/marketing-digital.png", "/service-media/marketing-social.png", "/service-media/marketing-web.png", "/service-media/marketing-seo.png"],
+    outputLinks: [
+      undefined,
+      brandingMarketingSubServicePath("marketing", "social-media-marketing"),
+      brandingMarketingSubServicePath("marketing", "web-development"),
+      brandingMarketingSubServicePath("marketing", "seo"),
+    ],
     processImage: "/service-media/marketing-process.png",
     showFacts: false,
     facts: [["14+ countries served", "Reach"], ["120+ B2B clients", "Track record"], ["Renders to launch", "Scope"], ["SEO, paid & social", "Channels"]],
