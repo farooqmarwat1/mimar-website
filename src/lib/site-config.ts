@@ -406,6 +406,6 @@ export const faqs = [
 export const navigation = [
   { label: "Projects", href: "/projects" },
   { label: "Services", href: "/services" },
-  { label: "Studio", href: "/about-us" },
+  { label: "About Us", href: "/about-us" },
   { label: "Contact", href: "/contact" },
 ] as const;
