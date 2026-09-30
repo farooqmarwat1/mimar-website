@@ -9,11 +9,6 @@ const serviceSeo: Record<string, { title: string; description: string; keywords:
     description: "Photorealistic 3D visualization and architectural rendering services for interiors, exteriors, real estate and design teams worldwide.",
     keywords: ["3D visualization services", "architectural visualization services", "3D rendering services", "interior rendering services", "architectural rendering"],
   },
-  cinematics: {
-    title: "Cinematics & Architectural Walkthroughs | Mimar",
-    description: "Cinematic 3D animation, architectural walkthrough and fly-through services for property launches, design presentations and real estate marketing.",
-    keywords: ["3D animation services", "architectural walkthrough", "architectural animation", "cinematics", "3D flythrough"],
-  },
   // Old WordPress title and meta description, kept for SEO continuity.
   "interactive-services": {
     title: "Best Interactive Services in Pakistan | Mimar",

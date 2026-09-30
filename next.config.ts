@@ -8,7 +8,9 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://cdn.sanity.io https://drive.google.com",
+  // lh3.googleusercontent.com is where drive.google.com/thumbnail redirects
+  // to - needed for DriveVideo's poster image (src/components/ui/DriveVideo.tsx).
+  "img-src 'self' data: blob: https://cdn.sanity.io https://drive.google.com https://lh3.googleusercontent.com",
   "font-src 'self' data:",
   "connect-src 'self' https://*.api.sanity.io https://*.sanity.io",
   "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://drive.google.com https://online.fliphtml5.com https://koalendar.com",
@@ -73,8 +75,9 @@ const nextConfig: NextConfig = {
       { source: "/meta/:path+", destination: "/services/interactive-services/vr-360-tours", permanent: true },
       { source: "/real-estate-360-tours", destination: "/services/interactive-services/web-tours", permanent: true },
       { source: "/interior-design-services", destination: "/services/architectural-design/interior-design-services", permanent: true },
-      { source: "/services/3d-visualization/3d-views", destination: "/services/3d-visualization", permanent: true },
-      { source: "/services/3d-visualization/cinematics", destination: "/services/cinematics", permanent: true },
+      // 3d-views and cinematics are real pages again (src/app/services/3d-visualization/[slug]).
+      // The flat /services/cinematics URL now redirects to the nested one below.
+      { source: "/services/cinematics", destination: "/services/3d-visualization/cinematics", permanent: true },
       { source: "/services/3d-visualization/property-explorer", destination: "/services/interactive-services/property-explorer", permanent: true },
       { source: "/services/3d-visualization/property-explorer-online", destination: "/services/interactive-services/property-explorer", permanent: true },
       // terrain-mapping is a real page again (src/app/services/3d-visualization-hamza/terrain-mapping).
@@ -103,7 +106,7 @@ const nextConfig: NextConfig = {
       // short-lived interim slugs used between the Next.js relaunch and
       // this rename so nothing freshly indexed or linked breaks.
       { source: "/services/3d-rendering", destination: "/services/3d-visualization", permanent: true },
-      { source: "/services/animation", destination: "/services/cinematics", permanent: true },
+      { source: "/services/animation", destination: "/services/3d-visualization/cinematics", permanent: true },
       { source: "/services/vr-and-360", destination: "/services/interactive-services/vr-360-tours", permanent: true },
       { source: "/services/web-360", destination: "/services/interactive-services/web-tours", permanent: true },
       { source: "/services/dual-screen", destination: "/services/interactive-services/dual-screen-navigator", permanent: true },

@@ -23,7 +23,7 @@ const cards: Omit<ServiceCard, "href">[] = [
     title: "3D Visualization",
     slug: "3d-visualization",
     description: "Photorealistic visualization for architecture, interiors, and real estate.",
-    deliverables: ["Interior stills", "Exterior stills", "Aerials", "Cinematics & animation"],
+    deliverables: ["3D Views", "Aerials", "Cinematics & Animations"],
     media: "/services/3d-rendering-2026.webp",
     mediaType: "image",
   },

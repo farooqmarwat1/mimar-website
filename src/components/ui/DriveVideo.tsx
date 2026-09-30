@@ -3,12 +3,14 @@
 import Image from "next/image";
 import { useState } from "react";
 
-export default function DriveVideo({ src, title }: { src: string; title: string }) {
+export default function DriveVideo({ src, title, poster }: { src: string; title: string; poster?: string }) {
   const [playing, setPlaying] = useState(false);
   const fileId = src.match(/\/file\/d\/([^/]+)/)?.[1];
-  const thumbnail = fileId
-    ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`
-    : null;
+  // Prefer a fixed local poster: Google's own thumbnail for a Drive video is
+  // generated per-request and inconsistent - some CDN edges return the real
+  // frame, others a solid black placeholder, for the same file (see
+  // SEO_MIGRATION.md). Fall back to it only when no local poster is given.
+  const thumbnail = poster ?? (fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600` : null);
 
   if (playing || !thumbnail) {
     return (
@@ -35,6 +37,7 @@ export default function DriveVideo({ src, title }: { src: string; title: string 
         alt={`${title} video preview`}
         fill
         unoptimized
+        loading="eager"
         sizes="100vw"
         className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
       />
