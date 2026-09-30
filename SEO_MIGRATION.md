@@ -55,6 +55,13 @@ Last updated: 28 Sep 2026.
     They work like the HMR tours: `legacyTours` in `next.config.ts` rewrites each old URL to its `index.html`, and the `/tours/*` redirect's negative lookahead exempts every served folder. The old `/ud-courtyard-type-:unit` and `/gardenialivings-*` redirects were removed. Each `index.html` got the same `<base href>`, title, description, canonical and OG tags as HMR (the originals had an empty `<title>`). The copies are the clean exports; the old site served them with Cloudflare Rocket Loader injected, and that was stripped. The URLs are in the sitemap (`legacyTourPaths` in `src/app/sitemap.ts`, keep it in sync with `legacyTours`).
 
     Still redirecting to Web Tours: the hubs `/tours`, `/tours/aurumone`, `/tours/the360residences`, `/tours/serenetower` and `/tours/hmr` (empty pages on the old site), and `/tours/pandamart`, `/tours/foodpanda`, `/tours/serenetower/*`, `/tours/aarkresidences/*`, `/tours/parkone/*` and `/tours/oliviaresidences/*`, which the old site already redirects away and which have no tour files left.
+16. **Branding and Marketing sub-pages (30 Sep 2026, owner request):** six new sub-pages, one per sub-service the old Branding and Marketing pages listed as sections:
+    - `/services/branding/branding-collateral`, `/services/branding/stationery`, `/services/branding/marketing-collateral`
+    - `/services/marketing/social-media-marketing`, `/services/marketing/web-development`, `/services/marketing/seo`
+
+    The old site had no separate URLs for these, so there is nothing to redirect. Each page carries the old section's copy word for word (one garbled old sentence on Social Media Marketing was repaired), plus the old page's benefits, "Our Process" steps (Marketing) and the FAQs relevant to that sub-service with FAQPage schema. The Branding process steps come from the old FAQ answer about the branding process. Portfolio images come from the old pages' "Project Types" gallery, filtered by that gallery's own category; they were resized to at most 1600 px WebP with descriptive filenames and alt text, under `public/service-media/{branding,marketing}/{slug}/` (not `/services/marketing/*`, which the parent redirect would catch).
+
+    Copy and images are in `src/lib/branding-marketing-sub-services.ts`; the shared layout (same as the architectural-design sub-pages, plus a "Selected work" gallery and FAQs) is `src/components/services/BrandingMarketingSubServiceView.tsx`. The Branding and Marketing output tiles link to them via `outputLinks`, the `/services/marketing/*` redirect exempts the three marketing slugs, and all six are in the sitemap. The Marketing "Digital Marketing" tile has no page, as on the old site.
 
 ## 1. Context
 

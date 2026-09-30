@@ -117,7 +117,9 @@ const nextConfig: NextConfig = {
       // other nested path still redirects to the parent.
       { source: "/services/architectural-design/smart-topography-survey/:path((?!sample-spatial-data$).+)", destination: "/services/architectural-design", permanent: true },
       // tv-commercials-and-advertisements is a real page again.
-      { source: "/services/marketing/:path((?!tv-commercials-and-advertisements$).+)", destination: "/services/marketing", permanent: true },
+      // The Social Media Marketing, Web Development and SEO sub-pages are real pages too
+      // (src/lib/branding-marketing-sub-services.ts).
+      { source: "/services/marketing/:path((?!(?:tv-commercials-and-advertisements|social-media-marketing|web-development|seo)$).+)", destination: "/services/marketing", permanent: true },
       // Renamed 2026-08: service slugs/names were realigned to match the
       // pre-migration mim.archi site (see legacy /services/* redirects
       // above) to preserve historical SEO equity. These carry forward the
