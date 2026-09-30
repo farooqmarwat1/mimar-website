@@ -9,7 +9,7 @@ import Reveal from "@/components/ui/Reveal";
 const items = [
   { label: "Architectural Design", href: "/services/architectural-design", media: "/services/architectural-design/hero.jpg", type: "image" as const, desc: "Full architectural design services spanning interior and exterior spaces, from concept through construction documentation." },
   { label: "3D Visualization", href: "/services/3d-visualization", media: "/services/3D_rendering.webp", type: "image" as const, desc: "Photorealistic visualization for architecture, interiors, and real estate." },
-  { label: "Cinematics", href: "/services/cinematics", media: "/services/animations.mp4", type: "video" as const, desc: "Cinematic walkthroughs, fly-throughs, and design animations that bring spaces to life." },
+  { label: "Cinematics", href: "/services/3d-visualization/cinematics", media: "/services/animations.mp4", type: "video" as const, desc: "Cinematic walkthroughs, fly-throughs, and design animations that bring spaces to life." },
   { label: "VR 360 Tours", href: "/services/interactive-services/vr-360-tours", media: "/services/approved/vr-experiences.webp", type: "image" as const, desc: "Immersive, interactive experiences that let you explore spaces before they’re built." },
   { label: "Web Tours", href: "/services/interactive-services/web-tours", media: "/services/approved/web-360-updated.webp", type: "image" as const, desc: "Browser-based 360° virtual tours, accessible on any device with no installation." },
   { label: "Dual Screen Navigator", href: "/services/interactive-services/dual-screen-navigator", media: "/services/approved/dual-screen.webp", type: "image" as const, desc: "Synchronized interactive displays for sales offices, showrooms, events, and on-the-go presentations." },
