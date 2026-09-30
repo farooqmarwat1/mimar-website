@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import FaqSection from "@/components/sections/FaqSection";
 import ServiceCards from "@/components/sections/ServiceCards";
 import Reveal from "@/components/ui/Reveal";
 import { buildMetadata, breadcrumbJsonLd, itemListJsonLd, jsonLdScript } from "@/lib/seo";
@@ -17,6 +18,28 @@ export const metadata: Metadata = buildMetadata({
 
 const projectSlugs = ["aark-residences", "amerat-park", "nana-222", "nomi-downtown", "faisal-town-ii", "abuja"];
 const serviceProjects = projectSlugs.map((slug) => projects.find((project) => project.slug === slug)).filter((project) => project !== undefined);
+const faqs = [
+  {
+    question: "What does 3D architectural visualization cost in Saudi Arabia?",
+    answer: "The cost depends on the number of views, scale and detail of the project, available drawings and the required turnaround. Share your plans, references and intended deliverables, and we will prepare a tailored quote for your project in Saudi Arabia.",
+  },
+  {
+    question: "What do you need to start a 3D visualization project?",
+    answer: "We typically need architectural drawings, a material direction, project references and a clear brief. If some details are still being developed, we can help identify the information needed before production begins.",
+  },
+  {
+    question: "How long does a 3D architectural render take?",
+    answer: "A typical still render takes three to seven working days after the brief and inputs are approved. Larger sets, animations and interactive experiences are scheduled around their scope and review stages.",
+  },
+  {
+    question: "Can you provide architecture, visualization and marketing together?",
+    answer: "Yes. Mimar Studios can combine architectural design, photorealistic 3D views, aerials, cinematics, interactive experiences, branding and marketing into one coordinated project scope.",
+  },
+  {
+    question: "Do you work with clients outside Pakistan?",
+    answer: "Yes. We work remotely with developers, architects and real estate teams internationally. Reviews, feedback and final artwork can be managed through a clear digital workflow.",
+  },
+] as const;
 
 export default function ServicesPage() {
   return (
@@ -82,6 +105,8 @@ export default function ServicesPage() {
           ))}
         </div>
       </section>
+
+      <FaqSection items={faqs} />
 
       <section className="container-page min-h-[34rem] py-24 md:min-h-[40rem] md:py-32">
         <Reveal>
