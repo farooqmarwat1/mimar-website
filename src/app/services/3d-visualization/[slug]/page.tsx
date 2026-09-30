@@ -130,7 +130,7 @@ export default async function ThreeDVisualizationSubServicePage({ params }: Page
             {service.media.map((media, index) => (
               <Reveal key={media.title} delay={index * 0.05}>
                 <div className="relative aspect-video overflow-hidden bg-ink text-paper">
-                  <DriveVideo src={media.src} title={media.title} />
+                  <DriveVideo src={media.src} title={media.title} poster={media.poster} />
                 </div>
                 <p className="mt-3 text-sm text-muted">{media.title}</p>
               </Reveal>

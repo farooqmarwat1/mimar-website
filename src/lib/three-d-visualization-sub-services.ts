@@ -30,7 +30,7 @@ export type ThreeDVisualizationSubService = {
   hero: string;
   sections: ThreeDVisualizationSection[];
   /** Real showreel embeds shown once, after the sections, in place of the old page's own video wall. */
-  media?: { type: "drive"; src: string; title: string }[];
+  media?: { type: "drive"; src: string; title: string; poster?: string }[];
   benefits: [string, string][];
   benefitsImage: string;
   ctaEyebrow?: string;
@@ -138,11 +138,16 @@ export const threeDVisualizationSubServices: Record<string, ThreeDVisualizationS
       },
     ],
     // Real client showreels, carried over from the previous flat /services/cinematics page.
+    // Posters: real project cover photos where the showreel matches an
+    // existing project (Amer Al Ghurair, Faisal Town II); the Cinematics
+    // hero otherwise, since Zvërnec and Barari Hills aren't in the project
+    // catalog. Google's own Drive thumbnail is not used - see the note on
+    // DriveVideo's `poster` prop.
     media: [
-      { type: "drive", src: "https://drive.google.com/file/d/1D-9jWxV8BQjlg_J0-NOIy38OFhBsnAb-/preview", title: "01 - Amer Al Ghurair" },
-      { type: "drive", src: "https://drive.google.com/file/d/1wfkXqTLNs-kI-BpG4uP5GQLIbEpN7YUA/preview", title: "02 - Zvërnec" },
-      { type: "drive", src: "https://drive.google.com/file/d/1wiPGLLVUSZcwSJIkU78Wr5QibLL-iYDn/preview", title: "03 - Faisal Town" },
-      { type: "drive", src: "https://drive.google.com/file/d/1TeozVJJjuAibo6Yg4cKhhZ3v2jPCD44P/preview", title: "04 - Barari Hills" },
+      { type: "drive", src: "https://drive.google.com/file/d/1D-9jWxV8BQjlg_J0-NOIy38OFhBsnAb-/preview", title: "01 - Amer Al Ghurair", poster: "/projects/catalog/amer-al-ghurair/image-1.jpg" },
+      { type: "drive", src: "https://drive.google.com/file/d/1wfkXqTLNs-kI-BpG4uP5GQLIbEpN7YUA/preview", title: "02 - Zvërnec", poster: "/services/3d-visualization/cinematics/hero.webp" },
+      { type: "drive", src: "https://drive.google.com/file/d/1wiPGLLVUSZcwSJIkU78Wr5QibLL-iYDn/preview", title: "03 - Faisal Town", poster: "/projects/catalog/faisal-town-ii/image-1.jpg" },
+      { type: "drive", src: "https://drive.google.com/file/d/1TeozVJJjuAibo6Yg4cKhhZ3v2jPCD44P/preview", title: "04 - Barari Hills", poster: "/services/3d-visualization/cinematics/hero.webp" },
     ],
     benefits: [
       ["Realistic Material and Lighting", "Our team expertly selects material and lighting to craft realistic and immersive renders for true-to-life visualisations."],
