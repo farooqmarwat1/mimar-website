@@ -44,7 +44,3 @@ next-env.d.ts
 # Local migration research and backup (includes private Search Console data)
 /SEO_MIGRATION_HANDOFF.md
 /.migration-backup/
-
-# Local company profile PDFs are not needed by the website pages
-/public/wp-content/uploads/2021/11/mimAR-Studios-Company-Profile.pdf
-/public/storage/2021/11/mimAR-Studios-Company-Profile.pdf

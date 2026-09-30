@@ -6,6 +6,7 @@ import { interactiveServicesSlug, servicePath } from "@/lib/service-details";
 import { architecturalSubServicePath, architecturalSubServiceSlugs } from "@/lib/architectural-sub-services";
 import { threeDVisualizationSubServicePath, threeDVisualizationSubServiceSlugs } from "@/lib/three-d-visualization-sub-services";
 import { legacyServicePages } from "@/lib/legacy-service-pages";
+import { legacyCategories, legacyCategoryPath } from "@/lib/legacy-categories";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const projects = await getProjects();
@@ -20,7 +21,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteConfig.url}/contact`, changeFrequency: "yearly", priority: 0.6 },
     { url: `${siteConfig.url}/booking`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${siteConfig.url}/blog`, changeFrequency: "weekly", priority: 0.7 },
-    { url: `${siteConfig.url}/category/metaverse`, changeFrequency: "monthly", priority: 0.6 },
+    // HMR 360 tours served from public/tours/hmr (see rewrites in next.config.ts).
+    ...["one-bedroom", "two-bedroom", "three-bedroom", "four-bedroom", "penthouse", "townhouse"].map((unit) => ({
+      url: `${siteConfig.url}/tours/hmr/${unit}`,
+      changeFrequency: "yearly" as const,
+      priority: 0.4,
+    })),
+    ...legacyCategories.map((category) => ({
+      url: `${siteConfig.url}${legacyCategoryPath(category.slug)}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
   ];
 
   const blogCategoryRoutes: MetadataRoute.Sitemap = blogCategories.map((c) => ({
