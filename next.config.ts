@@ -8,7 +8,9 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://cdn.sanity.io https://drive.google.com",
+  // lh3.googleusercontent.com is where drive.google.com/thumbnail redirects
+  // to - needed for DriveVideo's poster image (src/components/ui/DriveVideo.tsx).
+  "img-src 'self' data: blob: https://cdn.sanity.io https://drive.google.com https://lh3.googleusercontent.com",
   "font-src 'self' data:",
   "connect-src 'self' https://*.api.sanity.io https://*.sanity.io",
   "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://drive.google.com https://online.fliphtml5.com https://koalendar.com",

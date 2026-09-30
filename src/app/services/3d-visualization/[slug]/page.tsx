@@ -78,22 +78,36 @@ export default async function ThreeDVisualizationSubServicePage({ params }: Page
         const sectionProjects = section.projects
           .map((projectSlug) => projects.find((project) => project.slug === projectSlug))
           .filter((project) => project !== undefined);
+        const [featured, ...thumbnails] = section.images ?? [];
         return (
           <section key={section.heading} className={`container-page py-16 md:py-28 ${sectionIndex > 0 ? "border-t border-line" : ""}`}>
-            <Reveal><p className="eyebrow text-muted">/ {section.heading}</p></Reveal>
-            {section.image && (
-              <Reveal delay={0.05}>
-                <div className="relative mt-8 aspect-video max-w-3xl overflow-hidden bg-ink/5">
-                  <Image src={section.image} alt="" fill unoptimized sizes="(max-width: 768px) 100vw, 60vw" className="object-cover" />
-                </div>
-              </Reveal>
-            )}
-            <div className="mt-8 max-w-3xl">
-              {section.body.map((paragraph, index) => (
-                <Reveal key={paragraph} delay={0.05 + index * 0.05}>
-                  <p className={index === 0 ? "text-2xl leading-[1.15] tracking-[-.03em] md:text-4xl" : "section-body mt-6 text-lg"}>{paragraph}</p>
+            <div className={featured ? "grid gap-10 md:grid-cols-2 md:items-center md:gap-16" : ""}>
+              {featured && (
+                <Reveal>
+                  <div className="relative aspect-video overflow-hidden bg-ink/5">
+                    <Image src={featured} alt="" fill unoptimized sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+                  </div>
+                  {thumbnails.length > 0 && (
+                    <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
+                      {thumbnails.map((thumb) => (
+                        <div key={thumb} className="relative aspect-video w-24 shrink-0 overflow-hidden bg-ink/5 md:w-28">
+                          <Image src={thumb} alt="" fill unoptimized sizes="120px" className="object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </Reveal>
-              ))}
+              )}
+              <div>
+                <Reveal><p className="eyebrow text-muted">/ {section.heading}</p></Reveal>
+                <div className="mt-8">
+                  {section.body.map((paragraph, index) => (
+                    <Reveal key={paragraph} delay={0.05 + index * 0.05}>
+                      <p className={index === 0 ? "text-2xl leading-[1.15] tracking-[-.03em] md:text-4xl" : "section-body mt-6 text-lg"}>{paragraph}</p>
+                    </Reveal>
+                  ))}
+                </div>
+              </div>
             </div>
             {sectionProjects.length > 0 && (
               <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

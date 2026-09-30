@@ -9,8 +9,8 @@ export type ThreeDVisualizationSection = {
   body: string[];
   /** Project slugs from site-config shown as a small linked gallery under this section. */
   projects: string[];
-  /** Optional single illustrative image shown above this section's copy. */
-  image?: string;
+  /** Optional small image gallery shown beside this section's copy, in place of a linked project grid. */
+  images?: string[];
 };
 
 export type ThreeDVisualizationSubService = {
@@ -86,7 +86,11 @@ export const threeDVisualizationSubServices: Record<string, ThreeDVisualizationS
         body: [
           "Step into the future with cinematic 3D exterior views and renders. Visualize your architectural visions with realistic details that captivate, inspire, and bring your projects to life.",
         ],
-        image: "/services/3d-visualization/cinematics/exterior.webp",
+        images: [
+          "/services/3d-visualization/cinematics/exterior/1.webp",
+          "/services/3d-visualization/cinematics/exterior/2.webp",
+          "/services/3d-visualization/cinematics/exterior/3.webp",
+        ],
         projects: [],
       },
       {
@@ -95,13 +99,27 @@ export const threeDVisualizationSubServices: Record<string, ThreeDVisualizationS
           "Experience immersive cinematic representations of your architectural designs.",
           "Our services showcase fine details, from ambient lighting to meticulous furnishings, providing true-to-life portrayals of interior spaces with unparalleled clarity and realism.",
         ],
-        image: "/services/3d-visualization/cinematics/interior.webp",
+        images: [
+          "/services/3d-visualization/cinematics/interior/1.webp",
+          "/services/3d-visualization/cinematics/interior/2.webp",
+          "/services/3d-visualization/cinematics/interior/3.webp",
+          "/services/3d-visualization/cinematics/interior/4.webp",
+          "/services/3d-visualization/cinematics/interior/5.webp",
+        ],
         projects: [],
       },
       {
         heading: "VFX or CGI",
         body: [
           "Elevate your architectural projects with our cinematic VFX and CGI services. From stunning visual effects to lifelike renderings, we bring your designs to life with unparalleled realism and sophistication.",
+        ],
+        images: [
+          "/services/3d-visualization/cinematics/vfx/1.webp",
+          "/services/3d-visualization/cinematics/vfx/2.webp",
+          "/services/3d-visualization/cinematics/vfx/3.webp",
+          "/services/3d-visualization/cinematics/vfx/4.webp",
+          "/services/3d-visualization/cinematics/vfx/5.webp",
+          "/services/3d-visualization/cinematics/vfx/6.webp",
         ],
         projects: [],
       },
