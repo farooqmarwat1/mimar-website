@@ -8,6 +8,21 @@ import { threeDVisualizationSubServicePath, threeDVisualizationSubServiceSlugs }
 import { legacyServicePages } from "@/lib/legacy-service-pages";
 import { legacyCategories, legacyCategoryPath } from "@/lib/legacy-categories";
 
+// Other restored Pano2VR tours (see legacyTours in next.config.ts).
+const legacyTourPaths = [
+  "/tours/aurumone/2-bed-apartment",
+  "/tours/aurumone/3-bed-apartment",
+  "/tours/the360residences/one-bed",
+  "/tours/the360residences/two-bed",
+  "/tours/the360residences/loft",
+  "/ud-courtyard-type-a",
+  "/ud-courtyard-type-b",
+  "/ud-courtyard-type-c",
+  "/ud-courtyard-type-d",
+  "/gardenialivings-onebed",
+  "/gardenialivings-twobed",
+];
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const projects = await getProjects();
 
@@ -27,6 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "yearly" as const,
       priority: 0.4,
     })),
+    ...legacyTourPaths.map((path) => ({ url: `${siteConfig.url}${path}`, changeFrequency: "yearly" as const, priority: 0.4 })),
     ...legacyCategories.map((category) => ({
       url: `${siteConfig.url}${legacyCategoryPath(category.slug)}`,
       changeFrequency: "monthly" as const,

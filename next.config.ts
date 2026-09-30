@@ -37,6 +37,24 @@ const securityHeaders = [
 // Old mim.archi HMR tour URLs whose Pano2VR files live in public/tours/hmr/{unit}.
 const hmrTourUnits = "one-bedroom|two-bedroom|three-bedroom|four-bedroom|penthouse|townhouse";
 
+// Other Pano2VR tours restored from the old site's wp-content/uploads:
+// [old URL, folder under public/tours]. Keep in sync with legacyTourPaths in src/app/sitemap.ts.
+const legacyTours = [
+  ["/tours/aurumone/2-bed-apartment", "aurumone/2-bed-apartment"],
+  ["/tours/aurumone/3-bed-apartment", "aurumone/3-bed-apartment"],
+  ["/tours/the360residences/one-bed", "the360residences/one-bed"],
+  ["/tours/the360residences/two-bed", "the360residences/two-bed"],
+  ["/tours/the360residences/loft", "the360residences/loft"],
+  ["/ud-courtyard-type-a", "ud-courtyard/type-a"],
+  ["/ud-courtyard-type-b", "ud-courtyard/type-b"],
+  ["/ud-courtyard-type-c", "ud-courtyard/type-c"],
+  ["/ud-courtyard-type-d", "ud-courtyard/type-d"],
+  ["/gardenialivings-onebed", "gardenialivings/onebed"],
+  ["/gardenialivings-twobed", "gardenialivings/twobed"],
+] as const;
+// Tour folders the /tours/* catch-all redirect must leave alone so their files still load.
+const servedTourFolders = [`hmr/(?:${hmrTourUnits})`, ...legacyTours.map(([, folder]) => folder)].join("|");
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -112,13 +130,10 @@ const nextConfig: NextConfig = {
       { source: "/services/dual-screen", destination: "/services/interactive-services/dual-screen-navigator", permanent: true },
       { source: "/magnetic-field-of-solenoid", destination: "/services/interactive-services/vr-360-tours", permanent: true },
       { source: "/galvanic-cell", destination: "/services/interactive-services/vr-360-tours", permanent: true },
-      // The six HMR 360 tours are served from public/tours/hmr/{unit} (see rewrites below);
+      // Restored 360 tours are served from public/tours/* (see rewrites below);
       // their files must not be caught by this redirect. Every other tour still redirects.
       { source: "/tours", destination: "/services/interactive-services/web-tours", permanent: true },
-      { source: `/tours/:path((?!hmr/(?:${hmrTourUnits})(?:/.*)?$).*)`, destination: "/services/interactive-services/web-tours", permanent: true },
-      { source: "/gardenialivings-twobed", destination: "/services/interactive-services/web-tours", permanent: true },
-      { source: "/gardenialivings-onebed", destination: "/services/interactive-services/web-tours", permanent: true },
-      { source: "/ud-courtyard-type-:unit", destination: "/services/interactive-services/web-tours", permanent: true },
+      { source: `/tours/:path((?!(?:${servedTourFolders})(?:/.*)?$).*)`, destination: "/services/interactive-services/web-tours", permanent: true },
       { source: "/book-appointment", destination: "/contact", permanent: true },
       { source: "/my-bookings", destination: "/contact", permanent: true },
       { source: "/cancel-appointment", destination: "/contact", permanent: true },
@@ -139,6 +154,7 @@ const nextConfig: NextConfig = {
       // Pano2VR exports: serve each tour's index.html at the old URL. The page
       // sets <base href> so its relative files resolve without a trailing slash.
       { source: `/tours/hmr/:unit(${hmrTourUnits})`, destination: "/tours/hmr/:unit/index.html" },
+      ...legacyTours.map(([source, folder]) => ({ source, destination: `/tours/${folder}/index.html` })),
       // The backlinked company profile keeps both old URLs. The file lives at
       // public/storage/... because Vercel's firewall denies /wp-content/* until
       // that rule is relaxed in the Vercel dashboard.
