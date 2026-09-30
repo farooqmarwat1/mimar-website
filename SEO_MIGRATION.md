@@ -36,7 +36,22 @@ Last updated: 28 Sep 2026.
 
     Each tour is static under `public/tours/hmr/{unit}/`. A rewrite in `next.config.ts` serves `index.html` at the extensionless URL. Each `index.html` gained a `<base href>` so its relative files resolve without a trailing slash, plus a title, description, canonical and OG tags. The `/tours/*` redirect uses a negative lookahead to exempt these units and their files; `/tours`, `/tours/hmr` and every other tour still redirect to Web Tours. The tours are in the sitemap and are linked from a "Live 360 tours" section on `/services/interactive-services/vr-360-tours` (the `tours` field in `src/lib/service-details.ts`).
 
-    The same zip has three unlabelled tours (`tourSource`, `tourSource_1`, `tourSource_2`, probably 360 Residences one-bed, two-bed and loft) that are not live until the owner confirms which URLs they belong to.
+    The same zip has three unlabelled tours (`tourSource`, `tourSource_1`, `tourSource_2`, probably 360 Residences one-bed, two-bed and loft) that are not live until the owner confirms which URLs they belong to. They are superseded by item 12, which took the 360 Residences tours straight from the old site.
+12. **Remaining 360 tours (30 Sep 2026):** 11 more Pano2VR tours are live again at their old URLs, copied byte-for-byte from the old site's `wp-content/uploads` (the folder each old WordPress page loaded its `pano.xml` from):
+
+    | Old URL | Files in `public/tours/` | Source upload folder |
+    |---|---|---|
+    | `/tours/aurumone/2-bed-apartment` | `aurumone/2-bed-apartment` | `2023/01/2bed_ap` |
+    | `/tours/aurumone/3-bed-apartment` | `aurumone/3-bed-apartment` | `2023/01/TA_3_Bed_Type_A_360s` |
+    | `/tours/the360residences/one-bed` | `the360residences/one-bed` | `2021/11/1bed_g_mmmm` |
+    | `/tours/the360residences/two-bed` | `the360residences/two-bed` | `2021/11/2bed_g_mm` |
+    | `/tours/the360residences/loft` | `the360residences/loft` | `2021/11/3bed_g_mm` |
+    | `/ud-courtyard-type-a` … `-d` | `ud-courtyard/type-a` … `type-d` | `2021/11/KOH_TypeA` … `KOH_TypeD` |
+    | `/gardenialivings-onebed`, `-twobed` | `gardenialivings/onebed`, `twobed` | `2022/01/1BED`, `2022/01/2BED` |
+
+    They work like the HMR tours: `legacyTours` in `next.config.ts` rewrites each old URL to its `index.html`, and the `/tours/*` redirect's negative lookahead exempts every served folder. The old `/ud-courtyard-type-:unit` and `/gardenialivings-*` redirects were removed. Each `index.html` got the same `<base href>`, title, description, canonical and OG tags as HMR (the originals had an empty `<title>`). The copies are the clean exports; the old site served them with Cloudflare Rocket Loader injected, and that was stripped. The URLs are in the sitemap (`legacyTourPaths` in `src/app/sitemap.ts`, keep it in sync with `legacyTours`).
+
+    Still redirecting to Web Tours: the hubs `/tours`, `/tours/aurumone`, `/tours/the360residences`, `/tours/serenetower` and `/tours/hmr` (empty pages on the old site), and `/tours/pandamart`, `/tours/foodpanda`, `/tours/serenetower/*`, `/tours/aarkresidences/*`, `/tours/parkone/*` and `/tours/oliviaresidences/*`, which the old site already redirects away and which have no tour files left.
 
 ## 1. Context
 
