@@ -27,6 +27,14 @@ function videoType(src: string) {
   return src.endsWith(".webm") ? "video/webm" : "video/mp4";
 }
 
+function SectionVideo({ image }: { image: LegacyServiceImage }) {
+  return (
+    <video autoPlay muted loop playsInline preload="metadata" poster={image.src} title={image.alt} aria-label={image.alt} className="absolute inset-0 h-full w-full object-cover">
+      <source src={image.video} type={videoType(image.video ?? "")} />
+    </video>
+  );
+}
+
 /** Old WordPress service pages kept at their original URLs, laid out like the architectural sub-service pages. */
 export default function LegacyServicePage({ page }: { page: LegacyServicePageData }) {
   const parent = serviceDetails[page.parentSlug];
@@ -84,7 +92,11 @@ export default function LegacyServicePage({ page }: { page: LegacyServicePageDat
       <section className="container-page grid gap-10 py-16 md:grid-cols-2 md:items-center md:gap-16 md:py-28">
         <Reveal>
           <div className="relative aspect-[1.1] overflow-hidden bg-ink/5">
-            <Image src={page.introImage.src} alt={page.introImage.alt} fill unoptimized sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+            {page.introImage.video ? (
+              <SectionVideo image={page.introImage} />
+            ) : (
+              <Image src={page.introImage.src} alt={page.introImage.alt} fill unoptimized sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+            )}
           </div>
         </Reveal>
         <div>
@@ -136,7 +148,11 @@ export default function LegacyServicePage({ page }: { page: LegacyServicePageDat
                 <Reveal key={image.src} delay={imageIndex * 0.05}>
                   <figure className={section.images?.length === 1 && image.aspect === "square" ? "max-w-md" : ""}>
                     <div className={`relative overflow-hidden bg-ink/5 ${aspectClass[image.aspect ?? "video"]}`}>
-                      <Image src={image.src} alt={image.alt} title={image.alt} fill unoptimized sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover" />
+                      {image.video ? (
+                        <SectionVideo image={image} />
+                      ) : (
+                        <Image src={image.src} alt={image.alt} title={image.alt} fill unoptimized sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover" />
+                      )}
                     </div>
                   </figure>
                 </Reveal>

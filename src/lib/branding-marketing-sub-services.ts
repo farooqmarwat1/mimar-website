@@ -158,6 +158,32 @@ const subServices: BrandingMarketingSubService[] = [
     cta: brandingCta,
   },
   {
+    // The old Marketing page's "Digital Marketing Services" section had no URL of
+    // its own; this page gathers that section's copy, benefits and FAQs.
+    parent: "marketing",
+    slug: "digital-marketing",
+    seoTitle: "Digital Marketing Services | Mimar Studios",
+    seoDescription: "Digital marketing services from Mimar Studios for architects, real estate developers and interior designers: SEO, social media campaigns and engaging content.",
+    title: "Digital Marketing",
+    tagline: "Reach your target audience effectively",
+    intro: [
+      "While Mimar specializes in 3D architectural visualization, we also provide digital marketing services tailored to the needs of architects, real estate developers, and interior designers, helping them reach their target audience effectively.",
+      "Mimar's digital marketing experts will work closely with you to understand your business goals and target audience, conduct a thorough analysis of your current online presence, and develop a customized digital marketing strategy to help you achieve your objectives.",
+    ],
+    hero: "/service-media/marketing-digital.png",
+    introImage: "/service-media/marketing-hero.png",
+    gallery: [
+      { src: img("marketing", "social-media-marketing", "social-media-ad-1"), alt: "Park One social media posts by Mimar Studios" },
+      { src: img("marketing", "web-development", "serene-tower-website"), alt: "Serene Tower website designed and developed by Mimar Studios" },
+      { src: img("marketing", "seo", "seo-keyword-research"), alt: "SEO keyword research dashboard" },
+    ],
+    process: marketingProcess,
+    benefits: marketingBenefits,
+    benefitsImage: "/service-media/marketing-process.png",
+    faqs: [marketingFaqs.strategy, marketingFaqs.integration, marketingFaqs.seoSem],
+    cta: marketingCta,
+  },
+  {
     parent: "marketing",
     slug: "social-media-marketing",
     seoTitle: "Social Media Marketing Services | Mimar Studios",
