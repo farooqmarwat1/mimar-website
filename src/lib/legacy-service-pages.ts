@@ -3,7 +3,13 @@
 // §0.2); only the layout follows the new design. The old site had no meta
 // keywords tag, so keywords are taken from each page's own title and copy.
 
-export type LegacyServiceImage = { src: string; alt: string; aspect?: "video" | "square" | "portrait" };
+export type LegacyServiceImage = {
+  src: string;
+  alt: string;
+  aspect?: "video" | "square" | "portrait";
+  /** Plays this clip in place of the image, which becomes its poster. */
+  video?: string;
+};
 
 export type LegacyServicePage = {
   path: string;
@@ -30,6 +36,8 @@ export type LegacyServicePage = {
 };
 
 const spatial = "/services/architectural-design/sample-spatial-data";
+const onPlan = "/services/3d-on-plan";
+const onSite = "/services/3d-on-construction-site";
 
 export const legacyServicePages = {
   tvCommercials: {
@@ -75,6 +83,57 @@ export const legacyServicePages = {
         heading: "Site Findings",
         body: ["The terrain map records the shape of the site and the features that matter for planning, from pits and boulders to vegetation, access roads and vistas."],
         images: [{ src: "/services/terrain-mapping/terrain-map-site-findings.webp", alt: "Annotated terrain map showing pits, boulders, quarry dust, tree clusters and vistas" }],
+      },
+    ],
+    cta: { heading: ["Have more questions?", "Let’s talk."], body: "Our team is ready to assist you with all your questions." },
+  },
+  threeDOnPlan: {
+    path: "/services/3d-visualization-hamza/3d-on-plan",
+    parentSlug: "3d-visualization",
+    seoTitle: "3d On Plan - mimAR",
+    seoDescription: "Property modeling with 3D technology",
+    keywords: ["3D on plan", "3D floor plans", "augmented reality floor plan", "3D property modeling", "interactive floor plan app"],
+    title: "3D On Plan",
+    tagline: "Property modeling with 3D technology",
+    hero: { type: "video", src: `${onPlan}/3d-on-plan-hero.webm`, poster: `${onPlan}/3d-on-plan-hero.webp` },
+    intro: [
+      "Both individuals and businesses can benefit from Mimar’s 3D floor plan services. With 3D floor plans, you can view a 3D view of your floor’s layout. These floor plans allow you to see the potential of a residential or commercial property.",
+      "3D floor plans allow you to rotate them so that you can see your floor plan from different perspectives. To do this, install an app on your tablet or smartphone. Moreover, we can modify the labels or keynotes according to your needs.",
+    ],
+    introImage: { src: `${onPlan}/3d-floor-plan-tablet-app.webp`, alt: "Smartphone app showing a 3D model rising from a printed master plan", video: `${onPlan}/3d-floor-plan-tablet-app.mp4` },
+    sections: [
+      {
+        heading: "3D Floor Plans in Action",
+        images: [
+          { src: `${onPlan}/3d-on-plan-hero.webp`, alt: "Phone showing an augmented reality 3D tower over a printed floor plan", video: `${onPlan}/3d-on-plan-hero.webm` },
+          { src: `${onPlan}/3d-floor-plan-rotating-layout.webp`, alt: "3D apartment layout viewed on a phone over its printed floor plan", video: `${onPlan}/3d-floor-plan-rotating-layout.mp4` },
+        ],
+      },
+    ],
+    cta: { heading: ["Have more questions?", "Let’s talk."], body: "Our team is ready to assist you with all your questions." },
+  },
+  threeDOnConstructionSite: {
+    path: "/services/3d-visualization-hamza/3d-on-construction-site",
+    parentSlug: "3d-visualization",
+    seoTitle: "3d On Construction Site - mimAR",
+    seoDescription: "Let’s design your future Building",
+    keywords: ["3D on construction site", "augmented reality construction", "3D building on site", "AR building preview", "3D on-site visualization"],
+    title: "3D On Construction Site",
+    tagline: "Let’s design your future Building",
+    hero: { type: "video", src: `${onSite}/3d-on-construction-site-hero.webm`, poster: `${onSite}/3d-on-construction-site-hero.webp` },
+    intro: [
+      "With our 3D on-site service, you can view 3D buildings over a construction site on your smartphone or tablet. View the future appearance of your building using our 3D on construction model.",
+      "Using 3D technology, we ensure precision, safety, and on-time completion of your dream project.",
+      "Our 3D on-construction site service allows teams to develop ideas, estimate unnecessary costs, and spot flaws in architectural models.",
+    ],
+    introImage: { src: `${onSite}/3d-building-over-construction-site.webp`, alt: "3D building model shown over a construction site on a phone", video: `${onSite}/3d-building-over-construction-site.mp4` },
+    sections: [
+      {
+        heading: "3D On Site in Action",
+        images: [
+          { src: `${onSite}/3d-model-on-site-tablet-view.webp`, alt: "Phone showing a 3D building model placed on an empty site", video: `${onSite}/3d-model-on-site-tablet-view.mp4` },
+          { src: `${onSite}/3d-on-site-building-preview.webp`, alt: "Augmented reality preview of a finished shopfront on site", video: `${onSite}/3d-on-site-building-preview.mp4` },
+        ],
       },
     ],
     cta: { heading: ["Have more questions?", "Let’s talk."], body: "Our team is ready to assist you with all your questions." },

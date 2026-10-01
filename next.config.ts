@@ -13,7 +13,7 @@ const csp = [
   "img-src 'self' data: blob: https://cdn.sanity.io https://drive.google.com https://lh3.googleusercontent.com",
   "font-src 'self' data:",
   "connect-src 'self' https://*.api.sanity.io https://*.sanity.io",
-  "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://drive.google.com https://online.fliphtml5.com https://koalendar.com",
+  "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://drive.google.com https://online.fliphtml5.com https://koalendar.com https://www.canva.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -88,9 +88,9 @@ const nextConfig: NextConfig = {
       { source: "/our-portfolio", destination: "/projects", permanent: true },
       { source: "/about", destination: "/about-us", permanent: true },
       { source: "/contact-us", destination: "/contact", permanent: true },
-      // The old /meta hub is now a real page. Nested legacy /meta paths still
-      // need individual content decisions, so keep their existing redirect.
-      { source: "/meta/:path+", destination: "/services/interactive-services/vr-360-tours", permanent: true },
+      // The old /meta hub and /meta/app/edtech are real pages. Other nested legacy
+      // /meta paths still need individual content decisions, so keep their redirect.
+      { source: "/meta/:path((?!app/edtech$).+)", destination: "/services/interactive-services/vr-360-tours", permanent: true },
       { source: "/real-estate-360-tours", destination: "/services/interactive-services/web-tours", permanent: true },
       { source: "/interior-design-services", destination: "/services/architectural-design/interior-design-services", permanent: true },
       // 3d-views and cinematics are real pages again (src/app/services/3d-visualization/[slug]).
@@ -98,9 +98,10 @@ const nextConfig: NextConfig = {
       { source: "/services/cinematics", destination: "/services/3d-visualization/cinematics", permanent: true },
       { source: "/services/3d-visualization/property-explorer", destination: "/services/interactive-services/property-explorer", permanent: true },
       { source: "/services/3d-visualization/property-explorer-online", destination: "/services/interactive-services/property-explorer", permanent: true },
-      // terrain-mapping is a real page again (src/app/services/3d-visualization-hamza/terrain-mapping).
+      // terrain-mapping, 3d-on-plan and 3d-on-construction-site are real pages again
+      // (src/app/services/3d-visualization-hamza/*).
       { source: "/services/3d-visualization-hamza", destination: "/services/3d-visualization", permanent: true },
-      { source: "/services/3d-visualization-hamza/:path((?!terrain-mapping$).+)", destination: "/services/3d-visualization", permanent: true },
+      { source: "/services/3d-visualization-hamza/:path((?!(?:terrain-mapping|3d-on-plan|3d-on-construction-site)$).+)", destination: "/services/3d-visualization", permanent: true },
       // Interactive sub-services live under /services/interactive-services, as on the old site.
       { source: "/services/vr-360-tours", destination: "/services/interactive-services/vr-360-tours", permanent: true },
       { source: "/services/web-tours", destination: "/services/interactive-services/web-tours", permanent: true },
@@ -117,9 +118,9 @@ const nextConfig: NextConfig = {
       // other nested path still redirects to the parent.
       { source: "/services/architectural-design/smart-topography-survey/:path((?!sample-spatial-data$).+)", destination: "/services/architectural-design", permanent: true },
       // tv-commercials-and-advertisements is a real page again.
-      // The Social Media Marketing, Web Development and SEO sub-pages are real pages too
-      // (src/lib/branding-marketing-sub-services.ts).
-      { source: "/services/marketing/:path((?!(?:tv-commercials-and-advertisements|social-media-marketing|web-development|seo)$).+)", destination: "/services/marketing", permanent: true },
+      // The Digital Marketing, Social Media Marketing, Web Development and SEO sub-pages
+      // are real pages too (src/lib/branding-marketing-sub-services.ts).
+      { source: "/services/marketing/:path((?!(?:tv-commercials-and-advertisements|digital-marketing|social-media-marketing|web-development|seo)$).+)", destination: "/services/marketing", permanent: true },
       // Renamed 2026-08: service slugs/names were realigned to match the
       // pre-migration mim.archi site (see legacy /services/* redirects
       // above) to preserve historical SEO equity. These carry forward the
@@ -137,10 +138,8 @@ const nextConfig: NextConfig = {
       { source: "/tours", destination: "/services/interactive-services/web-tours", permanent: true },
       { source: `/tours/:path((?!(?:${servedTourFolders})(?:/.*)?$).*)`, destination: "/services/interactive-services/web-tours", permanent: true },
       { source: "/book-appointment", destination: "/contact", permanent: true },
-      { source: "/my-bookings", destination: "/contact", permanent: true },
       { source: "/cancel-appointment", destination: "/contact", permanent: true },
       { source: "/appointment-cancellation-confirmation", destination: "/contact", permanent: true },
-      { source: "/visualization-proposal", destination: "/contact", permanent: true },
       { source: "/category/services", destination: "/services", permanent: true },
       { source: "/category/3d-visualization", destination: "/blog/3d-visualization", permanent: true },
       { source: "/category/technology", destination: "/blog/real-estate-tech", permanent: true },

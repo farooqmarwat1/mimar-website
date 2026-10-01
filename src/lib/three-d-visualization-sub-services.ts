@@ -80,6 +80,37 @@ export const threeDVisualizationSubServices: Record<string, ThreeDVisualizationS
       body: "With our Web Tours, your clients design and explore their future home before it even gets constructed.",
     },
   },
+  // The old site listed Aerials only as a tile on the 3D Visualization page,
+  // with no page or URL of its own, so this page is new and its copy is short.
+  aerials: {
+    slug: "aerials",
+    seoTitle: "Aerials & Context | Mimar Studios",
+    seoDescription: "Aerial 3D views from Mimar Studios that show your project in its real setting, from masterplans and communities to towers in their city context.",
+    title: "Aerials & Context",
+    tagline: "See your project in its real setting",
+    hero: "/services/3d-rendering/aerial.webp",
+    sections: [
+      {
+        heading: "Aerial 3D Views",
+        body: [
+          "Aerial views show a project from above, in its real surroundings: roads, landscape, neighbouring buildings and the city around it.",
+          "They suit masterplans, communities and towers, where buyers and stakeholders need to understand the scale, layout and location of a development at a glance.",
+        ],
+        projects: ["faisal-hills", "faisal-town-ii", "hmr"],
+      },
+    ],
+    benefits: [
+      ["Realistic Material and Lighting", "Our team expertly selects material and lighting to craft realistic and immersive renders for true-to-life visualisations."],
+      ["Top Quality Renders", "Our 3D artists excel in producing high quality detailed renders, using the latest softwares that bring architectural designs to life."],
+      ["Attention to Detail", "We are dedicated to precision and excellence, ensuring every project, big or small is perfect to the tiniest detail."],
+      ["Bring Designs to Life", "Detailed representation of spaces and concepts that allow stakeholders to visualize the final outcome before the actual construction."],
+    ],
+    benefitsImage: "/services/3d-rendering/process.webp",
+    cta: {
+      heading: ["Dream Now, Build Later:", "Why wait?"],
+      body: "With our Web Tours, your clients design and explore their future home before it even gets constructed.",
+    },
+  },
   cinematics: {
     slug: "cinematics",
     seoTitle: "Cinematics - mimAR",

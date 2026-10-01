@@ -37,6 +37,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteConfig.url}/contact`, changeFrequency: "yearly", priority: 0.6 },
     { url: `${siteConfig.url}/booking`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${siteConfig.url}/blog`, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${siteConfig.url}/meta/app/edtech`, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${siteConfig.url}/visualization-proposal`, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${siteConfig.url}/my-bookings`, changeFrequency: "yearly", priority: 0.3 },
     // HMR 360 tours served from public/tours/hmr (see rewrites in next.config.ts).
     ...["one-bedroom", "two-bedroom", "three-bedroom", "four-bedroom", "penthouse", "townhouse"].map((unit) => ({
       url: `${siteConfig.url}/tours/hmr/${unit}`,

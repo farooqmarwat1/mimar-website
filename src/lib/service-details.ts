@@ -102,9 +102,9 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     hero: "/services/3D_rendering.webp",
     includedImage: "/services/section-media/rendering-included.webp",
     // 3D Views encompasses both interior and exterior still renders.
-    outputs: ["3D Views", "Aerials", "Cinematics & Animations"],
+    outputs: ["3D Views", "Aerials & Context", "Cinematics & Animations"],
     outputImages: ["/services/3d-rendering/exterior.webp", "/services/3d-rendering/aerial.webp", "/services/3d-visualization/cinematics/hero.webp"],
-    outputLinks: [threeDVisualizationSubServicePath("3d-views"), undefined, threeDVisualizationSubServicePath("cinematics")],
+    outputLinks: [threeDVisualizationSubServicePath("3d-views"), threeDVisualizationSubServicePath("aerials"), threeDVisualizationSubServicePath("cinematics")],
     processImage: "/services/3d-rendering/process.webp",
     showFacts: false,
     facts: [["3 to 7 days per view", "Turnaround"], ["Up to 6000 px, 300 dpi", "Output"], ["Unlimited within scope", "Revisions"], ["JPG / TIFF / PNG", "Formats"]],
@@ -290,7 +290,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     outputs: ["Digital Marketing", "Social Media Marketing", "Web Development", "SEO & Online Visibility"],
     outputImages: ["/service-media/marketing-digital.png", "/service-media/marketing-social.png", "/service-media/marketing-web.png", "/service-media/marketing-seo.png"],
     outputLinks: [
-      undefined,
+      brandingMarketingSubServicePath("marketing", "digital-marketing"),
       brandingMarketingSubServicePath("marketing", "social-media-marketing"),
       brandingMarketingSubServicePath("marketing", "web-development"),
       brandingMarketingSubServicePath("marketing", "seo"),

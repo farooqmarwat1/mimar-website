@@ -61,7 +61,19 @@ Last updated: 28 Sep 2026.
 
     The old site had no separate URLs for these, so there is nothing to redirect. Each page carries the old section's copy word for word (one garbled old sentence on Social Media Marketing was repaired), plus the old page's benefits, "Our Process" steps (Marketing) and the FAQs relevant to that sub-service with FAQPage schema. The Branding process steps come from the old FAQ answer about the branding process. Portfolio images come from the old pages' "Project Types" gallery, filtered by that gallery's own category; they were resized to at most 1600 px WebP with descriptive filenames and alt text, under `public/service-media/{branding,marketing}/{slug}/` (not `/services/marketing/*`, which the parent redirect would catch).
 
-    Copy and images are in `src/lib/branding-marketing-sub-services.ts`; the shared layout (same as the architectural-design sub-pages, plus a "Selected work" gallery and FAQs) is `src/components/services/BrandingMarketingSubServiceView.tsx`. The Branding and Marketing output tiles link to them via `outputLinks`, the `/services/marketing/*` redirect exempts the three marketing slugs, and all six are in the sitemap. The Marketing "Digital Marketing" tile has no page, as on the old site.
+    Copy and images are in `src/lib/branding-marketing-sub-services.ts`; the shared layout (same as the architectural-design sub-pages, plus a "Selected work" gallery and FAQs) is `src/components/services/BrandingMarketingSubServiceView.tsx`. The Branding and Marketing output tiles link to them via `outputLinks`, the `/services/marketing/*` redirect exempts the three marketing slugs, and all six are in the sitemap. The Marketing "Digital Marketing" tile got its own page later (item 17).
+
+17. **Remaining missing pages (1 Oct 2026, owner request, from `MimAR_Missing_Pages_Simple.xlsx`):** seven more pages are live. Five keep their old URLs and old `<title>`/description, and their redirects were removed or exempted:
+    - Row 19 `/services/3d-visualization-hamza/3d-on-plan` and row 39 `/services/3d-visualization-hamza/3d-on-construction-site`: old copy word for word, plus the old background and section videos (re-encoded to 720p H.264 MP4 without audio, with a poster frame each) under `public/services/{3d-on-plan,3d-on-construction-site}/`. Data: `legacyServicePages` in `src/lib/legacy-service-pages.ts`, where `LegacyServiceImage` now takes an optional `video`. The `/services/3d-visualization-hamza/*` redirect exempts both slugs.
+    - Row 37 `/meta/app/edtech`: the old photo, LinkedIn link, the two web AR experiences and the lab logo. Images are in `public/edtech/`, not `public/meta/`, because the `/meta/*` redirect would catch them. The experience cards open the MyWebAR projects directly; `/magnetic-field-of-solenoid` and `/galvanic-cell` (rows 32 and 35, which only embedded those projects) still redirect.
+    - Row 38 `/my-bookings`: the old page was an empty BookingPress shortcode. It is now a short page that points to `/booking` and `/contact`.
+    - Row 55 `/visualization-proposal`: the old page only embedded a Canva deck; the new page embeds the same deck (`https://www.canva.com` added to the CSP `frame-src`).
+
+    Two pages are new URLs, because the old site only had output tiles for them, with no page or URL. They are linked from those tiles:
+    - `/services/marketing/digital-marketing`: copy, benefits, process and FAQs from the old Marketing page's "Digital Marketing Services" section (`src/lib/branding-marketing-sub-services.ts`).
+    - `/services/3d-visualization/aerials` ("Aerials & Context"): there was no old copy to keep, so it has a short new intro, three masterplan projects, and the same benefits and CTA as 3D Views (`src/lib/three-d-visualization-sub-services.ts`).
+
+    All seven are in the sitemap.
 
 ## 1. Context
 
