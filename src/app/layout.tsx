@@ -19,7 +19,10 @@ export const metadata: Metadata = {
     keywords: ["architecture firm", "3D rendering", "3D rendering services", "architectural visualization", "real estate marketing"],
   }),
   metadataBase: new URL(siteConfig.url),
-  icons: { icon: "/favicon.ico" },
+  // No `icons` override here on purpose: Next derives the icon <link> tags from
+  // the files in this directory (favicon.ico, icon.png, apple-icon.png), which
+  // all carry the compass mark from public/logos/black.png. Setting `icons`
+  // manually would replace that generated set with a single favicon.ico link.
   manifest: "/site.webmanifest",
 };
 
