@@ -2,6 +2,12 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
 
+// NODE_ENV is "production" for Vercel preview builds too, so it cannot tell a
+// preview apart from the real production deployment. VERCEL_ENV can:
+// "production" | "preview" | "development". Guard on VERCEL so a self-hosted
+// production build (where VERCEL_ENV is undefined) is never noindexed by mistake.
+const isNonProductionDeployment = process.env.VERCEL === "1" && process.env.VERCEL_ENV !== "production";
+
 // Sanity's CDN + Studio API need explicit allowances; keep this list tight
 // and update it if new third-party origins (analytics, fonts, etc.) are added.
 const csp = [
@@ -75,6 +81,13 @@ const nextConfig: NextConfig = {
         has: [{ type: "host", value: ".*\\.vercel\\.app" }],
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
+      // The host rule above only covers *.vercel.app. This covers the same
+      // deployments by environment instead, so a preview served from any other
+      // hostname (a staging custom domain, a branch alias) is still noindexed.
+      // Production builds are untouched, so mim.archi stays indexable.
+      ...(isNonProductionDeployment
+        ? [{ source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }]
+        : []),
     ];
   },
   async redirects() {
