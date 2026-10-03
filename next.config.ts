@@ -61,6 +61,18 @@ const legacyTours = [
 // Tour folders the /tours/* catch-all redirect must leave alone so their files still load.
 const servedTourFolders = [`hmr/(?:${hmrTourUnits})`, ...legacyTours.map(([, folder]) => folder)].join("|");
 
+// The MIMAR CRM Portal is a separate app on its own Vercel project. It used to
+// be wired up by a Cloudflare Worker on the route *mim.archi/portal*, which only
+// ran while the mim.archi DNS record was proxied (orange cloud). Pointing the
+// record straight at Vercel (DNS only) stopped that Worker and took /portal
+// down, so the routing now lives here instead - Vercel to Vercel, no Cloudflare
+// hop. Keep these paths reserved: nothing on the main site may use them.
+const portalOrigin = "https://mimar-crm-portal.vercel.app";
+const portalPathPrefixes = ["portal", "api/v1", "__/auth"] as const;
+// Negative lookahead so the main site's security headers skip the portal paths.
+// `.*` can match the empty string, so "/" itself still matches this rule.
+const nonPortalPaths = `/:path((?!${portalPathPrefixes.join("|")}).*)`;
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -74,7 +86,10 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
-      { source: "/:path*", headers: securityHeaders },
+      // Portal paths are excluded: the strict CSP (connect-src 'self',
+      // frame-ancestors 'none') and X-Frame-Options: DENY break Firebase login,
+      // the 3D tours and partner iframe embeds on the portal app.
+      { source: nonPortalPaths, headers: securityHeaders },
       // Keep the Vercel staging URLs out of search while mim.archi serves the old site.
       {
         source: "/:path*",
@@ -164,19 +179,34 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    return [
-      // Pano2VR exports: serve each tour's index.html at the old URL. The page
-      // sets <base href> so its relative files resolve without a trailing slash.
-      { source: `/tours/hmr/:unit(${hmrTourUnits})`, destination: "/tours/hmr/:unit/index.html" },
-      ...legacyTours.map(([source, folder]) => ({ source, destination: `/tours/${folder}/index.html` })),
-      // The backlinked company profile keeps both old URLs. The file lives at
-      // public/storage/... because Vercel's firewall denies /wp-content/* until
-      // that rule is relaxed in the Vercel dashboard.
-      {
-        source: "/wp-content/uploads/2021/11/mimAR-Studios-Company-Profile.pdf",
-        destination: "/storage/2021/11/mimAR-Studios-Company-Profile.pdf",
-      },
-    ];
+    return {
+      // These must run before the filesystem and before dynamic routes:
+      // src/app/[...legacy] sets dynamicParams = false, so an unmatched /portal
+      // path would 404 here instead of reaching the portal app.
+      beforeFiles: [
+        { source: "/portal", destination: `${portalOrigin}/portal` },
+        { source: "/portal/:path*", destination: `${portalOrigin}/portal/:path*` },
+        // Not covered by the old Cloudflare Worker, which is why portal signup
+        // and invite emails were broken on mim.archi.
+        { source: "/api/v1/:path*", destination: `${portalOrigin}/api/v1/:path*` },
+        { source: "/__/auth/:path*", destination: `${portalOrigin}/__/auth/:path*` },
+      ],
+      // Returning a bare array behaves exactly like afterFiles, so moving the
+      // existing rewrites here keeps their current behaviour unchanged.
+      afterFiles: [
+        // Pano2VR exports: serve each tour's index.html at the old URL. The page
+        // sets <base href> so its relative files resolve without a trailing slash.
+        { source: `/tours/hmr/:unit(${hmrTourUnits})`, destination: "/tours/hmr/:unit/index.html" },
+        ...legacyTours.map(([source, folder]) => ({ source, destination: `/tours/${folder}/index.html` })),
+        // The backlinked company profile keeps both old URLs. The file lives at
+        // public/storage/... because Vercel's firewall denies /wp-content/* until
+        // that rule is relaxed in the Vercel dashboard.
+        {
+          source: "/wp-content/uploads/2021/11/mimAR-Studios-Company-Profile.pdf",
+          destination: "/storage/2021/11/mimAR-Studios-Company-Profile.pdf",
+        },
+      ],
+    };
   },
 };
 
