@@ -1,13 +1,20 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import TurnstileWidget from "@/components/TurnstileWidget";
 import { services } from "@/lib/site-config";
+
+// Public key of the Cloudflare Turnstile widget (inlined at build time). When
+// it is unset - e.g. local development without keys - the checkbox is skipped.
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || null;
 
 type Status = "idle" | "submitting" | "success" | "error";
 
 export default function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileReset, setTurnstileReset] = useState(0);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -21,7 +28,7 @@ export default function ContactForm() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, turnstileToken }),
       });
       if (!res.ok) throw new Error((await res.json())?.error ?? "Something went wrong.");
       setStatus("success");
@@ -29,6 +36,9 @@ export default function ContactForm() {
     } catch (err) {
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong.");
+      // A Turnstile token works once; ask for a fresh check before the retry.
+      setTurnstileToken(null);
+      setTurnstileReset((n) => n + 1);
     }
   }
 
@@ -75,11 +85,15 @@ export default function ContactForm() {
         />
       </label>
 
+      {TURNSTILE_SITE_KEY && (
+        <TurnstileWidget siteKey={TURNSTILE_SITE_KEY} onToken={setTurnstileToken} resetSignal={turnstileReset} />
+      )}
+
       {status === "error" && <p className="text-sm text-red-600">{errorMsg}</p>}
 
       <button
         type="submit"
-        disabled={status === "submitting"}
+        disabled={status === "submitting" || (TURNSTILE_SITE_KEY !== null && !turnstileToken)}
         className="button-pill mt-4 border-accent text-accent disabled:opacity-50"
       >
         {status === "submitting" ? "Sending…" : "Send"}

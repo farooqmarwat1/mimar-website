@@ -1,28 +1,38 @@
+import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { z } from "zod";
 import { buildConfirmationEmail, buildLeadEmail } from "@/lib/contact-email";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { contact } from "@/lib/site-config";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 /**
  * Contact form submission endpoint.
  *
- * Security notes:
- * - Zod validates and caps every field server-side (never trust client input).
- * - A basic in-memory sliding-window rate limit blocks obvious abuse. This
- *   resets on redeploy/cold start and won't hold across multiple serverless
- *   instances - for real production traffic on Vercel, swap this for
- *   Upstash Redis + @upstash/ratelimit (a few lines).
+ * Abuse protection, in the order a request meets it:
+ * 1. Per-IP rate limits (src/lib/rate-limit.ts), before any parsing.
+ * 2. Zod validates and caps every field server-side (never trust client input).
+ * 3. A hidden honeypot field that real users never fill in.
+ * 4. Cloudflare Turnstile: the "I'm human" checkbox. The token is verified
+ *    here with TURNSTILE_SECRET_KEY, so a bot can't skip the widget by posting
+ *    to this URL directly.
+ * 5. A per-email-address limit, applied only to verified humans, so one address
+ *    can't be flooded with our confirmation emails.
  *
  * Delivery: each valid submission is emailed through Resend to the studio
  * inbox (contact.email, info@mim.archi), with the visitor's address as
  * Reply-To, and the visitor gets a short confirmation email back (see the
  * "Confirmation" step below). Environment variables:
- * - RESEND_API_KEY      (required in production)
- * - CONTACT_FROM_EMAIL  (optional) sender; must be on a domain verified in
- *                       Resend. Defaults to the mim.archi site address below.
- * - CONTACT_TO_EMAIL    (optional) overrides the recipient, e.g. to point a
- *                       staging deploy at a test inbox instead of the studio.
+ * - RESEND_API_KEY        (required in production)
+ * - CONTACT_FROM_EMAIL    (optional) sender; must be on a domain verified in
+ *                         Resend. Defaults to the mim.archi site address below.
+ * - CONTACT_TO_EMAIL      (optional) overrides the recipient, e.g. to point a
+ *                         staging deploy at a test inbox instead of the studio.
+ * - TURNSTILE_SECRET_KEY  (required in production; the matching public site key
+ *                         is NEXT_PUBLIC_TURNSTILE_SITE_KEY, used by the form)
+ * - UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN (optional) shared counters
+ *                         so the rate limits hold across serverless instances.
  */
 
 // `||`, not `??`: a blank value copied from .env.example should count as unset.
@@ -37,21 +47,18 @@ const ContactSchema = z.object({
   service: z.string().trim().max(80).optional(),
   source: z.string().trim().max(80).optional(),
   message: z.string().trim().min(1).max(5000),
-  // Honeypot field - real users never fill this in.
-  company: z.string().max(0).optional().or(z.literal("")),
+  // Cloudflare Turnstile token (Cloudflare documents a 2048 character maximum).
+  turnstileToken: z.string().max(2048).optional(),
+  // Honeypot field - real users never fill this in. Deliberately accepted here
+  // (not rejected by the schema) so the handler can answer a bot with a quiet
+  // "ok" instead of an error that reveals which field gave it away.
+  company: z.string().max(500).optional(),
 });
 
-const WINDOW_MS = 60_000;
-const MAX_REQUESTS = 5;
-const hits = new Map<string, number[]>();
-
-function isRateLimited(ip: string) {
-  const now = Date.now();
-  const timestamps = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
-  timestamps.push(now);
-  hits.set(ip, timestamps);
-  return timestamps.length > MAX_REQUESTS;
-}
+// A real visitor rarely submits twice; these only need to stop floods.
+const IP_BURST = { limit: 3, windowSec: 60 };
+const IP_HOURLY = { limit: 10, windowSec: 3600 };
+const EMAIL_HOURLY = { limit: 3, windowSec: 3600 };
 
 // Shown to the visitor when we could not deliver their message. Never claim
 // success in that case - a silently dropped lead is worse than an error.
@@ -59,12 +66,21 @@ const DELIVERY_FAILED = {
   error: `We couldn't send your message right now. Please email us at ${contact.email} instead.`,
 };
 
-export async function POST(req: Request) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+function tooManyRequests(retryAfterSec: number) {
+  return NextResponse.json(
+    { error: "Too many requests. Please try again later." },
+    { status: 429, headers: { "Retry-After": String(retryAfterSec) } },
+  );
+}
 
-  if (isRateLimited(ip)) {
-    return NextResponse.json({ error: "Too many requests. Please try again shortly." }, { status: 429 });
-  }
+export async function POST(req: Request) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+
+  const ipLimit = await checkRateLimit([
+    { key: `contact:ip-burst:${ip}`, ...IP_BURST },
+    { key: `contact:ip-hourly:${ip}`, ...IP_HOURLY },
+  ]);
+  if (!ipLimit.allowed) return tooManyRequests(ipLimit.retryAfterSec);
 
   let json: unknown;
   try {
@@ -82,6 +98,39 @@ export async function POST(req: Request) {
     // Honeypot tripped - silently succeed so bots don't learn anything.
     return NextResponse.json({ ok: true });
   }
+
+  // Bot check. Fails closed in production: with no secret configured, or with
+  // Cloudflare unreachable, we refuse rather than let unchecked traffic through.
+  const turnstileSecret = process.env.TURNSTILE_SECRET_KEY?.trim();
+  if (!turnstileSecret) {
+    if (process.env.NODE_ENV === "production") {
+      console.error("[contact] TURNSTILE_SECRET_KEY is not set - refusing submissions without a bot check");
+      return NextResponse.json(DELIVERY_FAILED, { status: 503 });
+    }
+    // Local development without keys: don't block working on the form.
+    console.warn("[contact] TURNSTILE_SECRET_KEY is not set - skipping the bot check in development");
+  } else {
+    const notHuman = { error: "Please confirm you're human and try again." };
+    if (!parsed.data.turnstileToken) return NextResponse.json(notHuman, { status: 400 });
+
+    const human = await verifyTurnstile(parsed.data.turnstileToken, turnstileSecret, ip);
+    if (!human.ok) {
+      if (human.reason === "unreachable") {
+        console.error("[contact] Could not reach Cloudflare Turnstile to verify a submission");
+        return NextResponse.json(
+          { error: `We couldn't verify that you're human right now. Please try again, or email us at ${contact.email}.` },
+          { status: 503 },
+        );
+      }
+      return NextResponse.json(notHuman, { status: 403 });
+    }
+  }
+
+  // Only verified humans count against an address's quota (hashed: the key
+  // may live in Redis, and it needs no readable email in it).
+  const emailHash = createHash("sha256").update(parsed.data.email.toLowerCase()).digest("hex");
+  const emailLimit = await checkRateLimit([{ key: `contact:email:${emailHash}`, ...EMAIL_HOURLY }]);
+  if (!emailLimit.allowed) return tooManyRequests(emailLimit.retryAfterSec);
 
   const apiKey = process.env.RESEND_API_KEY?.trim();
   if (!apiKey) {
