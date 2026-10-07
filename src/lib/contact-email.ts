@@ -25,6 +25,33 @@ function escapeHtml(value: string) {
     .replace(/'/g, "&#39;");
 }
 
+// Auto-reply sent to the person who submitted the form. Deliberately does not
+// repeat their message back: the address is unverified visitor input, so the
+// less this email carries, the less use it is for abusing the form.
+export function buildConfirmationEmail(lead: Pick<ContactLead, "firstName">, studioEmail: string) {
+  const name = singleLine(lead.firstName);
+  const subject = "We received your enquiry - Mimar Studios";
+
+  const text = [
+    `Hi ${name},`,
+    "",
+    "Thank you for getting in touch with Mimar Studios. We have received your enquiry and a member of our team will get back to you shortly.",
+    "",
+    `If you need to add anything, just reply to this email or write to ${studioEmail}.`,
+    "",
+    "Mimar Studios",
+  ].join("\n");
+
+  const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#111">
+<p>Hi ${escapeHtml(name)},</p>
+<p>Thank you for getting in touch with Mimar Studios. We have received your enquiry and a member of our team will get back to you shortly.</p>
+<p>If you need to add anything, just reply to this email or write to <a href="mailto:${escapeHtml(studioEmail)}">${escapeHtml(studioEmail)}</a>.</p>
+<p style="margin-top:24px">Mimar Studios</p>
+</div>`;
+
+  return { subject, text, html };
+}
+
 export function buildLeadEmail(lead: ContactLead) {
   const name = singleLine(`${lead.firstName} ${lead.lastName}`);
   const service = singleLine(lead.service ?? "");

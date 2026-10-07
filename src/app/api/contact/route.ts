@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { z } from "zod";
-import { buildLeadEmail } from "@/lib/contact-email";
+import { buildConfirmationEmail, buildLeadEmail } from "@/lib/contact-email";
 import { contact } from "@/lib/site-config";
 
 /**
@@ -16,7 +16,8 @@ import { contact } from "@/lib/site-config";
  *
  * Delivery: each valid submission is emailed through Resend to the studio
  * inbox (contact.email, info@mim.archi), with the visitor's address as
- * Reply-To. Environment variables:
+ * Reply-To, and the visitor gets a short confirmation email back (see the
+ * "Confirmation" step below). Environment variables:
  * - RESEND_API_KEY      (required in production)
  * - CONTACT_FROM_EMAIL  (optional) sender; must be on a domain verified in
  *                       Resend. Defaults to the mim.archi site address below.
@@ -93,16 +94,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  const { subject, text, html } = buildLeadEmail(parsed.data);
+  const resend = new Resend(apiKey);
+  const lead = buildLeadEmail(parsed.data);
 
+  // 1) The studio notification is the one that matters: if it fails the lead
+  //    is lost, so tell the visitor.
   try {
-    const { error } = await new Resend(apiKey).emails.send({
+    const { error } = await resend.emails.send({
       from: FROM,
       to: TO,
       replyTo: parsed.data.email,
-      subject,
-      text,
-      html,
+      subject: lead.subject,
+      text: lead.text,
+      html: lead.html,
     });
     if (error) {
       // Log the reason only - never the visitor's details.
@@ -112,6 +116,26 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("[contact] Resend request failed", err instanceof Error ? err.message : err);
     return NextResponse.json(DELIVERY_FAILED, { status: 502 });
+  }
+
+  // 2) Confirmation to the visitor. Sent only after the studio copy went out
+  //    (never confirm something we didn't receive), and a failure here must not
+  //    fail the form - the lead is already safely delivered, so just log it.
+  const confirmation = buildConfirmationEmail(parsed.data, TO);
+  try {
+    const { error } = await resend.emails.send({
+      from: FROM,
+      to: parsed.data.email,
+      replyTo: TO,
+      subject: confirmation.subject,
+      text: confirmation.text,
+      html: confirmation.html,
+      // Marks it as automatic so other auto-responders don't answer it.
+      headers: { "Auto-Submitted": "auto-replied" },
+    });
+    if (error) console.error("[contact] Confirmation email rejected", { name: error.name, message: error.message });
+  } catch (err) {
+    console.error("[contact] Confirmation email failed", err instanceof Error ? err.message : err);
   }
 
   return NextResponse.json({ ok: true });
