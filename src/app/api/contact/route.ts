@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
+import { Resend } from "resend";
 import { z } from "zod";
+import { buildLeadEmail } from "@/lib/contact-email";
+import { contact } from "@/lib/site-config";
 
 /**
  * Contact form submission endpoint.
@@ -9,10 +12,21 @@ import { z } from "zod";
  * - A basic in-memory sliding-window rate limit blocks obvious abuse. This
  *   resets on redeploy/cold start and won't hold across multiple serverless
  *   instances - for real production traffic on Vercel, swap this for
- *   Upstash Redis + @upstash/ratelimit (a few lines; see comment below).
- * - No email is actually sent yet - wire up Resend/SendGrid/Postmark where
- *   marked TODO. Keeping it a stub avoids shipping fake credentials.
+ *   Upstash Redis + @upstash/ratelimit (a few lines).
+ *
+ * Delivery: each valid submission is emailed through Resend to the studio
+ * inbox (contact.email, info@mim.archi), with the visitor's address as
+ * Reply-To. Environment variables:
+ * - RESEND_API_KEY      (required in production)
+ * - CONTACT_FROM_EMAIL  (optional) sender; must be on a domain verified in
+ *                       Resend. Defaults to the mim.archi site address below.
+ * - CONTACT_TO_EMAIL    (optional) overrides the recipient, e.g. to point a
+ *                       staging deploy at a test inbox instead of the studio.
  */
+
+// `||`, not `??`: a blank value copied from .env.example should count as unset.
+const FROM = process.env.CONTACT_FROM_EMAIL?.trim() || "Mimar Studios Website <site@mim.archi>";
+const TO = process.env.CONTACT_TO_EMAIL?.trim() || contact.email;
 
 const ContactSchema = z.object({
   firstName: z.string().trim().min(1).max(80),
@@ -38,6 +52,12 @@ function isRateLimited(ip: string) {
   return timestamps.length > MAX_REQUESTS;
 }
 
+// Shown to the visitor when we could not deliver their message. Never claim
+// success in that case - a silently dropped lead is worse than an error.
+const DELIVERY_FAILED = {
+  error: `We couldn't send your message right now. Please email us at ${contact.email} instead.`,
+};
+
 export async function POST(req: Request) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
 
@@ -62,9 +82,37 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  // TODO: send via your provider of choice, e.g.:
-  //   await resend.emails.send({ from: "site@mim.archi", to: "info@mim.archi", ... })
-  console.log("[contact] new submission", { ...parsed.data, ip });
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  if (!apiKey) {
+    if (process.env.NODE_ENV === "production") {
+      console.error("[contact] RESEND_API_KEY is not set - a lead was NOT delivered");
+      return NextResponse.json(DELIVERY_FAILED, { status: 503 });
+    }
+    // Local development without a key: don't block working on the form.
+    console.warn("[contact] RESEND_API_KEY is not set - skipping the email in development");
+    return NextResponse.json({ ok: true });
+  }
+
+  const { subject, text, html } = buildLeadEmail(parsed.data);
+
+  try {
+    const { error } = await new Resend(apiKey).emails.send({
+      from: FROM,
+      to: TO,
+      replyTo: parsed.data.email,
+      subject,
+      text,
+      html,
+    });
+    if (error) {
+      // Log the reason only - never the visitor's details.
+      console.error("[contact] Resend rejected the message", { name: error.name, message: error.message });
+      return NextResponse.json(DELIVERY_FAILED, { status: 502 });
+    }
+  } catch (err) {
+    console.error("[contact] Resend request failed", err instanceof Error ? err.message : err);
+    return NextResponse.json(DELIVERY_FAILED, { status: 502 });
+  }
 
   return NextResponse.json({ ok: true });
 }
