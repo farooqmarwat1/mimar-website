@@ -1,4 +1,6 @@
 "use client";
+// TURNSTILE-DISABLED (no Cloudflare access yet): not imported anywhere right now. Kept ready for when
+// the Cloudflare checkbox is switched on (see TURNSTILE-DISABLED in the contact form).
 
 import { useEffect, useRef, useState } from "react";
 

@@ -1,3 +1,5 @@
+// TURNSTILE-DISABLED (no Cloudflare access yet): not imported anywhere right now. Kept ready for when
+// the Cloudflare checkbox is switched on (see TURNSTILE-DISABLED in the contact form).
 const VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 export type TurnstileResult =

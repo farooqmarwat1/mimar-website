@@ -12,16 +12,18 @@ const isNonProductionDeployment = process.env.VERCEL === "1" && process.env.VERC
 // and update it if new third-party origins (analytics, fonts, etc.) are added.
 const csp = [
   "default-src 'self'",
-  // challenges.cloudflare.com: the Turnstile "I'm human" checkbox on the contact
-  // form (script, challenge iframe and its verification calls).
-  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${isDev ? " 'unsafe-eval'" : ""}`,
+  // TURNSTILE-DISABLED (no Cloudflare access yet): the contact form's Turnstile "I'm human"
+  // checkbox needs https://challenges.cloudflare.com added to script-src,
+  // connect-src and frame-src below. Left out while the checkbox is off so the
+  // policy doesn't allow an origin nothing uses.
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   // lh3.googleusercontent.com is where drive.google.com/thumbnail redirects
   // to - needed for DriveVideo's poster image (src/components/ui/DriveVideo.tsx).
   "img-src 'self' data: blob: https://cdn.sanity.io https://drive.google.com https://lh3.googleusercontent.com",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.api.sanity.io https://*.sanity.io https://challenges.cloudflare.com",
-  "frame-src 'self' https://challenges.cloudflare.com https://www.youtube.com https://www.youtube-nocookie.com https://drive.google.com https://online.fliphtml5.com https://koalendar.com https://www.canva.com",
+  "connect-src 'self' https://*.api.sanity.io https://*.sanity.io",
+  "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://drive.google.com https://online.fliphtml5.com https://koalendar.com https://www.canva.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

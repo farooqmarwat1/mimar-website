@@ -5,7 +5,7 @@ import { z } from "zod";
 import { buildConfirmationEmail, buildLeadEmail } from "@/lib/contact-email";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { contact } from "@/lib/site-config";
-import { verifyTurnstile } from "@/lib/turnstile";
+// TURNSTILE-DISABLED (no Cloudflare access yet): import { verifyTurnstile } from "@/lib/turnstile";
 
 /**
  * Contact form submission endpoint.
@@ -14,11 +14,14 @@ import { verifyTurnstile } from "@/lib/turnstile";
  * 1. Per-IP rate limits (src/lib/rate-limit.ts), before any parsing.
  * 2. Zod validates and caps every field server-side (never trust client input).
  * 3. A hidden honeypot field that real users never fill in.
- * 4. Cloudflare Turnstile: the "I'm human" checkbox. The token is verified
- *    here with TURNSTILE_SECRET_KEY, so a bot can't skip the widget by posting
- *    to this URL directly.
- * 5. A per-email-address limit, applied only to verified humans, so one address
- *    can't be flooded with our confirmation emails.
+ * 4. TURNSTILE-DISABLED: Cloudflare Turnstile "I'm human" checkbox. Switched
+ *    off until the studio has Cloudflare access; the code is kept, commented
+ *    out, below. Search the repo for TURNSTILE-DISABLED to find every place to
+ *    switch it back on.
+ * 5. A per-email-address limit, so one address can't be flooded with our
+ *    confirmation emails. With the bot check off it counts every valid
+ *    submission, so someone can use up a stranger's 3 per hour; with it on,
+ *    only verified humans count.
  *
  * Delivery: each valid submission is emailed through Resend to the studio
  * inbox (contact.email, info@mim.archi), with the visitor's address as
@@ -29,8 +32,7 @@ import { verifyTurnstile } from "@/lib/turnstile";
  *                         Resend. Defaults to the mim.archi site address below.
  * - CONTACT_TO_EMAIL      (optional) overrides the recipient, e.g. to point a
  *                         staging deploy at a test inbox instead of the studio.
- * - TURNSTILE_SECRET_KEY  (required in production; the matching public site key
- *                         is NEXT_PUBLIC_TURNSTILE_SITE_KEY, used by the form)
+ * - TURNSTILE_SECRET_KEY  (TURNSTILE-DISABLED: not read while the bot check is off)
  * - UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN (optional) shared counters
  *                         so the rate limits hold across serverless instances.
  */
@@ -47,8 +49,8 @@ const ContactSchema = z.object({
   service: z.string().trim().max(80).optional(),
   source: z.string().trim().max(80).optional(),
   message: z.string().trim().min(1).max(5000),
-  // Cloudflare Turnstile token (Cloudflare documents a 2048 character maximum).
-  turnstileToken: z.string().max(2048).optional(),
+  // TURNSTILE-DISABLED: Cloudflare Turnstile token (max 2048 characters).
+  // turnstileToken: z.string().max(2048).optional(),
   // Honeypot field - real users never fill this in. Deliberately accepted here
   // (not rejected by the schema) so the handler can answer a bot with a quiet
   // "ok" instead of an error that reveals which field gave it away.
@@ -99,35 +101,41 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
+  // TURNSTILE-DISABLED: the bot check below is switched off until the studio has
+  // Cloudflare access. To switch it back on, uncomment this block, the import at
+  // the top, the turnstileToken schema field, and the pieces in ContactForm.tsx,
+  // next.config.ts (CSP) and .env.example. It fails closed: no secret in
+  // production, or Cloudflare unreachable, refuses the submission.
   // Bot check. Fails closed in production: with no secret configured, or with
   // Cloudflare unreachable, we refuse rather than let unchecked traffic through.
-  const turnstileSecret = process.env.TURNSTILE_SECRET_KEY?.trim();
-  if (!turnstileSecret) {
-    if (process.env.NODE_ENV === "production") {
-      console.error("[contact] TURNSTILE_SECRET_KEY is not set - refusing submissions without a bot check");
-      return NextResponse.json(DELIVERY_FAILED, { status: 503 });
-    }
-    // Local development without keys: don't block working on the form.
-    console.warn("[contact] TURNSTILE_SECRET_KEY is not set - skipping the bot check in development");
-  } else {
-    const notHuman = { error: "Please confirm you're human and try again." };
-    if (!parsed.data.turnstileToken) return NextResponse.json(notHuman, { status: 400 });
+  // const turnstileSecret = process.env.TURNSTILE_SECRET_KEY?.trim();
+  // if (!turnstileSecret) {
+  //   if (process.env.NODE_ENV === "production") {
+  //     console.error("[contact] TURNSTILE_SECRET_KEY is not set - refusing submissions without a bot check");
+  //     return NextResponse.json(DELIVERY_FAILED, { status: 503 });
+  //   }
+  //   // Local development without keys: don't block working on the form.
+  //   console.warn("[contact] TURNSTILE_SECRET_KEY is not set - skipping the bot check in development");
+  // } else {
+  //   const notHuman = { error: "Please confirm you're human and try again." };
+  //   if (!parsed.data.turnstileToken) return NextResponse.json(notHuman, { status: 400 });
+  //
+  //   const human = await verifyTurnstile(parsed.data.turnstileToken, turnstileSecret, ip);
+  //   if (!human.ok) {
+  //     if (human.reason === "unreachable") {
+  //       console.error("[contact] Could not reach Cloudflare Turnstile to verify a submission");
+  //       return NextResponse.json(
+  //         { error: `We couldn't verify that you're human right now. Please try again, or email us at ${contact.email}.` },
+  //         { status: 503 },
+  //       );
+  //     }
+  //     return NextResponse.json(notHuman, { status: 403 });
+  //   }
+  // }
 
-    const human = await verifyTurnstile(parsed.data.turnstileToken, turnstileSecret, ip);
-    if (!human.ok) {
-      if (human.reason === "unreachable") {
-        console.error("[contact] Could not reach Cloudflare Turnstile to verify a submission");
-        return NextResponse.json(
-          { error: `We couldn't verify that you're human right now. Please try again, or email us at ${contact.email}.` },
-          { status: 503 },
-        );
-      }
-      return NextResponse.json(notHuman, { status: 403 });
-    }
-  }
-
-  // Only verified humans count against an address's quota (hashed: the key
-  // may live in Redis, and it needs no readable email in it).
+  // Per-address quota (hashed: the key may live in Redis, and it needs no
+  // readable email in it). TURNSTILE-DISABLED: once the bot check is back on,
+  // this runs after it, so only verified humans count against an address.
   const emailHash = createHash("sha256").update(parsed.data.email.toLowerCase()).digest("hex");
   const emailLimit = await checkRateLimit([{ key: `contact:email:${emailHash}`, ...EMAIL_HOURLY }]);
   if (!emailLimit.allowed) return tooManyRequests(emailLimit.retryAfterSec);
