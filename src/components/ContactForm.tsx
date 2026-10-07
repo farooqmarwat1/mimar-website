@@ -1,13 +1,24 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+// TURNSTILE-DISABLED (no Cloudflare access yet): import TurnstileWidget from "@/components/TurnstileWidget";
 import { services } from "@/lib/site-config";
+
+// TURNSTILE-DISABLED (no Cloudflare access yet). To switch the "I'm human" checkbox back on,
+// uncomment every line marked TURNSTILE-DISABLED in this file, plus the matching
+// code in src/app/api/contact/route.ts, next.config.ts and .env.example.
+// Public key of the Cloudflare Turnstile widget (inlined at build time). When
+// it is unset - e.g. local development without keys - the checkbox is skipped.
+// const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || null;
 
 type Status = "idle" | "submitting" | "success" | "error";
 
 export default function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  // TURNSTILE-DISABLED (no Cloudflare access yet):
+  // const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  // const [turnstileReset, setTurnstileReset] = useState(0);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -21,6 +32,8 @@ export default function ContactForm() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        // TURNSTILE-DISABLED (no Cloudflare access yet): send the token with the form:
+        // body: JSON.stringify({ ...data, turnstileToken }),
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error((await res.json())?.error ?? "Something went wrong.");
@@ -29,6 +42,9 @@ export default function ContactForm() {
     } catch (err) {
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong.");
+      // TURNSTILE-DISABLED (no Cloudflare access yet): a Turnstile token works once, so ask for a fresh check before the retry.
+      // setTurnstileToken(null);
+      // setTurnstileReset((n) => n + 1);
     }
   }
 
@@ -75,8 +91,16 @@ export default function ContactForm() {
         />
       </label>
 
+      {/* TURNSTILE-DISABLED (no Cloudflare access yet):
+      {TURNSTILE_SITE_KEY && (
+        <TurnstileWidget siteKey={TURNSTILE_SITE_KEY} onToken={setTurnstileToken} resetSignal={turnstileReset} />
+      )}
+      */}
+
       {status === "error" && <p className="text-sm text-red-600">{errorMsg}</p>}
 
+      {/* TURNSTILE-DISABLED (no Cloudflare access yet): with the checkbox on, Send is also locked until it is ticked:
+          disabled={status === "submitting" || (TURNSTILE_SITE_KEY !== null && !turnstileToken)} */}
       <button
         type="submit"
         disabled={status === "submitting"}
