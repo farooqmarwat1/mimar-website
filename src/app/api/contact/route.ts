@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
 import { z } from "zod";
 import { buildConfirmationEmail, buildLeadEmail } from "@/lib/contact-email";
+import { getMailer } from "@/lib/mailer";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { contact } from "@/lib/site-config";
 // TURNSTILE-DISABLED (no Cloudflare access yet): import { verifyTurnstile } from "@/lib/turnstile";
@@ -23,13 +23,18 @@ import { contact } from "@/lib/site-config";
  *    submission, so someone can use up a stranger's 3 per hour; with it on,
  *    only verified humans count.
  *
- * Delivery: each valid submission is emailed through Resend to the studio
- * inbox (contact.email, info@mim.archi), with the visitor's address as
- * Reply-To, and the visitor gets a short confirmation email back (see the
- * "Confirmation" step below). Environment variables:
- * - RESEND_API_KEY        (required in production)
- * - CONTACT_FROM_EMAIL    (optional) sender; must be on a domain verified in
- *                         Resend. Defaults to the mim.archi site address below.
+ * Delivery: each valid submission is emailed to the studio inbox
+ * (contact.email, info@mim.archi), with the visitor's address as Reply-To, and
+ * the visitor gets a short confirmation email back (see the "Confirmation" step
+ * below). It goes over SMTP when that is configured, otherwise through Resend
+ * (src/lib/mailer.ts). Environment variables - one of the two is required in
+ * production:
+ * - SMTP_HOST / SMTP_PORT / SMTP_USER / SMTP_PASS (optional SMTP_SECURE)
+ *                         the studio mailbox, contact@contact.mim.archi on
+ *                         Titan (smtp.titan.email, port 465).
+ * - RESEND_API_KEY        used only when SMTP is not configured.
+ * - CONTACT_FROM_EMAIL    (optional) sender. Defaults to the SMTP mailbox, or
+ *                         to site@mim.archi for Resend (a domain verified there).
  * - CONTACT_TO_EMAIL      (optional) overrides the recipient, e.g. to point a
  *                         staging deploy at a test inbox instead of the studio.
  * - TURNSTILE_SECRET_KEY  (TURNSTILE-DISABLED: not read while the bot check is off)
@@ -38,7 +43,6 @@ import { contact } from "@/lib/site-config";
  */
 
 // `||`, not `??`: a blank value copied from .env.example should count as unset.
-const FROM = process.env.CONTACT_FROM_EMAIL?.trim() || "Mimar Studios Website <site@mim.archi>";
 const TO = process.env.CONTACT_TO_EMAIL?.trim() || contact.email;
 
 const ContactSchema = z.object({
@@ -140,38 +144,34 @@ export async function POST(req: Request) {
   const emailLimit = await checkRateLimit([{ key: `contact:email:${emailHash}`, ...EMAIL_HOURLY }]);
   if (!emailLimit.allowed) return tooManyRequests(emailLimit.retryAfterSec);
 
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  if (!apiKey) {
+  const mailer = getMailer();
+  if (!mailer) {
     if (process.env.NODE_ENV === "production") {
-      console.error("[contact] RESEND_API_KEY is not set - a lead was NOT delivered");
+      console.error("[contact] Neither SMTP nor RESEND_API_KEY is set - a lead was NOT delivered");
       return NextResponse.json(DELIVERY_FAILED, { status: 503 });
     }
-    // Local development without a key: don't block working on the form.
-    console.warn("[contact] RESEND_API_KEY is not set - skipping the email in development");
+    // Local development without credentials: don't block working on the form.
+    console.warn("[contact] Neither SMTP nor RESEND_API_KEY is set - skipping the email in development");
     return NextResponse.json({ ok: true });
   }
 
-  const resend = new Resend(apiKey);
+  const from = process.env.CONTACT_FROM_EMAIL?.trim() || mailer.defaultFrom;
   const lead = buildLeadEmail(parsed.data);
 
   // 1) The studio notification is the one that matters: if it fails the lead
   //    is lost, so tell the visitor.
   try {
-    const { error } = await resend.emails.send({
-      from: FROM,
+    await mailer.send({
+      from,
       to: TO,
       replyTo: parsed.data.email,
       subject: lead.subject,
       text: lead.text,
       html: lead.html,
     });
-    if (error) {
-      // Log the reason only - never the visitor's details.
-      console.error("[contact] Resend rejected the message", { name: error.name, message: error.message });
-      return NextResponse.json(DELIVERY_FAILED, { status: 502 });
-    }
   } catch (err) {
-    console.error("[contact] Resend request failed", err instanceof Error ? err.message : err);
+    // Log the reason only - never the visitor's details.
+    console.error(`[contact] Sending via ${mailer.name} failed`, err instanceof Error ? err.message : err);
     return NextResponse.json(DELIVERY_FAILED, { status: 502 });
   }
 
@@ -180,8 +180,8 @@ export async function POST(req: Request) {
   //    fail the form - the lead is already safely delivered, so just log it.
   const confirmation = buildConfirmationEmail(parsed.data, TO);
   try {
-    const { error } = await resend.emails.send({
-      from: FROM,
+    await mailer.send({
+      from,
       to: parsed.data.email,
       replyTo: TO,
       subject: confirmation.subject,
@@ -190,7 +190,6 @@ export async function POST(req: Request) {
       // Marks it as automatic so other auto-responders don't answer it.
       headers: { "Auto-Submitted": "auto-replied" },
     });
-    if (error) console.error("[contact] Confirmation email rejected", { name: error.name, message: error.message });
   } catch (err) {
     console.error("[contact] Confirmation email failed", err instanceof Error ? err.message : err);
   }
