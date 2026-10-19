@@ -8,6 +8,7 @@ import { threeDVisualizationSubServicePath, threeDVisualizationSubServiceSlugs }
 import { brandingMarketingSubServicePaths } from "@/lib/branding-marketing-sub-services";
 import { legacyServicePages } from "@/lib/legacy-service-pages";
 import { legacyCategories, legacyCategoryPath } from "@/lib/legacy-categories";
+import { regionList } from "@/lib/regions";
 
 // Other restored Pano2VR tours (see legacyTours in next.config.ts).
 const legacyTourPaths = [
@@ -106,7 +107,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  const allRoutes = [...staticRoutes, ...blogCategoryRoutes, ...projectRoutes, ...serviceRoutes, ...architecturalSubServiceRoutes, ...threeDVisualizationSubServiceRoutes, ...brandingMarketingSubServiceRoutes, ...legacyServiceRoutes, ...legacyRoutes];
+  // Country landing pages. These keep their original WordPress paths but are
+  // no longer in legacySeoPages, so they are listed explicitly here.
+  const regionRoutes: MetadataRoute.Sitemap = regionList.map((region) => ({
+    url: `${siteConfig.url}${region.path}`,
+    changeFrequency: "monthly",
+    priority: 0.8,
+  }));
+
+  const allRoutes = [...staticRoutes, ...blogCategoryRoutes, ...projectRoutes, ...serviceRoutes, ...architecturalSubServiceRoutes, ...threeDVisualizationSubServiceRoutes, ...brandingMarketingSubServiceRoutes, ...legacyServiceRoutes, ...regionRoutes, ...legacyRoutes];
 
   // Some sub-service slugs (e.g. cinematics) exist both in the flat `services`
   // list, for servicePath()-driven surfaces like the contact form and llms.txt,
