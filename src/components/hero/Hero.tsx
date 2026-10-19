@@ -30,7 +30,7 @@ export default function Hero() {
       <div className="absolute inset-0">
         {reduceMotion ? (
           <Image
-            src="/hero/hero-section-poster.jpg"
+            src="/hero/fallback.webp"
             alt="Lakeside residential building illuminated at dusk"
             fill
             priority
@@ -45,7 +45,7 @@ export default function Hero() {
             loop
             playsInline
             preload="metadata"
-            poster="/hero/hero-section-poster.jpg"
+            poster="/hero/fallback.webp"
             className="h-full w-full object-cover"
             aria-label="Architectural journey through a Mimar Studios development"
           >
