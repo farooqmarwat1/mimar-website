@@ -49,6 +49,9 @@ export default function Hero() {
             className="h-full w-full object-cover"
             aria-label="Architectural journey through a Mimar Studios development"
           >
+            {/* WebM (VP9) first: same clip, about 18% smaller. The browser uses the first source it can play, so
+                browsers without WebM support fall back to the MP4. */}
+            <source src="/hero/hero-section.webm" type="video/webm" />
             <source src="/hero/hero-section.mp4" type="video/mp4" />
           </video>
         )}
