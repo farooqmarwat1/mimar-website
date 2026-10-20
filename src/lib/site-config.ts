@@ -249,7 +249,7 @@ export const projects: Project[] = [
     slug: "aurum-one", title: "Aurum One", category: "3D Visualization",
     summary: "A premium development presented through a cinematic architectural visualization set.",
     cover: "/projects/catalog/aurum-one/image-1.jpg", featured: false, year: 2025,
-    location: "Pakistan", span: 5, gallery: projectGallery("aurum-one", 3),
+    location: "Pakistan", span: 5, gallery: projectGallery("aurum-one", 7),
   },
   {
     slug: "cafe-interior", title: "Café Interior", category: "Interior Design",
@@ -291,7 +291,7 @@ export const projects: Project[] = [
     slug: "abuja", title: "Abuja", category: "Interior Design",
     summary: "A sophisticated residential project spanning its arrival, atrium and private living spaces.",
     cover: "/projects/catalog/abuja/image-4.jpg", featured: true, year: 2025,
-    location: "Abuja, Nigeria", span: 5, gallery: projectGallery("abuja", 7),
+    location: "Abuja, Nigeria", span: 5, gallery: projectGallery("abuja", 8),
   },
 ];
 
