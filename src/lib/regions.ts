@@ -591,6 +591,174 @@ export const regions: Record<string, Region> = {
       "The studio has completed 270+ projects across 14 countries since 2019 and works the Sunday to Thursday Gulf week.",
     ],
   },
+  pakistan: {
+    // A new path - WordPress had no Pakistan page either.
+    path: "/3d-visualization-services-pakistan",
+    name: "Pakistan",
+    city: "Islamabad",
+    seoTitle: "3D Rendering & Architectural Visualization Services in Pakistan | Mimar",
+    description:
+      "Architectural visualization, 3D rendering and branding for developers and architects in Islamabad, Lahore, Karachi and Multan. The studio was founded in Islamabad in 2019.",
+    // Pakistan is the opposite problem to the US. Brand terms do well -
+    // "mimar" alone is 140 clicks at 33% CTR - but the non-brand local
+    // queries below sit on page 2 to 6, so they need rankings, not a better
+    // title. Note what actually earns impressions here: "architecture firm"
+    // and "branding", more than "3d rendering".
+    keywords: [
+      "architecture firms in pakistan",
+      "architectural design firm in pakistan",
+      "3d rendering services pakistan",
+      "branding companies in pakistan",
+      "architectural visualization islamabad",
+    ],
+    h1: "3D Visualization Services Pakistan",
+    intro:
+      "Architectural visualization, rendering and branding for developers and architects in Islamabad, Lahore, Karachi and Multan.",
+    projectSlugs: [
+      "faisal-town-ii",
+      "faisal-hills",
+      "hmr",
+      "lake-city",
+      "dha-multan-highrise",
+      "aurum-one",
+      "360-residences",
+      "cafe-interior",
+    ],
+    marketCopy:
+      "Mimar Studios was founded in Islamabad in 2019 and still builds everything here - the studio at the National Science & Technology Park produces the renderings, animation, VR and branding that go out to clients in fourteen countries. Closer to home that means master-planned communities, high-rise residential and hospitality work across Islamabad, Lahore, Karachi and Multan, handled by the same team that delivers abroad.",
+    services: [
+      {
+        title: "3D Rendering",
+        body: "Photorealistic interior and exterior stills for brochures, hoardings, launch campaigns and approval submissions.",
+      },
+      {
+        title: "Animation & Cinematics",
+        body: "Walkthroughs and fly-throughs for launches, sales offices and the social campaigns that carry a scheme.",
+      },
+      {
+        title: "Architectural Design",
+        body: "Detailed 3D models and visualization developed alongside your architect, from masterplan to final presentation set.",
+      },
+      {
+        title: "VR 360 Tours",
+        body: "Let a buyer walk an apartment before it is built - the approach behind our HMR and Aurum One tours.",
+      },
+      {
+        title: "Web Tours",
+        body: "Immersive 360-degree tours that run in any browser - no app, no install, straight from a listing page.",
+      },
+      {
+        title: "Branding & Marketing",
+        body: "Identity, collateral and campaign work for developments, produced alongside the visualization rather than bolted on.",
+      },
+    ],
+    reasons: [
+      {
+        title: "This is where we are",
+        body: "The studio has been in Islamabad since 2019. Meetings, site visits and reviews happen in person, not over a time difference.",
+      },
+      {
+        title: "Masterplan to unit",
+        body: "Faisal Town II and Faisal Hills covered CBD, lake district, stadium and golf course; HMR and Aurum One came down to single apartments.",
+      },
+      {
+        title: "Export-grade work, local rates",
+        body: "The same team and pipeline that delivers to Dubai and the United States, quoted in rupees.",
+      },
+      {
+        title: "Multiple revisions",
+        body: "Feedback is reviewed at every stage - greyscale, materials, final - until the result matches what you had in mind.",
+      },
+      {
+        title: "Branding under one roof",
+        body: "Identity and campaign work sit beside the visualization team, so a launch looks consistent from render to hoarding.",
+      },
+      {
+        title: "One team, every output",
+        body: "Stills, animation, VR and interactive tools are produced in-house, so the building looks the same across all of them.",
+      },
+    ],
+    office: {
+      city: "Islamabad",
+      country: "Pakistan",
+      address: "1403, National Science & Technology Park (NSTP), NUST, H-12, Islamabad 44000, Pakistan",
+      phone: "+92 300 511 2990",
+      geo: { latitude: 33.6461, longitude: 72.9932 },
+    },
+    // Address and phone taken from the verified Business Profile, which says
+    // suite 1403 - site-config still says 3407. The profile is what Google
+    // compares against, so it wins here until the two are reconciled.
+    locations: [
+      {
+        city: "Islamabad",
+        streetAddress: "1403, National Science & Technology Park (NSTP), NUST, H-12",
+        postalCode: "44000",
+        countryCode: "PK",
+        phone: "+92 300 511 2990",
+        geo: { latitude: 33.6461, longitude: 72.9932 },
+        gbpUrl: "https://share.google/9UmptDgeq3JNUfBZW",
+      },
+    ],
+    currency: "PKR",
+    compliance: [
+      "Deliverables prepared in the formats used for CDA, LDA and DHA submissions",
+      "Pakistan Standard Time, with the studio reachable through the working day",
+      "NDAs signed for unreleased developments as standard",
+    ],
+    testimonials: [
+      {
+        quote:
+          "Working with Mimar has been a smooth ride. My team has hardly faced any problems from their end as they keep a positive and professional attitude throughout the project.",
+        name: "Ali Raza",
+        city: "Pakistan",
+      },
+      {
+        quote:
+          "Their futuristic 3D technology really helped our team and boosted our sales to a great extent. The overall experience was wonderful.",
+        name: "Umar Farooq",
+        city: "Pakistan",
+      },
+    ],
+    faqs: [
+      {
+        question: "Where is Mimar Studios based?",
+        answer:
+          "The studio was founded in Islamabad in 2019 and works from the National Science & Technology Park at NUST, H-12. We work with clients across Islamabad, Lahore, Karachi and Multan, and in fourteen countries.",
+      },
+      {
+        question: "What Pakistani projects have you delivered?",
+        answer:
+          "Faisal Town II and Faisal Hills in Islamabad, HMR in Karachi, Lake City in Lahore, DHA Multan Highrise, Aurum One, 360 Residences and a cafe interior - eight developments in all, spanning masterplans down to single units.",
+      },
+      {
+        question: "How much do 3D visualization services cost in Pakistan?",
+        answer:
+          "Cost depends on the number of views, level of detail, scale of the development and turnaround required. Pricing is quoted per project in PKR. Send us your drawings and a short brief and we will return an itemised quote.",
+      },
+      {
+        question: "How quickly can you deliver a render?",
+        answer:
+          "A single still render is typically produced within 5-7 working days from approved inputs. Rush work can often be delivered in two to three working days once the greyscale stage is signed off.",
+      },
+      {
+        question: "Do you do branding as well as visualization?",
+        answer:
+          "Yes. Identity, collateral and campaign work are produced in-house alongside the visualization, so a launch looks consistent from the render through to the hoarding.",
+      },
+      {
+        question: "What do you need from me to start?",
+        answer:
+          "Plans, elevations, a material direction and any useful references. If the drawings are incomplete we can work from sketches and develop the detail with you during the greyscale stage.",
+      },
+    ],
+    keyFacts: [
+      "Mimar Studios was founded in Islamabad, Pakistan in 2019 and works from the National Science & Technology Park (NSTP) at NUST, H-12.",
+      "Pakistani projects delivered include Faisal Town II and Faisal Hills in Islamabad, HMR in Karachi, Lake City in Lahore and DHA Multan Highrise.",
+      "A single still render is typically delivered within 5-7 working days of approved inputs.",
+      "Services include photorealistic stills, cinematic animation, VR experiences, 360 web tours, interactive property tools and branding.",
+      "The studio has completed 270+ projects across 14 countries since 2019, with a team of 40+ based in Islamabad.",
+    ],
+  },
 };
 
 /** Projects in site-config that belong to a region, in listed order. */
