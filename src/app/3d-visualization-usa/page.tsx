@@ -39,35 +39,14 @@ export default function UsaRegionPage() {
             { name: "Services", path: "/services" },
             { name: region.h1, path: region.path },
           ]),
-          serviceJsonLd({
-            title: `3D Visualization Services ${region.name}`,
-            slug: "3d-visualization",
-            intro: region.description,
-            outputs: region.services.map((s) => s.title),
-          }),
-          // LocalBusiness for the Miami contact point. Geo coordinates are what
-          // power map-pack and "near me" results.
           {
-            "@context": "https://schema.org",
-            "@type": ["LocalBusiness", "ProfessionalService"],
-            "@id": `${siteConfig.url}${region.path}#localbusiness`,
-            name: `${siteConfig.name} - ${region.office.city}`,
-            url: `${siteConfig.url}${region.path}`,
-            image: `${siteConfig.url}${siteConfig.ogImage}`,
-            description: region.description,
-            address: {
-              "@type": "PostalAddress",
-              addressLocality: region.office.city,
-              addressRegion: "FL",
-              addressCountry: "US",
-            },
-            geo: {
-              "@type": "GeoCoordinates",
-              latitude: region.office.geo.latitude,
-              longitude: region.office.geo.longitude,
-            },
-            telephone: region.office.phone.replace(/\s/g, ""),
-            email: contact.email,
+            ...serviceJsonLd({
+              title: `3D Visualization Services ${region.name}`,
+              slug: "3d-visualization",
+              intro: region.description,
+              outputs: region.services.map((s) => s.title),
+            }),
+            // Cities we work in, including those with no profile of their own.
             areaServed: [
               { "@type": "Country", name: "United States" },
               { "@type": "City", name: "New York" },
@@ -75,11 +54,39 @@ export default function UsaRegionPage() {
               { "@type": "City", name: "San Francisco" },
               { "@type": "City", name: "Dallas" },
               { "@type": "City", name: "Houston" },
+              { "@type": "City", name: "Austin" },
               { "@type": "City", name: "Miami" },
             ],
-            parentOrganization: { "@id": `${siteConfig.url}/#organization` },
-            ...(region.office.gbpUrl ? { sameAs: [region.office.gbpUrl] } : {}),
           },
+          // One LocalBusiness per verified Google Business Profile. Each node
+          // carries that profile's own address, phone and geo, and links back
+          // to it with sameAs - that link is what ties this page to the
+          // listing Google already trusts.
+          ...region.locations.map((location) => ({
+            "@context": "https://schema.org",
+            "@type": ["LocalBusiness", "ProfessionalService"],
+            "@id": `${siteConfig.url}${region.path}#${location.city.toLowerCase().replace(/\s+/g, "-")}`,
+            name: `${siteConfig.name} - ${location.city}`,
+            url: `${siteConfig.url}${region.path}`,
+            image: `${siteConfig.url}${siteConfig.ogImage}`,
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: location.streetAddress,
+              addressLocality: location.city,
+              ...(location.area ? { addressRegion: location.area } : {}),
+              ...(location.postalCode ? { postalCode: location.postalCode } : {}),
+              addressCountry: location.countryCode,
+            },
+            geo: {
+              "@type": "GeoCoordinates",
+              latitude: location.geo.latitude,
+              longitude: location.geo.longitude,
+            },
+            telephone: location.phone.replace(/[^\d+]/g, ""),
+            email: contact.email,
+            parentOrganization: { "@id": `${siteConfig.url}/#organization` },
+            sameAs: [location.gbpUrl],
+          })),
           // The projects delivered in this market, as an ordered list.
           {
             "@context": "https://schema.org",

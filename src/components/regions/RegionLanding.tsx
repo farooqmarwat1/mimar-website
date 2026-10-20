@@ -237,6 +237,44 @@ export default function RegionLanding({ region }: { region: Region }) {
         </section>
       )}
 
+      {/* Verified Google Business Profile locations.
+          These are on the page because the LocalBusiness markup carries their
+          addresses, and Google expects marked-up detail to be visible to a
+          reader too. It is also the crawlable text that ties each city we
+          already rank for to a real address. */}
+      {region.locations.length > 0 && (
+        <section className="container-page py-16 md:py-28" aria-labelledby="region-locations-heading">
+          <div className="mb-10 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h2 id="region-locations-heading" className="eyebrow text-muted">/ {region.name} locations</h2>
+            <p className="eyebrow text-accent">
+              {region.locations.length} {region.locations.length === 1 ? "office" : "offices"}
+            </p>
+          </div>
+          <div className="grid gap-x-10 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
+            {region.locations.map((location, index) => (
+              <Reveal key={location.gbpUrl} delay={(index % 3) * 0.05}>
+                <div className="border-t border-line pt-5">
+                  <h3 className="text-lg">
+                    {location.city}
+                    {location.area ? `, ${location.area}` : ""}
+                  </h3>
+                  <p className="section-body mt-2 text-sm">
+                    {location.streetAddress}
+                    {location.postalCode ? `, ${location.postalCode}` : ""}
+                  </p>
+                  <a
+                    href={`tel:${location.phone.replace(/[^\d+]/g, "")}`}
+                    className="mt-2 block text-sm transition-colors hover:text-accent"
+                  >
+                    {location.phone}
+                  </a>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
+
       <FaqSection items={region.faqs} />
 
       {/* The site's standard closing CTA - same component every other page uses */}

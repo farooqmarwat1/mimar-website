@@ -24,6 +24,29 @@ export type RegionOffice = {
   gbpUrl?: string;
 };
 
+/**
+ * A verified Google Business Profile location in this market.
+ *
+ * Every field here must match what the Business Profile itself shows - Google
+ * compares them, and a mismatch is worse than no markup at all. The values
+ * below were read from the live profiles on 20 Oct 2026, not from site-config,
+ * which disagrees with them in several places (see NAP notes in the README of
+ * this change).
+ */
+export type RegionLocation = {
+  city: string;
+  /** State or emirate code where one applies, e.g. "NY", "TX". */
+  area?: string;
+  streetAddress: string;
+  postalCode?: string;
+  /** ISO country code for PostalAddress.addressCountry. */
+  countryCode: string;
+  phone: string;
+  geo: { latitude: number; longitude: number };
+  /** The share link from the verified profile - used as sameAs. */
+  gbpUrl: string;
+};
+
 export type Region = {
   /** Live path - unchanged from the old site. */
   path: string;
@@ -45,6 +68,8 @@ export type Region = {
   /** Why clients here choose us - label + one real sentence each. */
   reasons: { title: string; body: string }[];
   office: RegionOffice;
+  /** Verified Google Business Profile locations, rendered and marked up. */
+  locations: RegionLocation[];
   currency: string;
   /** Local submission/compliance context - a genuine local differentiator. */
   compliance?: string[];
@@ -144,6 +169,16 @@ export const regions: Record<string, Region> = {
       phone: "+971 54 146 5887",
       geo: { latitude: 25.2048, longitude: 55.2708 },
     },
+    locations: [
+      {
+        city: "Dubai",
+        streetAddress: "WeWork, One Central, 8th & 9th Floor, The Offices 4, Dubai World Trade Centre",
+        countryCode: "AE",
+        phone: "+971 58 536 1858",
+        geo: { latitude: 25.2246, longitude: 55.2874 },
+        gbpUrl: "https://share.google/zExBKdwTHeYWP6xBc",
+      },
+    ],
     currency: "AED",
     compliance: [
       "Deliverables prepared in formats used for Dubai Municipality and RERA submissions",
@@ -300,6 +335,58 @@ export const regions: Record<string, Region> = {
       phone: "+1 786 761 9866",
       geo: { latitude: 25.7617, longitude: -80.1918 },
     },
+    locations: [
+      {
+        city: "New York",
+        area: "NY",
+        streetAddress: "25 Broadway",
+        postalCode: "10004",
+        countryCode: "US",
+        phone: "+1 415-300-2005",
+        geo: { latitude: 40.7054, longitude: -74.0132 },
+        gbpUrl: "https://share.google/1moaNAdc6IN5roHSm",
+      },
+      {
+        city: "San Francisco",
+        area: "CA",
+        streetAddress: "535 Mission St",
+        postalCode: "94105",
+        countryCode: "US",
+        phone: "+1 415-300-2005",
+        geo: { latitude: 37.7881, longitude: -122.3972 },
+        gbpUrl: "https://share.google/jF9Xy8mD5BPlUy1wY",
+      },
+      {
+        city: "Los Angeles",
+        area: "CA",
+        streetAddress: "360 E 2nd St, Suite 800",
+        postalCode: "90012",
+        countryCode: "US",
+        phone: "+1 415-300-2005",
+        geo: { latitude: 34.0486, longitude: -118.2389 },
+        gbpUrl: "https://share.google/1DPWaFVsmxJDSZocn",
+      },
+      {
+        city: "Houston",
+        area: "TX",
+        streetAddress: "609 Main St",
+        postalCode: "77002",
+        countryCode: "US",
+        phone: "+1 415-745-4287",
+        geo: { latitude: 29.7576, longitude: -95.3647 },
+        gbpUrl: "https://share.google/H6hiSKKIuuuV59ZFt",
+      },
+      {
+        city: "Austin",
+        area: "TX",
+        streetAddress: "600 S Congress Ave",
+        postalCode: "78701",
+        countryCode: "US",
+        phone: "+1 415-300-2005",
+        geo: { latitude: 30.2549, longitude: -97.7452 },
+        gbpUrl: "https://maps.app.goo.gl/rQE1yMo767ZwhQLK8",
+      },
+    ],
     currency: "USD",
     compliance: [
       "Drawings read in imperial units - feet and inches - with no conversion step in between",
