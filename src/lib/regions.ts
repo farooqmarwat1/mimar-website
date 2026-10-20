@@ -213,6 +213,148 @@ export const regions: Record<string, Region> = {
       "The studio has completed 270+ projects across 14 countries since 2019, with offices in Islamabad, Jeddah, Dubai and the United States.",
     ],
   },
+  usa: {
+    // Path unchanged from WordPress. Renaming it to match the UAE slug would
+    // cost a redirect hop for no ranking benefit - slug wording is not a
+    // ranking factor.
+    path: "/3d-visualization-usa",
+    name: "USA",
+    city: "Miami",
+    seoTitle: "3D Rendering & Architectural Visualization Services USA | Mimar",
+    description:
+      "3D rendering and architectural visualization for developers and architects in New York, Los Angeles, San Francisco, Dallas, Houston and Miami. Photorealistic stills, animation and virtual tours.",
+    // These are queries the site already ranks 1-2 for in the US while earning
+    // almost no clicks - 33,251 impressions and 7 clicks in the 28 days to
+    // 17 Oct 2026. The page names the cities explicitly so the listing matches
+    // what was actually searched.
+    keywords: [
+      "3d rendering services usa",
+      "architectural visualization studio usa",
+      "3d rendering services new york",
+      "3d rendering services los angeles",
+      "architectural rendering san francisco",
+      "3d rendering services dallas",
+    ],
+    h1: "3D Visualization Services USA",
+    intro:
+      "Photorealistic rendering, animation and virtual tours for developers and architects in New York, Los Angeles, San Francisco, Dallas, Houston and Miami.",
+    projectSlugs: ["nomi-downtown", "the-garden-residences"],
+    marketCopy:
+      "American developers sell on renderings long before a foundation is poured - to lenders, to planning boards, and to buyers deciding off a brochure. Mimar Studios produces that imagery in-house for teams in New York, Los Angeles, San Francisco, Dallas, Houston and Miami: photorealistic stills, cinematic animation, 360 tours and interactive tools, delivered to US drawing standards and on US schedules.",
+    services: [
+      {
+        title: "3D Rendering",
+        body: "Photorealistic interior and exterior stills for brochures, listing sites, lender packages and planning submissions.",
+      },
+      {
+        title: "Animation & Cinematics",
+        body: "Walkthroughs and fly-throughs that carry a project across a sales centre screen, a website and a social campaign.",
+      },
+      {
+        title: "Architectural Design",
+        body: "Detailed 3D models and visualization developed alongside your architect, from massing study to final presentation set.",
+      },
+      {
+        title: "VR 360 Tours",
+        body: "Let an out-of-state buyer walk a unit before framing starts, and catch design problems while they are still cheap to fix.",
+      },
+      {
+        title: "Web Tours",
+        body: "Immersive 360-degree tours that run in any browser - no app, no install, straight from a listing page.",
+      },
+      {
+        title: "Dual Screen Navigator",
+        body: "Two-screen control of models and visualizations for sales centres, showrooms and investor presentations.",
+      },
+    ],
+    reasons: [
+      {
+        title: "Built for US sales cycles",
+        body: "Deliverables sized for listing platforms, brochure print, lender decks and planning boards - not just a folder of images.",
+      },
+      {
+        title: "Time zone overlap",
+        body: "Our day overlaps the US East Coast afternoon and the West Coast morning, so feedback left in the evening is usually actioned by morning.",
+      },
+      {
+        title: "Imperial units as standard",
+        body: "We model straight from drawings in feet and inches, with no unit conversion in between to introduce errors.",
+      },
+      {
+        title: "Multiple revisions",
+        body: "Feedback is reviewed at every stage - greyscale, materials, final - until the result matches what you had in mind.",
+      },
+      {
+        title: "Cost-effective",
+        body: "Studio-grade visualization at rates well below a comparable US-based studio, which is why much of this work is outsourced in the first place.",
+      },
+      {
+        title: "One team, every output",
+        body: "Stills, animation, VR and interactive tools are produced in-house, so the building looks the same across all of them.",
+      },
+    ],
+    office: {
+      city: "Miami",
+      country: "United States",
+      address: "Miami, Florida, United States",
+      phone: "+1 786 761 9866",
+      geo: { latitude: 25.7617, longitude: -80.1918 },
+    },
+    currency: "USD",
+    compliance: [
+      "Drawings read in imperial units - feet and inches - with no conversion step in between",
+      "Working hours overlap the US East Coast afternoon and the West Coast morning",
+      "NDAs signed for unreleased developments as standard",
+    ],
+    // Already published on /about-us, so this is not a new claim.
+    testimonials: [
+      {
+        quote:
+          "Reasonable rates, clear communication, and top-quality VR services. They have the best talent for each service they offer.",
+        name: "David Chen",
+        city: "United States",
+      },
+    ],
+    faqs: [
+      {
+        question: "Do you work with developers in the United States?",
+        answer:
+          "Yes. We work with developers, architects and real estate marketing teams across the US, including New York, Los Angeles, San Francisco, Dallas, Houston and Miami. Delivered US projects include Nomi Downtown in Miami and The Garden Residences.",
+      },
+      {
+        question: "How much do 3D rendering services cost in the USA?",
+        answer:
+          "Cost depends on the number of views, level of detail, scale of the development and turnaround required. Pricing is quoted per project in USD. Send us your drawings and a short brief and we will return an itemised quote.",
+      },
+      {
+        question: "How quickly can you deliver a render?",
+        answer:
+          "A single still render is typically produced within 5-7 working days from approved inputs. Rush work can often be delivered in two to three working days once the greyscale stage is signed off.",
+      },
+      {
+        question: "Do you work in feet and inches?",
+        answer:
+          "Yes. We model directly from imperial drawings, so you do not need to convert anything before sending plans and elevations.",
+      },
+      {
+        question: "What do you need from me to start?",
+        answer:
+          "Plans, elevations, a material direction and any useful references. If the drawings are incomplete we can work from sketches and develop the detail with you during the greyscale stage.",
+      },
+      {
+        question: "How does the time difference work?",
+        answer:
+          "Feedback sent at the end of a US working day is usually picked up overnight and answered before the next one starts.",
+      },
+    ],
+    keyFacts: [
+      "Mimar Studios provides 3D architectural rendering and visualization services to developers and architects across the United States, including New York, Los Angeles, San Francisco, Dallas, Houston and Miami.",
+      "US projects delivered include Nomi Downtown, an urban mixed-use development in Miami, and The Garden Residences.",
+      "A single still render is typically delivered within 5-7 working days of approved inputs.",
+      "Services include photorealistic stills, cinematic animation, VR experiences, 360 web tours and interactive property tools.",
+      "The studio has completed 270+ projects across 14 countries since 2019 and works from imperial drawings for US clients.",
+    ],
+  },
 };
 
 /** Projects in site-config that belong to a region, in listed order. */

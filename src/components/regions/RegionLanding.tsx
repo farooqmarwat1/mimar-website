@@ -28,6 +28,22 @@ export default function RegionLanding({ region }: { region: Region }) {
   const projects = regionProjects(region);
   const hero = projects[0];
 
+  // Markets differ in depth - six projects in the UAE, two in the US, one in
+  // Saudi Arabia. Narrowing the grid for the thin ones fills the row and keeps
+  // the images large, instead of leaving dead cells next to a single card.
+  const projectColumns =
+    projects.length === 1 ? "max-w-xl" : projects.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3";
+
+  // Same reasoning for the quotes: the UAE has three, the US one. A lone
+  // quote stretched to a readable measure reads as a pull quote; squeezed
+  // into a third of the row with two empty cells beside it reads as a bug.
+  const testimonialColumns =
+    region.testimonials.length === 1
+      ? "max-w-3xl"
+      : region.testimonials.length === 2
+        ? "md:grid-cols-2"
+        : "md:grid-cols-2 lg:grid-cols-3";
+
   return (
     <>
       {/* Hero - full-bleed project render, not an article header */}
@@ -100,9 +116,11 @@ export default function RegionLanding({ region }: { region: Region }) {
         <section className="container-page pb-16 md:pb-28" aria-labelledby="region-projects-heading">
           <div className="mb-8 flex flex-col gap-2 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
             <h2 id="region-projects-heading" className="eyebrow text-muted">/ Projects in {region.name}</h2>
-            <p className="eyebrow text-accent">{projects.length} developments</p>
+            <p className="eyebrow text-accent">
+              {projects.length} {projects.length === 1 ? "development" : "developments"}
+            </p>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className={`grid gap-6 ${projectColumns}`}>
             {projects.map((project, index) => (
               <Reveal key={project.slug} delay={(index % 3) * 0.05}>
                 <Link href={`/projects/${project.slug}`} className="group block">
@@ -202,7 +220,7 @@ export default function RegionLanding({ region }: { region: Region }) {
               / What {region.name} clients say
             </h2>
           </Reveal>
-          <div className="grid gap-x-10 md:grid-cols-2 lg:grid-cols-3">
+          <div className={`grid gap-x-10 ${testimonialColumns}`}>
             {region.testimonials.map((testimonial, index) => (
               <Reveal key={testimonial.name} delay={(index % 2) * 0.05}>
                 <blockquote className="border-t border-line py-9">
