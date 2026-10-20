@@ -43,8 +43,9 @@ export type RegionLocation = {
   countryCode: string;
   phone: string;
   geo: { latitude: number; longitude: number };
-  /** The share link from the verified profile - used as sameAs. */
-  gbpUrl: string;
+  /** Share link from the verified profile. Omitted until one exists - a
+   *  location is still marked up without it, just with no sameAs. */
+  gbpUrl?: string;
 };
 
 export type Region = {
@@ -440,6 +441,154 @@ export const regions: Record<string, Region> = {
       "A single still render is typically delivered within 5-7 working days of approved inputs.",
       "Services include photorealistic stills, cinematic animation, VR experiences, 360 web tours and interactive property tools.",
       "The studio has completed 270+ projects across 14 countries since 2019 and works from imperial drawings for US clients.",
+    ],
+  },
+  saudiArabia: {
+    // A new path - no Saudi page existed on WordPress, so there is nothing to
+    // preserve and nothing to redirect. "saudi-arabia" over "ksa" because
+    // that is overwhelmingly how the market is searched for.
+    path: "/3d-visualization-services-saudi-arabia",
+    name: "Saudi Arabia",
+    city: "Riyadh",
+    seoTitle: "3D Rendering & Architectural Visualization Services in Saudi Arabia | Mimar",
+    description:
+      "3D rendering and architectural visualization for developers and architects in Riyadh, Jeddah and across Saudi Arabia. Photorealistic stills, animation, VR and 360 tours, from our Jeddah office.",
+    // Unlike the UAE and US pages, these are not queries the site already
+    // ranks for. Saudi search currently reaches the site almost entirely on
+    // brand terms - of 276 Saudi queries in the six months to 17 Oct 2026,
+    // exactly one named a Saudi city. This page is building demand, not
+    // capturing it, and should be judged on that.
+    keywords: [
+      "3d rendering services saudi arabia",
+      "architectural visualization riyadh",
+      "3d rendering company jeddah",
+      "architectural rendering saudi arabia",
+      "3d visualization riyadh",
+    ],
+    h1: "3D Visualization Services Saudi Arabia",
+    intro:
+      "Photorealistic rendering, animation and virtual tours for developers building in Riyadh, Jeddah and across the Kingdom.",
+    projectSlugs: ["nana-222"],
+    marketCopy:
+      "Saudi Arabia is building faster than anywhere else in the region, and most of it is sold, approved and funded from imagery long before the site is cleared. Mimar Studios works with developers and architects in Riyadh and Jeddah from an office in Jeddah, producing renderings, cinematics, VR tours and 3D on plan in-house - in Gulf working hours, and quoted in riyals.",
+    services: [
+      {
+        title: "3D Rendering",
+        body: "Photorealistic interior and exterior stills for brochures, investor decks and municipality submissions.",
+      },
+      {
+        title: "Animation & Cinematics",
+        body: "Walkthroughs and fly-throughs that carry a development across a sales centre screen, a website and a campaign.",
+      },
+      {
+        title: "Architectural Design",
+        body: "Detailed 3D models and visualization developed alongside your architect, from massing study to final presentation set.",
+      },
+      {
+        title: "VR 360 Tours",
+        body: "Let a buyer walk a unit before it is built, and catch design problems while they are still cheap to fix.",
+      },
+      {
+        title: "Web Tours",
+        body: "Immersive 360-degree tours that run in any browser - no app, no install, straight from a listing page.",
+      },
+      {
+        title: "Dual Screen Navigator",
+        body: "Two-screen control of models and visualizations for sales centres, showrooms and investor presentations.",
+      },
+    ],
+    reasons: [
+      {
+        title: "An office in the Kingdom",
+        body: "We work from Jeddah, so meetings, site visits and reviews do not depend on a time zone or a visa.",
+      },
+      {
+        title: "Gulf working week",
+        body: "Our week runs Sunday to Thursday alongside yours, rather than against it.",
+      },
+      {
+        title: "Quoted in riyals",
+        body: "Pricing is set in SAR, so there is no currency conversion sitting between the quote and the invoice.",
+      },
+      {
+        title: "Multiple revisions",
+        body: "Feedback is reviewed at every stage - greyscale, materials, final - until the result matches what you had in mind.",
+      },
+      {
+        title: "Cost-effective",
+        body: "Studio-grade visualization at rates well below a comparable Western studio, with the same software and pipeline.",
+      },
+      {
+        title: "One team, every output",
+        body: "Stills, animation, VR and interactive tools are produced in-house, so the building looks the same across all of them.",
+      },
+    ],
+    office: {
+      city: "Jeddah",
+      country: "Saudi Arabia",
+      address: "Prince Sultan Branch Rd, Al-Mohammadiyah, Jeddah 23625, Saudi Arabia",
+      phone: "+966 59 743 9044",
+      geo: { latitude: 21.5810, longitude: 39.1570 },
+    },
+    // No verified Google Business Profile exists for Saudi Arabia yet, so this
+    // location is marked up without a sameAs. Address and phone are the ones
+    // the site already publishes in its footer.
+    locations: [
+      {
+        city: "Jeddah",
+        streetAddress: "Prince Sultan Branch Rd, Al-Mohammadiyah",
+        postalCode: "23625",
+        countryCode: "SA",
+        phone: "+966 59 743 9044",
+        geo: { latitude: 21.5810, longitude: 39.1570 },
+      },
+    ],
+    currency: "SAR",
+    compliance: [
+      "Deliverables prepared in the formats used for Saudi municipality and master-developer submissions",
+      "Sunday to Thursday working week, in Arabia Standard Time",
+      "NDAs signed for unreleased developments as standard",
+    ],
+    // No Saudi client has given us a quote for publication yet.
+    testimonials: [],
+    faqs: [
+      {
+        question: "Do you work with developers in Riyadh and Jeddah?",
+        answer:
+          "Yes. We work from an office in Jeddah with developers and architects across the Kingdom. Delivered Saudi work includes NANA 222 in Riyadh.",
+      },
+      {
+        question: "How much do 3D visualization services cost in Saudi Arabia?",
+        answer:
+          "Cost depends on the number of views, level of detail, scale of the development and turnaround required. Pricing is quoted per project in SAR. Send us your drawings and a short brief and we will return an itemised quote.",
+      },
+      {
+        question: "How quickly can you deliver a render?",
+        answer:
+          "A single still render is typically produced within 5-7 working days from approved inputs. Rush work can often be delivered in two to three working days once the greyscale stage is signed off.",
+      },
+      {
+        question: "Do you work the Saudi week?",
+        answer:
+          "Yes. Our week runs Sunday to Thursday in Arabia Standard Time, so reviews and approvals happen on your schedule rather than a day behind it.",
+      },
+      {
+        question: "Can you produce material for off-plan sales?",
+        answer:
+          "That is most of what we do. Stills, cinematic animation, 360 tours and interactive tools are all produced in-house, so a development looks consistent across a sales centre, a brochure and a listing page.",
+      },
+      {
+        question: "What do you need from me to start?",
+        answer:
+          "Plans, elevations, a material direction and any useful references. If the drawings are incomplete we can work from sketches and develop the detail with you during the greyscale stage.",
+      },
+    ],
+    keyFacts: [
+      "Mimar Studios provides 3D architectural rendering and visualization services to developers and architects in Riyadh, Jeddah and across Saudi Arabia, from an office in Jeddah.",
+      "Saudi work delivered includes NANA 222, a contemporary development in Riyadh.",
+      "A single still render is typically delivered within 5-7 working days of approved inputs.",
+      "Services include photorealistic stills, cinematic animation, VR experiences, 360 web tours and interactive property tools.",
+      "The studio has completed 270+ projects across 14 countries since 2019 and works the Sunday to Thursday Gulf week.",
     ],
   },
 };

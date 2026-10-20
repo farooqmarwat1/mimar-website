@@ -77,7 +77,7 @@ export default function UaeRegionPage() {
             telephone: location.phone.replace(/[^\d+]/g, ""),
             email: contact.email,
             parentOrganization: { "@id": `${siteConfig.url}/#organization` },
-            sameAs: [location.gbpUrl],
+            ...(location.gbpUrl ? { sameAs: [location.gbpUrl] } : {}),
           })),
           // The projects delivered in this market, as an ordered list.
           {
