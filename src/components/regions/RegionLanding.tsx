@@ -191,6 +191,34 @@ export default function RegionLanding({ region }: { region: Region }) {
         </div>
       </section>
 
+      {/* Testimonials - the same editorial blockquote treatment as /about-us:
+          rule above, large quote, eyebrow attribution. The old page used a
+          slider, which hid two of the three quotes behind arrows; stacking
+          them means all three are visible and crawlable. */}
+      {region.testimonials.length > 0 && (
+        <section className="container-page py-16 md:py-32" aria-labelledby="region-testimonials-heading">
+          <Reveal>
+            <h2 id="region-testimonials-heading" className="eyebrow mb-12 text-muted">
+              / What {region.name} clients say
+            </h2>
+          </Reveal>
+          <div className="grid gap-x-10 md:grid-cols-2 lg:grid-cols-3">
+            {region.testimonials.map((testimonial, index) => (
+              <Reveal key={testimonial.name} delay={(index % 2) * 0.05}>
+                <blockquote className="border-t border-line py-9">
+                  <p className="text-xl leading-tight tracking-[-.02em] md:text-2xl">
+                    &ldquo;{testimonial.quote}&rdquo;
+                  </p>
+                  <footer className="eyebrow mt-8 text-muted">
+                    {testimonial.name} - {testimonial.city}
+                  </footer>
+                </blockquote>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
+
       <FaqSection items={region.faqs} />
 
       {/* The site's standard closing CTA - same component every other page uses */}

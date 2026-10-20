@@ -48,6 +48,8 @@ export type Region = {
   currency: string;
   /** Local submission/compliance context - a genuine local differentiator. */
   compliance?: string[];
+  /** Client quotes carried over from the old WordPress page. */
+  testimonials: { quote: string; name: string; city: string }[];
   faqs: { question: string; answer: string }[];
   /** Self-contained, citable facts for AI answer engines. */
   keyFacts: string[];
@@ -147,6 +149,29 @@ export const regions: Record<string, Region> = {
       "Deliverables prepared in formats used for Dubai Municipality and RERA submissions",
       "Gulf Standard Time working hours with overlap into European and Asian schedules",
       "NDAs signed for unreleased developments as standard",
+    ],
+    // Carried over verbatim from the old WordPress page, which showed these
+    // three in a slider. Real named clients are the page's only third-party
+    // proof - everything else on it is us talking about ourselves.
+    testimonials: [
+      {
+        quote:
+          "Very satisfied with their work. mimAR has proved itself to be a reliable partner for architectural visualization services. We have worked with different companies from Dubai but none of them did the job quite as good as team mimAR did.",
+        name: "Ghiță Eder",
+        city: "Dubai",
+      },
+      {
+        quote:
+          "If you want the finest quality 3D renderings, go with mimAR because these guys really know their stuff. The deliverables were up to the mark and I was impressed with their timely response. Would strongly recommend.",
+        name: "Mehmet Demir",
+        city: "Sharjah",
+      },
+      {
+        quote:
+          "I hired mimAR for the 3D animation of our real estate project and what a splendid job they did. They were always available for any revisions and responded quickly with a better option. I can't forget to mention how reasonable their rates are. Keep up the good work guys.",
+        name: "Maya Andreson",
+        city: "Dubai",
+      },
     ],
     faqs: [
       {
