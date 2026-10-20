@@ -213,7 +213,9 @@ export const projects: Project[] = [
     year: 2025,
     location: "Riyadh, Saudi Arabia",
     span: 5,
-    gallery: projectGallery("nana-222", 8),
+    // Renders only - image-4, 6 and 7 are isometric cutaway plans, which is
+    // why this one lists its gallery instead of using projectGallery().
+    gallery: [1, 2, 3, 5, 8].map((n) => `/projects/catalog/nana-222/image-${n}.jpg`),
   },
   {
     slug: "nomi-downtown",
@@ -249,13 +251,13 @@ export const projects: Project[] = [
     slug: "aurum-one", title: "Aurum One", category: "3D Visualization",
     summary: "A premium development presented through a cinematic architectural visualization set.",
     cover: "/projects/catalog/aurum-one/image-1.jpg", featured: false, year: 2025,
-    location: "Pakistan", span: 5, gallery: projectGallery("aurum-one", 7),
+    location: "Pakistan", span: 5, gallery: projectGallery("aurum-one", 3),
   },
   {
     slug: "cafe-interior", title: "Café Interior", category: "Interior Design",
     summary: "A contemporary café interior developed through atmospheric visualization, planning and material studies.",
     cover: "/projects/catalog/cafe-interior/image-1.jpg", featured: false, year: 2026,
-    location: "Pakistan", span: 7, gallery: projectGallery("cafe-interior", 5),
+    location: "Pakistan", span: 7, gallery: projectGallery("cafe-interior", 4),
   },
   {
     slug: "dha-multan-highrise", title: "DHA Multan Highrise", category: "3D Visualization",
@@ -291,7 +293,7 @@ export const projects: Project[] = [
     slug: "abuja", title: "Abuja", category: "Interior Design",
     summary: "A sophisticated residential project spanning its arrival, atrium and private living spaces.",
     cover: "/projects/catalog/abuja/image-4.jpg", featured: true, year: 2025,
-    location: "Abuja, Nigeria", span: 5, gallery: projectGallery("abuja", 8),
+    location: "Abuja, Nigeria", span: 5, gallery: projectGallery("abuja", 6),
   },
 ];
 
