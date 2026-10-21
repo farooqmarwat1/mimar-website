@@ -91,10 +91,23 @@ export const siteJsonLd = {
       email: "info@mim.archi",
       description:
         "Mimar Studios is an international architecture and 3D visualization studio offering 3D rendering, animation, VR tours, and digital property experiences.",
+      // Social profiles, then the verified Google Business Profiles. Every link
+      // below was opened and confirmed to reach the right listing on 21 Oct
+      // 2026 - share.google answers 200 for a dead link too, serving an error
+      // page, so a status code proves nothing on its own. Dallas is absent
+      // deliberately: no working link for it has been supplied yet.
       sameAs: [
         "https://www.linkedin.com/company/mimar-studios",
         "https://www.behance.net/mimARstudios",
         "https://www.pinterest.com/mimarstudios",
+        "https://share.google/9UmptDgeq3JNUfBZW", // Islamabad
+        "https://share.google/zExBKdwTHeYWP6xBc", // Dubai
+        "https://share.google/1moaNAdc6IN5roHSm", // New York
+        "https://share.google/jF9Xy8mD5BPlUy1wY", // San Francisco
+        "https://share.google/1DPWaFVsmxJDSZocn", // Los Angeles
+        "https://share.google/H6hiSKKIuuuV59ZFt", // Houston
+        "https://maps.app.goo.gl/rQE1yMo767ZwhQLK8", // Austin
+        "https://share.google/52xpHYZjQEjnqvTFh", // Istanbul
       ],
       areaServed: ["Saudi Arabia", "United Arab Emirates", "Pakistan", "United States", "Worldwide"],
       contactPoint: [
