@@ -103,6 +103,7 @@ export const siteJsonLd = {
         "https://share.google/9UmptDgeq3JNUfBZW", // Islamabad
         "https://share.google/zExBKdwTHeYWP6xBc", // Dubai
         "https://share.google/1moaNAdc6IN5roHSm", // New York
+        "https://maps.google.com/?cid=10127851720809782624", // Dallas
         "https://share.google/jF9Xy8mD5BPlUy1wY", // San Francisco
         "https://share.google/1DPWaFVsmxJDSZocn", // Los Angeles
         "https://share.google/H6hiSKKIuuuV59ZFt", // Houston
