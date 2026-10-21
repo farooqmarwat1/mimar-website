@@ -348,6 +348,18 @@ export const regions: Record<string, Region> = {
         gbpUrl: "https://share.google/1moaNAdc6IN5roHSm",
       },
       {
+        city: "Dallas",
+        area: "TX",
+        streetAddress: "1601 Elm St",
+        postalCode: "75201",
+        countryCode: "US",
+        phone: "+1 415-745-4287",
+        geo: { latitude: 32.7819435, longitude: -96.7983793 },
+        // The share.google short link for this profile has never resolved, so
+        // this is the canonical maps CID URL for the same listing.
+        gbpUrl: "https://maps.google.com/?cid=10127851720809782624",
+      },
+      {
         city: "San Francisco",
         area: "CA",
         streetAddress: "535 Mission St",
