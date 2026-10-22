@@ -15,6 +15,17 @@ function load(file, mocks = {}) {
   return exports;
 }
 const policy = load('src/lib/ai/editorial-policy.ts');
+test('merged Firebase parser accepts quoted PEM and complete service-account JSON', () => {
+  const { resolveCredentials } = load('src/lib/firebase/credentials.ts');
+  const crypto = require('node:crypto');
+  const pem = crypto.generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey.export({ format: 'pem', type: 'pkcs8' });
+  const quoted = resolveCredentials({ projectId: '"test-project"', clientEmail: '"test@example.com"', privateKey: JSON.stringify(pem) });
+  assert(quoted.ok); assert.equal(quoted.credentials.projectId, 'test-project');
+  assert.equal(crypto.createPrivateKey(quoted.credentials.privateKey).asymmetricKeyType, 'rsa');
+  const json = resolveCredentials({ privateKey: JSON.stringify({ project_id: 'test-project', client_email: 'test@example.com', private_key: pem }) });
+  assert(json.ok); assert.equal(json.credentials.clientEmail, 'test@example.com');
+  assert.equal(resolveCredentials({ projectId: 'test', clientEmail: 'test@example.com', privateKey: 'broken' }).ok, false);
+});
 test('quoted hosting values and PEM line breaks normalize without changing keys', () => {
   const crypto = require('node:crypto');
   const env = load('src/lib/env.ts');

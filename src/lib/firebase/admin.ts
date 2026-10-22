@@ -1,9 +1,9 @@
 import "server-only";
-import { envValue, pemEnvValue } from "@/lib/env";
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getAuth, type Auth } from "firebase-admin/auth";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
+import { resolveCredentials } from "@/lib/firebase/credentials";
 
 /**
  * Server-only Firebase Admin access (Firestore, Auth, Storage).
@@ -21,11 +21,15 @@ import { getStorage } from "firebase-admin/storage";
 const APP_NAME = "mimar-site-admin";
 
 function credentials() {
-  const projectId = envValue(process.env.FIREBASE_PROJECT_ID);
-  const clientEmail = envValue(process.env.FIREBASE_CLIENT_EMAIL);
-  // Hosting dashboards store the PEM with literal "\n" sequences.
-  const privateKey = pemEnvValue(process.env.FIREBASE_PRIVATE_KEY);
-  return projectId && clientEmail && privateKey ? { projectId, clientEmail, privateKey } : null;
+  const result = resolveCredentials({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY,
+  });
+  if (result.ok) return result.credentials;
+  // Say so in the logs when something IS set but unusable, instead of failing later at first sign-in.
+  if (result.reason === "invalid") console.error(`[firebase] ${result.message}`);
+  return null;
 }
 
 export const isFirebaseConfigured = credentials() !== null;
