@@ -34,6 +34,17 @@ export default function RegionLanding({ region }: { region: Region }) {
   const projectColumns =
     projects.length === 1 ? "max-w-xl" : projects.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3";
 
+  // The grid above changes with the number of projects, so the sizes hint has
+  // to change with it. Left at a flat 33vw, the two-card US grid and the
+  // single Saudi card were being given a source a third of the width they
+  // actually render at, which is what made those thumbnails look soft.
+  const projectSizes =
+    projects.length === 1
+      ? "(max-width: 640px) 100vw, 36rem"
+      : projects.length === 2
+        ? "(max-width: 640px) 100vw, 50vw"
+        : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw";
+
   // Same reasoning for the quotes: the UAE has three, the US one. A lone
   // quote stretched to a readable measure reads as a pull quote; squeezed
   // into a third of the row with two empty cells beside it reads as a bug.
@@ -129,7 +140,8 @@ export default function RegionLanding({ region }: { region: Region }) {
                       src={project.cover}
                       alt={`${project.title} - ${project.category} by Mimar Studios in ${project.location}`}
                       fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      quality={85}
+                      sizes={projectSizes}
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   </div>

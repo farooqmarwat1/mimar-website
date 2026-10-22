@@ -1,9 +1,15 @@
 import legacySeoData from "@/content/legacy-seo.json";
 
-export type LegacyContentBlock = {
-  type: "h2" | "h3" | "p" | "li";
-  text: string;
-};
+/**
+ * The move off WordPress only ever extracted text, so these pages lost every
+ * image they had. The media blocks below carry it back: each one was taken
+ * from the original mimar.live article and re-inserted after the same
+ * paragraph it followed there.
+ */
+export type LegacyContentBlock =
+  | { type: "h2" | "h3" | "p" | "li"; text: string }
+  | { type: "img"; src: string; alt: string; width?: number; height?: number }
+  | { type: "video"; src: string };
 
 export type LegacySeoPage = {
   path: string;

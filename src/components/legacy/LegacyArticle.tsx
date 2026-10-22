@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/ui/Reveal";
 import type { LegacySeoPage } from "@/lib/legacy-seo";
@@ -28,6 +29,28 @@ export default function LegacyArticle({ page }: { page: LegacySeoPage }) {
         </aside>
         <div className="max-w-3xl">
           {page.blocks.map((block, index) => {
+            if (block.type === "img") {
+              return (
+                <figure key={`${block.src}-${index}`} className="mt-10 first:mt-0">
+                  <Image
+                    src={block.src}
+                    alt={block.alt}
+                    width={block.width ?? 2000}
+                    height={block.height ?? 1250}
+                    sizes="(max-width: 768px) 100vw, 768px"
+                    className="h-auto w-full"
+                    priority={index === 0}
+                  />
+                </figure>
+              );
+            }
+            if (block.type === "video") {
+              return (
+                <video key={`${block.src}-${index}`} className="mt-10 h-auto w-full" controls playsInline preload="none">
+                  <source src={block.src} />
+                </video>
+              );
+            }
             if (block.type === "h2") return <h2 key={`${block.text}-${index}`} className="mb-6 mt-14 text-3xl font-medium leading-tight tracking-[-.035em] first:mt-0 md:text-4xl">{block.text}</h2>;
             if (block.type === "h3") return <h3 key={`${block.text}-${index}`} className="mb-4 mt-10 text-2xl font-medium leading-tight tracking-[-.025em]">{block.text}</h3>;
             if (block.type === "li") return <p key={`${block.text}-${index}`} className="section-body ml-5 mt-3 before:-ml-5 before:mr-3 before:text-accent before:content-['•']">{block.text}</p>;
