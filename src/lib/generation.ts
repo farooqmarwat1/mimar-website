@@ -13,6 +13,7 @@ export type JobStatus = "queued" | "researching" | "writing" | "checking" | "don
 export type GenerationJob = {
   id: string;
   topic: string;
+  keyword?: string;
   geo?: string;
   category?: string;
   seedUrls: string[];
@@ -49,11 +50,18 @@ const JOBS = "siteGenerationJobs";
 const TOPICS = "siteBlogTopics";
 const now = () => new Date().toISOString();
 
+export async function getScheduleStatus(): Promise<{ state: string; lastRunAt: string; message?: string } | null> {
+  const snapshot = await adminDb().collection("siteBlogPlanner").doc("schedule").get();
+  if (!snapshot.exists) return null;
+  const data = snapshot.data()!;
+  return { state: data.state ?? "unknown", lastRunAt: data.lastRunAt ?? "", message: data.lastResult?.error ?? data.lastResult?.skipped };
+}
+
 function clean<T extends object>(data: T): T {
   return JSON.parse(JSON.stringify(data)) as T;
 }
 
-export async function createJob(input: Pick<GenerationJob, "topic" | "geo" | "category" | "seedUrls" | "source" | "createdBy">): Promise<string> {
+export async function createJob(input: Pick<GenerationJob, "topic" | "keyword" | "geo" | "category" | "seedUrls" | "source" | "createdBy">): Promise<string> {
   const ref = await adminDb()
     .collection(JOBS)
     .add(clean({ ...input, status: "queued", log: [], createdAt: now(), updatedAt: now() }));

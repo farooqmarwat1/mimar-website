@@ -2,8 +2,9 @@ import { timingSafeEqual } from "node:crypto";
 import { planAutoTopic } from "@/lib/ai/auto-topic";
 import { aiConfigured, runGeneration } from "@/lib/ai/generate-post";
 import { getProvider } from "@/lib/ai/provider";
+import { ensureAutoTopicQueued } from "@/lib/ai/topic-queue";
 import type { Usage } from "@/lib/ai/types";
-import { isFirebaseConfigured } from "@/lib/firebase/admin";
+import { adminDb, isFirebaseConfigured } from "@/lib/firebase/admin";
 import { claimNextTopic, createJob, createRunningTopic, finishTopic, type BlogTopic } from "@/lib/generation";
 import { getMailer } from "@/lib/mailer";
 import { getPostAdmin, listPostsAdmin } from "@/lib/posts";
@@ -47,6 +48,30 @@ export async function GET(request: Request) {
   if (!authorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!isFirebaseConfigured || !aiConfigured()) return Response.json({ skipped: "Firebase or the AI key is not configured." });
 
+  const status = adminDb().collection("siteBlogPlanner").doc("schedule");
+  const day = new Date().toISOString().slice(0, 10);
+  const acquired = await adminDb().runTransaction(async (tx) => {
+    const previous = await tx.get(status);
+    if (previous.get("completedDay") === day || Number(previous.get("leaseUntil") ?? 0) > Date.now()) return false;
+    tx.set(status, { lastRunAt: new Date().toISOString(), state: "running", leaseUntil: Date.now() + 360_000 }, { merge: true });
+    return true;
+  });
+  if (!acquired) return Response.json({ skipped: "Today's draft is complete or a scheduled run is already active." });
+  try {
+    const response = await runScheduledGeneration();
+    const result = await response.clone().json();
+    await status.set({ state: result.ok ? "done" : result.skipped ? "skipped" : "failed", lastResult: result, leaseUntil: 0, ...(result.ok ? { completedDay: day } : {}) }, { merge: true });
+    return response;
+  } catch (err) {
+    const error = err instanceof Error ? err.message : "Scheduled generation failed.";
+    await status.set({ state: "failed", lastResult: { error }, leaseUntil: 0 }, { merge: true });
+    console.error("[cron] scheduled generation failed", error);
+    return Response.json({ ok: false, error }, { status: 500 });
+  }
+}
+
+async function runScheduledGeneration() {
+
   const limit = await checkRateLimit([{ key: "blog-gen:day", limit: Number(process.env.BLOG_GENERATION_DAILY_LIMIT) || 10, windowSec: 86400 }]);
   if (!limit.allowed) return Response.json({ skipped: "Daily generation limit reached." });
 
@@ -71,23 +96,32 @@ export async function GET(request: Request) {
     }
   }
 
-  const jobId = await createJob({
-    topic: topic.topic,
-    geo: topic.geo,
-    category: topic.category,
-    seedUrls: [],
-    source: "cron",
-    createdBy: "scheduler",
-  });
+  let jobId;
+  try {
+    jobId = await createJob({
+      topic: topic.topic,
+      keyword: topic.keyword,
+      geo: topic.geo,
+      category: topic.category,
+      seedUrls: [],
+      source: "cron",
+      createdBy: "scheduler",
+    });
+  } catch (err) {
+    await finishTopic(topic.id, { status: "queued" });
+    throw err;
+  }
 
   try {
     const postId = await runGeneration(jobId);
     await finishTopic(topic.id, { status: "done", jobId, postId });
+    if (autoTopicsEnabled()) await ensureAutoTopicQueued().catch((err) => console.error("[cron] could not refill topic queue", err));
     await notifyReviewers(postId, topic, waiting + 1).catch((err) => console.error("[cron] could not email reviewers:", err instanceof Error ? err.message : err));
     return Response.json({ ok: true, mode, postId, topic: topic.topic, service: topic.group, region: topic.region });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Generation failed.";
     await finishTopic(topic.id, { status: "failed", jobId, error: message });
+    if (autoTopicsEnabled()) await ensureAutoTopicQueued().catch((planningError) => console.error("[cron] could not prepare replacement topic", planningError));
     return Response.json({ ok: false, error: message }, { status: 500 });
   }
 }

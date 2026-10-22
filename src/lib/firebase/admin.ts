@@ -1,4 +1,5 @@
 import "server-only";
+import { envValue, pemEnvValue } from "@/lib/env";
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getAuth, type Auth } from "firebase-admin/auth";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
@@ -20,10 +21,10 @@ import { getStorage } from "firebase-admin/storage";
 const APP_NAME = "mimar-site-admin";
 
 function credentials() {
-  const projectId = process.env.FIREBASE_PROJECT_ID?.trim();
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.trim();
+  const projectId = envValue(process.env.FIREBASE_PROJECT_ID);
+  const clientEmail = envValue(process.env.FIREBASE_CLIENT_EMAIL);
   // Hosting dashboards store the PEM with literal "\n" sequences.
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n").trim();
+  const privateKey = pemEnvValue(process.env.FIREBASE_PRIVATE_KEY);
   return projectId && clientEmail && privateKey ? { projectId, clientEmail, privateKey } : null;
 }
 
