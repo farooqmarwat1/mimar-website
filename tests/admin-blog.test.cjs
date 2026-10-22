@@ -15,6 +15,56 @@ function load(file, mocks = {}) {
   return exports;
 }
 const policy = load('src/lib/ai/editorial-policy.ts');
+test('source titles containing publisher pipes round trip without corrupting URLs', () => {
+  const fields = load('src/lib/post-fields.ts');
+  const sources = [{ title: 'Al Safat | Publisher | News', url: 'https://example.com/article/?q=a%7Cb' }];
+  const parsed = fields.parseSources(fields.sourcesToText(sources));
+  assert.equal(parsed[0].title, sources[0].title); assert.equal(parsed[0].url, sources[0].url);
+  assert(fields.isHttpsSourceUrl(parsed[0].url));
+  assert.equal(fields.parseSources('https://example.com/source')[0].url, 'https://example.com/source');
+  for (const url of ['not a URL', 'http://example.com', 'https://', 'https://user:secret@example.com', 'https://example.com/a b']) assert.equal(fields.isHttpsSourceUrl(url), false);
+  assert.equal(fields.parseSources('Malformed source line').length, 1);
+});
+
+test('every library cover exists and has accurate image dimensions and descriptive alt text', async () => {
+  const covers = load('src/lib/blog-covers.ts');
+  const sharp = require('sharp');
+  for (const cover of Object.values(covers.BLOG_COVERS)) {
+    const metadata = await sharp(path.join(__dirname, '..', 'public', cover.url)).metadata();
+    assert.equal(metadata.width, cover.width); assert.equal(metadata.height, cover.height); assert(cover.alt.length > 30);
+  }
+  assert.equal(covers.selectBlogCover({ title: 'How to brief a brand identity project' }).url, covers.BLOG_COVERS.branding.url);
+  assert.equal(covers.selectBlogCover({ title: 'Choosing a virtual reality tour', category: 'vr-real-estate' }).url, covers.BLOG_COVERS.interactive.url);
+  for (const url of ['https://evil.example/image.jpg', '//evil.example/image.jpg', '/services/../secret', covers.BLOG_COVERS.rendering.url + '?redirect=evil']) assert.equal(covers.libraryCover(url), undefined);
+});
+
+test('existing AI drafts receive a library cover in the editor without replacing uploaded covers', () => {
+  const fields = load('src/lib/post-fields.ts');
+  const values = load('src/lib/post-form-values.ts', {
+    '@/lib/blog-covers': load('src/lib/blog-covers.ts'), '@/lib/post-fields': fields,
+    '@/lib/content-blocks': load('src/lib/content-blocks.ts'),
+  });
+  const post = { id: 'draft', title: 'Architecture brief', category: 'architecture', keywords: [], geoTerms: [], blocks: [], faq: [], related: [], sources: [], origin: 'ai', status: 'draft' };
+  const initial = values.postToFormValues(post);
+  assert.equal(initial.coverUrl, '/services/architectural-design/hero.jpg'); assert(initial.coverAlt.length > 0);
+  assert.equal(values.postToFormValues({ ...post, origin: 'manual' }).coverUrl, '');
+  assert.equal(values.postToFormValues({ ...post, coverImage: { url: 'https://example.com/custom.webp', alt: 'Custom cover' } }).coverAlt, 'Custom cover');
+});
+
+test('blog image metadata uses absolute URLs, correct dimensions, alt text and article schema', () => {
+  const siteConfig = { url: 'https://mim.archi', name: 'Mimar Studios', locale: 'en_US', ogImage: '/og.jpg' };
+  const seo = load('src/lib/seo.ts', { './site-config': { siteConfig }, './service-details': {} });
+  const blog = load('src/lib/blog-seo.ts', { '@/lib/seo': seo, '@/lib/site-config': { siteConfig }, '@/lib/content-blocks': load('src/lib/content-blocks.ts') });
+  const cover = load('src/lib/blog-covers.ts').BLOG_COVERS.rendering;
+  const page = { path: '/blog/rendering-guide', title: 'Rendering guide', seoTitle: 'Rendering guide', description: 'A useful guide', keywords: [], published: '2026-10-22 10:00:00', modified: '2026-10-22 11:00:00', blocks: [{ type: 'p', text: 'A clear explanation.' }], cover, isPost: true, category: '3d-visualization', sources: [{ title: 'Verified source', url: 'https://example.com/research' }] };
+  const metadata = blog.blogMetadata(page), schema = blog.blogPostJsonLd(page);
+  assert.equal(metadata.alternates.canonical, 'https://mim.archi/blog/rendering-guide');
+  assert.equal(metadata.openGraph.type, 'article'); assert.equal(metadata.openGraph.images[0].alt, cover.alt);
+  assert.equal(metadata.openGraph.images[0].width, cover.width);
+  assert.equal(schema['@type'], 'BlogPosting'); assert.equal(schema.image.url, 'https://mim.archi' + cover.url);
+  assert.equal(schema.image.caption, cover.alt); assert.equal(schema.citation[0].url, page.sources[0].url);
+  assert.equal(blog.blogMetadata({ ...page, isPost: undefined }).openGraph.type, 'website');
+});
 test('merged Firebase parser accepts quoted PEM and complete service-account JSON', () => {
   const { resolveCredentials } = load('src/lib/firebase/credentials.ts');
   const crypto = require('node:crypto');
@@ -117,6 +167,7 @@ test('a draft still failing mandatory checks after rewriting is never saved', as
     write: async () => { writes++; return article(); },
   };
   const generator = load('src/lib/ai/generate-post.ts', {
+    '@/lib/blog-covers': load('src/lib/blog-covers.ts'),
     './editorial-policy': policy,
     '@/lib/ai/provider': { aiConfigured: () => true, getProvider: () => provider },
     '@/lib/ai/safe-fetch': { fetchPageText: async () => null }, '@/lib/ai/similarity': load('src/lib/ai/similarity.ts'),
@@ -131,6 +182,34 @@ test('a draft still failing mandatory checks after rewriting is never saved', as
   });
   await assert.rejects(generator.runGeneration('test'), /failed SEO\/GEO checks/);
   assert.equal(writes, 2); assert.equal(saves, 0); assert.equal(states.at(-1).status, 'failed');
+});
+
+test('a valid generated draft saves a matching cover and alt text without publishing', async () => {
+  const draft = article();
+  draft.body += '\n\n' + ('Developers can agree scope and deliverables before commissioning work. '.repeat(10) + '\n\n').repeat(12);
+  draft.body += '\n\nCompare [architectural design](/services/architectural-design), [branding](/services/branding) and [marketing](/services/marketing) for the project brief.';
+  draft.related = [{ label: 'Design services', path: '/services/architectural-design' }, { label: 'Branding services', path: '/services/branding' }];
+  let saved;
+  const provider = { name: 'gemini', model: 'mock', describeError: () => null,
+    research: async () => ({ brief: 'Verified background research. '.repeat(25), sources: ['https://one.example/a', 'https://two.example/b', 'https://two.example/c'].map(url => ({ url, title: 'Research', page: { url, text: 'Independent factual background material for reference.' } })) }),
+    write: async () => draft,
+  };
+  const generator = load('src/lib/ai/generate-post.ts', {
+    './editorial-policy': policy, '@/lib/blog-covers': load('src/lib/blog-covers.ts'),
+    '@/lib/ai/provider': { aiConfigured: () => true, getProvider: () => provider },
+    '@/lib/ai/safe-fetch': { fetchPageText: async () => null }, '@/lib/ai/similarity': load('src/lib/ai/similarity.ts'),
+    '@/lib/ai/types': load('src/lib/ai/types.ts'), '@/lib/content-blocks': load('src/lib/content-blocks.ts'),
+    '@/lib/generation': { getJob: async () => ({ topic: draft.title, keyword: 'architectural rendering', geo: 'Dubai, UAE', category: 'architecture', seedUrls: [], createdBy: 'test' }), updateJob: async () => {} },
+    '@/lib/internal-paths': { knownInternalPaths: async () => new Set(['/services/architectural-design', '/services/branding', '/services/marketing']), normalizePath: p => p },
+    '@/lib/legacy-seo': { blogCategories: [{ slug: 'architecture' }], legacySeoPages: [] },
+    '@/lib/post-validation': { checkPost: async () => ({ errors: {}, warnings: [] }) },
+    '@/lib/posts': { getPublishedPosts: async () => [], isReservedSlug: () => false, isPostSlugTaken: async () => false, savePost: async (_id, post) => { saved = post; return 'new-draft'; } },
+    '@/lib/regions': { regionList: [] }, '@/lib/service-details': { servicePath: s => '/services/' + s },
+    '@/lib/site-config': { offices: [], services: [{ slug: 'architectural-design', title: 'Architectural Design' }], siteConfig: {} }, '@/lib/slug': { slugify: () => 'rendering-guide' },
+  });
+  assert.equal(await generator.runGeneration('test'), 'new-draft');
+  assert.equal(saved.status, 'draft'); assert.equal(saved.coverImage.url, '/services/architectural-design/hero.jpg');
+  assert(saved.coverImage.alt.length > 30); assert.equal(saved.coverImage.width, 3200);
 });
 
 test('successful scheduled generation records completion and refills the queue', async () => {

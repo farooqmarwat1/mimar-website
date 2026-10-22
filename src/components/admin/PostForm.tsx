@@ -5,6 +5,7 @@ import { useActionState, useRef, useState } from "react";
 import { savePostAction, type PostFormState } from "@/app/admin/blog/actions";
 import BlockEditor from "@/components/admin/BlockEditor";
 import { cardClass, fieldClass, hintClass, labelClass, primaryButtonClass, secondaryButtonClass, textareaClass } from "@/components/admin/styles";
+import { selectBlogCover } from "@/lib/blog-covers";
 
 export type PostFormInitial = {
   id?: string;
@@ -68,7 +69,9 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
   const [title, setTitle] = useState(v("title"));
   const [seoTitle, setSeoTitle] = useState(v("seoTitle"));
   const [description, setDescription] = useState(v("description"));
+  const [category, setCategory] = useState(v("category"));
   const [coverUrl, setCoverUrl] = useState(v("coverUrl"));
+  const [coverAlt, setCoverAlt] = useState(v("coverAlt"));
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -85,6 +88,7 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
       const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
       if (!res.ok || !data.url) throw new Error(data.error ?? "Upload failed.");
       setCoverUrl(data.url);
+      setCoverAlt("");
     } catch (e) {
       setUploadError(e instanceof Error ? e.message : "Upload failed.");
     } finally {
@@ -111,7 +115,7 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
       )}
       {initial.origin === "ai" && initial.status === "draft" && (
         <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
-          AI draft - check every fact, figure and claim against the listed sources before publishing. Add real project images where they help.
+          AI draft - check every fact, figure and claim against the listed sources before publishing. The automatic cover comes from Mimar’s service library; review its relevance and alt text.
         </p>
       )}
       {notes.length > 0 && (
@@ -167,9 +171,14 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
             <Image src={coverUrl} alt="" fill sizes="576px" className="object-cover" />
           </div>
         ) : (
-          <p className={hintClass}>No cover image. Optional, but posts with one look better when shared.</p>
+          <p className={hintClass}>No cover image. Choose a matching library image or upload your own.</p>
         )}
         <div className="flex flex-wrap items-center gap-3">
+          <button type="button" onClick={() => {
+            const cover = selectBlogCover({ title, category });
+            setCoverUrl(cover.url);
+            setCoverAlt(cover.alt);
+          }} className={secondaryButtonClass}>Use matching library image</button>
           <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => onFile(e.target.files?.[0])} className="text-sm" />
           {coverUrl && (
             <button type="button" onClick={() => setCoverUrl("")} className="text-xs uppercase tracking-[0.14em] text-accent hover:underline">
@@ -180,7 +189,7 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
         </div>
         {(uploadError || err("coverUrl")) && <p className="text-xs text-accent">{uploadError || err("coverUrl")}</p>}
         <Field label="Describe the image (alt text)" hint="For screen readers and search. Required if there is a cover." error={err("coverAlt")}>
-          <input name="coverAlt" defaultValue={v("coverAlt")} className={fieldClass} />
+          <input name="coverAlt" value={coverAlt} onChange={event => setCoverAlt(event.target.value)} className={fieldClass} />
         </Field>
       </section>
 
@@ -188,7 +197,7 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
         <h2 className="text-lg font-medium">Organisation</h2>
         <div className="grid gap-5 md:grid-cols-2">
           <Field label="Category" error={err("category")}>
-            <select name="category" defaultValue={v("category")} className={fieldClass}>
+            <select name="category" value={category} onChange={event => setCategory(event.target.value)} className={fieldClass}>
               <option value="">No category</option>
               {categories.map((category) => (
                 <option key={category.slug} value={category.slug}>

@@ -19,6 +19,7 @@ import {
 } from "@/lib/posts";
 import { slugify } from "@/lib/slug";
 import { coverObjectPath, deleteCover } from "@/lib/storage";
+import { libraryCover } from "@/lib/blog-covers";
 
 export type PostFormState = {
   error?: string;
@@ -103,9 +104,10 @@ export async function savePostAction(_prev: PostFormState, formData: FormData): 
   const sources = parseSources(input.sources);
   const category = input.category;
   const seoTitle = input.seoTitle || input.title;
-  const coverImage = input.coverUrl ? { url: input.coverUrl, alt: input.coverAlt } : undefined;
-  // Only images uploaded through this portal (our bucket, under blog/) are accepted.
-  if (coverImage && !coverObjectPath(coverImage.url)) {
+  const knownCover = libraryCover(input.coverUrl);
+  const coverImage = input.coverUrl ? { ...knownCover, url: input.coverUrl, alt: input.coverAlt } : undefined;
+  // Accept our uploaded images or an exact match from the first-party library.
+  if (coverImage && !knownCover && !coverObjectPath(coverImage.url)) {
     return { error: "The cover image must be uploaded here.", fieldErrors: { coverUrl: "Upload the image again." }, values };
   }
 

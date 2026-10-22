@@ -83,3 +83,11 @@ These are editorial standards, not ranking guarantees. Topics need a 2–6 word 
 The scheduler records its last request, result and failures in `siteBlogPlanner/schedule`, shown in the admin generator. A lease prevents overlapping runs, and a successful draft prevents a second scheduled draft on the same UTC day. A manual authenticated test exercises the endpoint but does not prove Vercel cron registration. Confirm the job in the Vercel project Cron Jobs dashboard and inspect its invocation logs.
 
 Validation: `node --test tests/admin-blog.test.cjs`, `npx tsc --noEmit`, `npm run build`.
+
+## Automatic images and source editing
+
+AI drafts automatically select a relevant cover from the existing Mimar service image library. Alt text describes the actual image without inventing its location or claiming that it depicts the article's project. Older AI drafts without a cover receive the same fallback when opened in the editor or displayed publicly. Editors can use **Use matching library image**, replace the cover with an upload, and edit its alt text. Only exact library URLs or uploads in our Firebase bucket are accepted. Deleting/replacing a library cover never deletes the shared asset.
+
+Published managed posts use article Open Graph metadata, large Twitter cards, image alt text and real dimensions where known. BlogPosting JSON-LD includes an absolute ImageObject URL, caption, publication/modification dates, word count and research citations. Existing canonical URLs, visible FAQ/breadcrumb structured data and legacy article metadata remain in place. These measures support accessible, descriptive pages; they do not guarantee search rankings or rich results.
+
+Source titles may contain publisher pipes: `Article title | Publisher | https://example.com/article` is parsed at the URL separator and round-trips safely. Invalid source lines are retained for validation, never silently removed. Each source must have a title and a syntactically valid HTTPS URL.

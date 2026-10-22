@@ -9,6 +9,7 @@ import { getBlogArchivePage, getBlogPageCount, getCategoryArticles } from "@/lib
 import { getPublishedArticleBySlug, getPublishedArticles, type SiteArticle } from "@/lib/posts";
 import { stripInlineLinks } from "@/lib/content-blocks";
 import LegacyArticle from "@/components/legacy/LegacyArticle";
+import { blogMetadata, blogPostJsonLd } from "@/lib/blog-seo";
 
 // This segment serves category listings, archive pagination (/blog/2),
 // one-segment legacy articles (/blog/3d-rendering) and posts written in /admin.
@@ -61,13 +62,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
 
   const page = await resolveArticle(slug);
   if (!page) return {};
-  return buildMetadata({
-    title: page.seoTitle,
-    description: page.description,
-    path: page.path,
-    keywords: page.keywords,
-    ogImage: page.cover?.url,
-  });
+  return blogMetadata(page);
 }
 
 export default async function BlogCategoryPage({ params }: { params: Promise<{ category: string }> }) {
@@ -92,7 +87,7 @@ export default async function BlogCategoryPage({ params }: { params: Promise<{ c
                 ? [{ name: "Home", path: "/" }, { name: "Blog", path: "/blog" }, { name: page.title, path: page.path }]
                 : [{ name: "Home", path: "/" }, { name: page.title, path: page.path }],
             ),
-            articleJsonLd({ ...page, image: page.cover?.url }),
+            page.isPost ? blogPostJsonLd(page) : articleJsonLd({ ...page, image: page.cover?.url }),
             // FAQPage only because the same Q&A is rendered on the page.
             ...(page.faq?.length
               ? [faqJsonLd(page.faq.map((item) => ({ question: item.question, answer: stripInlineLinks(item.answer) })))]

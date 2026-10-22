@@ -1,5 +1,6 @@
 import "server-only";
 import { articlePolicyErrors } from "./editorial-policy";
+import { selectBlogCover } from "@/lib/blog-covers";
 import { z } from "zod";
 import { aiConfigured, aiSetupHint, getProvider } from "@/lib/ai/provider";
 import { fetchPageText, type FetchedPage } from "@/lib/ai/safe-fetch";
@@ -298,6 +299,7 @@ export async function runGeneration(jobId: string): Promise<string> {
       blocks,
       faq,
       related,
+      coverImage: selectBlogCover({ title: article.title, category: job.category || article.category }),
       // Sources are the pages the research actually used - never links the model wrote itself.
       sources: sources.map(({ title, url }) => ({ title: title.trim().slice(0, 160), url })),
       origin: "ai",
