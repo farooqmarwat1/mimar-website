@@ -1,0 +1,18 @@
+rules_version = '2';
+
+// Blog cover images are written by the server with the Firebase Admin SDK, which
+// bypasses these rules, and are served through Firebase download URLs (the long
+// token in the URL is what grants read access, not these rules). Nothing in the
+// browser talks to Storage directly, so all client access is denied: nobody can
+// list the bucket, or upload or overwrite files with a stolen web API key.
+//
+// SHARED PROJECT WARNING: deploying this replaces the project's Storage rules.
+// If the project also serves another app (e.g. the CRM portal), merge instead
+// of deploying this file as it is.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

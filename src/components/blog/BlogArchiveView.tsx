@@ -1,14 +1,18 @@
 import Link from "next/link";
 import { BlogArticleList, BlogCategoryLinks } from "@/components/blog/BlogCatalog";
-import { blogArchiveArticles, blogPageCount, getBlogArchivePage } from "@/lib/blog-archive";
+import { getBlogArchive, getBlogArchivePage, getBlogPageCount } from "@/lib/blog";
 import { breadcrumbJsonLd, itemListJsonLd, jsonLdScript } from "@/lib/seo";
 
 function pageHref(page: number) {
   return page === 1 ? "/blog" : "/blog/" + page;
 }
 
-export default function BlogArchiveView({ page }: { page: number }) {
-  const articles = getBlogArchivePage(page);
+export default async function BlogArchiveView({ page }: { page: number }) {
+  const [articles, blogPageCount, blogArchiveArticles] = await Promise.all([
+    getBlogArchivePage(page),
+    getBlogPageCount(),
+    getBlogArchive(),
+  ]);
   const currentPath = pageHref(page);
 
   return (

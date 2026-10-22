@@ -3,14 +3,22 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import BlogArchiveView from "@/components/blog/BlogArchiveView";
 import { BlogArticleList, BlogCategoryLinks } from "@/components/blog/BlogCatalog";
-import { articleJsonLd, buildMetadata, breadcrumbJsonLd, itemListJsonLd, jsonLdScript } from "@/lib/seo";
-import { blogCategories, getArticlesForCategory, getLegacySeoPage, legacySeoPages } from "@/lib/legacy-seo";
-import { blogPageCount, getBlogArchivePage } from "@/lib/blog-archive";
+import { articleJsonLd, buildMetadata, breadcrumbJsonLd, faqJsonLd, itemListJsonLd, jsonLdScript } from "@/lib/seo";
+import { blogCategories, getLegacySeoPage, legacySeoPages } from "@/lib/legacy-seo";
+import { getBlogArchivePage, getBlogPageCount, getCategoryArticles } from "@/lib/blog";
+import { getPublishedArticleBySlug, getPublishedArticles, type SiteArticle } from "@/lib/posts";
+import { stripInlineLinks } from "@/lib/content-blocks";
 import LegacyArticle from "@/components/legacy/LegacyArticle";
 
 // This segment serves category listings, archive pagination (/blog/2),
-// and one-segment legacy articles (/blog/3d-rendering).
-export const dynamicParams = false;
+// one-segment legacy articles (/blog/3d-rendering) and posts written in /admin.
+// New posts and pagination pages are not known at build time, so unknown params
+// are resolved at request time; anything that matches none of the above calls
+// notFound(), which is still a real 404 (SEO_MIGRATION.md section 5).
+export const dynamicParams = true;
+
+// Admin edits refresh this immediately; hourly is the safety net.
+export const revalidate = 3600;
 
 function articleSlugs() {
   return legacySeoPages
@@ -19,16 +27,22 @@ function articleSlugs() {
     .map((segments) => segments[1]);
 }
 
-export function generateStaticParams() {
-  const archivePages = Array.from({ length: Math.max(blogPageCount - 1, 0) }, (_, index) => String(index + 2));
-  return [...blogCategories.map((category) => category.slug), ...articleSlugs(), ...archivePages]
+export async function generateStaticParams() {
+  const [pageCount, posts] = await Promise.all([getBlogPageCount(), getPublishedArticles()]);
+  const archivePages = Array.from({ length: Math.max(pageCount - 1, 0) }, (_, index) => String(index + 2));
+  const postSlugs = posts.map((post) => post.path.replace("/blog/", ""));
+  return [...blogCategories.map((category) => category.slug), ...articleSlugs(), ...postSlugs, ...archivePages]
     .map((category) => ({ category }));
+}
+
+async function resolveArticle(slug: string): Promise<SiteArticle | undefined> {
+  return getLegacySeoPage("blog/" + slug) ?? (await getPublishedArticleBySlug(slug)) ?? undefined;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
   const { category: slug } = await params;
   const archivePage = Number(slug);
-  if (String(archivePage) === slug && archivePage >= 2 && getBlogArchivePage(archivePage).length > 0) {
+  if (String(archivePage) === slug && archivePage >= 2 && (await getBlogArchivePage(archivePage)).length > 0) {
     return buildMetadata({
       title: "Latest Blogs by Mimar | Page " + archivePage,
       description: "Browse more articles on architecture, 3D visualization and real estate technology from mimAR.",
@@ -36,7 +50,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
     });
   }
 
-  const { category } = getArticlesForCategory(slug);
+  const category = blogCategories.find((c) => c.slug === slug);
   if (category) {
     return buildMetadata({
       title: category.seoTitle,
@@ -45,13 +59,14 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
     });
   }
 
-  const page = getLegacySeoPage("blog/" + slug);
+  const page = await resolveArticle(slug);
   if (!page) return {};
   return buildMetadata({
     title: page.seoTitle,
     description: page.description,
     path: page.path,
     keywords: page.keywords,
+    ogImage: page.cover?.url,
   });
 }
 
@@ -59,21 +74,29 @@ export default async function BlogCategoryPage({ params }: { params: Promise<{ c
   const { category: slug } = await params;
   const archivePage = Number(slug);
   if (String(archivePage) === slug && archivePage >= 2) {
-    if (getBlogArchivePage(archivePage).length === 0) notFound();
+    if ((await getBlogArchivePage(archivePage)).length === 0) notFound();
     return <BlogArchiveView page={archivePage} />;
   }
 
-  const { category, articles } = getArticlesForCategory(slug);
+  const { category, articles } = await getCategoryArticles(slug);
   if (!category) {
-    const page = getLegacySeoPage("blog/" + slug);
+    const page = await resolveArticle(slug);
     if (!page) notFound();
     return (
       <>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={jsonLdScript([
-            breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: page.title, path: page.path }]),
-            articleJsonLd(page),
+            breadcrumbJsonLd(
+              page.isPost
+                ? [{ name: "Home", path: "/" }, { name: "Blog", path: "/blog" }, { name: page.title, path: page.path }]
+                : [{ name: "Home", path: "/" }, { name: page.title, path: page.path }],
+            ),
+            articleJsonLd({ ...page, image: page.cover?.url }),
+            // FAQPage only because the same Q&A is rendered on the page.
+            ...(page.faq?.length
+              ? [faqJsonLd(page.faq.map((item) => ({ question: item.question, answer: stripInlineLinks(item.answer) })))]
+              : []),
           ])}
         />
         <LegacyArticle page={page} />

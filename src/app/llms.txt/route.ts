@@ -3,6 +3,8 @@ import { siteConfig, contact, contactPhones, offices, faqs, services } from "@/l
 import { getProjects } from "@/lib/cms";
 import { legacySeoPages } from "@/lib/legacy-seo";
 import { servicePath } from "@/lib/service-details";
+import { getOpenJobs } from "@/lib/jobs";
+import { getPublishedArticles } from "@/lib/posts";
 
 /**
  * llms.txt - an emerging convention (llmstxt.org) that gives AI assistants
@@ -11,7 +13,7 @@ import { servicePath } from "@/lib/service-details";
  * Generated dynamically so it stays in sync with CMS content.
  */
 export async function GET() {
-  const projects = await getProjects();
+  const [projects, openJobs, posts] = await Promise.all([getProjects(), getOpenJobs(), getPublishedArticles()]);
 
   const lines = [
     `# ${siteConfig.name}`,
@@ -34,8 +36,15 @@ export async function GET() {
     ...projects.map((p) => `- [${p.title}](${siteConfig.url}/projects/${p.slug}): ${p.summary}`),
     "",
     "## Insights and guides",
-    ...legacySeoPages.map((page) => `- [${page.title}](${siteConfig.url}${page.path}): ${page.description}`),
+    ...[...posts, ...legacySeoPages].map((page) => `- [${page.title}](${siteConfig.url}${page.path}): ${page.description}`),
     "",
+    ...(openJobs.length
+      ? [
+          "## Open roles",
+          ...openJobs.map((job) => `- [${job.title}](${siteConfig.url}/careers/${job.slug}): ${job.summary}`),
+          "",
+        ]
+      : []),
     "## Frequently asked questions",
     ...faqs.map((f) => `Q: ${f.question}\nA: ${f.answer}\n`),
   ];
