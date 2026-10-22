@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { addTopicsAction, removeTopicAction } from "@/app/admin/blog/generate/actions";
+import { removeTopicAction } from "@/app/admin/blog/generate/actions";
 import GenerateForm from "@/components/admin/GenerateForm";
-import { cardClass, hintClass, primaryButtonClass, statusBadgeClass, textareaClass } from "@/components/admin/styles";
+import { cardClass, hintClass, statusBadgeClass } from "@/components/admin/styles";
 import { requireRole } from "@/lib/admin/auth";
 import { aiConfigured, aiSetupHint } from "@/lib/ai/generate-post";
 import { isFirebaseConfigured } from "@/lib/firebase/admin";
-import { listRecentJobs, listTopics } from "@/lib/generation";
-import { blogCategories } from "@/lib/legacy-seo";
-import { regionList } from "@/lib/regions";
+import { getScheduleStatus, listRecentJobs, listTopics } from "@/lib/generation";
+import AutoTopicQueue from "@/components/admin/AutoTopicQueue";
+
 
 // The generation itself runs after the form is submitted (see actions.ts) and is
 // bounded by this limit. Research + writing normally take 2-5 minutes.
@@ -15,7 +15,7 @@ export const maxDuration = 300;
 
 export default async function GenerateBlogPage() {
   await requireRole("blog");
-  const [jobs, topics] = isFirebaseConfigured ? await Promise.all([listRecentJobs(), listTopics()]) : [[], []];
+  const [jobs, topics, schedule] = isFirebaseConfigured ? await Promise.all([listRecentJobs(), listTopics(), getScheduleStatus()]) : [[], [], null];
   const queued = topics.filter((topic) => topic.status === "queued");
 
   return (
@@ -32,7 +32,7 @@ export default async function GenerateBlogPage() {
         <p className="mb-6 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">{aiSetupHint()} in this environment, so drafting is disabled.</p>
       )}
 
-      <GenerateForm categories={blogCategories.map(({ slug, label }) => ({ slug, label }))} regions={regionList.map((region) => region.city)} />
+      <GenerateForm />
 
       <section className={`${cardClass} mt-10`}>
         <h2 className="text-lg font-medium">Automatic drafts</h2>
@@ -41,20 +41,12 @@ export default async function GenerateBlogPage() {
           it rotates through every service in every region (5 services × 4 regions), picking a specific, searchable subject that is not already covered.
           Nothing is published without approval.
         </p>
-        <p className={`${hintClass} mt-3`}>
-          Want a particular subject? Add it below. Queued topics are written before any automatic one.
-        </p>
-        <form action={addTopicsAction} className="mt-4 grid gap-3">
-          <textarea
-            name="topics"
-            rows={4}
-            className={textareaClass}
-            placeholder={"One per line: topic | location | category\nWhat is a 3D walkthrough and when should a developer commission one? | Dubai | 3d-visualization"}
-          />
-          <button type="submit" className={`${primaryButtonClass} w-fit`}>
-            Add to queue
-          </button>
-        </form>
+        <AutoTopicQueue needsTopic={queued.length === 0} />
+        <p className={`${hintClass} mt-3`}>Schedule: Monday and Thursday, 10 AM Pakistan time.</p>
+        {schedule ? <p className={`${hintClass} mt-2`}>
+          Last scheduler request: {schedule.lastRunAt ? new Date(schedule.lastRunAt).toLocaleString("en-GB", { timeZone: "Asia/Karachi" }) : "unknown"} (Pakistan time) — {schedule.state}.
+          {schedule.message ? ` ${schedule.message}` : ""}
+        </p> : <p className={`${hintClass} mt-2`}>No scheduler request has been recorded by this version yet.</p>}
         {topics.length > 0 && (
           <ul className="mt-6 divide-y divide-line text-sm">
             {topics.map((topic) => (
@@ -82,7 +74,7 @@ export default async function GenerateBlogPage() {
             ))}
           </ul>
         )}
-        {queued.length === 0 && <p className={`${hintClass} mt-4`}>Nothing queued, so the next scheduled run will plan its own topic.</p>}
+        {queued.length === 0 && <p className={`${hintClass} mt-4`}>The AI selects the next topic automatically and adds it here as queued.</p>}
       </section>
 
       {jobs.length > 0 && (

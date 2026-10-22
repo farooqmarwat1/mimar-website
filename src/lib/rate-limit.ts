@@ -1,3 +1,5 @@
+import { envValue } from "@/lib/env";
+
 export type RateRule = {
   /** Unique counter name, e.g. "contact:ip-burst:1.2.3.4". */
   key: string;
@@ -39,8 +41,8 @@ export async function checkRateLimit(rules: RateRule[]): Promise<RateResult> {
 let warnedNoRedis = false;
 
 function redisConfig() {
-  const url = process.env.UPSTASH_REDIS_REST_URL?.trim();
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
+  const url = envValue(process.env.UPSTASH_REDIS_REST_URL);
+  const token = envValue(process.env.UPSTASH_REDIS_REST_TOKEN);
   return url && token ? { url: url.replace(/\/$/, ""), token } : null;
 }
 
