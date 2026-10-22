@@ -1,0 +1,26 @@
+rules_version = '2';
+
+// The website never talks to Firestore from the browser. Every read and write
+// goes through the Firebase Admin SDK on the server (src/lib/firebase/admin.ts),
+// which bypasses these rules - so all client access can be denied outright.
+// Deploy with: firebase deploy --only firestore:rules
+//
+// If this Firebase project is shared with another app (e.g. the CRM portal),
+// merge this into that app's rules instead of replacing them: the collections
+// used here are `siteJobs`, `sitePosts`, `siteBlogTopics` and `siteGenerationJobs`.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /siteJobs/{doc} {
+      allow read, write: if false;
+    }
+    match /sitePosts/{doc} {
+      allow read, write: if false;
+    }
+    match /siteBlogTopics/{doc} {
+      allow read, write: if false;
+    }
+    match /siteGenerationJobs/{doc} {
+      allow read, write: if false;
+    }
+  }
+}

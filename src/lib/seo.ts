@@ -55,6 +55,7 @@ export function articleJsonLd(article: {
   published: string;
   modified: string;
   keywords: string[];
+  image?: string;
 }) {
   return {
     "@context": "https://schema.org",
@@ -66,10 +67,79 @@ export function articleJsonLd(article: {
     datePublished: article.published ? `${article.published.replace(" ", "T")}Z` : undefined,
     dateModified: article.modified ? `${article.modified.replace(" ", "T")}Z` : undefined,
     keywords: article.keywords.join(", ") || undefined,
+    image: article.image,
     author: { "@id": `${siteConfig.url}/#organization` },
     publisher: { "@id": `${siteConfig.url}/#organization` },
     mainEntityOfPage: { "@type": "WebPage", "@id": `${siteConfig.url}${article.path}` },
     inLanguage: "en-US",
+  };
+}
+
+const SCHEMA_EMPLOYMENT_TYPES: Record<string, string> = {
+  "full-time": "FULL_TIME",
+  "part-time": "PART_TIME",
+  contract: "CONTRACTOR",
+  internship: "INTERN",
+  temporary: "TEMPORARY",
+};
+
+/**
+ * JobPosting structured data for Google Jobs. Only render it for a role that is
+ * genuinely open and unexpired (SEO_MIGRATION.md section 7); closed roles must not carry it.
+ */
+export function jobPostingJsonLd(job: {
+  slug: string;
+  title: string;
+  location: string;
+  country: string;
+  workMode: string;
+  employmentType: string;
+  salary?: { min?: number; max?: number; currency: string; period: string };
+  descriptionHtml: string;
+  postedAt?: string;
+  validThrough?: string;
+  updatedAt: string;
+}) {
+  const url = `${siteConfig.url}/careers/${job.slug}`;
+  const remote = job.workMode === "remote";
+  return {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    "@id": `${url}#job`,
+    url,
+    title: job.title,
+    description: job.descriptionHtml,
+    datePosted: (job.postedAt ?? job.updatedAt).slice(0, 10),
+    validThrough: job.validThrough ? `${job.validThrough}T23:59:59Z` : undefined,
+    employmentType: SCHEMA_EMPLOYMENT_TYPES[job.employmentType],
+    directApply: false,
+    hiringOrganization: {
+      "@type": "Organization",
+      "@id": `${siteConfig.url}/#organization`,
+      name: "Mimar Studios",
+      sameAs: siteConfig.url,
+      logo: `${siteConfig.url}/logo.png`,
+    },
+    jobLocationType: remote ? "TELECOMMUTE" : undefined,
+    applicantLocationRequirements: remote ? { "@type": "Country", name: job.country } : undefined,
+    jobLocation: remote
+      ? undefined
+      : {
+          "@type": "Place",
+          address: { "@type": "PostalAddress", addressLocality: job.location, addressCountry: job.country },
+        },
+    baseSalary: job.salary
+      ? {
+          "@type": "MonetaryAmount",
+          currency: job.salary.currency,
+          value: {
+            "@type": "QuantitativeValue",
+            minValue: job.salary.min,
+            maxValue: job.salary.max,
+            unitText: job.salary.period.toUpperCase(),
+          },
+        }
+      : undefined,
   };
 }
 
@@ -275,6 +345,11 @@ export function creativeWorkJsonLd(project: {
 export function jsonLdScript(data: object | object[]) {
   const graph = Array.isArray(data) ? data : [data];
   return {
-    __html: JSON.stringify(graph.length === 1 ? graph[0] : { "@context": "https://schema.org", "@graph": graph }),
+    // "<" is escaped so editor- or AI-supplied text (jobs, blog posts) can never contain
+    // a literal "</script>" that would end the tag early. The parsed JSON is identical.
+    __html: JSON.stringify(graph.length === 1 ? graph[0] : { "@context": "https://schema.org", "@graph": graph }).replace(
+      /</g,
+      "\\u003c",
+    ),
   };
 }

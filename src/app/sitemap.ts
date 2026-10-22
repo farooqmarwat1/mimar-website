@@ -9,6 +9,11 @@ import { brandingMarketingSubServicePaths } from "@/lib/branding-marketing-sub-s
 import { legacyServicePages } from "@/lib/legacy-service-pages";
 import { legacyCategories, legacyCategoryPath } from "@/lib/legacy-categories";
 import { regionList } from "@/lib/regions";
+import { getOpenJobs } from "@/lib/jobs";
+import { getPublishedPosts, postPath } from "@/lib/posts";
+
+// Open careers pages come from Firestore; admin edits refresh this immediately, hourly is the safety net.
+export const revalidate = 3600;
 
 // Other restored Pano2VR tours (see legacyTours in next.config.ts).
 const legacyTourPaths = [
@@ -26,7 +31,7 @@ const legacyTourPaths = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const projects = await getProjects();
+  const [projects, openJobs, posts] = await Promise.all([getProjects(), getOpenJobs(), getPublishedPosts()]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: siteConfig.url, changeFrequency: "weekly", priority: 1 },
@@ -57,6 +62,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     })),
   ];
+
+  // Only genuinely open roles: closed or expired job pages are noindex and stay out of the sitemap.
+  const jobRoutes: MetadataRoute.Sitemap = openJobs.map((job) => ({
+    url: `${siteConfig.url}/careers/${job.slug}`,
+    lastModified: new Date(job.updatedAt),
+    changeFrequency: "weekly",
+    priority: 0.5,
+  }));
+
+  // Posts written in /admin (published only; drafts never appear).
+  const postRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
+    url: `${siteConfig.url}${postPath(post.slug)}`,
+    lastModified: new Date(post.updatedAt),
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
 
   const blogCategoryRoutes: MetadataRoute.Sitemap = blogCategories.map((c) => ({
     url: `${siteConfig.url}/blog/${c.slug}`,
@@ -115,7 +136,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  const allRoutes = [...staticRoutes, ...blogCategoryRoutes, ...projectRoutes, ...serviceRoutes, ...architecturalSubServiceRoutes, ...threeDVisualizationSubServiceRoutes, ...brandingMarketingSubServiceRoutes, ...legacyServiceRoutes, ...regionRoutes, ...legacyRoutes];
+  const allRoutes = [...staticRoutes, ...jobRoutes, ...postRoutes, ...blogCategoryRoutes, ...projectRoutes, ...serviceRoutes, ...architecturalSubServiceRoutes, ...threeDVisualizationSubServiceRoutes, ...brandingMarketingSubServiceRoutes, ...legacyServiceRoutes, ...regionRoutes, ...legacyRoutes];
 
   // Some sub-service slugs (e.g. cinematics) exist both in the flat `services`
   // list, for servicePath()-driven surfaces like the contact form and llms.txt,

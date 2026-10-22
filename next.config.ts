@@ -80,10 +80,23 @@ const nonPortalPaths = `/:path((?!${portalPathPrefixes.join("|")}).*)`;
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // LOCAL DEVELOPMENT ONLY. When the dev server is reached through a tunnel (VS Code
+  // port forwarding / dev tunnels), the browser's Origin ("localhost:3000") differs from
+  // the forwarded host, and Next rejects the staff portal's Server Actions as a possible
+  // CSRF attempt ("Invalid Server Actions request"). Production keeps the strict
+  // same-origin check, so no extra origins are trusted there.
+  ...(isDev
+    ? {
+        allowedDevOrigins: ["**.devtunnels.ms"],
+        experimental: { serverActions: { allowedOrigins: ["localhost:3000", "**.devtunnels.ms"] } },
+      }
+    : {}),
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io" },
       { protocol: "https", hostname: "drive.google.com", pathname: "/thumbnail" },
+      // Blog cover images uploaded in /admin (Firebase Storage download URLs).
+      { protocol: "https", hostname: "firebasestorage.googleapis.com", pathname: "/v0/b/**" },
     ],
     formats: ["image/avif", "image/webp"],
     qualities: [75, 85, 90],
@@ -94,6 +107,15 @@ const nextConfig: NextConfig = {
       // frame-ancestors 'none') and X-Frame-Options: DENY break Firebase login,
       // the 3D tours and partner iframe embeds on the portal app.
       { source: nonPortalPaths, headers: securityHeaders },
+      // Staff portal: never indexed, never cached by a CDN or browser. Backstop for
+      // the robots metadata in src/app/admin/layout.tsx and the robots.txt disallow.
+      {
+        source: "/admin/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+          { key: "Cache-Control", value: "no-store, max-age=0" },
+        ],
+      },
       // Keep the Vercel staging URLs out of search while mim.archi serves the old site.
       {
         source: "/:path*",

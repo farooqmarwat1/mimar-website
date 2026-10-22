@@ -8,6 +8,9 @@ export const metadata: Metadata = buildMetadata({
   path: "/blog",
 });
 
+// New posts appear on page 1; admin edits refresh this immediately, hourly is the safety net.
+export const revalidate = 3600;
+
 export default function BlogIndexPage() {
   return <BlogArchiveView page={1} />;
 }

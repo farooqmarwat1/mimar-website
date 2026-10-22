@@ -3,7 +3,9 @@ import { Resend } from "resend";
 
 export type OutgoingEmail = {
   from: string;
-  to: string;
+  to: string | string[];
+  /** Copied (visible to everyone) - e.g. a manager who only needs to be informed. */
+  cc?: string | string[];
   replyTo: string;
   subject: string;
   text: string;
