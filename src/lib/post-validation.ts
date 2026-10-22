@@ -3,6 +3,7 @@ import { countWords, type ContentBlock } from "@/lib/content-blocks";
 import { findUnknownPaths, collectLinkedPaths } from "@/lib/internal-paths";
 import { blogCategories } from "@/lib/legacy-seo";
 import type { FaqItem, LinkItem, SourceItem } from "@/lib/posts";
+import { isHttpsSourceUrl } from "@/lib/post-fields";
 
 /**
  * Publish-readiness rules for a blog post. One implementation shared by the
@@ -50,7 +51,7 @@ export async function checkPost(post: PostCheckInput): Promise<PostCheck> {
   const unknown = await findUnknownPaths(collectLinkedPaths(post.blocks, [...post.related.map((l) => l.path), ...post.faq.flatMap((f) => collectLinkedPaths([{ type: "p", text: f.answer }]))]));
   if (unknown.length) errors.links = `These links do not match any page on the site: ${unknown.join(", ")}`;
 
-  if (post.sources.some((source) => !/^https:\/\//.test(source.url))) errors.sources = "Sources must be full https:// links.";
+  if (post.sources.some((source) => !source.title.trim() || !isHttpsSourceUrl(source.url))) errors.sources = "Each source needs a title and a valid full https:// link.";
   if (post.coverImage?.url && !post.coverImage.alt.trim()) errors.coverAlt = "Describe the cover image (alt text).";
 
   return { errors, warnings };
