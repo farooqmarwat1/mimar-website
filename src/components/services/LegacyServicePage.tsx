@@ -1,19 +1,28 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
+import {
+  BackToService,
+  ConsultationCta,
+  SubServiceHero,
+  getParentService,
+  leadClass,
+  subServiceJsonLd,
+} from "@/components/services/shared";
 import Reveal from "@/components/ui/Reveal";
+import { localizeDigits, type Locale } from "@/i18n/config";
+import { localizeLegacyServicePage } from "@/lib/ar/localized-sub-services";
 import type { LegacyServiceImage, LegacyServicePage as LegacyServicePageData } from "@/lib/legacy-service-pages";
-import { breadcrumbJsonLd, buildMetadata, jsonLdScript } from "@/lib/seo";
-import { serviceDetails, servicePath } from "@/lib/service-details";
-import { siteConfig } from "@/lib/site-config";
+import { buildMetadata, jsonLdScript } from "@/lib/seo";
 
-export function legacyServiceMetadata(page: LegacyServicePageData): Metadata {
+export function legacyServiceMetadata(basePage: LegacyServicePageData, lang: Locale = "en"): Metadata {
+  const page = localizeLegacyServicePage(basePage, lang);
   return buildMetadata({
     title: page.seoTitle,
     description: page.seoDescription,
     path: page.path,
     keywords: page.keywords,
     ogImage: page.introImage.src,
+    locale: lang,
   });
 }
 
@@ -36,58 +45,35 @@ function SectionVideo({ image }: { image: LegacyServiceImage }) {
 }
 
 /** Old WordPress service pages kept at their original URLs, laid out like the architectural sub-service pages. */
-export default function LegacyServicePage({ page }: { page: LegacyServicePageData }) {
-  const parent = serviceDetails[page.parentSlug];
+export default function LegacyServicePage({ page: basePage, lang = "en" }: { page: LegacyServicePageData; lang?: Locale }) {
+  const page = localizeLegacyServicePage(basePage, lang);
+  const parent = getParentService(page.parentSlug, lang);
 
   return (
     <article>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={jsonLdScript([
-          breadcrumbJsonLd([
-            { name: "Home", path: "/" },
-            { name: "Services", path: "/services" },
-            { name: parent.title, path: servicePath(parent.slug) },
-            { name: page.title, path: page.path },
-          ]),
-          {
-            "@context": "https://schema.org",
-            "@type": "Service",
-            "@id": `${siteConfig.url}${page.path}#service`,
-            name: page.title,
-            description: page.seoDescription,
-            url: `${siteConfig.url}${page.path}`,
-            provider: { "@id": `${siteConfig.url}/#organization` },
-            areaServed: "Worldwide",
-            serviceType: parent.title,
-          },
-        ])}
+        dangerouslySetInnerHTML={jsonLdScript(
+          subServiceJsonLd({ lang, path: page.path, title: page.title, description: page.seoDescription, parentSlug: page.parentSlug }),
+        )}
       />
 
-      <section className="relative flex h-[100svh] min-h-[32rem] items-end overflow-hidden bg-ink text-paper md:h-screen md:min-h-[38rem]">
-        {page.hero.type === "video" ? (
-          <video autoPlay muted loop playsInline preload="metadata" poster={page.hero.poster} className="absolute inset-0 h-full w-full object-cover" aria-hidden="true">
-            <source src={page.hero.src} type={videoType(page.hero.src)} />
-          </video>
-        ) : (
-          <Image src={page.hero.src} alt="" fill priority unoptimized sizes="100vw" className="object-cover" />
-        )}
-        <div className="absolute inset-0 bg-black/45" />
-        <div className="container-page relative w-full pb-14 pt-32 md:pb-16">
-          <Reveal>
-            <p className="eyebrow mb-8 text-paper/65">
-              <Link href={servicePath(parent.slug)} className="hover:text-accent">/ {parent.title}</Link> / Services
-            </p>
-          </Reveal>
-          <Reveal delay={0.05}>
-            <h1 className="max-w-5xl break-words text-[clamp(2.75rem,8vw,6.5rem)] font-medium uppercase leading-[.86] tracking-[-.06em]">{page.title}</h1>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <p className="mt-10 max-w-xl text-lg leading-snug text-paper/90 md:text-xl">{page.tagline}</p>
-          </Reveal>
-          <Reveal delay={0.15}><Link href="/contact" className="button-pill mt-10 text-paper">Request a quote</Link></Reveal>
-        </div>
-      </section>
+      <SubServiceHero
+        lang={lang}
+        parentSlug={page.parentSlug}
+        title={page.title}
+        tagline={page.tagline}
+        legacy
+        media={
+          page.hero.type === "video" ? (
+            <video autoPlay muted loop playsInline preload="metadata" poster={page.hero.poster} className="absolute inset-0 h-full w-full object-cover" aria-hidden="true">
+              <source src={page.hero.src} type={videoType(page.hero.src)} />
+            </video>
+          ) : (
+            <Image src={page.hero.src} alt="" fill priority unoptimized sizes="100vw" className="object-cover" />
+          )
+        }
+      />
 
       <section className="container-page grid gap-10 py-16 md:grid-cols-2 md:items-center md:gap-16 md:py-28">
         <Reveal>
@@ -103,7 +89,7 @@ export default function LegacyServicePage({ page }: { page: LegacyServicePageDat
           <Reveal><p className="eyebrow text-muted">/ {page.title}</p></Reveal>
           {page.intro.map((paragraph, index) => (
             <Reveal key={paragraph} delay={0.05 + index * 0.05}>
-              <p className={index === 0 ? "mt-8 text-2xl leading-[1.15] tracking-[-.03em] md:text-3xl" : "section-body mt-6 max-w-xl text-lg"}>{paragraph}</p>
+              <p className={index === 0 ? leadClass(lang, { legacy: true }) : "section-body mt-6 max-w-xl text-lg"}>{paragraph}</p>
             </Reveal>
           ))}
           {page.introList && (
@@ -120,8 +106,8 @@ export default function LegacyServicePage({ page }: { page: LegacyServicePageDat
         <section key={section.heading} className="container-page grid gap-10 border-t border-line py-16 md:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)] md:gap-16 md:py-24">
           <Reveal>
             <div className="grid grid-cols-[4rem_1fr] gap-3">
-              <p className="text-4xl font-light text-accent/40">{String(index + 1).padStart(2, "0")}</p>
-              <h2 className="text-2xl font-medium leading-tight tracking-[-.035em] md:text-3xl">{section.heading}</h2>
+              <p className="text-4xl font-light text-accent/40">{localizeDigits(String(index + 1).padStart(2, "0"), lang)}</p>
+              <h2 className={lang === "ar" ? "text-2xl font-medium leading-snug md:text-3xl" : "text-2xl font-medium leading-tight tracking-[-.035em] md:text-3xl"}>{section.heading}</h2>
             </div>
           </Reveal>
           <div>
@@ -162,40 +148,19 @@ export default function LegacyServicePage({ page }: { page: LegacyServicePageDat
         </section>
       ))}
 
-      <section className="section-py border-t border-line">
-        <div className="container-page mx-auto max-w-3xl text-center">
-          <Reveal><h2 className="eyebrow text-muted">/ Get a free consultation</h2></Reveal>
-          <Reveal delay={0.05}>
-            <p className="section-heading mx-auto mt-6">
-              {page.cta.heading[0]}
-              <br />
-              <span className="text-accent">{page.cta.heading[1]}</span>
-            </p>
-          </Reveal>
-          <Reveal delay={0.1}><p className="section-body mx-auto mt-6 max-w-md">{page.cta.body}</p></Reveal>
-          <Reveal delay={0.15}>
-            <div className="mt-9 flex flex-wrap justify-center gap-3">
-              <Link href="/booking" className="button-pill text-ink">Get a free consultation</Link>
-              <Link href="/contact" className="button-pill text-ink">Contact us</Link>
-            </div>
-          </Reveal>
-        </div>
-      </section>
+      <ConsultationCta lang={lang} heading={page.cta.heading} body={page.cta.body} bordered />
 
-      <Link href={servicePath(parent.slug)} className="group relative block min-h-[16rem] overflow-hidden bg-ink text-paper md:min-h-[20rem]">
-        {parent.heroType === "video" ? (
-          <video autoPlay muted loop playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover opacity-30" aria-hidden="true">
-            <source src={parent.hero} type={videoType(parent.hero)} />
-          </video>
-        ) : (
-          <Image src={parent.hero} alt="" fill unoptimized sizes="100vw" className="object-cover opacity-30 transition-transform duration-700 group-hover:scale-[1.02]" />
-        )}
-        <div className="absolute inset-0 bg-black/30" />
-        <div className="container-page relative flex min-h-[16rem] flex-col justify-center md:min-h-[20rem]">
-          <p className="eyebrow mb-8 text-paper/55">/ Back to service</p>
-          <h2 className="text-[clamp(2.5rem,5vw,5rem)] tracking-[-.05em]">{parent.title}</h2>
-        </div>
-      </Link>
+      <BackToService
+        lang={lang}
+        parentSlug={page.parentSlug}
+        background={
+          parent.heroType === "video" ? (
+            <video autoPlay muted loop playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover opacity-30" aria-hidden="true">
+              <source src={parent.hero} type={videoType(parent.hero)} />
+            </video>
+          ) : undefined
+        }
+      />
     </article>
   );
 }

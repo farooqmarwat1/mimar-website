@@ -85,12 +85,13 @@ const nextConfig: NextConfig = {
   // the forwarded host, and Next rejects the staff portal's Server Actions as a possible
   // CSRF attempt ("Invalid Server Actions request"). Production keeps the strict
   // same-origin check, so no extra origins are trusted there.
-  ...(isDev
-    ? {
-        allowedDevOrigins: ["**.devtunnels.ms"],
-        experimental: { serverActions: { allowedOrigins: ["localhost:3000", "**.devtunnels.ms"] } },
-      }
-    : {}),
+  ...(isDev ? { allowedDevOrigins: ["**.devtunnels.ms"] } : {}),
+  experimental: {
+    // Two root layouts (English in app/(site), Arabic in app/ar) leave no single layout to compose a
+    // 404 for URLs that match no route, so src/app/global-not-found.tsx renders it (ARABIC.md).
+    globalNotFound: true,
+    ...(isDev ? { serverActions: { allowedOrigins: ["localhost:3000", "**.devtunnels.ms"] } } : {}),
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io" },

@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { isRtl, localizeDigits, type Locale } from "@/i18n/config";
+import { mediaUi } from "@/lib/ar/media-ui";
 
 export type MediaSlide = {
   image: string;
@@ -14,11 +16,21 @@ export type MediaSlide = {
  * strip, plus a fullscreen lightbox video player for slides that carry a
  * `video`. Slides without one are still navigable, just not playable -
  * the play button only appears where a real video exists.
+ *
+ * RTL: the arrows sit on the logical start/end sides (previous at the start,
+ * next at the end), their glyphs point the reading way, and the thumbnail
+ * strip reads right to left, so slide 1 is at the right in Arabic.
  */
-export default function MediaSlider({ slides, title }: { slides: MediaSlide[]; title: string }) {
+export default function MediaSlider({ slides, title, lang = "en" }: { slides: MediaSlide[]; title: string; lang?: Locale }) {
   const [active, setActive] = useState(0);
   const [playing, setPlaying] = useState(false);
   const current = slides[active];
+  const rtl = isRtl(lang);
+  const ui = mediaUi[lang];
+  // The angle quotes are bidi-mirrored characters, so they are pinned to ltr
+  // and the glyph is chosen explicitly: "previous" points back along the reading direction.
+  const prevGlyph = rtl ? "›" : "‹";
+  const nextGlyph = rtl ? "‹" : "›";
 
   function go(delta: number) {
     setActive((i) => (i + delta + slides.length) % slides.length);
@@ -34,9 +46,10 @@ export default function MediaSlider({ slides, title }: { slides: MediaSlide[]; t
             type="button"
             onClick={() => setPlaying(true)}
             className="absolute inset-0 flex items-center justify-center bg-black/20 transition-colors hover:bg-black/30"
-            aria-label={`Play ${title} - slide ${active + 1}`}
+            aria-label={ui.playSlide(title, localizeDigits(active + 1, lang))}
           >
             <span className="flex h-16 w-16 items-center justify-center rounded-full border border-white/80 bg-black/35 text-2xl text-paper backdrop-blur-sm transition-transform group-hover:scale-105">
+              {/* The play triangle is not mirrored in RTL, so its optical nudge stays physical. */}
               <span className="ml-1" aria-hidden="true">▶</span>
             </span>
           </button>
@@ -46,18 +59,18 @@ export default function MediaSlider({ slides, title }: { slides: MediaSlide[]; t
             <button
               type="button"
               onClick={() => go(-1)}
-              aria-label="Previous"
-              className="absolute left-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-ink/50 text-paper backdrop-blur-sm transition-colors hover:bg-ink/70"
+              aria-label={ui.previous}
+              className="absolute start-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-ink/50 text-paper backdrop-blur-sm transition-colors hover:bg-ink/70"
             >
-              ‹
+              {rtl ? <span dir="ltr">{prevGlyph}</span> : prevGlyph}
             </button>
             <button
               type="button"
               onClick={() => go(1)}
-              aria-label="Next"
-              className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-ink/50 text-paper backdrop-blur-sm transition-colors hover:bg-ink/70"
+              aria-label={ui.next}
+              className="absolute end-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-ink/50 text-paper backdrop-blur-sm transition-colors hover:bg-ink/70"
             >
-              ›
+              {rtl ? <span dir="ltr">{nextGlyph}</span> : nextGlyph}
             </button>
           </>
         )}
@@ -73,7 +86,7 @@ export default function MediaSlider({ slides, title }: { slides: MediaSlide[]; t
                 setActive(index);
                 setPlaying(false);
               }}
-              aria-label={`Show slide ${index + 1}`}
+              aria-label={ui.showSlide(localizeDigits(index + 1, lang))}
               className={`relative aspect-video w-24 shrink-0 overflow-hidden bg-ink/5 md:w-28 ${index === active ? "ring-2 ring-accent" : "opacity-70 hover:opacity-100"}`}
             >
               <Image src={slide.image} alt="" fill unoptimized sizes="120px" className="object-cover" />
@@ -85,7 +98,7 @@ export default function MediaSlider({ slides, title }: { slides: MediaSlide[]; t
 
       {playing && current.video && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4" onClick={() => setPlaying(false)}>
-          <button type="button" onClick={() => setPlaying(false)} aria-label="Close" className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-xl text-paper hover:bg-white/20">
+          <button type="button" onClick={() => setPlaying(false)} aria-label={ui.close} className="absolute end-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-xl text-paper hover:bg-white/20">
             ×
           </button>
           <video

@@ -1,6 +1,6 @@
 "use client";
 import { useActionState } from "react";
-import { startGenerationAction, type GenerateState } from "@/app/admin/blog/generate/actions";
+import { startGenerationAction, type GenerateState } from "@/app/(site)/admin/blog/generate/actions";
 import { cardClass, hintClass, primaryButtonClass } from "@/components/admin/styles";
 export default function GenerateForm() {
   const [state, action, pending] = useActionState<GenerateState, FormData>(startGenerationAction, {});

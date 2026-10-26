@@ -2,8 +2,11 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import type { Locale } from "@/i18n/config";
+import { mediaUi } from "@/lib/ar/media-ui";
 
-export default function DriveVideo({ src, title, poster }: { src: string; title: string; poster?: string }) {
+export default function DriveVideo({ src, title, poster, lang = "en" }: { src: string; title: string; poster?: string; lang?: Locale }) {
+  const ui = mediaUi[lang];
   const [playing, setPlaying] = useState(false);
   const fileId = src.match(/\/file\/d\/([^/]+)/)?.[1];
   // Prefer a fixed local poster: Google's own thumbnail for a Drive video is
@@ -30,11 +33,11 @@ export default function DriveVideo({ src, title, poster }: { src: string; title:
       type="button"
       onClick={() => setPlaying(true)}
       className="group relative h-full w-full cursor-pointer overflow-hidden text-paper"
-      aria-label={`Play ${title}`}
+      aria-label={ui.play(title)}
     >
       <Image
         src={thumbnail}
-        alt={`${title} video preview`}
+        alt={ui.videoPreview(title)}
         fill
         unoptimized
         loading="eager"
@@ -43,6 +46,7 @@ export default function DriveVideo({ src, title, poster }: { src: string; title:
       />
       <span className="absolute inset-0 bg-black/25 transition-colors group-hover:bg-black/15" />
       <span className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-black/35 text-2xl backdrop-blur-sm transition-transform group-hover:scale-105">
+        {/* The play triangle is not mirrored in RTL, so its optical nudge stays physical. */}
         <span className="ml-1" aria-hidden="true">▶</span>
       </span>
     </button>

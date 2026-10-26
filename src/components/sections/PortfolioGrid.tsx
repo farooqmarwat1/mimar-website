@@ -1,8 +1,19 @@
 import Link from "next/link";
 import ProjectShowcase from "@/components/sections/ProjectShowcase";
-import { portfolioIntro, type Project } from "@/lib/site-config";
+import type { Project } from "@/lib/site-config";
+import { localizedPortfolioIntro } from "@/lib/localized-site";
+import { localeHref, type Locale } from "@/i18n/config";
+import { getDictionary, type Dictionary } from "@/i18n/dictionaries";
 
-export default function PortfolioGrid({ projects }: { projects: Project[] }) {
+export default function PortfolioGrid({
+  projects,
+  lang = "en",
+  dict = getDictionary(lang),
+}: {
+  projects: Project[];
+  lang?: Locale;
+  dict?: Dictionary;
+}) {
   const featured = projects.filter((p) => p.featured).slice(0, 6);
 
   return (
@@ -12,7 +23,7 @@ export default function PortfolioGrid({ projects }: { projects: Project[] }) {
           the scroll-driven columns can rise up into the intro's space. It
           can't be wrapped in an outer padded section without reintroducing
           a clip boundary above the grid. */}
-      <ProjectShowcase projects={featured} intro={portfolioIntro} />
+      <ProjectShowcase projects={featured} intro={localizedPortfolioIntro(lang)} lang={lang} dict={dict} />
 
       {/* Outside the transformed column wrappers, in normal flow below the
           grid's document bottom, and on its own higher stacking level - so
@@ -29,8 +40,8 @@ export default function PortfolioGrid({ projects }: { projects: Project[] }) {
           padding supplies that gap, keeping one section-sized space rather
           than two stacked. */}
       <div className="container-page relative z-30 -mt-4 flex justify-center md:-mt-16">
-        <Link href="/projects" className="button-pill text-ink">
-          Go to all projects
+        <Link href={localeHref(lang, "/projects")} className="button-pill text-ink">
+          {dict.portfolioGrid.cta}
         </Link>
       </div>
     </>

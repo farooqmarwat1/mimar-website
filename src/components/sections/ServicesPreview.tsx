@@ -5,6 +5,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import Reveal from "@/components/ui/Reveal";
+import { isRtl, localeHref, localizeDigits, type Locale } from "@/i18n/config";
+import Num from "@/i18n/Num";
+import type { Dictionary } from "@/i18n/dictionaries";
+import { siteConfigAr } from "@/lib/ar/site-config.ar";
+
+// Arabic copy for each tile, keyed by the last segment of the tile's href
+// (which is the service slug); English keeps the copy written in `items`.
+const arServices = siteConfigAr.services as Record<string, { title: string; description: string }>;
 
 const items = [
   { label: "Architectural Design", href: "/services/architectural-design", media: "/services/architectural-design/hero.jpg", type: "image" as const, desc: "Full architectural design services spanning interior and exterior spaces, from concept through construction documentation." },
@@ -33,7 +41,7 @@ const groups = Array.from({ length: Math.ceil(items.length / GROUP_SIZE) }, (_, 
  * scroll past it, so there's no "stuck"/glitchy feeling. Hovering a row
  * still jumps straight to it.
  */
-export default function ServicesPreview() {
+export default function ServicesPreview({ lang = "en", dict }: { lang?: Locale; dict: Dictionary }) {
   const [activeGroup, setActiveGroup] = useState(0);
   const [activeItem, setActiveItem] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
@@ -77,6 +85,11 @@ export default function ServicesPreview() {
   }, [activeGroup, isMobile]);
 
   const activeMedia = items[activeItem] ?? items[0];
+  const rtl = isRtl(lang);
+  const copyFor = (item: (typeof items)[number]) => {
+    const ar = lang === "ar" ? arServices[item.href.split("/").pop() ?? ""] : undefined;
+    return { label: ar?.title ?? item.label, desc: ar?.description ?? item.desc };
+  };
 
   const goToGroup = (groupIndex: number) => {
     const next = Math.max(0, Math.min(groups.length - 1, groupIndex));
@@ -144,12 +157,14 @@ export default function ServicesPreview() {
           </motion.div>
         </AnimatePresence>
         <div className="absolute inset-0 bg-ink/42" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(10,12,16,0.58)_0%,rgba(10,12,16,0.32)_48%,rgba(10,12,16,0.18)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(10,12,16,0.58)_0%,rgba(10,12,16,0.32)_48%,rgba(10,12,16,0.18)_100%)] rtl:bg-[linear-gradient(270deg,rgba(10,12,16,0.58)_0%,rgba(10,12,16,0.32)_48%,rgba(10,12,16,0.18)_100%)]" />
 
         <div className="relative z-10 flex h-full flex-col justify-center">
           <div className="container-page">
             <Reveal>
-              <p className="eyebrow mb-5 text-paper/60 sm:mb-8">/ Services · {activeGroup + 1} of {groups.length}</p>
+              <p className="eyebrow mb-5 text-paper/60 sm:mb-8">
+                {dict.servicesPreview.eyebrowPrefix} · <Num value={activeGroup + 1} locale={lang} /> {dict.servicesPreview.ofSeparator} <Num value={groups.length} locale={lang} />
+              </p>
             </Reveal>
             <ul className="border-t border-line-inverse">
               {groups[activeGroup].map((item, i) => {
@@ -162,24 +177,24 @@ export default function ServicesPreview() {
                     }`}
                   >
                     <Link
-                      href={item.href}
+                      href={localeHref(lang, item.href)}
                       onMouseEnter={() => setActiveItem(globalIndex)}
                       onFocus={() => setActiveItem(globalIndex)}
                       className="group flex min-h-16 flex-row items-center gap-3 py-3 text-paper sm:min-h-0 sm:flex-col sm:items-start sm:gap-1 sm:py-5 md:flex-row md:items-center md:gap-10 md:py-6"
                     >
-                      <span className="eyebrow w-10 shrink-0 text-paper/50 sm:w-16">{String(globalIndex + 1).padStart(2, "0")}</span>
+                      <span className="eyebrow w-10 shrink-0 text-paper/50 sm:w-16"><Num value={String(globalIndex + 1).padStart(2, "0")} locale={lang} /></span>
                       <span className="flex-1 text-xl tracking-tight transition-opacity group-hover:opacity-70 sm:text-2xl md:text-3xl">
-                        {item.label}
+                        {copyFor(item).label}
                       </span>
-                      <span className="hidden max-w-md text-base leading-[1.7] text-paper/60 sm:block">{item.desc}</span>
+                      <span className="hidden max-w-md text-base leading-[1.7] text-paper/60 sm:block">{localizeDigits(copyFor(item).desc, lang)}</span>
                     </Link>
                   </li>
                 );
               })}
             </ul>
             <div className="mt-5 flex justify-end gap-2">
-              <button type="button" onClick={() => goToGroup(activeGroup - 1)} disabled={activeGroup === 0} aria-label="Previous services" className="button-pill flex h-12 w-12 items-center justify-center px-0 text-paper disabled:cursor-not-allowed disabled:opacity-35">←</button>
-              <button type="button" onClick={() => goToGroup(activeGroup + 1)} disabled={activeGroup === groups.length - 1} aria-label="Next services" className="button-pill flex h-12 w-12 items-center justify-center px-0 text-paper disabled:cursor-not-allowed disabled:opacity-35">→</button>
+              <button type="button" onClick={() => goToGroup(activeGroup - 1)} disabled={activeGroup === 0} aria-label={dict.servicesPreview.previous} className="button-pill flex h-12 w-12 items-center justify-center px-0 text-paper disabled:cursor-not-allowed disabled:opacity-35">{rtl ? "→" : "←"}</button>
+              <button type="button" onClick={() => goToGroup(activeGroup + 1)} disabled={activeGroup === groups.length - 1} aria-label={dict.servicesPreview.next} className="button-pill flex h-12 w-12 items-center justify-center px-0 text-paper disabled:cursor-not-allowed disabled:opacity-35">{rtl ? "←" : "→"}</button>
             </div>
           </div>
         </div>

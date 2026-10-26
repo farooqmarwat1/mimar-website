@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { loginAction, type LoginState } from "@/app/admin/actions";
+import { loginAction, type LoginState } from "@/app/(site)/admin/actions";
 import { fieldClass, labelClass, primaryButtonClass } from "@/components/admin/styles";
 
 export default function LoginForm() {

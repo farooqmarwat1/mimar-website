@@ -7,7 +7,7 @@ import { stripInlineLinks } from "@/lib/content-blocks";
 const isoDate = (date: string) => `${date.replace(" ", "T")}Z`;
 
 export function blogMetadata(page: SiteArticle): Metadata {
-  const metadata = buildMetadata({ title: page.seoTitle, description: page.description, path: page.path, keywords: page.keywords, ogImage: page.cover?.url });
+  const metadata = buildMetadata({ title: page.seoTitle, description: page.description, path: page.path, keywords: page.keywords, ogImage: page.cover?.url, hreflang: !page.isPost });
   if (!page.isPost) return metadata;
   const image = page.cover ? {
     url: new URL(page.cover.url, siteConfig.url).toString(), alt: page.cover.alt,

@@ -1,6 +1,6 @@
 "use client";
 import { startTransition, useActionState, useEffect, useRef } from "react";
-import { prepareAutoTopicAction } from "@/app/admin/blog/generate/actions";
+import { prepareAutoTopicAction } from "@/app/(site)/admin/blog/generate/actions";
 
 export default function AutoTopicQueue({ needsTopic }: { needsTopic: boolean }) {
   const [state, action, pending] = useActionState(prepareAutoTopicAction, {});
