@@ -11,10 +11,13 @@ export type PostFormInitial = {
   id?: string;
   title: string;
   slug: string;
+  /** Public address, e.g. /blog/my-post; fixed for imported articles. */
+  path: string;
+  legacy: boolean;
   slugLocked: boolean;
   seoTitle: string;
   description: string;
-  category: string;
+  categories: string[];
   keywords: string;
   geoTerms: string;
   body: string;
@@ -63,13 +66,13 @@ async function compressToWebp(file: File): Promise<Blob> {
 
 export default function PostForm({ initial, categories, saved }: { initial: PostFormInitial; categories: CategoryOption[]; saved?: boolean }) {
   const [state, action, pending] = useActionState<PostFormState, FormData>(savePostAction, {});
-  const v = (key: keyof PostFormInitial) => state.values?.[key] ?? String(initial[key] ?? "");
+  const v = (key: Exclude<keyof PostFormInitial, "categories" | "notes" | "legacy" | "slugLocked">) => state.values?.[key] ?? String(initial[key] ?? "");
   const err = (key: string) => state.fieldErrors?.[key];
 
   const [title, setTitle] = useState(v("title"));
   const [seoTitle, setSeoTitle] = useState(v("seoTitle"));
   const [description, setDescription] = useState(v("description"));
-  const [category, setCategory] = useState(v("category"));
+  const [selected, setSelected] = useState<string[]>(initial.categories);
   const [coverUrl, setCoverUrl] = useState(v("coverUrl"));
   const [coverAlt, setCoverAlt] = useState(v("coverAlt"));
   const [uploading, setUploading] = useState(false);
@@ -116,6 +119,11 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
       {initial.origin === "ai" && initial.status === "draft" && (
         <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
           AI draft - check every fact, figure and claim against the listed sources before publishing. The automatic cover comes from Mimar’s service library; review its relevance and alt text.
+        </p>
+      )}
+      {initial.legacy && (
+        <p className="rounded-lg bg-sky-50 p-3 text-sm text-sky-900">
+          Imported WordPress article. Its address ({initial.path}) is fixed so search rankings and inbound links keep working. Changing the text, title or description here updates the live page; the Arabic version is refreshed automatically.
         </p>
       )}
       {notes.length > 0 && (
@@ -175,7 +183,7 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
         )}
         <div className="flex flex-wrap items-center gap-3">
           <button type="button" onClick={() => {
-            const cover = selectBlogCover({ title, category });
+            const cover = selectBlogCover({ title, category: selected[0] });
             setCoverUrl(cover.url);
             setCoverAlt(cover.alt);
           }} className={secondaryButtonClass}>Use matching library image</button>
@@ -196,19 +204,28 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
       <section className={`${cardClass} grid gap-5`}>
         <h2 className="text-lg font-medium">Organisation</h2>
         <div className="grid gap-5 md:grid-cols-2">
-          <Field label="Category" error={err("category")}>
-            <select name="category" value={category} onChange={event => setCategory(event.target.value)} className={fieldClass}>
-              <option value="">No category</option>
-              {categories.map((category) => (
-                <option key={category.slug} value={category.slug}>
-                  {category.label}
-                </option>
+          <fieldset className="grid gap-2">
+            <legend className="text-sm font-medium">Categories</legend>
+            <div className="flex flex-wrap gap-x-5 gap-y-2">
+              {categories.map((option) => (
+                <label key={option.slug} className="flex items-center gap-2 text-sm font-normal">
+                  <input
+                    type="checkbox"
+                    name="categories"
+                    value={option.slug}
+                    checked={selected.includes(option.slug)}
+                    onChange={(event) => setSelected((current) => (event.target.checked ? [...current, option.slug] : current.filter((slug) => slug !== option.slug)))}
+                  />
+                  {option.label}
+                </label>
               ))}
-            </select>
-          </Field>
+            </div>
+            <span className={hintClass}>The article is listed on each ticked category page.</span>
+            {err("category") && <span className="text-xs text-accent">{err("category")}</span>}
+          </fieldset>
           {initial.slugLocked ? (
             <p className="self-end pb-2 text-sm text-muted">
-              /blog/<strong className="text-ink">{initial.slug}</strong> · locked because this post has been public.
+              <strong className="text-ink">{initial.path}</strong> · locked because this post has been public.
               <input type="hidden" name="slug" value={initial.slug} />
             </p>
           ) : (
@@ -233,7 +250,18 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
         <button type="submit" name="intent" value="published" disabled={pending || uploading} className={primaryButtonClass}>
           {initial.status === "published" ? "Save & keep published" : "Publish"}
         </button>
-        <button type="submit" name="intent" value="draft" disabled={pending || uploading} className={secondaryButtonClass}>
+        <button
+          type="submit"
+          name="intent"
+          value="draft"
+          disabled={pending || uploading}
+          className={secondaryButtonClass}
+          onClick={(event) => {
+            if (initial.status === "published" && !window.confirm(`Unpublish this article? ${initial.path} will stop working (404) and it disappears from the blog, the sitemap and search results until you publish it again.`)) {
+              event.preventDefault();
+            }
+          }}
+        >
           {initial.status === "published" ? "Unpublish (back to draft)" : "Save draft"}
         </button>
         {pending && <span className="text-sm text-muted">Saving…</span>}

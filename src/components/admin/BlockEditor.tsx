@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { parseBlocks, splitInlineLinks, countWords } from "@/lib/content-blocks";
+import { parseBlocks, splitInlineLinks, countWords, isTextBlock } from "@/lib/content-blocks";
 import { hintClass, textareaClass } from "@/components/admin/styles";
 
 /**
@@ -30,6 +30,7 @@ export default function BlockEditor({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className={hintClass}>
           <code>## Heading</code> · <code>### Sub-heading</code> · <code>- Bullet</code> · blank line between paragraphs · {countWords(blocks)} words
+          {blocks.some((block) => !isTextBlock(block)) && <> · lines like <code>[image: /path | description | 1920x1080]</code> are pictures: move or delete the whole line</>}
         </p>
         <button type="button" onClick={() => setPreview((value) => !value)} className="text-xs uppercase tracking-[0.14em] text-accent hover:underline">
           {preview ? "Edit" : "Preview"}
@@ -52,6 +53,8 @@ export default function BlockEditor({
         <div className="min-h-40 rounded-lg border border-line bg-white p-5">
           {blocks.length === 0 && <p className="text-sm text-muted">Nothing to preview yet.</p>}
           {blocks.map((block, index) => {
+            if (block.type === "img") return <p key={index} className="mt-3 rounded border border-dashed border-line p-2 text-xs text-muted">Picture: {block.alt || block.src}</p>;
+            if (block.type === "video") return <p key={index} className="mt-3 rounded border border-dashed border-line p-2 text-xs text-muted">Video: {block.src}</p>;
             const inline = splitInlineLinks(block.text).map((part, i) =>
               part.href ? (
                 <span key={i} className="text-accent underline">

@@ -1,36 +1,20 @@
 import Link from "next/link";
 import { BlogArticleList, BlogCategoryLinks } from "@/components/blog/BlogCatalog";
-import { getBlogArchive, getBlogArchivePage, getBlogPageCount } from "@/lib/blog";
+import { getArchive, getArchivePage, getArchivePageCount } from "@/lib/blog-store";
 import { breadcrumbJsonLd, itemListJsonLd, jsonLdScript } from "@/lib/seo";
 import { localeHref, localizeDigits, type Locale } from "@/i18n/config";
-import type { LegacySeoPage } from "@/lib/legacy-seo";
 import { blogUi } from "@/lib/ar/blog-ui";
-import { blogArchiveArticlesAr, blogPageCountAr, getBlogArchivePageAr } from "@/lib/ar/blog-ar";
 
 function pageHref(page: number) {
   return page === 1 ? "/blog" : "/blog/" + page;
 }
 
 /**
- * Blog index / archive pages. English reads the live catalogue (migrated
- * archive plus Firestore posts); Arabic reads the static translated archive
- * only, because admin-written posts are English-only.
+ * Blog index / archive pages, English and Arabic. Both read the live catalogue
+ * (see blog-store.ts); the Arabic list holds the articles that have an Arabic version.
  */
 export default async function BlogArchiveView({ page, lang = "en" }: { page: number; lang?: Locale }) {
-  let articles: LegacySeoPage[];
-  let blogPageCount: number;
-  let blogArchiveArticles: LegacySeoPage[];
-  if (lang === "ar") {
-    articles = getBlogArchivePageAr(page);
-    blogPageCount = blogPageCountAr;
-    blogArchiveArticles = blogArchiveArticlesAr;
-  } else {
-    [articles, blogPageCount, blogArchiveArticles] = await Promise.all([
-      getBlogArchivePage(page),
-      getBlogPageCount(),
-      getBlogArchive(),
-    ]);
-  }
+  const [articles, blogPageCount, archive] = await Promise.all([getArchivePage(page, lang), getArchivePageCount(lang), getArchive(lang)]);
   const currentPath = pageHref(page);
   const ui = blogUi(lang);
   const href = (path: string) => localeHref(lang, path);
@@ -66,7 +50,7 @@ export default async function BlogArchiveView({ page, lang = "en" }: { page: num
       <section className="container-page mt-24" aria-labelledby="latest-blogs-heading">
         <div className="mb-10 flex flex-wrap items-end justify-between gap-5 border-t border-line pt-8">
           <div>
-            <p className="eyebrow mb-3 text-muted">{ui.archiveCount[0]}{localizeDigits(blogArchiveArticles.length, lang)}{ui.archiveCount[1]}</p>
+            <p className="eyebrow mb-3 text-muted">{ui.archiveCount[0]}{localizeDigits(archive.length, lang)}{ui.archiveCount[1]}</p>
             <h2 id="latest-blogs-heading" className="section-heading">{ui.latestBlogs}</h2>
           </div>
           <span className="eyebrow text-muted">{ui.pageOf[0]}{localizeDigits(page, lang)}{ui.pageOf[1]}{localizeDigits(blogPageCount, lang)}</span>

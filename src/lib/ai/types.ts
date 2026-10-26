@@ -4,10 +4,12 @@ import type { FetchedPage } from "@/lib/ai/safe-fetch";
 /**
  * What every AI provider (Gemini, Claude) has to offer the blog generator.
  * The pipeline in generate-post.ts owns the prompts, the quality gates and the
- * saving; a provider only runs two model calls:
+ * saving; a provider only runs the model calls:
  *
- *   research - web search -> a private brief + the pages it used
- *   write    - structured JSON article from the brief
+ *   research  - web search -> a private brief + the pages it used
+ *   write     - structured JSON article from the brief
+ *   suggest   - one article topic
+ *   translate - the finished article in Arabic (translate-post.ts)
  */
 
 export type Usage = { inputTokens: number; outputTokens: number; searches: number };
@@ -25,6 +27,8 @@ export interface AiProvider {
   write(prompt: Prompt, usage: Usage): Promise<unknown>;
   /** Proposes one article topic (no web search). Returns parsed JSON; validated against topicSchema. */
   suggest(prompt: Prompt, usage: Usage): Promise<unknown>;
+  /** Returns the Arabic version as parsed JSON; validated against translationSchema. */
+  translate(prompt: Prompt, usage: Usage): Promise<unknown>;
   /** A short, user-facing message for this provider's own API errors, or null if it is not one. */
   describeError(err: unknown): string | null;
 }
@@ -93,5 +97,47 @@ export const articleJsonSchema = {
     },
   },
   required: ["title", "seoTitle", "description", "keywords", "geoTerms", "category", "body", "faq", "related"],
+  additionalProperties: false,
+} as const;
+
+// ---- The Arabic version ---------------------------------------------------
+
+export const translationSchema = z.object({
+  title: z.string(),
+  seoTitle: z.string(),
+  description: z.string(),
+  keywords: z.array(z.string()),
+  /** The target places in Arabic, one per input place, in the same order. */
+  geoTerms: z.array(z.string()),
+  /** One translated string per text block of the input, in the same order. */
+  blocks: z.array(z.string()),
+  faq: z.array(z.object({ question: z.string(), answer: z.string() })),
+  relatedLabels: z.array(z.string()),
+  coverAlt: z.string(),
+});
+export type Translation = z.infer<typeof translationSchema>;
+
+export const translationJsonSchema = {
+  type: "object",
+  properties: {
+    title: { type: "string" },
+    seoTitle: { type: "string" },
+    description: { type: "string" },
+    keywords: { type: "array", items: { type: "string" } },
+    geoTerms: { type: "array", items: { type: "string" } },
+    blocks: { type: "array", items: { type: "string" } },
+    faq: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { question: { type: "string" }, answer: { type: "string" } },
+        required: ["question", "answer"],
+        additionalProperties: false,
+      },
+    },
+    relatedLabels: { type: "array", items: { type: "string" } },
+    coverAlt: { type: "string" },
+  },
+  required: ["title", "seoTitle", "description", "keywords", "geoTerms", "blocks", "faq", "relatedLabels", "coverAlt"],
   additionalProperties: false,
 } as const;

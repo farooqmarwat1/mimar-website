@@ -2,14 +2,14 @@ import Link from "next/link";
 import { cardClass } from "@/components/admin/styles";
 import { canAccess, requireRole } from "@/lib/admin/auth";
 import { isFirebaseConfigured } from "@/lib/firebase/admin";
-import { listPostsAdmin } from "@/lib/posts";
+import { countDrafts } from "@/lib/posts";
 
 export default async function AdminDashboardPage({ searchParams }: { searchParams: Promise<{ forbidden?: string }> }) {
   const session = await requireRole();
   const { forbidden } = await searchParams;
   // Drafts (AI-written or by hand) that nobody has approved yet.
   const waiting =
-    canAccess(session.role, "blog") && isFirebaseConfigured ? (await listPostsAdmin()).filter((post) => post.status === "draft").length : 0;
+    canAccess(session.role, "blog") && isFirebaseConfigured ? await countDrafts() : 0;
 
   return (
     <div>

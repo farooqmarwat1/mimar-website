@@ -1,19 +1,8 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
 const path = require('node:path');
-const vm = require('node:vm');
-const ts = require('typescript');
+const { load } = require('./load.cjs');
 
-function load(file, mocks = {}) {
-  const exports = {};
-  const source = ts.transpileModule(fs.readFileSync(path.join(__dirname, '..', file), 'utf8'), {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
-  }).outputText;
-  vm.runInNewContext(source, { exports, require: id => id === 'server-only' ? {} : mocks[id] ?? require(id),
-    Date, Error, SyntaxError, URL, Request, Response, Buffer, process, console: { error() {} } });
-  return exports;
-}
 const policy = load('src/lib/ai/editorial-policy.ts');
 test('source titles containing publisher pipes round trip without corrupting URLs', () => {
   const fields = load('src/lib/post-fields.ts');
@@ -39,12 +28,8 @@ test('every library cover exists and has accurate image dimensions and descripti
 });
 
 test('existing AI drafts receive a library cover in the editor without replacing uploaded covers', () => {
-  const fields = load('src/lib/post-fields.ts');
-  const values = load('src/lib/post-form-values.ts', {
-    '@/lib/blog-covers': load('src/lib/blog-covers.ts'), '@/lib/post-fields': fields,
-    '@/lib/content-blocks': load('src/lib/content-blocks.ts'),
-  });
-  const post = { id: 'draft', title: 'Architecture brief', category: 'architecture', keywords: [], geoTerms: [], blocks: [], faq: [], related: [], sources: [], origin: 'ai', status: 'draft' };
+  const values = load('src/lib/post-form-values.ts');
+  const post = { id: 'draft', title: 'Architecture brief', path: '/blog/architecture-brief', categories: ['architecture'], keywords: [], geoTerms: [], blocks: [], faq: [], related: [], sources: [], origin: 'ai', status: 'draft' };
   const initial = values.postToFormValues(post);
   assert.equal(initial.coverUrl, '/services/architectural-design/hero.jpg'); assert(initial.coverAlt.length > 0);
   assert.equal(values.postToFormValues({ ...post, origin: 'manual' }).coverUrl, '');
@@ -54,9 +39,9 @@ test('existing AI drafts receive a library cover in the editor without replacing
 test('blog image metadata uses absolute URLs, correct dimensions, alt text and article schema', () => {
   const siteConfig = { url: 'https://mim.archi', name: 'Mimar Studios', locale: 'en_US', ogImage: '/og.jpg' };
   const seo = load('src/lib/seo.ts', { './site-config': { siteConfig }, './service-details': {} });
-  const blog = load('src/lib/blog-seo.ts', { '@/lib/seo': seo, '@/lib/site-config': { siteConfig }, '@/lib/content-blocks': load('src/lib/content-blocks.ts') });
+  const blog = load('src/lib/blog-seo.ts', { '@/lib/seo': seo, '@/lib/site-config': { siteConfig } });
   const cover = load('src/lib/blog-covers.ts').BLOG_COVERS.rendering;
-  const page = { path: '/blog/rendering-guide', title: 'Rendering guide', seoTitle: 'Rendering guide', description: 'A useful guide', keywords: [], published: '2026-10-22 10:00:00', modified: '2026-10-22 11:00:00', blocks: [{ type: 'p', text: 'A clear explanation.' }], cover, isPost: true, category: '3d-visualization', sources: [{ title: 'Verified source', url: 'https://example.com/research' }] };
+  const page = { path: '/blog/rendering-guide', title: 'Rendering guide', seoTitle: 'Rendering guide', description: 'A useful guide', keywords: [], published: '2026-10-22 10:00:00', modified: '2026-10-22 11:00:00', blocks: [{ type: 'p', text: 'A clear explanation.' }], cover, isPost: true, hasAr: false, lang: 'en', categories: ['3d-visualization'], geoTerms: ['Dubai'], sources: [{ title: 'Verified source', url: 'https://example.com/research' }] };
   const metadata = blog.blogMetadata(page), schema = blog.blogPostJsonLd(page);
   assert.equal(metadata.alternates.canonical, 'https://mim.archi/blog/rendering-guide');
   assert.equal(metadata.openGraph.type, 'article'); assert.equal(metadata.openGraph.images[0].alt, cover.alt);
@@ -64,6 +49,7 @@ test('blog image metadata uses absolute URLs, correct dimensions, alt text and a
   assert.equal(schema['@type'], 'BlogPosting'); assert.equal(schema.image.url, 'https://mim.archi' + cover.url);
   assert.equal(schema.image.caption, cover.alt); assert.equal(schema.citation[0].url, page.sources[0].url);
   assert.equal(blog.blogMetadata({ ...page, isPost: undefined }).openGraph.type, 'website');
+  assert.equal(schema.contentLocation[0].name, 'Dubai'); assert.equal(schema.articleSection, '3D Visualization'); assert.equal(schema.inLanguage, 'en-US');
 });
 test('merged Firebase parser accepts quoted PEM and complete service-account JSON', () => {
   const { resolveCredentials } = load('src/lib/firebase/credentials.ts');
@@ -140,7 +126,7 @@ test('scheduled endpoint rejects unauthorized calls, records skips and prevents 
     '@/lib/ai/auto-topic': {}, '@/lib/ai/generate-post': { aiConfigured: () => true },
     '@/lib/ai/provider': {}, '@/lib/ai/topic-queue': {},
     '@/lib/firebase/admin': { isFirebaseConfigured: true, adminDb: () => db },
-    '@/lib/generation': {}, '@/lib/mailer': {}, '@/lib/posts': {},
+    '@/lib/generation': {}, '@/lib/mailer': {}, '@/lib/posts': { countPendingAiDrafts: async () => 0 },
     '@/lib/rate-limit': { checkRateLimit: async () => ({ allowed: false }) }, '@/lib/site-config': {},
   });
   try {
@@ -156,60 +142,77 @@ test('scheduled endpoint rejects unauthorized calls, records skips and prevents 
   }
 });
 
-test('a draft still failing mandatory checks after rewriting is never saved', async () => {
-  let writes = 0, saves = 0;
-  const states = [];
-  const sources = ['https://one.example/a', 'https://two.example/b', 'https://two.example/c'].map(url => ({
-    url, title: 'Research', page: { url, title: 'Research', text: 'Independent background information on project delivery.' },
-  }));
-  const provider = { name: 'gemini', model: 'mock', describeError: () => null,
-    research: async () => ({ brief: 'Verified research facts. '.repeat(30), sources }),
-    write: async () => { writes++; return article(); },
-  };
-  const generator = load('src/lib/ai/generate-post.ts', {
-    '@/lib/blog-covers': load('src/lib/blog-covers.ts'),
-    './editorial-policy': policy,
+const fakeArabic = { title: 'عنوان', seoTitle: 'عنوان', description: 'وصف', keywords: [], blocks: [], faq: [], relatedLabels: [], sourceHash: 'x', translatedAt: '2026-01-01T00:00:00.000Z', model: 'mock' };
+function generatorWith({ provider, job, saves, known = new Set(), translate = async () => fakeArabic }) {
+  return load('src/lib/ai/generate-post.ts', {
     '@/lib/ai/provider': { aiConfigured: () => true, getProvider: () => provider },
-    '@/lib/ai/safe-fetch': { fetchPageText: async () => null }, '@/lib/ai/similarity': load('src/lib/ai/similarity.ts'),
-    '@/lib/ai/types': load('src/lib/ai/types.ts'), '@/lib/content-blocks': load('src/lib/content-blocks.ts'),
-    '@/lib/generation': { getJob: async () => ({ topic: 'Rendering scope for developers', keyword: 'architectural rendering', geo: 'Dubai, UAE', category: 'architecture', seedUrls: [] }), updateJob: async (_id, state) => states.push(state) },
-    '@/lib/internal-paths': { knownInternalPaths: async () => new Set(), normalizePath: p => p },
-    '@/lib/legacy-seo': { blogCategories: [{ slug: 'architecture' }], legacySeoPages: [] },
+    '@/lib/ai/safe-fetch': { fetchPageText: async () => null },
+    '@/lib/ai/translate-post': { translateToArabic: translate },
+    '@/lib/blog-store': { getBlogEntries: async () => [] },
+    '@/lib/generation': { getJob: async () => job, updateJob: async () => {} },
+    '@/lib/internal-paths': { knownInternalPaths: async () => known, normalizePath: p => p },
     '@/lib/post-validation': { checkPost: async () => ({ errors: {}, warnings: [] }) },
-    '@/lib/posts': { getPublishedPosts: async () => [], savePost: async () => { saves++; } },
+    '@/lib/posts': { isReservedSlug: () => false, isPostSlugTaken: async () => false, postPath: slug => '/blog/' + slug, savePost: async (_id, post) => { saves.push(post); return 'new-draft'; } },
     '@/lib/regions': { regionList: [] }, '@/lib/service-details': { servicePath: s => '/services/' + s },
-    '@/lib/site-config': { offices: [], services: [], siteConfig: {} }, '@/lib/slug': {},
+    '@/lib/site-config': { offices: [], services: [{ slug: 'architectural-design', title: 'Architectural Design' }], siteConfig: {} },
   });
-  await assert.rejects(generator.runGeneration('test'), /failed SEO\/GEO checks/);
-  assert.equal(writes, 2); assert.equal(saves, 0); assert.equal(states.at(-1).status, 'failed');
+}
+const researchOf = text => async () => ({
+  brief: 'Verified research facts. '.repeat(30),
+  sources: ['https://one.example/a', 'https://two.example/b', 'https://two.example/c'].map(url => ({ url, title: 'Research', page: { url, title: 'Research', text } })),
+});
+const jobFor = draft => ({ topic: draft.title, keyword: 'architectural rendering', geo: 'Dubai, UAE', category: 'architecture', seedUrls: [], createdBy: 'test' });
+
+test('a draft that still misses soft checks after a rewrite is saved with a visible warning', async () => {
+  let writes = 0; const saves = [];
+  const provider = { name: 'gemini', model: 'mock', describeError: () => null,
+    research: researchOf('Independent background information on project delivery.'),
+    write: async () => { writes++; return article(); } };
+  const generator = generatorWith({ provider, job: jobFor(article()), saves });
+  assert.equal(await generator.runGeneration('test'), 'new-draft');
+  assert.equal(writes, 2); assert.equal(saves.length, 1);
+  assert.equal(saves[0].status, 'draft'); assert(saves[0].generation.notes.some(note => /Still needs attention/.test(note)));
 });
 
-test('a valid generated draft saves a matching cover and alt text without publishing', async () => {
+test('a draft that copies its sources is discarded, never saved', async () => {
+  let writes = 0; const saves = [];
+  const copied = article();
+  const provider = { name: 'gemini', model: 'mock', describeError: () => null,
+    research: researchOf(copied.body), write: async () => { writes++; return copied; } };
+  const generator = generatorWith({ provider, job: jobFor(copied), saves });
+  await assert.rejects(generator.runGeneration('test'), /reuses too much wording/);
+  assert.equal(writes, 2); assert.equal(saves.length, 0);
+});
+
+test('a valid generated draft saves its Arabic version, cover and categories without publishing', async () => {
   const draft = article();
   draft.body += '\n\n' + ('Developers can agree scope and deliverables before commissioning work. '.repeat(10) + '\n\n').repeat(12);
   draft.body += '\n\nCompare [architectural design](/services/architectural-design), [branding](/services/branding) and [marketing](/services/marketing) for the project brief.';
   draft.related = [{ label: 'Design services', path: '/services/architectural-design' }, { label: 'Branding services', path: '/services/branding' }];
-  let saved;
+  const saves = []; let translated = 0;
   const provider = { name: 'gemini', model: 'mock', describeError: () => null,
-    research: async () => ({ brief: 'Verified background research. '.repeat(25), sources: ['https://one.example/a', 'https://two.example/b', 'https://two.example/c'].map(url => ({ url, title: 'Research', page: { url, text: 'Independent factual background material for reference.' } })) }),
-    write: async () => draft,
-  };
-  const generator = load('src/lib/ai/generate-post.ts', {
-    './editorial-policy': policy, '@/lib/blog-covers': load('src/lib/blog-covers.ts'),
-    '@/lib/ai/provider': { aiConfigured: () => true, getProvider: () => provider },
-    '@/lib/ai/safe-fetch': { fetchPageText: async () => null }, '@/lib/ai/similarity': load('src/lib/ai/similarity.ts'),
-    '@/lib/ai/types': load('src/lib/ai/types.ts'), '@/lib/content-blocks': load('src/lib/content-blocks.ts'),
-    '@/lib/generation': { getJob: async () => ({ topic: draft.title, keyword: 'architectural rendering', geo: 'Dubai, UAE', category: 'architecture', seedUrls: [], createdBy: 'test' }), updateJob: async () => {} },
-    '@/lib/internal-paths': { knownInternalPaths: async () => new Set(['/services/architectural-design', '/services/branding', '/services/marketing']), normalizePath: p => p },
-    '@/lib/legacy-seo': { blogCategories: [{ slug: 'architecture' }], legacySeoPages: [] },
-    '@/lib/post-validation': { checkPost: async () => ({ errors: {}, warnings: [] }) },
-    '@/lib/posts': { getPublishedPosts: async () => [], isReservedSlug: () => false, isPostSlugTaken: async () => false, savePost: async (_id, post) => { saved = post; return 'new-draft'; } },
-    '@/lib/regions': { regionList: [] }, '@/lib/service-details': { servicePath: s => '/services/' + s },
-    '@/lib/site-config': { offices: [], services: [{ slug: 'architectural-design', title: 'Architectural Design' }], siteConfig: {} }, '@/lib/slug': { slugify: () => 'rendering-guide' },
+    research: researchOf('Independent factual background material for reference.'), write: async () => draft };
+  const generator = generatorWith({
+    provider, job: jobFor(draft), saves,
+    known: new Set(['/services/architectural-design', '/services/branding', '/services/marketing']),
+    translate: async fields => { translated++; assert.equal(fields.title, draft.title); return fakeArabic; },
   });
   assert.equal(await generator.runGeneration('test'), 'new-draft');
-  assert.equal(saved.status, 'draft'); assert.equal(saved.coverImage.url, '/services/architectural-design/hero.jpg');
+  const saved = saves[0];
+  assert.equal(translated, 1); assert.equal(saved.ar.title, fakeArabic.title);
+  assert.equal(saved.status, 'draft'); assert.deepEqual(JSON.parse(JSON.stringify(saved.categories)), ['architecture']); assert.equal(saved.path, '/blog/' + saved.slug);
+  assert.equal(saved.coverImage.url, '/services/architectural-design/hero.jpg');
   assert(saved.coverImage.alt.length > 30); assert.equal(saved.coverImage.width, 3200);
+});
+
+test('a failed Arabic translation does not lose the English draft', async () => {
+  const draft = article();
+  const saves = [];
+  const provider = { name: 'gemini', model: 'mock', describeError: () => null,
+    research: researchOf('Independent factual background material for reference.'), write: async () => draft };
+  const generator = generatorWith({ provider, job: jobFor(draft), saves, translate: async () => { throw new Error('quota'); } });
+  assert.equal(await generator.runGeneration('test'), 'new-draft');
+  assert.equal(saves[0].ar, undefined); assert(saves[0].generation.notes.some(note => /Arabic version could not be written/.test(note)));
 });
 
 test('successful scheduled generation records completion and refills the queue', async () => {
@@ -223,7 +226,7 @@ test('successful scheduled generation records completion and refills the queue',
     '@/lib/firebase/admin': { isFirebaseConfigured: true, adminDb: () => db },
     '@/lib/generation': { claimNextTopic: async () => ({ id: 'topic-id', topic: 'Rendering scope', keyword: 'architectural rendering' }),
       createJob: async input => { forwardedKeyword = input.keyword; return 'job-id'; }, finishTopic: async () => {} },
-    '@/lib/mailer': { getMailer: () => null }, '@/lib/posts': { listPostsAdmin: async () => [], getPostAdmin: async () => null },
+    '@/lib/mailer': { getMailer: () => null }, '@/lib/posts': { countPendingAiDrafts: async () => 0, getPostAdmin: async () => null },
     '@/lib/rate-limit': { checkRateLimit: async () => ({ allowed: true }) }, '@/lib/site-config': {},
   });
   try {

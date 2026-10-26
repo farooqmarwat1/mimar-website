@@ -3,40 +3,37 @@ import { notFound } from "next/navigation";
 import BlogArchiveView from "@/components/blog/BlogArchiveView";
 import BlogCategoryView from "@/components/blog/BlogCategoryView";
 import LegacyArticle from "@/components/legacy/LegacyArticle";
-import { articleJsonLd, breadcrumbJsonLd, buildMetadata, jsonLdScript } from "@/lib/seo";
+import { jsonLdScript } from "@/lib/seo";
 import { blogCategories } from "@/lib/legacy-seo";
-import { localeHref } from "@/i18n/config";
-import { blogMetaAr, blogUi, localizeBlogCategory } from "@/lib/ar/blog-ui";
-import {
-  arabicBlogArticleSlugs,
-  blogPageCountAr,
-  getBlogArchivePageAr,
-  getCategoryArticlesAr,
-  getLegacySeoPageAr,
-} from "@/lib/ar/blog-ar";
+import { blogMetaAr, localizeBlogCategory } from "@/lib/ar/blog-ui";
+import { buildMetadata } from "@/lib/seo";
+import { getArchivePage, getArchivePageCount, getBlogArticle, getBlogSlugs, getCategoryList } from "@/lib/blog-store";
+import { articleStructuredData, blogMetadata } from "@/lib/blog-seo";
 
 // Arabic mirror of /blog/[category]: category listings, archive pagination
-// (/ar/blog/2) and the one-segment translated articles (/ar/blog/3d-rendering).
-// Everything is known at build time and dynamicParams is false, so anything
-// else - including a slug that only exists as an English /admin post - is a
-// real HTTP 404 inside the Arabic layout.
-export const dynamicParams = false;
+// (/ar/blog/2) and the Arabic version of every one-segment article
+// (/ar/blog/3d-rendering). An article appears here once it has an Arabic
+// version (the generator and the editor create it automatically); any other
+// slug is a real HTTP 404 inside the Arabic layout.
+export const dynamicParams = true;
 
-export function generateStaticParams() {
-  const archivePages = Array.from({ length: Math.max(blogPageCountAr - 1, 0) }, (_, index) => String(index + 2));
-  return [...blogCategories.map((category) => category.slug), ...arabicBlogArticleSlugs(), ...archivePages].map(
-    (category) => ({ category }),
-  );
+// Admin edits refresh this immediately; hourly is the safety net.
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const [pageCount, slugs] = await Promise.all([getArchivePageCount("ar"), getBlogSlugs("ar")]);
+  const archivePages = Array.from({ length: Math.max(pageCount - 1, 0) }, (_, index) => String(index + 2));
+  return [...blogCategories.map((category) => category.slug), ...slugs, ...archivePages].map((category) => ({ category }));
 }
 
-function archivePageOf(slug: string): number | undefined {
+async function archivePageOf(slug: string): Promise<number | undefined> {
   const page = Number(slug);
-  return String(page) === slug && page >= 2 && getBlogArchivePageAr(page).length > 0 ? page : undefined;
+  return String(page) === slug && page >= 2 && (await getArchivePage(page, "ar")).length > 0 ? page : undefined;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
   const { category: slug } = await params;
-  const archivePage = archivePageOf(slug);
+  const archivePage = await archivePageOf(slug);
   if (archivePage) {
     return buildMetadata({
       title: blogMetaAr.archiveTitle(archivePage),
@@ -57,24 +54,17 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
     });
   }
 
-  const page = getLegacySeoPageAr("blog/" + slug);
-  if (!page) return {};
-  return buildMetadata({
-    title: page.seoTitle,
-    description: page.description,
-    path: page.path,
-    keywords: page.keywords,
-    locale: "ar",
-  });
+  const page = await getBlogArticle("/blog/" + slug, "ar");
+  return page ? blogMetadata(page) : {};
 }
 
 export default async function ArabicBlogCategoryPage({ params }: { params: Promise<{ category: string }> }) {
   const { category: slug } = await params;
 
-  const archivePage = archivePageOf(slug);
+  const archivePage = await archivePageOf(slug);
   if (archivePage) return <BlogArchiveView page={archivePage} lang="ar" />;
 
-  const { category, articles } = getCategoryArticlesAr(slug);
+  const category = blogCategories.find((c) => c.slug === slug);
   if (category) {
     const ar = localizeBlogCategory(category, "ar");
     return (
@@ -86,26 +76,16 @@ export default async function ArabicBlogCategoryPage({ params }: { params: Promi
         intro={ar.description}
         path={"/blog/" + category.slug}
         currentSlug={category.slug}
-        articles={articles}
+        articles={await getCategoryList(slug, "ar")}
       />
     );
   }
 
-  const page = getLegacySeoPageAr("blog/" + slug);
+  const page = await getBlogArticle("/blog/" + slug, "ar");
   if (!page) notFound();
-  const ui = blogUi("ar");
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={jsonLdScript([
-          breadcrumbJsonLd([
-            { name: ui.home, path: localeHref("ar", "/") },
-            { name: page.title, path: localeHref("ar", page.path) },
-          ]),
-          articleJsonLd({ ...page, locale: "ar" }),
-        ])}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(articleStructuredData(page))} />
       <LegacyArticle page={page} lang="ar" />
     </>
   );

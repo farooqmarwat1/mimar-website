@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { siteConfig, services } from "@/lib/site-config";
 import { getProjects } from "@/lib/cms";
-import { legacySeoPages, blogCategories } from "@/lib/legacy-seo";
+import { blogCategories } from "@/lib/legacy-seo";
+import { getBlogEntries } from "@/lib/blog-store";
 import { interactiveServicesSlug, servicePath } from "@/lib/service-details";
 import { architecturalSubServicePath, architecturalSubServiceSlugs } from "@/lib/architectural-sub-services";
 import { threeDVisualizationSubServicePath, threeDVisualizationSubServiceSlugs } from "@/lib/three-d-visualization-sub-services";
@@ -10,10 +11,9 @@ import { legacyServicePages } from "@/lib/legacy-service-pages";
 import { legacyCategories, legacyCategoryPath } from "@/lib/legacy-categories";
 import { regionList } from "@/lib/regions";
 import { getOpenJobs } from "@/lib/jobs";
-import { getPublishedPosts, postPath } from "@/lib/posts";
 import { localeHref } from "@/i18n/config";
 
-// Open careers pages come from Firestore; admin edits refresh this immediately, hourly is the safety net.
+// Open careers pages and blog articles come from Firestore; admin edits refresh this immediately, hourly is the safety net.
 export const revalidate = 3600;
 
 // Other restored Pano2VR tours (see legacyTours in next.config.ts).
@@ -32,7 +32,7 @@ const legacyTourPaths = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [projects, openJobs, posts] = await Promise.all([getProjects(), getOpenJobs(), getPublishedPosts()]);
+  const [projects, openJobs, articles] = await Promise.all([getProjects(), getOpenJobs(), getBlogEntries()]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: siteConfig.url, changeFrequency: "weekly", priority: 1 },
@@ -72,11 +72,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
-  // Posts written in /admin (published only; drafts never appear).
-  const postRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
-    url: `${siteConfig.url}${postPath(post.slug)}`,
-    lastModified: new Date(post.updatedAt),
-    changeFrequency: "monthly",
+  // Every published article, migrated or written in /admin (drafts, unpublished and deleted ones never appear).
+  // The migrated ones keep their original yearly cadence; new posts are refreshed monthly.
+  const articleRoutes: MetadataRoute.Sitemap = articles.map((article) => ({
+    url: `${siteConfig.url}${article.path}`,
+    lastModified: new Date(`${article.modified.replace(" ", "T")}Z`),
+    changeFrequency: article.legacy ? "yearly" : "monthly",
     priority: 0.6,
   }));
 
@@ -122,13 +123,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  const legacyRoutes: MetadataRoute.Sitemap = legacySeoPages.map((page) => ({
-    url: `${siteConfig.url}${page.path}`,
-    lastModified: page.modified ? new Date(`${page.modified.replace(" ", "T")}Z`) : undefined,
-    changeFrequency: "yearly",
-    priority: 0.6,
-  }));
-
   // Country landing pages. These keep their original WordPress paths but are
   // no longer in legacySeoPages, so they are listed explicitly here.
   const regionRoutes: MetadataRoute.Sitemap = regionList.map((region) => ({
@@ -137,7 +131,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  const allRoutes = [...staticRoutes, ...jobRoutes, ...postRoutes, ...blogCategoryRoutes, ...projectRoutes, ...serviceRoutes, ...architecturalSubServiceRoutes, ...threeDVisualizationSubServiceRoutes, ...brandingMarketingSubServiceRoutes, ...legacyServiceRoutes, ...regionRoutes, ...legacyRoutes];
+  const allRoutes = [...staticRoutes, ...jobRoutes, ...articleRoutes, ...blogCategoryRoutes, ...projectRoutes, ...serviceRoutes, ...architecturalSubServiceRoutes, ...threeDVisualizationSubServiceRoutes, ...brandingMarketingSubServiceRoutes, ...legacyServiceRoutes, ...regionRoutes];
 
   // Some sub-service slugs (e.g. cinematics) exist both in the flat `services`
   // list, for servicePath()-driven surfaces like the contact form and llms.txt,
@@ -151,11 +145,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   // Arabic mirror (ARABIC.md): every English page below has an /ar twin, so each
-  // pair is listed with hreflang alternates. Not mirrored: roles and posts from
-  // Firestore (English only) and the static Pano2VR tours.
+  // pair is listed with hreflang alternates. Not mirrored: roles from Firestore
+  // (English only), articles that have no Arabic version yet, and the static Pano2VR tours.
   const englishOnly = new Set<string>([
     ...jobRoutes.map((route) => route.url),
-    ...postRoutes.map((route) => route.url),
+    ...articles.filter((article) => article.titleAr === undefined).map((article) => `${siteConfig.url}${article.path}`),
     ...legacyTourPaths.map((path) => `${siteConfig.url}${path}`),
     ...staticRoutes.filter((route) => route.url.includes("/tours/")).map((route) => route.url),
   ]);

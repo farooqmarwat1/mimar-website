@@ -4,7 +4,7 @@ import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { AdminAuthError, assertAccess } from "@/lib/admin/auth";
-import { parseBlocks } from "@/lib/content-blocks";
+import { parseTextBlocks } from "@/lib/content-blocks";
 import { contact } from "@/lib/site-config";
 import { slugify } from "@/lib/slug";
 import {
@@ -132,7 +132,7 @@ export async function saveJobAction(_prev: JobFormState, formData: FormData): Pr
   }
   const input = parsed.data;
 
-  const blocks = parseBlocks(input.description);
+  const blocks = parseTextBlocks(input.description);
   if (input.intent === "open" && blocks.length === 0) {
     return { error: "Add the job description before opening the role.", fieldErrors: { description: "Required to open the role." }, values };
   }

@@ -19,11 +19,32 @@ export type ContentBlock = {
   text: string;
 };
 
+/**
+ * Pictures and videos kept inside the migrated WordPress articles. In the
+ * editor each one is a single line, so it can be moved or deleted like text:
+ *
+ *   [image: /blog/example/photo.jpg | Describe the picture | 1920x1080]
+ *   [video: /blog/example/clip.mp4]
+ *
+ * Only site-relative paths are accepted (never an outside address).
+ */
+export type MediaBlock =
+  | { type: "img"; src: string; alt: string; width?: number; height?: number }
+  | { type: "video"; src: string };
+
+/** Everything an article body can hold. Text-only code keeps using ContentBlock. */
+export type ArticleBlock = ContentBlock | MediaBlock;
+
+export const isTextBlock = (block: ArticleBlock): block is ContentBlock => block.type !== "img" && block.type !== "video";
+
 const MAX_BLOCKS = 400;
 const MAX_TEXT = 4000;
 
-export function parseBlocks(input: string): ContentBlock[] {
-  const blocks: ContentBlock[] = [];
+const IMAGE_LINE = /^\[image:\s*(\/[^\s|\]]+)\s*\|\s*(.*?)\s*(?:\|\s*(\d{2,5})x(\d{2,5}))?\s*\]$/i;
+const VIDEO_LINE = /^\[video:\s*(\/[^\s|\]]+)\s*\]$/i;
+
+export function parseBlocks(input: string): ArticleBlock[] {
+  const blocks: ArticleBlock[] = [];
   let paragraph: string[] = [];
 
   const flush = () => {
@@ -41,7 +62,20 @@ export function parseBlocks(input: string): ContentBlock[] {
     }
     const heading = /^(#{2,3})\s+(.+)$/.exec(line);
     const bullet = /^[-*•]\s+(.+)$/.exec(line);
-    if (heading) {
+    const image = IMAGE_LINE.exec(line);
+    const video = VIDEO_LINE.exec(line);
+    if (image && !image[1].startsWith("//")) {
+      flush();
+      blocks.push({
+        type: "img",
+        src: image[1],
+        alt: image[2].trim().slice(0, 300),
+        ...(image[3] && image[4] ? { width: Number(image[3]), height: Number(image[4]) } : {}),
+      });
+    } else if (video && !video[1].startsWith("//")) {
+      flush();
+      blocks.push({ type: "video", src: video[1] });
+    } else if (heading) {
       flush();
       blocks.push({ type: heading[1].length === 2 ? "h2" : "h3", text: heading[2].trim() });
     } else if (bullet) {
@@ -54,16 +88,25 @@ export function parseBlocks(input: string): ContentBlock[] {
   flush();
 
   return blocks
-    .filter((block) => block.text.length > 0)
+    .filter((block) => !isTextBlock(block) || block.text.length > 0)
     .slice(0, MAX_BLOCKS)
-    .map((block) => ({ ...block, text: block.text.slice(0, MAX_TEXT) }));
+    .map((block) => (isTextBlock(block) ? { ...block, text: block.text.slice(0, MAX_TEXT) } : block));
 }
 
-export function blocksToText(blocks: ContentBlock[]): string {
+/** Text blocks only (job descriptions and AI drafts never contain pictures). */
+export function parseTextBlocks(input: string): ContentBlock[] {
+  return parseBlocks(input).filter(isTextBlock);
+}
+
+export function blocksToText(blocks: ArticleBlock[]): string {
   const out: string[] = [];
   blocks.forEach((block, index) => {
     const prev = blocks[index - 1];
-    if (block.type === "h2") out.push(`${index ? "\n" : ""}## ${block.text}`);
+    if (block.type === "img") {
+      const size = block.width && block.height ? ` | ${block.width}x${block.height}` : "";
+      out.push(`${index ? "\n" : ""}[image: ${block.src} | ${block.alt.replace(/\s+/g, " ").trim()}${size}]`);
+    } else if (block.type === "video") out.push(`${index ? "\n" : ""}[video: ${block.src}]`);
+    else if (block.type === "h2") out.push(`${index ? "\n" : ""}## ${block.text}`);
     else if (block.type === "h3") out.push(`${index ? "\n" : ""}### ${block.text}`);
     else if (block.type === "li") out.push(`${prev && prev.type !== "li" ? "\n" : ""}- ${block.text}`);
     else out.push(`${index ? "\n" : ""}${block.text}`);
@@ -75,10 +118,11 @@ const escapeHtml = (value: string) =>
   value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /** Minimal HTML for JSON-LD `description` fields (JobPosting expects HTML). Links are flattened to their label. */
-export function blocksToHtml(blocks: ContentBlock[]): string {
+export function blocksToHtml(blocks: ArticleBlock[]): string {
   const parts: string[] = [];
   let inList = false;
   for (const block of blocks) {
+    if (!isTextBlock(block)) continue;
     const text = escapeHtml(stripInlineLinks(block.text));
     if (block.type === "li") {
       if (!inList) parts.push("<ul>");
@@ -98,11 +142,11 @@ export function blocksToHtml(blocks: ContentBlock[]): string {
   return parts.join("");
 }
 
-export function blocksToPlainText(blocks: ContentBlock[]): string {
-  return blocks.map((block) => stripInlineLinks(block.text)).join("\n");
+export function blocksToPlainText(blocks: ArticleBlock[]): string {
+  return blocks.filter(isTextBlock).map((block) => stripInlineLinks(block.text)).join("\n");
 }
 
-export function countWords(blocks: ContentBlock[]): number {
+export function countWords(blocks: ArticleBlock[]): number {
   return blocksToPlainText(blocks).split(/\s+/).filter(Boolean).length;
 }
 
