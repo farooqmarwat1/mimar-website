@@ -71,5 +71,26 @@ function parsePairs(text: string, max: number): [string, string][] {
 export const parseLinks = (text: string, max = 8): Link[] => parsePairs(text, max).map(([label, path]) => ({ label, path }));
 export const linksToText = (links: Link[]) => links.map((link) => `${link.label} | ${link.path}`).join("\n");
 
-export const parseSources = (text: string, max = 20): Source[] => parsePairs(text, max).map(([title, url]) => ({ title, url }));
-export const sourcesToText = (sources: Source[]) => sources.map((source) => `${source.title} | ${source.url}`).join("\n");
+export function parseSources(text: string, max = 20): Source[] {
+  return text.replace(/\r\n?/g, "\n").split("\n").map(line => line.trim()).filter(Boolean).slice(0, max).map(line => {
+    // Source titles often contain a publisher separator, e.g. "Article | Publisher".
+    // Split before the URL, not at the first pipe in the title.
+    const match = /^(.*)\|\s*(https?:\/\/\S+)\s*$/i.exec(line);
+    if (match) return { title: match[1].trim().slice(0, 160), url: match[2].trim() };
+    if (/^https?:\/\/\S+$/i.test(line)) return { title: line.slice(0, 160), url: line };
+    const separator = line.lastIndexOf("|");
+    // Keep invalid lines visible to validation rather than silently discarding them.
+    return { title: (separator < 0 ? line : line.slice(0, separator)).trim().slice(0, 160), url: (separator < 0 ? line : line.slice(separator + 1)).trim() };
+  });
+}
+
+export const sourcesToText = (sources: Source[]) => sources.map((source) => `${source.title.replace(/[\r\n]+/g, " ")} | ${source.url}`).join("\n");
+
+export function isHttpsSourceUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && Boolean(url.hostname) && !url.username && !url.password && !/\s/.test(value);
+  } catch {
+    return false;
+  }
+}

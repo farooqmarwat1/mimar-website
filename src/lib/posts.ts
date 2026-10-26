@@ -1,5 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
+import { selectBlogCover, type BlogCover } from "@/lib/blog-covers";
 import { adminDb, isFirebaseConfigured } from "@/lib/firebase/admin";
 import type { ContentBlock } from "@/lib/content-blocks";
 import { blogCategories, getLegacySeoPage, type LegacySeoPage } from "@/lib/legacy-seo";
@@ -36,7 +37,7 @@ export type Post = {
   category: string;
   blocks: ContentBlock[];
   faq: FaqItem[];
-  coverImage?: { url: string; alt: string };
+  coverImage?: BlogCover;
   related: LinkItem[];
   sources: SourceItem[];
   origin: PostOrigin;
@@ -50,7 +51,7 @@ export type Post = {
 
 /** A post as the public site consumes it: the legacy article shape plus optional extras. */
 export type SiteArticle = LegacySeoPage & {
-  cover?: { url: string; alt: string };
+  cover?: BlogCover;
   faq?: FaqItem[];
   related?: LinkItem[];
   sources?: SourceItem[];
@@ -93,7 +94,7 @@ export function toSiteArticle(post: Post): SiteArticle {
     published: legacyDate(published),
     modified: legacyDate(post.updatedAt > published ? post.updatedAt : published),
     blocks: post.blocks,
-    cover: post.coverImage,
+    cover: post.coverImage ?? (post.origin === "ai" ? selectBlogCover(post) : undefined),
     faq: post.faq.length ? post.faq : undefined,
     related: post.related.length ? post.related : undefined,
     sources: post.sources.length ? post.sources : undefined,

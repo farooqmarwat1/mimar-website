@@ -2,8 +2,10 @@ import { blocksToText } from "@/lib/content-blocks";
 import { faqToText, linksToText, listToText, sourcesToText } from "@/lib/post-fields";
 import type { PostFormInitial } from "@/components/admin/PostForm";
 import type { Post } from "@/lib/posts";
+import { selectBlogCover } from "@/lib/blog-covers";
 
 export function postToFormValues(post: Post): PostFormInitial {
+  const cover = post.coverImage ?? (post.origin === "ai" ? selectBlogCover(post) : undefined);
   return {
     id: post.id,
     title: post.title,
@@ -18,8 +20,8 @@ export function postToFormValues(post: Post): PostFormInitial {
     faq: faqToText(post.faq),
     related: linksToText(post.related),
     sources: sourcesToText(post.sources),
-    coverUrl: post.coverImage?.url ?? "",
-    coverAlt: post.coverImage?.alt ?? "",
+    coverUrl: cover?.url ?? "",
+    coverAlt: cover?.alt ?? "",
     status: post.status,
     origin: post.origin,
     notes: post.generation?.notes ?? [],

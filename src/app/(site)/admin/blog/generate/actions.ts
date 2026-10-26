@@ -3,51 +3,27 @@
 import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { z } from "zod";
+import { ensureAutoTopicQueued } from "@/lib/ai/topic-queue";
 import { AdminAuthError, assertAccess } from "@/lib/admin/auth";
 import { aiConfigured, aiSetupHint, runGeneration } from "@/lib/ai/generate-post";
 import { isFirebaseConfigured } from "@/lib/firebase/admin";
-import { addTopics, createJob, removeTopic } from "@/lib/generation";
-import { blogCategories } from "@/lib/legacy-seo";
+import { createJob, removeTopic, claimNextTopic, finishTopic } from "@/lib/generation";
 import { checkRateLimit } from "@/lib/rate-limit";
 
-export type GenerateState = { error?: string; values?: Record<string, string> };
+export type GenerateState = { error?: string };
 
 const DAILY_LIMIT = Number(process.env.BLOG_GENERATION_DAILY_LIMIT) || 10;
 
-const categorySlugs = blogCategories.map((c) => c.slug);
-
-const startSchema = z.object({
-  topic: z.string().trim().min(8, "Describe the topic in a few words (at least 8 characters).").max(200),
-  geo: z.string().trim().max(80),
-  category: z.string().trim().refine((value) => value === "" || categorySlugs.includes(value), "Unknown category."),
-  seedUrls: z.string().max(2000),
-});
-
-export async function startGenerationAction(_prev: GenerateState, formData: FormData): Promise<GenerateState> {
-  const values: Record<string, string> = {};
-  for (const [key, value] of formData.entries()) if (typeof value === "string") values[key] = value;
-
+export async function startGenerationAction(): Promise<GenerateState> {
   let session;
   try {
     session = await assertAccess("blog");
   } catch (err) {
-    if (err instanceof AdminAuthError) return { error: err.message, values };
+    if (err instanceof AdminAuthError) return { error: err.message };
     throw err;
   }
-  if (!isFirebaseConfigured) return { error: "Firebase is not configured.", values };
-  if (!aiConfigured()) return { error: `${aiSetupHint()}, so drafts cannot be generated yet.`, values };
-
-  const parsed = startSchema.safeParse(values);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the form.", values };
-
-  const seedUrls = parsed.data.seedUrls
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-  if (seedUrls.length > 3 || seedUrls.some((url) => !/^https:\/\/[^\s]+$/.test(url))) {
-    return { error: "Seed pages must be full https:// links, at most 3, one per line.", values };
-  }
+  if (!isFirebaseConfigured) return { error: "Firebase is not configured." };
+  if (!aiConfigured()) return { error: `${aiSetupHint()}, so drafts cannot be generated yet.` };
 
   // Each run costs real money: cap per person and per day across the whole site.
   const limit = await checkRateLimit([
@@ -55,46 +31,37 @@ export async function startGenerationAction(_prev: GenerateState, formData: Form
     { key: "blog-gen:day", limit: DAILY_LIMIT, windowSec: 86400 },
   ]);
   if (!limit.allowed) {
-    return { error: `Generation limit reached. Try again in about ${Math.ceil(limit.retryAfterSec / 60)} minute(s).`, values };
+    return { error: `Generation limit reached. Try again in about ${Math.ceil(limit.retryAfterSec / 60)} minute(s).` };
   }
 
-  const jobId = await createJob({
-    topic: parsed.data.topic,
-    geo: parsed.data.geo || undefined,
-    category: parsed.data.category || undefined,
-    seedUrls,
-    source: "manual",
-    createdBy: session.email,
-  });
-
-  // Runs after this response is sent; the progress page polls the job document.
+  let topic;
+  try {
+    await ensureAutoTopicQueued();
+    topic = await claimNextTopic();
+  } catch (err) {
+    console.error("[blog] automatic topic planning failed", err);
+    return { error: "Could not select a topic. Please try again shortly." };
+  }
+  if (!topic) return { error: "AI is selecting the next topic. Please try again shortly." };
+  let jobId;
+  try {
+    jobId = await createJob({ topic: topic.topic, keyword: topic.keyword, geo: topic.geo, category: topic.category, seedUrls: [], source: "manual", createdBy: session.email });
+  } catch (err) {
+    await finishTopic(topic.id, { status: "queued" });
+    throw err;
+  }
+  const topicId = topic.id;
   after(async () => {
-    await runGeneration(jobId).catch(() => undefined); // failure is recorded on the job
+    try {
+      const postId = await runGeneration(jobId);
+      await finishTopic(topicId, { status: "done", jobId, postId });
+    } catch (err) {
+      await finishTopic(topicId, { status: "failed", jobId, error: err instanceof Error ? err.message : "Generation failed." });
+    }
+    await ensureAutoTopicQueued().catch((err) => console.error("[blog] could not refill queue", err));
   });
 
   redirect(`/admin/blog/generate/${jobId}`);
-}
-
-/** One topic per line: "topic | location | category-slug" (location and category optional). */
-export async function addTopicsAction(formData: FormData) {
-  try {
-    await assertAccess("blog");
-  } catch (err) {
-    if (err instanceof AdminAuthError) redirect("/admin/login");
-    throw err;
-  }
-  const topics = String(formData.get("topics") ?? "")
-    .split("\n")
-    .map((line) => line.split("|").map((part) => part.trim()))
-    .filter((parts) => parts[0] && parts[0].length >= 8 && parts[0].length <= 200)
-    .slice(0, 30)
-    .map(([topic, geo, category]) => ({
-      topic,
-      geo: geo ? geo.slice(0, 80) : undefined,
-      category: category && categorySlugs.includes(category) ? category : undefined,
-    }));
-  if (topics.length) await addTopics(topics);
-  revalidatePath("/admin/blog/generate");
 }
 
 export async function removeTopicAction(formData: FormData) {
@@ -107,4 +74,17 @@ export async function removeTopicAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   if (id) await removeTopic(id);
   revalidatePath("/admin/blog/generate");
+}
+
+export async function prepareAutoTopicAction(): Promise<GenerateState> {
+  try {
+    await assertAccess("blog");
+    if (!isFirebaseConfigured || !aiConfigured()) return { error: "Firebase and an AI provider must be configured." };
+    await ensureAutoTopicQueued();
+    revalidatePath("/admin/blog/generate");
+    return {};
+  } catch (err) {
+    console.error("[blog] could not prepare topic", err);
+    return { error: "Could not select the next topic. Please try again." };
+  }
 }

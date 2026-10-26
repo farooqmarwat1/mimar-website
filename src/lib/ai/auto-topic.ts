@@ -1,4 +1,5 @@
 import "server-only";
+import { topicPolicyErrors } from "./editorial-policy";
 import { titleSimilarity } from "@/lib/ai/similarity";
 import { pickNextCombo } from "@/lib/ai/topic-plan";
 import { topicSchema, type AiProvider, type Usage } from "@/lib/ai/types";
@@ -73,7 +74,9 @@ Rules
 - It must be answerable from public information. Do not require Mimar's private data, client names, case studies or prices.
 - It must not duplicate or closely resemble any article or topic in the "Already covered" list.
 - At most 120 characters. Mention the place only when it is genuinely relevant to the answer.
-- "keyword" is the main phrase people would search for (2-6 words).`;
+- "keyword" is the main phrase people would search for (2-6 words), included naturally in the topic.
+- Choose a specific buyer question with a substantive local angle. Avoid city-name swaps of existing articles. Never invent search volume or ranking guarantees.
+- Never imply a named law, rating system or authority requires renders or a specific deliverable unless the supplied verified facts explicitly establish that requirement. Prefer well-supported buyer decisions about scope, briefs, process and quality over speculative compliance topics.`;
 
 async function existingTitles(): Promise<string[]> {
   const [posts, topics] = await Promise.all([getPublishedPosts(), listTopics()]);
@@ -102,9 +105,11 @@ ${titles.slice(-150).map((title) => `- ${title}`).join("\n")}
 ${feedback}`;
 
     const raw = topicSchema.parse(await provider.suggest({ system: SYSTEM, prompt }, usage));
-    const topic = raw.topic.trim().replace(/\s+/g, " ").slice(0, 160);
-    if (topic.length < 12) {
-      feedback = "\nYour previous suggestion was too short. Propose a full, specific topic.";
+    const topic = raw.topic.trim().replace(/\s+/g, " ");
+    const keyword = raw.keyword.trim().replace(/\s+/g, " ");
+    const policyErrors = topicPolicyErrors(topic, keyword);
+    if (policyErrors.length) {
+      feedback = "\nFix these requirements: " + policyErrors.join(" ");
       continue;
     }
     const closest = titles.map((title) => ({ title, score: titleSimilarity(topic, title) })).sort((a, b) => b.score - a.score)[0];
@@ -114,7 +119,7 @@ ${feedback}`;
     }
     return {
       topic,
-      keyword: raw.keyword.trim().slice(0, 80),
+      keyword,
       geo: `${region.city}, ${region.name}`,
       category: group.category,
       group: group.key,
