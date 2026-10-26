@@ -11,6 +11,7 @@ import { legacyCategories, legacyCategoryPath } from "@/lib/legacy-categories";
 import { regionList } from "@/lib/regions";
 import { getOpenJobs } from "@/lib/jobs";
 import { getPublishedPosts, postPath } from "@/lib/posts";
+import { localeHref } from "@/i18n/config";
 
 // Open careers pages come from Firestore; admin edits refresh this immediately, hourly is the safety net.
 export const revalidate = 3600;
@@ -143,9 +144,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // and in their own sub-service route list above - de-dupe by final URL so
   // neither produces a duplicate sitemap entry.
   const seen = new Set<string>();
-  return allRoutes.filter((route) => {
+  const englishRoutes = allRoutes.filter((route) => {
     if (seen.has(route.url)) return false;
     seen.add(route.url);
     return true;
+  });
+
+  // Arabic mirror (ARABIC.md): every English page below has an /ar twin, so each
+  // pair is listed with hreflang alternates. Not mirrored: roles and posts from
+  // Firestore (English only) and the static Pano2VR tours.
+  const englishOnly = new Set<string>([
+    ...jobRoutes.map((route) => route.url),
+    ...postRoutes.map((route) => route.url),
+    ...legacyTourPaths.map((path) => `${siteConfig.url}${path}`),
+    ...staticRoutes.filter((route) => route.url.includes("/tours/")).map((route) => route.url),
+  ]);
+  const arabicUrl = (url: string) => `${siteConfig.url}${localeHref("ar", url.slice(siteConfig.url.length) || "/")}`;
+
+  return englishRoutes.flatMap((route) => {
+    if (englishOnly.has(route.url)) return [route];
+    const ar = arabicUrl(route.url);
+    const languages = { en: route.url, ar, "x-default": route.url };
+    return [
+      { ...route, alternates: { languages } },
+      { ...route, url: ar, alternates: { languages } },
+    ];
   });
 }

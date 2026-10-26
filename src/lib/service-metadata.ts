@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
 import { getServiceBySlug } from "@/lib/cms";
 import { serviceDetails, servicePath } from "@/lib/service-details";
+import { serviceSeoAr } from "@/lib/ar/service-metadata.ar";
+import { localizeServiceDetail } from "@/lib/localized-services";
+import { localizeService } from "@/lib/localized-site";
+import type { Locale } from "@/i18n/config";
 
 const serviceSeo: Record<string, { title: string; description: string; keywords: string[] }> = {
   "3d-visualization": {
@@ -37,15 +41,19 @@ const serviceSeo: Record<string, { title: string; description: string; keywords:
   },
 };
 
-export async function serviceMetadata(slug: string): Promise<Metadata> {
-  const service = await getServiceBySlug(slug);
-  const detail = serviceDetails[slug];
-  if (!service && !detail) return {};
-  const seo = serviceSeo[slug];
+export async function serviceMetadata(slug: string, lang: Locale = "en"): Promise<Metadata> {
+  const rawService = await getServiceBySlug(slug);
+  const rawDetail = serviceDetails[slug];
+  if (!rawService && !rawDetail) return {};
+  const service = rawService ? localizeService(rawService, lang) : undefined;
+  const detail = rawDetail ? localizeServiceDetail(rawDetail, lang) : undefined;
+  const seo = lang === "ar" ? serviceSeoAr[slug] : serviceSeo[slug];
+  const suffix = lang === "ar" ? "ميمار ستوديوز" : "Mimar Studios";
   return buildMetadata({
-    title: seo?.title ?? `${detail?.title ?? service?.title} - Mimar Studios`,
+    title: seo?.title ?? `${detail?.title ?? service?.title} - ${suffix}`,
     description: seo?.description ?? detail?.intro ?? service?.description ?? "",
     path: servicePath(slug),
     keywords: seo?.keywords,
+    locale: lang,
   });
 }

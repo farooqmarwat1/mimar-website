@@ -5,7 +5,18 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { navigation } from "@/lib/site-config";
+import { localeHref, type Locale } from "@/i18n/config";
+import type { Dictionary } from "@/i18n/dictionaries";
+import LanguageSwitcher from "./LanguageSwitcher";
+
+// Hrefs match `navigation` in site-config; labels come from the dictionary so
+// they follow the page language.
+const navItems = [
+  { key: "projects", href: "/projects" },
+  { key: "services", href: "/services" },
+  { key: "aboutUs", href: "/about-us" },
+  { key: "contact", href: "/contact" },
+] as const;
 
 /**
  * Matches the Figma header: a slim 56px bar with a small centered wordmark
@@ -15,9 +26,12 @@ import { navigation } from "@/lib/site-config";
  * a small local/GEO signal that also avoids repeating the CTA that's
  * already in the nav overlay.
  */
-export default function Header() {
+export default function Header({ lang = "en", dict }: { lang?: Locale; dict: Dictionary }) {
   const pathname = usePathname();
-  const isHome = pathname === "/";
+  const isHome = pathname === "/" || pathname === "/ar";
+  const isAr = lang === "ar";
+  // Tajawal at the English 11px tracked-caps size is too small; Arabic nav text is a plain 14px.
+  const labelClass = isAr ? "text-sm font-medium" : "eyebrow";
   const hasFullScreenHero = isHome;
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -51,17 +65,19 @@ export default function Header() {
   return (
     <header className={`fixed inset-x-0 top-0 z-50 isolate transition-colors duration-500 ${dark ? "bg-paper" : "bg-transparent"}`}>
       <div className="container-page relative flex h-14 items-center justify-between">
-        <Link
-          href="/contact"
-          className={`eyebrow hidden min-[420px]:block ${dark ? "text-ink" : "text-paper"}`}
-        >
-          Get a quote
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link
+            href={localeHref(lang, "/contact")}
+            className={`${labelClass} hidden min-[420px]:block ${dark ? "text-ink" : "text-paper"}`}
+          >
+            {dict.header.getQuote}
+          </Link>
+        </div>
 
         <Link
-          href="/"
+          href={localeHref(lang, "/")}
           onClick={() => setOpen(false)}
-          aria-label="Mimar Studios home"
+          aria-label={dict.header.homeLabel}
           className="absolute left-1/2 h-10 w-28 -translate-x-1/2 sm:w-36"
         >
           <AnimatePresence initial={false} mode="wait">
@@ -112,16 +128,18 @@ export default function Header() {
           </AnimatePresence>
         </Link>
 
+        <div className="ms-auto flex items-center gap-4">
+        <LanguageSwitcher lang={lang} dict={dict} dark={dark} />
         <button
-          aria-label={open ? "Close menu" : "Open menu"}
+          aria-label={open ? dict.header.closeMenu : dict.header.openMenu}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
-          className="relative z-50 ml-auto flex min-h-11 min-w-11 items-center justify-end gap-3"
+          className="relative z-50 flex min-h-11 min-w-11 items-center justify-end gap-3"
         >
-          <span className={`eyebrow hidden sm:inline ${dark ? "text-ink" : "text-paper"}`}>
-            {open ? "Close" : "Menu"}
+          <span className={`${labelClass} hidden sm:inline ${dark ? "text-ink" : "text-paper"}`}>
+            {open ? dict.header.close : dict.header.menu}
           </span>
-          <span className="flex h-4 w-7 flex-col items-end justify-center gap-[6px]">
+          <span className="flex h-4 w-7 flex-col items-end justify-center gap-[6px] rtl:items-start">
             <span
               className={`h-px w-full transition-all duration-300 ${dark ? "bg-ink" : "bg-paper"} ${
                 open ? "translate-y-[3.5px] rotate-45" : ""
@@ -134,6 +152,7 @@ export default function Header() {
             />
           </span>
         </button>
+        </div>
       </div>
 
       <AnimatePresence>
@@ -146,22 +165,22 @@ export default function Header() {
             className="max-h-[calc(100svh-3.5rem)] overflow-y-auto border-b border-line bg-paper"
           >
             <nav className="container-page flex flex-col gap-1 py-4 sm:py-6">
-              {navigation.map((item) => (
+              {navItems.map((item) => (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={localeHref(lang, item.href)}
                   onClick={() => setOpen(false)}
                   className="flex min-h-12 items-center border-b border-line py-3 text-2xl tracking-tight text-ink transition-colors hover:text-accent last:border-0"
                 >
-                  {item.label}
+                  {dict.nav[item.key]}
                 </Link>
               ))}
               <Link
-                href="/contact"
+                href={localeHref(lang, "/contact")}
                 onClick={() => setOpen(false)}
                 className="button-pill mt-4 text-ink"
               >
-                Get a quote
+                {dict.header.getQuote}
               </Link>
             </nav>
           </motion.div>

@@ -1,5 +1,7 @@
 import Reveal from "@/components/ui/Reveal";
 import { faqJsonLd, jsonLdScript } from "@/lib/seo";
+import { getDictionary, type Dictionary } from "@/i18n/dictionaries";
+import type { Locale } from "@/i18n/config";
 
 /**
  * Visible FAQ block + matching FAQPage JSON-LD.
@@ -11,8 +13,12 @@ import { faqJsonLd, jsonLdScript } from "@/lib/seo";
  */
 export default function FaqSection({
   items,
+  lang = "en",
+  dict = getDictionary(lang),
 }: {
   items: readonly { question: string; answer: string }[];
+  lang?: Locale;
+  dict?: Dictionary;
 }) {
   return (
     <section className="section-py">
@@ -23,10 +29,10 @@ export default function FaqSection({
       <div className="container-page mx-auto max-w-3xl">
         <div className="text-center">
           <Reveal>
-            <p className="eyebrow text-muted">/ FAQ</p>
+            <p className="eyebrow text-muted">{dict.faqSection.eyebrow}</p>
           </Reveal>
           <Reveal delay={0.05}>
-            <h2 className="section-heading mx-auto mt-6 mb-12">Common questions</h2>
+            <h2 className="section-heading mx-auto mt-6 mb-12">{dict.faqSection.heading}</h2>
           </Reveal>
         </div>
         <div className="border-t border-line">

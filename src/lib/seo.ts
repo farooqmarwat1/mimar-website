@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { siteConfig, faqs as defaultFaqs } from "./site-config";
 import { servicePath } from "./service-details";
+import { localeHref, ogLocales, type Locale } from "@/i18n/config";
 
 type BuildMetadataArgs = {
   title: string;
@@ -9,7 +10,19 @@ type BuildMetadataArgs = {
   ogImage?: string;
   noIndex?: boolean;
   keywords?: string[];
+  /** Page language. `path` is always the English (root) path; Arabic pages live under /ar. */
+  locale?: Locale;
+  /**
+   * Emit the en <-> ar hreflang pair. On by default; pass false for pages that
+   * only exist in one language (Firestore jobs and posts).
+   */
+  hreflang?: boolean;
 };
+
+/** Absolute URL of a page in a given language: pageUrl("/services", "ar") -> https://mim.archi/ar/services */
+export function pageUrl(path: string, locale: Locale = "en") {
+  return new URL(localeHref(locale, path), siteConfig.url).toString();
+}
 
 /**
  * Standard per-page metadata builder. Every route should call this so
@@ -18,15 +31,29 @@ type BuildMetadataArgs = {
  * from the current WordPress site (same title/description conventions,
  * same OG image strategy).
  */
-export function buildMetadata({ title, description, path, ogImage, noIndex, keywords }: BuildMetadataArgs): Metadata {
-  const url = new URL(path, siteConfig.url).toString();
+export function buildMetadata({
+  title,
+  description,
+  path,
+  ogImage,
+  noIndex,
+  keywords,
+  locale = "en",
+  hreflang = true,
+}: BuildMetadataArgs): Metadata {
+  const url = pageUrl(path, locale);
   const image = ogImage ?? siteConfig.ogImage;
 
   return {
     title,
     description,
     keywords,
-    alternates: { canonical: url },
+    alternates: {
+      canonical: url,
+      ...(hreflang && !noIndex
+        ? { languages: { en: pageUrl(path, "en"), ar: pageUrl(path, "ar"), "x-default": pageUrl(path, "en") } }
+        : {}),
+    },
     robots: noIndex
       ? { index: false, follow: false }
       : { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
@@ -36,7 +63,7 @@ export function buildMetadata({ title, description, path, ogImage, noIndex, keyw
       url,
       siteName: siteConfig.name,
       images: [{ url: image, width: 1200, height: 630, alt: title }],
-      locale: siteConfig.locale,
+      locale: locale === "ar" ? ogLocales.ar : siteConfig.locale,
       type: "website",
     },
     twitter: {
@@ -56,22 +83,25 @@ export function articleJsonLd(article: {
   modified: string;
   keywords: string[];
   image?: string;
+  locale?: Locale;
 }) {
+  const locale = article.locale ?? "en";
+  const articlePath = localeHref(locale, article.path);
   return {
     "@context": "https://schema.org",
     "@type": "Article",
-    "@id": `${siteConfig.url}${article.path}#article`,
+    "@id": `${siteConfig.url}${articlePath}#article`,
     headline: article.title,
     description: article.description,
-    url: `${siteConfig.url}${article.path}`,
+    url: `${siteConfig.url}${articlePath}`,
     datePublished: article.published ? `${article.published.replace(" ", "T")}Z` : undefined,
     dateModified: article.modified ? `${article.modified.replace(" ", "T")}Z` : undefined,
     keywords: article.keywords.join(", ") || undefined,
     image: article.image,
     author: { "@id": `${siteConfig.url}/#organization` },
     publisher: { "@id": `${siteConfig.url}/#organization` },
-    mainEntityOfPage: { "@type": "WebPage", "@id": `${siteConfig.url}${article.path}` },
-    inLanguage: "en-US",
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${siteConfig.url}${articlePath}` },
+    inLanguage: locale === "ar" ? "ar" : "en-US",
   };
 }
 
@@ -256,6 +286,45 @@ export const siteJsonLd = {
   ],
 };
 
+/**
+ * Arabic version of the site-wide graph: same @ids and entities as
+ * `siteJsonLd` (so page-level schema still resolves), with Arabic descriptions
+ * and names, `inLanguage: "ar"` and /ar service URLs.
+ */
+export const siteJsonLdAr = {
+  ...siteJsonLd,
+  "@graph": siteJsonLd["@graph"].map((node) => {
+    switch (node["@id"]) {
+      case "https://mim.archi/#organization":
+        return {
+          ...node,
+          description:
+            "ميمار ستوديوز استوديو دولي للعمارة والتصور ثلاثي الأبعاد، يقدّم خدمات التصيير ثلاثي الأبعاد والرسوم المتحركة وجولات الواقع الافتراضي والتجارب الرقمية للعقارات.",
+        };
+      case "https://mim.archi/#website":
+        return { ...node, url: pageUrl("/", "ar"), name: "ميمار ستوديوز", inLanguage: "ar" };
+      case "https://mim.archi/#service-3d-visualization":
+        return {
+          ...node,
+          name: "خدمات التصور ثلاثي الأبعاد والتصيير المعماري",
+          serviceType: "التصور المعماري ثلاثي الأبعاد",
+          description: "خدمات تصور وتصيير معماري داخلي وخارجي فائق الواقعية للمطورين العقاريين والمعماريين.",
+          url: pageUrl("/services/3d-visualization", "ar"),
+        };
+      case "https://mim.archi/#service-architectural-design":
+        return {
+          ...node,
+          name: "خدمات التصميم المعماري",
+          serviceType: "التصميم المعماري",
+          description: "خدمات تصميم معماري شاملة، من التصميم المبدئي وتطوير الفكرة وحتى مستندات التنفيذ.",
+          url: pageUrl("/services/architectural-design", "ar"),
+        };
+      default:
+        return node;
+    }
+  }),
+};
+
 export function itemListJsonLd(name: string, items: { name: string; path: string }[]) {
   return {
     "@context": "https://schema.org",
@@ -271,26 +340,30 @@ export function itemListJsonLd(name: string, items: { name: string; path: string
   };
 }
 
-export function serviceJsonLd(service: {
-  title: string;
-  slug: string;
-  intro: string;
-  outputs?: readonly string[];
-}) {
+export function serviceJsonLd(
+  service: {
+    title: string;
+    slug: string;
+    intro: string;
+    outputs?: readonly string[];
+  },
+  locale: Locale = "en",
+) {
+  const path = localeHref(locale, servicePath(service.slug));
   return {
     "@context": "https://schema.org",
     "@type": "Service",
-    "@id": `${siteConfig.url}${servicePath(service.slug)}#service`,
+    "@id": `${siteConfig.url}${path}#service`,
     name: service.title,
     description: service.intro,
-    url: `${siteConfig.url}${servicePath(service.slug)}`,
+    url: `${siteConfig.url}${path}`,
     provider: { "@id": `${siteConfig.url}/#organization` },
     areaServed: "Worldwide",
     serviceType: service.title,
     hasOfferCatalog: service.outputs?.length
       ? {
           "@type": "OfferCatalog",
-          name: `${service.title} deliverables`,
+          name: locale === "ar" ? `مخرجات ${service.title}` : `${service.title} deliverables`,
           itemListElement: service.outputs.map((name) => ({
             "@type": "Offer",
             itemOffered: { "@type": "Service", name },
@@ -331,21 +404,24 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
   };
 }
 
-export function creativeWorkJsonLd(project: {
-  title: string;
-  summary: string;
-  cover: string;
-  slug: string;
-  location?: string;
-  year?: number;
-}) {
+export function creativeWorkJsonLd(
+  project: {
+    title: string;
+    summary: string;
+    cover: string;
+    slug: string;
+    location?: string;
+    year?: number;
+  },
+  locale: Locale = "en",
+) {
   return {
     "@context": "https://schema.org",
     "@type": "CreativeWork",
     name: project.title,
     description: project.summary,
     image: new URL(project.cover, siteConfig.url).toString(),
-    url: new URL(`/projects/${project.slug}`, siteConfig.url).toString(),
+    url: new URL(localeHref(locale, `/projects/${project.slug}`), siteConfig.url).toString(),
     dateCreated: project.year ? String(project.year) : undefined,
     // contentLocation ties each project to a real place - useful both for
     // local/geographic SEO (work delivered across Pakistan + UAE) and as a

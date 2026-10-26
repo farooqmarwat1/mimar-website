@@ -10,4 +10,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # SEO migration
 
-This site is replacing the live WordPress site at mim.archi. Before touching routes, redirects, metadata, page copy, `sitemap.ts`, `robots.ts` or `next.config.ts`, read [SEO_MIGRATION.md](SEO_MIGRATION.md). Do not add the `/en` prefix or Arabic/English routing yet.
+This site is replacing the live WordPress site at mim.archi. Before touching routes, redirects, metadata, page copy, `sitemap.ts`, `robots.ts` or `next.config.ts`, read [SEO_MIGRATION.md](SEO_MIGRATION.md). English stays at the root with no `/en` prefix; the Arabic version lives under `/ar` and is documented in [ARABIC.md](ARABIC.md) (read it before touching any page, component or data file, since every public page now has an Arabic twin). The only locale redirect is the narrow geo rule on the home page described in ARABIC.md.

@@ -3,8 +3,9 @@
 import Image from "next/image";
 import { useRef, type PointerEvent } from "react";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
+import type { Locale } from "@/i18n/config";
 
-export default function Hero() {
+export default function Hero({ lang = "en" }: { lang?: Locale }) {
   const reduceMotion = useReducedMotion();
   const textureRef = useRef<HTMLDivElement>(null);
 
@@ -23,7 +24,7 @@ export default function Hero() {
   return (
     <section
       className="relative h-[100svh] min-h-[32rem] w-full overflow-hidden bg-ink text-paper md:h-screen md:min-h-[38rem]"
-      aria-label="Introduction"
+      aria-label={lang === "ar" ? "مقدمة" : "Introduction"}
       onPointerMove={moveTexture}
       onPointerLeave={hideTexture}
     >
@@ -31,7 +32,7 @@ export default function Hero() {
         {reduceMotion ? (
           <Image
             src="/hero/fallback.webp"
-            alt="Lakeside residential building illuminated at dusk"
+            alt={lang === "ar" ? "مبنى سكني على ضفاف بحيرة تضيئه أنوار الغروب" : "Lakeside residential building illuminated at dusk"}
             fill
             priority
             quality={90}
@@ -47,7 +48,7 @@ export default function Hero() {
             preload="metadata"
             poster="/hero/fallback.webp"
             className="h-full w-full object-cover"
-            aria-label="Architectural journey through a Mimar Studios development"
+            aria-label={lang === "ar" ? "رحلة معمارية عبر أحد مشاريع ميمار ستوديوز" : "Architectural journey through a Mimar Studios development"}
           >
             {/* WebM (VP9) first: same clip, about 18% smaller. The browser uses the first source it can play, so
                 browsers without WebM support fall back to the MP4. */}
@@ -75,11 +76,11 @@ export default function Hero() {
         />
       )}
 
-      <div className="container-page relative z-10 flex h-full items-end justify-center pb-14 text-center md:pb-14">
+      <div className={lang === "ar" ? "container-page relative z-10 flex h-full flex-col items-center justify-end gap-4 pb-14 text-center md:gap-5 md:pb-14" : "container-page relative z-10 flex h-full items-end justify-center pb-14 text-center md:pb-14"}>
         <h1 className="flex w-full justify-center">
           <Image
             src="/hero/hero-text.webp"
-            alt="Mimar Studios - 3D Architecture Firm in Pakistan"
+            alt={lang === "ar" ? "ميمار ستوديوز - شركة عمارة وتصور ثلاثي الأبعاد" : "Mimar Studios - 3D Architecture Firm in Pakistan"}
             width={1800}
             height={157}
             priority
@@ -87,6 +88,9 @@ export default function Hero() {
             className="h-auto w-[92vw] opacity-90 md:w-[clamp(18rem,45vw,56rem)] md:max-w-[90vw] md:opacity-80"
           />
         </h1>
+        {lang === "ar" && (
+          <p className="text-[clamp(1.5rem,4.2vw,2.75rem)] font-medium text-paper/90">ميمار ستوديوز</p>
+        )}
       </div>
     </section>
   );

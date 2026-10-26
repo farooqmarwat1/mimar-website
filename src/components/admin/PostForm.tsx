@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useActionState, useRef, useState } from "react";
-import { savePostAction, type PostFormState } from "@/app/admin/blog/actions";
+import { savePostAction, type PostFormState } from "@/app/(site)/admin/blog/actions";
 import BlockEditor from "@/components/admin/BlockEditor";
 import { cardClass, fieldClass, hintClass, labelClass, primaryButtonClass, secondaryButtonClass, textareaClass } from "@/components/admin/styles";
 

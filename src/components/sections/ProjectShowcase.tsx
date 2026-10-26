@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import ViewportVideo from "@/components/ui/ViewportVideo";
 import type { Project } from "@/lib/site-config";
+import { localeHref, type Locale } from "@/i18n/config";
+import type { Dictionary } from "@/i18n/dictionaries";
 
 // Homepage-only motion covers. Project detail pages continue to use each
 // project's original still cover and gallery imagery.
@@ -29,10 +31,10 @@ const homeProjectPosters: Record<string, string> = {
   abuja: "/projects/home-videos/abuja-poster.jpg",
 };
 
-function ProjectTile({ project, className }: { project: Project; className?: string }) {
+function ProjectTile({ project, lang, className }: { project: Project; lang: Locale; className?: string }) {
   return (
     <Link
-      href={`/projects/${project.slug}`}
+      href={localeHref(lang, `/projects/${project.slug}`)}
       className={`motion-media group relative block w-full shrink-0 overflow-hidden rounded-2xl bg-ink/5 ${className ?? ""}`}
     >
       <ViewportVideo
@@ -56,7 +58,9 @@ function ParallaxColumn({
   projects,
   y,
   tileClassName,
+  lang,
 }: {
+  lang: Locale;
   projects: Project[];
   y: MotionValue<number> | number;
   tileClassName: string;
@@ -64,7 +68,7 @@ function ParallaxColumn({
   return (
     <motion.div style={{ y, willChange: "transform" }} className="flex flex-col gap-3">
       {projects.map((project) => (
-        <ProjectTile key={project.slug} project={project} className={tileClassName} />
+        <ProjectTile key={project.slug} project={project} lang={lang} className={tileClassName} />
       ))}
     </motion.div>
   );
@@ -97,7 +101,17 @@ const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffec
  * Only ParallaxColumn's motion.div is ever transformed, so the intro never
  * shares a transformed/composited parent with the moving columns.
  */
-export default function ProjectShowcase({ projects, intro }: { projects: Project[]; intro: string }) {
+export default function ProjectShowcase({
+  projects,
+  intro,
+  lang = "en",
+  dict,
+}: {
+  projects: Project[];
+  intro: string;
+  lang?: Locale;
+  dict: Dictionary;
+}) {
   const gridRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({
@@ -170,10 +184,10 @@ export default function ProjectShowcase({ projects, intro }: { projects: Project
         style={reduceMotion ? undefined : { opacity: introOpacity, filter: introBlur }}
         className="container-page relative z-0 mx-auto max-w-3xl text-center"
       >
-        <p className="eyebrow text-ink/50">/ Portfolio</p>
+        <p className="eyebrow text-ink/50">{dict.projectShowcase.eyebrow}</p>
         <h2 className="section-heading mx-auto mt-6">
-          <span className="block text-ink">Selected Works of</span>
-          <span className="block text-accent">Our Architecture Studio</span>
+          <span className="block text-ink">{dict.projectShowcase.heading1}</span>
+          <span className="block text-accent">{dict.projectShowcase.heading2}</span>
         </h2>
         <p className="section-body mx-auto mt-6 max-w-xl">{intro}</p>
       </motion.div>
@@ -188,6 +202,7 @@ export default function ProjectShowcase({ projects, intro }: { projects: Project
             <ParallaxColumn
               key={col}
               projects={columnProjects}
+              lang={lang}
               y={reduceMotion ? 0 : ys[col]}
               // Middle column runs taller, matching its slower travel.
               tileClassName={col === 1 ? "aspect-[3/4]" : "aspect-[4/5]"}

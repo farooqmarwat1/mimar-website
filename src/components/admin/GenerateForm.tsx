@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { startGenerationAction, type GenerateState } from "@/app/admin/blog/generate/actions";
+import { startGenerationAction, type GenerateState } from "@/app/(site)/admin/blog/generate/actions";
 import { cardClass, fieldClass, hintClass, labelClass, primaryButtonClass } from "@/components/admin/styles";
 
 export default function GenerateForm({ categories, regions }: { categories: { slug: string; label: string }[]; regions: string[] }) {

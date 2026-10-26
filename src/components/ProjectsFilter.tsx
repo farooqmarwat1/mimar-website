@@ -2,18 +2,19 @@ import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/ui/Reveal";
 import { type Project } from "@/lib/site-config";
+import { localeHref, type Locale } from "@/i18n/config";
 
-export default function ProjectsFilter({ projects }: { projects: Project[] }) {
+export default function ProjectsFilter({ projects, lang = "en" }: { projects: Project[]; lang?: Locale }) {
   return (
     <div>
       <div className="container-page grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 md:grid-cols-3 md:gap-x-12 md:gap-y-20">
         {projects.map((project, i) => (
           <Reveal key={project.slug} delay={(i % 3) * 0.06}>
-            <Link href={`/projects/${project.slug}`} className="group block">
+            <Link href={localeHref(lang, `/projects/${project.slug}`)} className="group block">
               <div className="relative aspect-video w-full overflow-hidden bg-ink/5">
                 <Image
                   src={project.cover}
-                  alt={`${project.title} by Mimar Studios`}
+                  alt={lang === "ar" ? `${project.title} من ميمار ستوديوز` : `${project.title} by Mimar Studios`}
                   fill
                   preload={i < 3}
                   quality={85}

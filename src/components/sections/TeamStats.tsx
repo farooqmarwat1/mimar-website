@@ -2,25 +2,27 @@ import Link from "next/link";
 import Reveal from "@/components/ui/Reveal";
 import AnimatedStatValue from "@/components/ui/AnimatedStatValue";
 import ViewportVideo from "@/components/ui/ViewportVideo";
-import { stats } from "@/lib/site-config";
+import { localizedStats } from "@/lib/localized-site";
+import { localeHref, type Locale } from "@/i18n/config";
+import { getDictionary, type Dictionary } from "@/i18n/dictionaries";
 
-export default function TeamStats() {
+export default function TeamStats({ lang = "en", dict = getDictionary(lang) }: { lang?: Locale; dict?: Dictionary }) {
+  const c = dict.teamStats;
+  const stats = localizedStats(lang);
   return (
     <section className="bg-paper text-ink section-py">
       <div className="container-page mx-auto max-w-3xl text-center">
         <Reveal>
-          <p className="eyebrow text-muted">/ Studio</p>
+          <p className="eyebrow text-muted">{c.eyebrow}</p>
         </Reveal>
         <Reveal delay={0.05}>
           <h2 className="section-heading mx-auto mt-6">
-            A Team That Produces
-            <span className="block text-accent">Shared Creativity.</span>
+            {c.heading1}
+            <span className="block text-accent">{c.heading2}</span>
           </h2>
         </Reveal>
         <Reveal delay={0.1}>
-          <p className="section-body mx-auto mt-6 max-w-xl">
-            Taking care of what is in process and excited about what is to come.
-          </p>
+          <p className="section-body mx-auto mt-6 max-w-xl">{c.body}</p>
         </Reveal>
       </div>
 
@@ -47,18 +49,18 @@ export default function TeamStats() {
             <Reveal
               key={stat.label}
               delay={index * 0.08}
-              className="group flex min-h-40 flex-col items-center justify-center border-b border-line px-4 py-7 text-center transition-colors duration-300 even:border-l lg:col-span-1 lg:min-h-44 lg:border-b-0 lg:border-l-0 lg:border-r lg:px-5 lg:py-8 lg:last:border-r-0"
+              className="group flex min-h-40 flex-col items-center justify-center border-b border-line px-4 py-7 text-center transition-colors duration-300 even:border-s lg:col-span-1 lg:min-h-44 lg:border-b-0 lg:border-s-0 lg:border-e lg:px-5 lg:py-8 lg:last:border-e-0"
             >
               <p className="text-[clamp(2.5rem,4.5vw,5rem)] leading-none tracking-[-0.05em] text-accent">
-                <AnimatedStatValue value={stat.value} />
+                <AnimatedStatValue value={stat.value} locale={lang} />
               </p>
               <p className="eyebrow mt-5 flex min-h-10 max-w-32 items-start justify-center text-muted">{stat.label}</p>
             </Reveal>
           ))}
         </div>
         <Reveal delay={0.24} className="mt-12 flex justify-center md:mt-14">
-          <Link href="/about-us" className="button-pill text-ink">
-            Explore the studio
+          <Link href={localeHref(lang, "/about-us")} className="button-pill text-ink">
+            {c.cta}
           </Link>
         </Reveal>
       </div>

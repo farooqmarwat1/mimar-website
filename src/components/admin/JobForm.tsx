@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { saveJobAction, type JobFormState } from "@/app/admin/jobs/actions";
+import { saveJobAction, type JobFormState } from "@/app/(site)/admin/jobs/actions";
 import BlockEditor from "@/components/admin/BlockEditor";
 import {
   cardClass,

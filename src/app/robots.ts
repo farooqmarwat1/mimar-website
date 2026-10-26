@@ -4,6 +4,7 @@ import { siteConfig } from "@/lib/site-config";
 // Crawlers obey only the most specific user-agent group that matches them, so a
 // bot-specific group does not inherit the "*" disallow list. Repeat it on every
 // group (the staff portal must stay out of reach of AI crawlers too).
+// /ar (the Arabic site) is deliberately crawlable: nothing under it is blocked.
 const blocked = ["/studio", "/admin", "/api/"];
 
 export default function robots(): MetadataRoute.Robots {

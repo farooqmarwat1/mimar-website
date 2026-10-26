@@ -5,6 +5,8 @@ import { legacySeoPages } from "@/lib/legacy-seo";
 import { servicePath } from "@/lib/service-details";
 import { getOpenJobs } from "@/lib/jobs";
 import { getPublishedArticles } from "@/lib/posts";
+import { localizeServices, localizeProjects, localizedFaqs } from "@/lib/localized-site";
+import { localeHref } from "@/i18n/config";
 
 /**
  * llms.txt - an emerging convention (llmstxt.org) that gives AI assistants
@@ -47,6 +49,18 @@ export async function GET() {
       : []),
     "## Frequently asked questions",
     ...faqs.map((f) => `Q: ${f.question}\nA: ${f.answer}\n`),
+    "",
+    "## Arabic version (العربية)",
+    `The whole site is also available in Arabic under ${siteConfig.url}/ar (same paths, right-to-left).`,
+    `- [الصفحة الرئيسية](${siteConfig.url}${localeHref("ar", "/")}): الصفحة الرئيسية لميمار ستوديوز`,
+    ...localizeServices([...services], "ar").map(
+      (s) => `- [${s.title}](${siteConfig.url}${localeHref("ar", servicePath(s.slug))}): ${s.short}`,
+    ),
+    ...localizeProjects(projects, "ar").map(
+      (p) => `- [${p.title}](${siteConfig.url}${localeHref("ar", `/projects/${p.slug}`)}): ${p.summary}`,
+    ),
+    "",
+    ...localizedFaqs("ar").map((f) => `س: ${f.question}\nج: ${f.answer}\n`),
   ];
 
   return new NextResponse(lines.join("\n"), {
