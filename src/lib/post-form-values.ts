@@ -5,15 +5,17 @@ import type { Post } from "@/lib/posts";
 import { selectBlogCover } from "@/lib/blog-covers";
 
 export function postToFormValues(post: Post): PostFormInitial {
-  const cover = post.coverImage ?? (post.origin === "ai" ? selectBlogCover(post) : undefined);
+  const cover = post.coverImage ?? (post.origin === "ai" ? selectBlogCover({ title: post.title, category: post.categories[0] }) : undefined);
   return {
     id: post.id,
     title: post.title,
     slug: post.slug,
+    path: post.path,
+    legacy: Boolean(post.legacy),
     slugLocked: Boolean(post.publishedAt),
     seoTitle: post.seoTitle,
     description: post.description,
-    category: post.category,
+    categories: post.categories,
     keywords: listToText(post.keywords),
     geoTerms: listToText(post.geoTerms),
     body: blocksToText(post.blocks),
@@ -31,10 +33,12 @@ export function postToFormValues(post: Post): PostFormInitial {
 export const emptyPostForm: PostFormInitial = {
   title: "",
   slug: "",
+  path: "",
+  legacy: false,
   slugLocked: false,
   seoTitle: "",
   description: "",
-  category: "",
+  categories: [],
   keywords: "",
   geoTerms: "",
   body: "",

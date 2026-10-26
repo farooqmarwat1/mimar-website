@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { blogCategories, type LegacySeoPage } from "@/lib/legacy-seo";
+import { blogCategories } from "@/lib/legacy-seo";
 import { isRtl, localeHref, type Locale } from "@/i18n/config";
 import Num from "@/i18n/Num";
 import { blogUi, localizeBlogCategory } from "@/lib/ar/blog-ui";
@@ -67,7 +67,7 @@ export function BlogCategoryLinks({
   );
 }
 
-export function BlogArticleList({ articles, lang = "en" }: { articles: LegacySeoPage[]; lang?: Locale }) {
+export function BlogArticleList({ articles, lang = "en" }: { articles: { path: string; title: string }[]; lang?: Locale }) {
   const rtl = isRtl(lang);
   return (
     <ol className="border-t border-line">

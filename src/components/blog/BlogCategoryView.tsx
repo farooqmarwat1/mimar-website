@@ -3,7 +3,6 @@ import { BlogArticleList, BlogCategoryLinks } from "@/components/blog/BlogCatalo
 import { breadcrumbJsonLd, itemListJsonLd, jsonLdScript } from "@/lib/seo";
 import { localeHref, type Locale } from "@/i18n/config";
 import { articleCountAr, blogUi, categoryViewUi } from "@/lib/ar/blog-ui";
-import type { LegacySeoPage } from "@/lib/legacy-seo";
 
 /**
  * Category listing used by the Arabic category pages (/ar/blog/<category> and
@@ -29,7 +28,7 @@ export default function BlogCategoryView({
   path: string;
   /** Pill to mark current; a key that matches no pill leaves all unmarked. */
   currentSlug: string;
-  articles: LegacySeoPage[];
+  articles: { path: string; title: string }[];
 }) {
   const ui = blogUi(lang);
   const view = categoryViewUi[lang];

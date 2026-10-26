@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { siteConfig, contact, contactPhones, offices, faqs, services } from "@/lib/site-config";
 import { getProjects } from "@/lib/cms";
-import { legacySeoPages } from "@/lib/legacy-seo";
+import { getBlogEntries } from "@/lib/blog-store";
 import { servicePath } from "@/lib/service-details";
 import { getOpenJobs } from "@/lib/jobs";
-import { getPublishedArticles } from "@/lib/posts";
 import { localizeServices, localizeProjects, localizedFaqs } from "@/lib/localized-site";
 import { localeHref } from "@/i18n/config";
 
@@ -15,7 +14,9 @@ import { localeHref } from "@/i18n/config";
  * Generated dynamically so it stays in sync with CMS content.
  */
 export async function GET() {
-  const [projects, openJobs, posts] = await Promise.all([getProjects(), getOpenJobs(), getPublishedArticles()]);
+  const [projects, openJobs, entries] = await Promise.all([getProjects(), getOpenJobs(), getBlogEntries()]);
+  // Articles written in /admin first (newest first), then the migrated ones in their original order.
+  const articles = [...entries].sort((a, b) => Number(a.legacy) - Number(b.legacy) || (a.legacy ? a.order - b.order : b.published.localeCompare(a.published)));
 
   const lines = [
     `# ${siteConfig.name}`,
@@ -38,7 +39,7 @@ export async function GET() {
     ...projects.map((p) => `- [${p.title}](${siteConfig.url}/projects/${p.slug}): ${p.summary}`),
     "",
     "## Insights and guides",
-    ...[...posts, ...legacySeoPages].map((page) => `- [${page.title}](${siteConfig.url}${page.path}): ${page.description}`),
+    ...articles.map((page) => `- [${page.title}](${siteConfig.url}${page.path}): ${page.description}`),
     "",
     ...(openJobs.length
       ? [
@@ -58,6 +59,11 @@ export async function GET() {
     ),
     ...localizeProjects(projects, "ar").map(
       (p) => `- [${p.title}](${siteConfig.url}${localeHref("ar", `/projects/${p.slug}`)}): ${p.summary}`,
+    ),
+    "",
+    "## المقالات",
+    ...articles.flatMap((page) =>
+      page.titleAr ? [`- [${page.titleAr}](${siteConfig.url}${localeHref("ar", page.path)}): ${page.descriptionAr ?? ""}`] : [],
     ),
     "",
     ...localizedFaqs("ar").map((f) => `س: ${f.question}\nج: ${f.answer}\n`),

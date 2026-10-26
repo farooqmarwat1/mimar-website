@@ -6,12 +6,14 @@ import { aiConfigured, aiSetupHint, getProvider } from "@/lib/ai/provider";
 import { fetchPageText, type FetchedPage } from "@/lib/ai/safe-fetch";
 import { maxOverlap, titleSimilarity } from "@/lib/ai/similarity";
 import { articleSchema, type AiProvider, type Article, type Usage } from "@/lib/ai/types";
-import { blocksToPlainText, countWords, parseBlocks } from "@/lib/content-blocks";
+import { blocksToPlainText, countWords, parseTextBlocks } from "@/lib/content-blocks";
 import { getJob, updateJob, type GenerationJob } from "@/lib/generation";
 import { knownInternalPaths, normalizePath } from "@/lib/internal-paths";
-import { blogCategories, legacySeoPages } from "@/lib/legacy-seo";
+import { getBlogEntries } from "@/lib/blog-store";
+import { blogCategories } from "@/lib/legacy-seo";
 import { checkPost } from "@/lib/post-validation";
-import { getPublishedPosts, isPostSlugTaken, isReservedSlug, savePost, type Post } from "@/lib/posts";
+import { isPostSlugTaken, isReservedSlug, postPath, savePost, type Post, type PostAr } from "@/lib/posts";
+import { translateToArabic } from "@/lib/ai/translate-post";
 import { regionList } from "@/lib/regions";
 import { servicePath } from "@/lib/service-details";
 import { offices, services, siteConfig } from "@/lib/site-config";
@@ -62,11 +64,7 @@ function siteFacts(geo?: string): string {
 type LinkOption = { label: string; path: string };
 
 async function linkOptions(topic: string, region?: ReturnType<typeof findRegion>): Promise<LinkOption[]> {
-  const posts = await getPublishedPosts();
-  const articles = [
-    ...posts.map((post) => ({ title: post.title, path: `/blog/${post.slug}` })),
-    ...legacySeoPages.map((page) => ({ title: page.title, path: page.path })),
-  ]
+  const articles = (await getBlogEntries())
     .map((article) => ({ ...article, score: titleSimilarity(topic, article.title) }))
     .filter((article) => article.score > 0)
     .sort((a, b) => b.score - a.score)
@@ -183,7 +181,7 @@ async function runGates(article: Article, ctx: { job: GenerationJob; sources: Fe
   const unlink = (text: string) => text.replace(LINK, (whole, label: string, path: string) => (isKnown(path) ? whole : label));
 
   // Made-up links are repaired rather than rejected: the anchor text stays, the link goes.
-  const blocks = parseBlocks(unlink(article.body));
+  const blocks = parseTextBlocks(unlink(article.body));
   const faq = article.faq.map((item) => ({ question: item.question.trim(), answer: unlink(item.answer).trim() })).filter((item) => item.question && item.answer);
   const related = article.related.filter((item) => item.label.trim() && isKnown(item.path)).map((item) => ({ label: item.label.trim(), path: normalizePath(item.path) }));
   const category = blogCategories.some((c) => c.slug === article.category) ? article.category : "";
@@ -194,7 +192,7 @@ async function runGates(article: Article, ctx: { job: GenerationJob; sources: Fe
   const words = countWords(blocks);
   if (words < MIN_WORDS) retryReasons.push(`Too short (${words} words). Write 1,000-1,600 words.`);
 
-  const check = await checkPost({ title: article.title, seoTitle: article.seoTitle, description: article.description, category, blocks, faq, related, sources: [], coverImage: undefined });
+  const check = await checkPost({ title: article.title, seoTitle: article.seoTitle, description: article.description, categories: category ? [category] : [], blocks, faq, related, sources: [], coverImage: undefined });
   for (const [field, message] of Object.entries(check.errors)) retryReasons.push(`${field}: ${message}`);
   notes.push(...check.warnings);
   if (related.length < 2 || related.length > 4) retryReasons.push("related: choose 2-4 paths from the allowed link list.");
@@ -220,8 +218,8 @@ async function runGates(article: Article, ctx: { job: GenerationJob; sources: Fe
     retryReasons.push(`Originality: ${Math.round(worst.ratio * 100)}% of your phrasing matches ${worst.url}. Reword those passages.`);
   }
 
-  const similar = [...legacySeoPages.map((p) => p.title), ...(await getPublishedPosts()).map((p) => p.title)]
-    .map((title) => ({ title, score: titleSimilarity(article.title, title) }))
+  const similar = (await getBlogEntries())
+    .map((entry) => ({ title: entry.title, score: titleSimilarity(article.title, entry.title) }))
     .sort((a, b) => b.score - a.score)[0];
   if (similar && similar.score >= 0.6) retryReasons.push(`Very similar to the existing article "${similar.title}" - check this does not compete with it for the same searches.`);
 
@@ -275,34 +273,65 @@ export async function runGeneration(jobId: string): Promise<string> {
       feedback = gated.retryReasons;
     }
     if (!gated) throw new Error("No draft was produced.");
-    if (gated.retryReasons.length) throw new Error("Draft failed SEO/GEO checks after a rewrite: " + gated.retryReasons.join("; "));
+    // Copying a source too closely is the one thing that discards a draft. Any other check still failing after
+    // the rewrite is kept as a visible note: the draft is saved so a reviewer can fix it, and publishing still
+    // runs the hard publish checks (links, lengths, sources).
     if (gated.rejectReason) throw new Error(`${gated.rejectReason} The draft was discarded; try again or give it different seed sources.`);
 
     const { article, blocks, faq, related } = gated;
     let slug = slugify(article.title);
     for (let n = 2; !slug || isReservedSlug(slug) || (await isPostSlugTaken(slug)); n++) slug = `${slugify(article.title)}-${n}`;
+    const category = [job.category, gated.article.category].find((slug) => slug && blogCategories.some((c) => c.slug === slug)) ?? "";
+    const coverImage = selectBlogCover({ title: article.title, category: category || undefined });
+
+    // The Arabic version, written from the finished English text. A failure here does not lose the draft.
+    let ar: PostAr | undefined;
+    await updateJob(jobId, { status: "writing", usage }, "Writing the Arabic version");
+    try {
+      ar = await translateToArabic(
+        {
+          title: article.title.trim(),
+          seoTitle: article.seoTitle.trim() || article.title.trim(),
+          description: article.description.trim(),
+          keywords: article.keywords.map((k) => k.trim()).filter(Boolean).slice(0, 10),
+          geoTerms: article.geoTerms.map((k) => k.trim()).filter(Boolean).slice(0, 6),
+          blocks,
+          faq,
+          related,
+          coverAlt: coverImage.alt,
+        },
+        ai,
+        usage,
+      );
+    } catch (err) {
+      console.error("[blog-generator] Arabic version failed:", err instanceof Error ? err.message : err);
+    }
 
     const notes = [
       "AI draft: verify every fact and figure against the sources below before publishing.",
+      ...(gated.retryReasons.length ? [`Still needs attention before publishing: ${gated.retryReasons.join(" ")}`] : []),
+      ...(ar ? [] : ["The Arabic version could not be written automatically. It is retried when you publish or save this post."]),
       ...gated.notes,
       ...(checkAgainst.length < sources.length ? [`Only ${fetched.length} of ${sources.length} source pages could be read for the originality check.`] : []),
     ];
     const now = new Date().toISOString();
     const postId = await savePost(null, {
       slug,
+      path: postPath(slug),
       title: article.title.trim(),
       seoTitle: article.seoTitle.trim() || article.title.trim(),
       description: article.description.trim(),
       keywords: article.keywords.map((k) => k.trim()).filter(Boolean).slice(0, 10),
       geoTerms: article.geoTerms.map((k) => k.trim()).filter(Boolean).slice(0, 6),
-      category: job.category && blogCategories.some((c) => c.slug === job.category) ? job.category : (gated.article.category && blogCategories.some((c) => c.slug === gated.article.category) ? gated.article.category : ""),
+      categories: category ? [category] : [],
       blocks,
       faq,
       related,
-      coverImage: selectBlogCover({ title: article.title, category: job.category || article.category }),
+      coverImage,
       // Sources are the pages the research actually used - never links the model wrote itself.
       sources: sources.map(({ title, url }) => ({ title: title.trim().slice(0, 160), url })),
       origin: "ai",
+      ar,
       status: "draft",
       updatedAt: now,
       updatedBy: `${job.createdBy} (AI draft)`,

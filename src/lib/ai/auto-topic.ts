@@ -4,8 +4,7 @@ import { titleSimilarity } from "@/lib/ai/similarity";
 import { pickNextCombo } from "@/lib/ai/topic-plan";
 import { topicSchema, type AiProvider, type Usage } from "@/lib/ai/types";
 import { listTopics } from "@/lib/generation";
-import { legacySeoPages } from "@/lib/legacy-seo";
-import { getPublishedPosts } from "@/lib/posts";
+import { getBlogEntries } from "@/lib/blog-store";
 import { regionList } from "@/lib/regions";
 
 /**
@@ -79,8 +78,8 @@ Rules
 - Never imply a named law, rating system or authority requires renders or a specific deliverable unless the supplied verified facts explicitly establish that requirement. Prefer well-supported buyer decisions about scope, briefs, process and quality over speculative compliance topics.`;
 
 async function existingTitles(): Promise<string[]> {
-  const [posts, topics] = await Promise.all([getPublishedPosts(), listTopics()]);
-  return [...new Set([...legacySeoPages.map((page) => page.title), ...posts.map((post) => post.title), ...topics.map((topic) => topic.topic)])];
+  const [articles, topics] = await Promise.all([getBlogEntries(), listTopics()]);
+  return [...new Set([...articles.map((article) => article.title), ...topics.map((topic) => topic.topic)])];
 }
 
 export async function planAutoTopic(provider: AiProvider, usage: Usage): Promise<PlannedTopic> {

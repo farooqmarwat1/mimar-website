@@ -42,8 +42,11 @@ Home page only (`/` and `/ar`), browser-tab title only: the hero and every visib
 - `RegionalTitle` (client, renders nothing) sets `document.title` after hydration, in the format "Mimar: 3D Architecture & Rendering Firm in <region>". Inner pages keep their SEO-exact titles.
 
 ## Not translated (by design)
-- Staff portal `/admin`, `/api/*`, AI blog generation.
-- Firestore jobs and admin-written posts: `/careers/<slug>` and `/blog/<slug>` for those are English only (no hreflang). `/ar/careers` shows Arabic page copy and links open roles to the English role pages.
+- Staff portal `/admin` (English only: no Arabic interface and no Arabic fields; the Arabic text of articles is written by the AI, see below), `/api/*`.
+- Firestore jobs: `/careers/<slug>` is English only (no hreflang). `/ar/careers` shows Arabic page copy and links open roles to the English role pages.
+
+## Blog articles (dynamic)
+Every article, migrated or written in `/admin`, is a Firestore document with an optional Arabic version (`ar`: title, SEO title, description, keywords, blocks, FAQ, related labels). The 45 migrated articles' Arabic comes from `legacy-seo.ar.json` (copied in by the one-time import). New posts get theirs from the AI right after the English passes its checks (and again when a published article's English changes: `src/lib/ai/translate-post.ts`). `/ar/blog`, its pagination, categories, `/ar/category/*` and `/ar/<path>` list and render exactly the articles that have an Arabic version, in the same order as English. Without Firestore the site falls back to the built-in JSON files. Data layer: `src/lib/blog-store.ts`.
 - The Pano2VR tour files under `/tours/*`.
 
 ## Review needed

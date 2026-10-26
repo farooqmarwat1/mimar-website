@@ -7,7 +7,8 @@ rules_version = '2';
 //
 // If this Firebase project is shared with another app (e.g. the CRM portal),
 // merge this into that app's rules instead of replacing them: the collections
-// used here are `siteJobs`, `sitePosts`, `siteBlogTopics` and `siteGenerationJobs`.
+// used here are `siteJobs`, `sitePosts`, `siteBlogTopics`, `siteGenerationJobs`,
+// `siteBlogPlanner` and `siteBlogMeta`.
 service cloud.firestore {
   match /databases/{database}/documents {
     match /siteJobs/{doc} {
@@ -20,6 +21,12 @@ service cloud.firestore {
       allow read, write: if false;
     }
     match /siteGenerationJobs/{doc} {
+      allow read, write: if false;
+    }
+    match /siteBlogPlanner/{doc} {
+      allow read, write: if false;
+    }
+    match /siteBlogMeta/{doc} {
       allow read, write: if false;
     }
   }

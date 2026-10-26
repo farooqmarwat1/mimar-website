@@ -7,7 +7,7 @@ import type { Usage } from "@/lib/ai/types";
 import { adminDb, isFirebaseConfigured } from "@/lib/firebase/admin";
 import { claimNextTopic, createJob, createRunningTopic, finishTopic, type BlogTopic } from "@/lib/generation";
 import { getMailer } from "@/lib/mailer";
-import { getPostAdmin, listPostsAdmin } from "@/lib/posts";
+import { countPendingAiDrafts, getPostAdmin } from "@/lib/posts";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site-config";
 
@@ -30,7 +30,8 @@ export const maxDuration = 300;
 export const dynamic = "force-dynamic";
 
 // Who approves (To) and who is only kept informed (CC). Override with BLOG_NOTIFY_EMAIL / BLOG_NOTIFY_CC.
-const DEFAULT_APPROVERS = "hr@mim.archi";
+// The approvers are the two blog editors; info@ is the mailbox the owner reads.
+const DEFAULT_APPROVERS = "muhammad.farooq@mim.archi,rabia.zaman@mim.archi";
 const DEFAULT_CC = "info@mim.archi";
 
 function authorized(request: Request): boolean {
@@ -76,7 +77,7 @@ async function runScheduledGeneration() {
   if (!limit.allowed) return Response.json({ skipped: "Daily generation limit reached." });
 
   // Do not pile up work nobody has approved yet.
-  const waiting = (await listPostsAdmin()).filter((post) => post.origin === "ai" && post.status === "draft").length;
+  const waiting = await countPendingAiDrafts();
   if (waiting >= maxPendingDrafts()) {
     return Response.json({ skipped: `${waiting} AI drafts are still waiting for review (limit ${maxPendingDrafts()}).` });
   }
@@ -148,12 +149,17 @@ async function notifyReviewers(postId: string, topic: BlogTopic, waiting: number
   const from = process.env.CONTACT_FROM_EMAIL?.trim() || mailer.defaultFrom;
   const where = [topic.group, topic.region].filter(Boolean).join(" / ");
   const subject = `Blog draft ready for your approval: ${post.title}`;
+  const arabicNote = post.ar
+    ? "The Arabic version was written automatically and goes live with the English one when you publish."
+    : "The Arabic version could not be written automatically; it is retried when you publish.";
   const text = [
     "A new blog draft was written automatically and is waiting for your approval.",
     "",
     `Title: ${post.title}`,
     where ? `Planned for: ${where}` : "",
     `Drafts waiting for review: ${waiting}`,
+    "",
+    arabicNote,
     "",
     "It is NOT published. Please check the facts against its listed sources, edit if needed, then publish it or delete it:",
     link,
@@ -162,6 +168,7 @@ async function notifyReviewers(postId: string, topic: BlogTopic, waiting: number
     .join("\n");
   const html = `<p>A new blog draft was written automatically and is <strong>waiting for your approval</strong>.</p>
 <p><strong>${escapeHtml(post.title)}</strong>${where ? `<br>Planned for: ${escapeHtml(where)}` : ""}<br>Drafts waiting for review: ${waiting}</p>
+<p>${escapeHtml(arabicNote)}</p>
 <p>It is <strong>not published</strong>. Check the facts against its listed sources, edit if needed, then publish it or delete it.</p>
 <p><a href="${escapeHtml(link)}">Open the draft</a></p>`;
 

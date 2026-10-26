@@ -1,8 +1,6 @@
-import { legacySeoPages, type LegacySeoPage } from "@/lib/legacy-seo";
-
 // The old WordPress /blog/ archive showed these 34 articles, nine per page.
 // Keep its article URLs and order while allowing newer articles above them.
-const wordpressArchivePaths = [
+export const wordpressArchivePaths = [
   "/blog/best-architects-in-islamabad",
   "/blog/apartment-3d-virtual-tour",
   "/blog/rendering-techniques",
@@ -39,17 +37,9 @@ const wordpressArchivePaths = [
   "/3d-visualization/how-to-create-realistic-architectural-rendering",
 ] as const;
 
-const newerArticlePaths = ["/metaverse-development-a-complete-guide-for-businesses"];
+export const newerArticlePaths = ["/metaverse-development-a-complete-guide-for-businesses"];
 
-export const blogArchiveArticles: LegacySeoPage[] = [...newerArticlePaths, ...wordpressArchivePaths]
-  .map((path) => legacySeoPages.find((article) => article.path === path))
-  .filter((article): article is LegacySeoPage => article !== undefined);
+/** Archive order of the migrated articles: the newest first, then the old WordPress /blog/ order. */
+export const legacyArchivePaths: string[] = [...newerArticlePaths, ...wordpressArchivePaths];
 
 export const blogPageSize = 9;
-export const blogPageCount = Math.ceil(blogArchiveArticles.length / blogPageSize);
-
-export function getBlogArchivePage(page: number) {
-  if (!Number.isInteger(page) || page < 1 || page > blogPageCount) return [];
-  const start = (page - 1) * blogPageSize;
-  return blogArchiveArticles.slice(start, start + blogPageSize);
-}

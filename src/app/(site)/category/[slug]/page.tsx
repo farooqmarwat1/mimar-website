@@ -2,12 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BlogArticleList, BlogCategoryLinks } from "@/components/blog/BlogCatalog";
-import { getLegacyCategory, legacyCategories, legacyCategoryPath } from "@/lib/legacy-categories";
+import { getLegacyCategoryList } from "@/lib/blog-store";
+import { legacyCategories, legacyCategoryPath } from "@/lib/legacy-categories";
 import { breadcrumbJsonLd, buildMetadata, itemListJsonLd, jsonLdScript } from "@/lib/seo";
 
 // Old WordPress category archives (/category/metaverse, /category/vr-real-estate)
 // kept at their own URLs. Other /category/* URLs are redirects in next.config.ts.
 export const dynamicParams = false;
+
+// Follows the article store: an article unpublished or deleted in /admin drops out of the list.
+export const revalidate = 3600;
 
 export function generateStaticParams() {
   return legacyCategories.map((category) => ({ slug: category.slug }));
@@ -15,14 +19,14 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/category/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const { category } = getLegacyCategory(slug);
+  const category = legacyCategories.find((item) => item.slug === slug);
   if (!category) return {};
   return buildMetadata({ title: category.seoTitle, description: category.description, path: legacyCategoryPath(slug) });
 }
 
 export default async function LegacyCategoryPage({ params }: PageProps<"/category/[slug]">) {
   const { slug } = await params;
-  const { category, articles } = getLegacyCategory(slug);
+  const { category, articles } = await getLegacyCategoryList(slug);
   if (!category) notFound();
   const path = legacyCategoryPath(slug);
 
