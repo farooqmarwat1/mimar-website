@@ -102,9 +102,32 @@ export default function LegacyArticle({ page, lang = "en" }: { page: SiteArticle
             }
             if (block.type === "video") {
               return (
-                <video key={`${block.src}-${index}`} className="mt-10 h-auto w-full" controls playsInline preload="none">
+                <video
+                  key={`${block.src}-${index}`}
+                  className="mt-10 h-auto w-full bg-ink/5"
+                  controls
+                  playsInline
+                  poster={block.poster}
+                  // metadata rather than none, so a clip with no poster of its
+                  // own still shows its first frame instead of a black box.
+                  preload="metadata"
+                >
                   <source src={block.src} />
                 </video>
+              );
+            }
+            if (block.type === "embed") {
+              return (
+                <div key={`${block.id}-${index}`} className="relative mt-10 aspect-video w-full overflow-hidden bg-ink/5">
+                  <iframe
+                    src={`https://www.youtube-nocookie.com/embed/${block.id}`}
+                    title={page.title}
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="absolute inset-0 h-full w-full border-0"
+                  />
+                </div>
               );
             }
             if (block.type === "h2") return <h2 key={`${block.text}-${index}`} className="mb-6 mt-14 text-3xl font-medium leading-tight tracking-[-.035em] first:mt-0 md:text-4xl">{renderText(block.text, lang)}</h2>;

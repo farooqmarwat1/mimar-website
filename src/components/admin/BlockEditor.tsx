@@ -55,6 +55,7 @@ export default function BlockEditor({
           {blocks.map((block, index) => {
             if (block.type === "img") return <p key={index} className="mt-3 rounded border border-dashed border-line p-2 text-xs text-muted">Picture: {block.alt || block.src}</p>;
             if (block.type === "video") return <p key={index} className="mt-3 rounded border border-dashed border-line p-2 text-xs text-muted">Video: {block.src}</p>;
+            if (block.type === "embed") return <p key={index} className="mt-3 rounded border border-dashed border-line p-2 text-xs text-muted">YouTube: {block.id}</p>;
             const inline = splitInlineLinks(block.text).map((part, i) =>
               part.href ? (
                 <span key={i} className="text-accent underline">

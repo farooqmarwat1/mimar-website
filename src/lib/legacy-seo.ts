@@ -1,15 +1,16 @@
 import legacySeoData from "@/content/legacy-seo.json";
+import type { ArticleBlock } from "@/lib/content-blocks";
 
 /**
- * The move off WordPress only ever extracted text, so these pages lost every
- * image they had. The media blocks below carry it back: each one was taken
- * from the original mimar.live article and re-inserted after the same
- * paragraph it followed there.
+ * Migrated articles use the same block format as the rest of the site, so
+ * there is one definition to keep in step rather than two.
+ *
+ * The move off WordPress extracted plain text and nothing else: no pictures,
+ * no hyperlinks, no embedded video, and on pages with no <article> wrapper not
+ * even all of the body. The content below was re-read from the original
+ * mimar.live articles so it matches what was published there.
  */
-export type LegacyContentBlock =
-  | { type: "h2" | "h3" | "p" | "li"; text: string }
-  | { type: "img"; src: string; alt: string; width?: number; height?: number }
-  | { type: "video"; src: string };
+export type LegacyContentBlock = ArticleBlock;
 
 export type LegacySeoPage = {
   path: string;

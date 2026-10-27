@@ -24,24 +24,30 @@ export type ContentBlock = {
  * editor each one is a single line, so it can be moved or deleted like text:
  *
  *   [image: /blog/example/photo.jpg | Describe the picture | 1920x1080]
- *   [video: /blog/example/clip.mp4]
+ *   [video: /blog/example/clip.mp4 | /blog/example/poster.jpg]
+ *   [youtube: dQw4w9WgXcQ]
  *
- * Only site-relative paths are accepted (never an outside address).
+ * Only site-relative paths are accepted for files (never an outside address).
+ * A YouTube block carries the video id on its own, so nothing can point the
+ * player at an arbitrary URL.
  */
 export type MediaBlock =
   | { type: "img"; src: string; alt: string; width?: number; height?: number }
-  | { type: "video"; src: string };
+  | { type: "video"; src: string; poster?: string }
+  | { type: "embed"; provider: "youtube"; id: string };
 
 /** Everything an article body can hold. Text-only code keeps using ContentBlock. */
 export type ArticleBlock = ContentBlock | MediaBlock;
 
-export const isTextBlock = (block: ArticleBlock): block is ContentBlock => block.type !== "img" && block.type !== "video";
+export const isTextBlock = (block: ArticleBlock): block is ContentBlock =>
+  block.type !== "img" && block.type !== "video" && block.type !== "embed";
 
 const MAX_BLOCKS = 400;
 const MAX_TEXT = 4000;
 
 const IMAGE_LINE = /^\[image:\s*(\/[^\s|\]]+)\s*\|\s*(.*?)\s*(?:\|\s*(\d{2,5})x(\d{2,5}))?\s*\]$/i;
-const VIDEO_LINE = /^\[video:\s*(\/[^\s|\]]+)\s*\]$/i;
+const VIDEO_LINE = /^\[video:\s*(\/[^\s|\]]+)\s*(?:\|\s*(\/[^\s|\]]+)\s*)?\]$/i;
+const YOUTUBE_LINE = /^\[youtube:\s*([A-Za-z0-9_-]{11})\s*\]$/i;
 
 export function parseBlocks(input: string): ArticleBlock[] {
   const blocks: ArticleBlock[] = [];
@@ -64,6 +70,7 @@ export function parseBlocks(input: string): ArticleBlock[] {
     const bullet = /^[-*•]\s+(.+)$/.exec(line);
     const image = IMAGE_LINE.exec(line);
     const video = VIDEO_LINE.exec(line);
+    const youtube = YOUTUBE_LINE.exec(line);
     if (image && !image[1].startsWith("//")) {
       flush();
       blocks.push({
@@ -74,7 +81,10 @@ export function parseBlocks(input: string): ArticleBlock[] {
       });
     } else if (video && !video[1].startsWith("//")) {
       flush();
-      blocks.push({ type: "video", src: video[1] });
+      blocks.push({ type: "video", src: video[1], ...(video[2] ? { poster: video[2] } : {}) });
+    } else if (youtube) {
+      flush();
+      blocks.push({ type: "embed", provider: "youtube", id: youtube[1] });
     } else if (heading) {
       flush();
       blocks.push({ type: heading[1].length === 2 ? "h2" : "h3", text: heading[2].trim() });
@@ -105,7 +115,9 @@ export function blocksToText(blocks: ArticleBlock[]): string {
     if (block.type === "img") {
       const size = block.width && block.height ? ` | ${block.width}x${block.height}` : "";
       out.push(`${index ? "\n" : ""}[image: ${block.src} | ${block.alt.replace(/\s+/g, " ").trim()}${size}]`);
-    } else if (block.type === "video") out.push(`${index ? "\n" : ""}[video: ${block.src}]`);
+    } else if (block.type === "video") {
+      out.push(`${index ? "\n" : ""}[video: ${block.src}${block.poster ? ` | ${block.poster}` : ""}]`);
+    } else if (block.type === "embed") out.push(`${index ? "\n" : ""}[youtube: ${block.id}]`);
     else if (block.type === "h2") out.push(`${index ? "\n" : ""}## ${block.text}`);
     else if (block.type === "h3") out.push(`${index ? "\n" : ""}### ${block.text}`);
     else if (block.type === "li") out.push(`${prev && prev.type !== "li" ? "\n" : ""}- ${block.text}`);
