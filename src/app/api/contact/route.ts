@@ -2,7 +2,11 @@ import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { buildConfirmationEmail, buildLeadEmail } from "@/lib/contact-email";
+import { isFirebaseConfigured } from "@/lib/firebase/admin";
+import type { MailStatus } from "@/lib/lead-constants";
+import { createLead, setMailStatus } from "@/lib/leads";
 import { getMailer } from "@/lib/mailer";
+import { describeRequest, findVisitForRequest } from "@/lib/visits";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { contact } from "@/lib/site-config";
 // TURNSTILE-DISABLED (no Cloudflare access yet): import { verifyTurnstile } from "@/lib/turnstile";
@@ -22,6 +26,10 @@ import { contact } from "@/lib/site-config";
  *    confirmation emails. With the bot check off it counts every valid
  *    submission, so someone can use up a stranger's 3 per hour; with it on,
  *    only verified humans count.
+ *
+ * Storage: each valid submission is first saved as a lead in Firestore (shown
+ * in /admin/leads), so an email that lands in spam - or fails to send - never
+ * loses the enquiry. A failed save never blocks the email.
  *
  * Delivery: each valid submission is emailed to the studio inbox
  * (contact.email, info@mim.archi), with the visitor's address as Reply-To, and
@@ -53,6 +61,8 @@ const ContactSchema = z.object({
   service: z.string().trim().max(80).optional(),
   source: z.string().trim().max(80).optional(),
   message: z.string().trim().min(1).max(5000),
+  // The site language the form was filled in on (older cached pages don't send it).
+  lang: z.enum(["en", "ar"]).optional().catch(undefined),
   // TURNSTILE-DISABLED: Cloudflare Turnstile token (max 2048 characters).
   // turnstileToken: z.string().max(2048).optional(),
   // Honeypot field - real users never fill this in. Deliberately accepted here
@@ -144,22 +154,57 @@ export async function POST(req: Request) {
   const emailLimit = await checkRateLimit([{ key: `contact:email:${emailHash}`, ...EMAIL_HOURLY }]);
   if (!emailLimit.allowed) return tooManyRequests(emailLimit.retryAfterSec);
 
+  // Save the lead before anything can go wrong with the email. The admin portal
+  // is then the source of truth; the studio email is just the notification.
+  let leadId: string | null = null;
+  if (isFirebaseConfigured) {
+    try {
+      leadId = await createLead({
+        firstName: parsed.data.firstName,
+        lastName: parsed.data.lastName,
+        email: parsed.data.email,
+        phone: parsed.data.phone,
+        service: parsed.data.service,
+        source: parsed.data.source,
+        message: parsed.data.message,
+        lang: parsed.data.lang,
+        // From the request itself (platform headers, never the body): address, geography, language, device.
+        client: describeRequest(req.headers),
+        // The visitor's journey today, matched by the daily hash. Null when tracking saw nothing
+        // (Do-Not-Track, an ad blocker, a bot) - the lead is still saved with the request details above.
+        visit: await findVisitForRequest(req.headers),
+      });
+    } catch (err) {
+      // Log the reason only - never the visitor's details. The email below still goes out.
+      console.error("[contact] Could not save the lead", err instanceof Error ? err.message : err);
+    }
+  }
+  const markMail = async (status: MailStatus) => {
+    if (!leadId) return;
+    try {
+      await setMailStatus(leadId, status);
+    } catch (err) {
+      console.error("[contact] Could not record the email status", err instanceof Error ? err.message : err);
+    }
+  };
+
   const mailer = getMailer();
   if (!mailer) {
-    if (process.env.NODE_ENV === "production") {
+    await markMail("skipped");
+    if (process.env.NODE_ENV === "production" && !leadId) {
       console.error("[contact] Neither SMTP nor RESEND_API_KEY is set - a lead was NOT delivered");
       return NextResponse.json(DELIVERY_FAILED, { status: 503 });
     }
-    // Local development without credentials: don't block working on the form.
-    console.warn("[contact] Neither SMTP nor RESEND_API_KEY is set - skipping the email in development");
+    // Saved in /admin/leads (or local development without credentials): the visitor's message is not lost.
+    console.warn("[contact] Neither SMTP nor RESEND_API_KEY is set - skipping the email");
     return NextResponse.json({ ok: true });
   }
 
   const from = process.env.CONTACT_FROM_EMAIL?.trim() || mailer.defaultFrom;
   const lead = buildLeadEmail(parsed.data);
 
-  // 1) The studio notification is the one that matters: if it fails the lead
-  //    is lost, so tell the visitor.
+  // 1) The studio notification: if it fails and the lead is not saved either,
+  //    the lead is lost, so tell the visitor. A saved lead is safe in /admin/leads.
   try {
     await mailer.send({
       from,
@@ -169,9 +214,12 @@ export async function POST(req: Request) {
       text: lead.text,
       html: lead.html,
     });
+    await markMail("sent");
   } catch (err) {
     // Log the reason only - never the visitor's details.
     console.error(`[contact] Sending via ${mailer.name} failed`, err instanceof Error ? err.message : err);
+    await markMail("failed");
+    if (leadId) return NextResponse.json({ ok: true });
     return NextResponse.json(DELIVERY_FAILED, { status: 502 });
   }
 

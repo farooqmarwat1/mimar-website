@@ -1,6 +1,6 @@
 # Staff portal (`/admin`) — setup and operations
 
-HR and editors manage **job postings** (live on `/careers`) and **every blog article** (the migrated WordPress ones and new posts, English with an automatic Arabic version) from `/admin`. The portal itself is English only. Data lives in Firebase (Firestore + Storage). The browser never talks to Firebase: every read and write goes through the Firebase Admin SDK on the server, and `firestore.rules` denies all client access.
+Admins work **contact-form leads** in a small CRM. HR and editors manage **job postings** (live on `/careers`) and **every blog article** (the migrated WordPress ones and new posts, English with an automatic Arabic version) from `/admin`. The portal itself is English only. Data lives in Firebase (Firestore + Storage). The browser never talks to Firebase: every read and write goes through the Firebase Admin SDK on the server, and `firestore.rules` denies all client access.
 
 Without the Firebase env vars the site renders exactly as before (no open roles, no extra posts) and `/admin` sign-in is disabled, so local development and builds work without any setup.
 
@@ -8,7 +8,7 @@ Without the Firebase env vars the site renders exactly as before (no open roles,
 
 1. **Firebase project** (a dedicated one is recommended). Enable **Authentication → Email/Password** and create **Firestore** and **Storage**.
 2. **Service account**: Project settings → Service accounts → *Generate new private key*. Put `project_id`, `client_email`, `private_key` into `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` (see `.env.example`). Also set `FIREBASE_WEB_API_KEY` (Project settings → General → Web API key) and optionally `FIREBASE_STORAGE_BUCKET`. Set the same variables in Vercel (Production **and** Preview if you want to test there).
-3. **Rules**: `firebase deploy --only firestore:rules,storage` deploys `firestore.rules` and `storage.rules` (both deny all browser access; the server uses the Admin SDK, which bypasses them). **If the Firebase project is shared with the CRM portal, do not deploy them as they are** - that would replace the portal's rules. Merge the `siteJobs`, `sitePosts`, `siteBlogTopics`, `siteGenerationJobs`, `siteBlogPlanner` and `siteBlogMeta` rules and the Storage rule into the existing files instead. No Firestore indexes are needed (`firestore.indexes.json` is empty on purpose).
+3. **Rules**: `firebase deploy --only firestore:rules,storage` deploys `firestore.rules` and `storage.rules` (both deny all browser access; the server uses the Admin SDK, which bypasses them). **If the Firebase project is shared with the CRM portal, do not deploy them as they are** - that would replace the portal's rules. Merge the `siteJobs`, `sitePosts`, `siteBlogTopics`, `siteGenerationJobs`, `siteBlogPlanner`, `siteBlogMeta` and `siteLeads` rules and the Storage rule into the existing files instead. No Firestore indexes are needed (`firestore.indexes.json` is empty on purpose).
 4. **Create staff accounts** (there is no public sign-up):
 
    ```bash
@@ -21,11 +21,11 @@ Without the Firebase env vars the site renders exactly as before (no open roles,
 
 ## Roles
 
-| Role | Jobs (`/admin/jobs`) | Blog (`/admin/blog`) |
-|---|---|---|
-| `hr` | yes | no |
-| `editor` | no | yes |
-| `admin` | yes | yes |
+| Role | Jobs and applications (`/admin/jobs`, `/admin/applications`) | Blog (`/admin/blog`) | Leads (`/admin/leads`) |
+|---|---|---|---|
+| `hr` | yes | no | no |
+| `editor` | no | yes | no |
+| `admin` | yes | yes | yes |
 
 A Firebase account without a `role` claim cannot sign in to `/admin`, even if it is a valid user of another app in the same project (e.g. the CRM portal).
 
@@ -47,6 +47,36 @@ A Firebase account without a `role` claim cannot sign in to `/admin`, even if it
 - Only **open, unexpired** roles are listed, included in `sitemap.xml` / `llms.txt`, and carry `JobPosting` structured data. Closed or expired roles keep a `noindex` "no longer open" page for people holding the link.
 - The URL ending is locked once a role has been public.
 - "Apply by" (optional) removes the role automatically after that date.
+
+## Leads (`/admin/leads`, admins only)
+
+- Every contact-form submission (English and Arabic) is saved to the `siteLeads` collection **before** the studio email is sent, so a lead is never lost if the email lands in spam or the mailer is down. If the lead was saved but the email failed (or no mailer is configured) the visitor still sees success, and the lead shows an "email failed / not sent" note. If Firebase itself is down the form behaves as before: the email is the only copy.
+- Pipeline: New → Contacted → Qualified → Proposal sent → Won / Lost. Drag cards on the **board** (or use the "Move to" menu on each card), or switch to the **list**. Filters: search, assignee, priority, source, service, language, overdue only. **Export CSV** downloads the current filter.
+- Each lead has an owner (any staff account with a role), priority, tags, estimated value, a **next follow-up date** and an activity timeline (notes, logged calls / emails / meetings, plus automatic entries for status, owner and follow-up changes). Logging a call, email or meeting on a new lead moves it to Contacted. Leads past their follow-up date are marked overdue; the Leads link and the dashboard show how many are new or overdue.
+- **Add lead** records enquiries that did not come through the form (phone, WhatsApp, referrals, or an email rescued from spam).
+- Leads are personal data: admin only, never public, never logged. The studio's own copy of the enquiry email is unchanged.
+- For a local end-to-end test set `SITE_LEADS_COLLECTION=siteLeadsTest` (dev only) so test leads stay out of the real list.
+
+## Applications (`/admin/applications`, HR and admins)
+
+- The careers page's button leads to its own form at `/careers/apply` (Arabic: `/ar/careers/apply`), separate from the client enquiry form, so job seekers never reach the sales pipeline or the project inbox. The contact page also lists `hr@mim.archi` for careers.
+- Applicants pick an open role (or "General application"), give a link to their CV or portfolio (no files are uploaded) and write a short note. The page is `noindex` and not in the sitemap.
+- Each application is **saved first** (`siteApplications` collection), then emailed to `hr@mim.archi` (set `CAREERS_TO_EMAIL` to send it elsewhere, e.g. staging), and the applicant gets a short confirmation. If the email fails or no mailer is configured the application is still saved and flagged "HR email not sent" in the list.
+- `/admin/applications`: filter by status (New, Reviewing, Shortlisted, Not progressing, Hired) and search. Each application has a status and a private note. Anyone who can manage jobs (`hr`, `admin`) can use it; editors cannot.
+- Protection is the same as the contact form: per-IP and per-email limits, a hidden honeypot, field caps, and the link must be http(s).
+- A job can't use the address `/careers/apply` (it is reserved). Job pages that use "email" apply still show the careers address; roles saved with the old studio default show `hr@mim.archi` too.
+- For a local end-to-end test set `SITE_APPLICATIONS_COLLECTION=siteApplicationsTest` (dev only).
+
+## Visitor tracking (cookie-free) and where leads come from
+
+- A small client component (`src/components/VisitTracker.tsx`, in both root layouts) sends page-view beacons to `/api/track`. It uses **no cookie, localStorage or sessionStorage**. The server recognises a visitor only by a hash of IP + browser, keyed with `VISITOR_HASH_SECRET` and **the current UTC day**, so nobody can be followed beyond one day. Set `VISITOR_HASH_SECRET` in Vercel (production tracking is off without it).
+- One `siteVisitors` document per visitor-day holds the journey: landing page, referrer, UTM tags, channel, pages with seconds on each, device, language, time zone, screen width, country/region/city (from Vercel's edge headers, so no visitor IP goes to a third party). **The raw IP is never stored there.** Do-Not-Track and Global Privacy Control visitors, bots and `/admin` pages are not recorded.
+- **Turn on the 30-day cleanup once**: Firebase console -> Firestore -> Indexes -> *TTL* -> create a policy on collection `siteVisitors`, field `expireAt`. Without it, visit records are kept until deleted by hand.
+- When the contact form is submitted, the same hash is recomputed from the request and the journey is **copied onto the lead**, so it survives the 30-day cleanup. The lead also keeps the request's IP address, approximate location, language and device even if nothing was tracked. Limits: only same-day visits link, and a visitor whose IP changes mid-visit (mobile network) will not link.
+- Lead page: a **Visitor** card with location, IP, device, how they arrived and the pages viewed. The list shows country and channel, and has filters for channel, country and job seekers. The stats strip shows the job-seeker count and where leads come from.
+- **Likely job seeker**: a lead is tagged `job-seeker` and flagged when its message mentions CV/resume/job/hiring/vacancy/internship/career (English or Arabic) or the visitor first landed on a careers page. It only labels the lead; status is never changed and nothing is deleted. The CSV export includes country, city, channel, landing page, referrer and UTM columns but **never the IP address**.
+- The site still sets two small functional cookies in `src/proxy.ts` (region, language). "Cookie-free" describes the tracker, not the whole site. Cookie-free is not consent-free: IP and device data are personal data, so the privacy policy (English and Arabic) describes them. The Arabic text is machine-written and needs native review, and a legal check for EU, KSA and UAE visitors is advisable.
+- For a local end-to-end test set `SITE_VISITORS_COLLECTION=siteVisitorsTest` (dev only).
 
 ## Key rotation / offboarding
 

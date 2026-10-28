@@ -12,11 +12,11 @@ const NOT_GIVEN = "Not specified";
 
 // Visitor-supplied text ends up in the email subject and HTML body, so strip
 // control characters from single-line values and escape everything in HTML.
-function singleLine(value: string) {
+export function singleLine(value: string) {
   return value.replace(/[\u0000-\u001f\u007f]+/g, " ").trim();
 }
 
-function escapeHtml(value: string) {
+export function escapeHtml(value: string) {
   return value
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")

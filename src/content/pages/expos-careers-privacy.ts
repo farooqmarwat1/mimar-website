@@ -96,7 +96,7 @@ export const careersContent: Record<Locale, CareersCopy> = {
     eyebrow: "/ Careers",
     heading1: "Build the studio",
     heading2: "alongside us.",
-    body: "Mimar Studios is a multidisciplinary team of architects, 3D artists, animators and designers based in Islamabad, working with clients across 14+ countries. We hire in waves as project load demands rather than keeping a running list open - the fastest way to be considered is to reach out directly with your portfolio.",
+    body: "Mimar Studios is a multidisciplinary team of architects, 3D artists, animators and designers based in Islamabad, working with clients across 14+ countries. We hire in waves as project load demands rather than keeping a running list open - the fastest way to be considered is to send your application with a link to your portfolio.",
     values: [
       ["Craft first", "Every render, animation and drawing carries the studio's name. We'd rather do fewer projects well than many projects fast."],
       ["Learn on real work", "Team members from Pakistan, Turkey and Egypt work side by side on live client projects, not internal exercises."],
@@ -110,7 +110,7 @@ export const careersContent: Record<Locale, CareersCopy> = {
     dontSeePrefix: "Don't see the right role? Send your portfolio and CV to",
     dontSeeSuffix: " and we'll keep it on file.",
     noRolesPrefix: "No open roles are posted here right now. If you'd like to be considered when a position opens, send your portfolio and CV to ",
-    cta: "Get in touch",
+    cta: "Send your application",
   },
   ar: {
     title: "الوظائف | ميمار ستوديوز",
@@ -122,7 +122,7 @@ export const careersContent: Record<Locale, CareersCopy> = {
     eyebrow: "/ الوظائف",
     heading1: "ابنِ الاستوديو",
     heading2: "معنا.",
-    body: "ميمار ستوديوز فريق متعدد التخصصات من المعماريين وفناني ثلاثي الأبعاد ومحرّكي الرسوم والمصممين، مقرّه إسلام آباد، ويعمل مع عملاء في أكثر من 14 دولة. نوظّف على دفعات حسب حجم المشاريع بدلاً من إبقاء قائمة توظيف مفتوحة باستمرار - وأسرع طريقة للنظر في طلبك هي التواصل معنا مباشرة مع أعمالك السابقة.",
+    body: "ميمار ستوديوز فريق متعدد التخصصات من المعماريين وفناني ثلاثي الأبعاد ومحرّكي الرسوم والمصممين، مقرّه إسلام آباد، ويعمل مع عملاء في أكثر من 14 دولة. نوظّف على دفعات حسب حجم المشاريع بدلاً من إبقاء قائمة توظيف مفتوحة باستمرار - وأسرع طريقة للنظر في طلبك هي إرسال طلبك مع رابط أعمالك السابقة.",
     values: [
       ["الحرفية أولاً", "كل مشهد ورسم متحرك ومخطط يحمل اسم الاستوديو. نفضّل إنجاز عدد أقل من المشاريع بإتقان على إنجاز الكثير منها بسرعة."],
       ["التعلّم من العمل الحقيقي", "يعمل أعضاء الفريق من باكستان وتركيا ومصر جنباً إلى جنب على مشاريع عملاء حقيقية، وليس تمارين داخلية."],
@@ -140,7 +140,7 @@ export const careersContent: Record<Locale, CareersCopy> = {
     dontSeePrefix: "لا تجد الوظيفة المناسبة؟ أرسل أعمالك السابقة وسيرتك الذاتية إلى",
     dontSeeSuffix: " وسنحتفظ بها في ملفاتنا.",
     noRolesPrefix: "لا توجد وظائف شاغرة معلَنة هنا حالياً. إذا كنت ترغب في أن يُنظر في طلبك عند فتح وظيفة، أرسل أعمالك السابقة وسيرتك الذاتية إلى ",
-    cta: "تواصل معنا",
+    cta: "أرسل طلبك",
   },
 };
 
@@ -178,14 +178,14 @@ export const privacyContent: Record<Locale, PrivacyCopy> = {
     intro: [
       "This policy explains how ",
       " (\"Mimar Studios\", \"we\", \"us\") collects, uses and protects information submitted through ",
-      ". Last updated 27 August 2026.",
+      ". Last updated 28 October 2026.",
     ],
     sections: [
-      ["Information we collect", "When you use this website, we may collect information you provide directly - such as your name, email address, phone number and project details submitted through our contact form - and information collected automatically, such as pages visited, browser type and general location, typically via analytics and hosting logs."],
+      ["Information we collect", "When you use this website, we may collect information you provide directly - such as your name, email address, phone number and project details submitted through our contact form - and information collected automatically when you visit, such as the pages you view and for how long, the website that referred you, your browser and device type, your preferred language, and your approximate location (city and country) worked out from your IP address. If you send us an enquiry, we also keep your IP address with it."],
       ["How we use information", "We use the information we collect to respond to enquiries, provide quotes, deliver services you request, improve this website, and - where you have not opted out - send occasional updates about our work. We do not sell personal information to third parties."],
-      ["Cookies & analytics", "This site may use cookies or similar technologies to remember preferences and understand how visitors use the site. You can disable cookies in your browser settings; some site features may not function correctly if you do."],
-      ["Third-party services", "We use third-party providers to operate this website and our business - for example, hosting, content management, email delivery and analytics providers. These providers process data on our behalf and are expected to protect it, but we do not control their systems directly."],
-      ["Data retention", "We retain personal information for as long as needed to respond to your enquiry, deliver a service, or meet legal and accounting obligations, after which it is deleted or anonymized."],
+      ["Cookies & analytics", "We do not use advertising or tracking cookies, and we do not store identifiers on your device to follow you between visits. Our visit statistics are recorded on our own server: a one-way hash of your IP address and browser, which changes every day, groups the pages you view within a single day, and your IP address itself is not kept with those statistics. The site sets only two small functional cookies: one remembers the language you choose and one adjusts some wording to your country. We honour Do Not Track and Global Privacy Control signals by not recording your visit. You can block cookies in your browser settings and the site will still work."],
+      ["Third-party services", "We use third-party providers to operate this website and our business - for example, hosting, content management, database and email delivery providers. These providers process data on our behalf and are expected to protect it, but we do not control their systems directly."],
+      ["Data retention", "Visit statistics are deleted automatically after 30 days. Enquiry details, including the visit summary and IP address saved with an enquiry, are kept for as long as needed to respond to your enquiry, deliver a service, or meet legal and accounting obligations, after which they are deleted or anonymized."],
       ["Your rights", "Depending on where you are located, you may have rights to access, correct, or request deletion of your personal information, or to object to certain processing. To exercise any of these rights, contact us using the details below."],
       ["Children's privacy", "This website is intended for business use and is not directed at children. We do not knowingly collect personal information from children."],
       ["Changes to this policy", "We may update this policy from time to time. Material changes will be reflected by an updated date on this page."],
@@ -203,14 +203,14 @@ export const privacyContent: Record<Locale, PrivacyCopy> = {
     intro: [
       "توضح هذه السياسة كيف تقوم ",
       " (\"ميمار ستوديوز\"، \"نحن\") بجمع المعلومات المُقدَّمة عبر ",
-      " واستخدامها وحمايتها. آخر تحديث: 27 أغسطس 2026.",
+      " واستخدامها وحمايتها. آخر تحديث: 28 أكتوبر 2026.",
     ],
     sections: [
-      ["المعلومات التي نجمعها", "عند استخدامك لهذا الموقع، قد نجمع معلومات تقدّمها مباشرة - مثل اسمك وبريدك الإلكتروني ورقم هاتفك وتفاصيل مشروعك المُقدَّمة عبر نموذج التواصل - بالإضافة إلى معلومات تُجمع تلقائياً، مثل الصفحات التي تمت زيارتها ونوع المتصفح والموقع الجغرافي العام، وذلك عادةً من خلال أدوات التحليل وسجلات الاستضافة."],
+      ["المعلومات التي نجمعها", "عند استخدامك لهذا الموقع، قد نجمع معلومات تقدّمها مباشرة - مثل اسمك وبريدك الإلكتروني ورقم هاتفك وتفاصيل مشروعك المُقدَّمة عبر نموذج التواصل - بالإضافة إلى معلومات تُجمع تلقائياً عند زيارتك، مثل الصفحات التي تتصفحها ومدة تصفحها والموقع الذي أحالك إلينا ونوع المتصفح والجهاز ولغتك المفضلة وموقعك التقريبي (المدينة والدولة) المستنتج من عنوان IP الخاص بك. وإذا أرسلت إلينا استفساراً فإننا نحتفظ أيضاً بعنوان IP الخاص بك مع الاستفسار."],
       ["كيف نستخدم المعلومات", "نستخدم المعلومات التي نجمعها للرد على الاستفسارات، وتقديم عروض الأسعار، وتنفيذ الخدمات التي تطلبها، وتحسين هذا الموقع، وفي حال عدم اعتراضك، إرسال تحديثات دورية عن أعمالنا. نحن لا نبيع المعلومات الشخصية لأطراف ثالثة."],
-      ["ملفات تعريف الارتباط والتحليلات", "قد يستخدم هذا الموقع ملفات تعريف الارتباط أو تقنيات مشابهة لتذكّر تفضيلاتك وفهم كيفية استخدام الزوار للموقع. يمكنك تعطيل ملفات تعريف الارتباط من إعدادات متصفحك؛ وقد لا تعمل بعض ميزات الموقع بشكل صحيح في هذه الحالة."],
-      ["خدمات الأطراف الثالثة", "نستخدم مزوّدي خدمات من أطراف ثالثة لتشغيل هذا الموقع وأعمالنا - مثل مزوّدي الاستضافة وإدارة المحتوى وتسليم البريد الإلكتروني والتحليلات. تقوم هذه الجهات بمعالجة البيانات نيابةً عنا ويُتوقع منها حمايتها، إلا أننا لا نتحكم في أنظمتها بشكل مباشر."],
-      ["الاحتفاظ بالبيانات", "نحتفظ بالمعلومات الشخصية للمدة اللازمة للرد على استفسارك أو تقديم الخدمة أو الوفاء بالالتزامات القانونية والمحاسبية، وبعد ذلك يتم حذفها أو إخفاء هويتها."],
+      ["ملفات تعريف الارتباط والتحليلات", "لا نستخدم ملفات تعريف الارتباط الإعلانية أو التتبعية، ولا نخزّن على جهازك معرّفات لتتبعك بين الزيارات. تُسجَّل إحصاءات الزيارات على خادمنا الخاص: نستخدم بصمة أحادية الاتجاه لعنوان IP والمتصفح تتغير كل يوم لتجميع الصفحات التي تتصفحها خلال يوم واحد، ولا يُحفظ عنوان IP نفسه مع هذه الإحصاءات. يضع الموقع ملفَّي تعريف ارتباط وظيفيَّين صغيرين فقط: أحدهما يتذكّر اللغة التي تختارها والآخر يكيّف بعض النصوص بحسب بلدك. نحترم إشارتَي «عدم التتبع» (Do Not Track) و«التحكم العالمي في الخصوصية» (Global Privacy Control) فلا نسجّل زيارتك عند إرسالهما. يمكنك حظر ملفات تعريف الارتباط من إعدادات المتصفح ويظل الموقع يعمل."],
+      ["خدمات الأطراف الثالثة", "نستخدم مزوّدي خدمات من أطراف ثالثة لتشغيل هذا الموقع وأعمالنا - مثل مزوّدي الاستضافة وإدارة المحتوى وقواعد البيانات وتسليم البريد الإلكتروني. تقوم هذه الجهات بمعالجة البيانات نيابةً عنا ويُتوقع منها حمايتها، إلا أننا لا نتحكم في أنظمتها بشكل مباشر."],
+      ["الاحتفاظ بالبيانات", "تُحذف إحصاءات الزيارات تلقائياً بعد 30 يوماً. أما تفاصيل الاستفسار، بما في ذلك ملخص الزيارة وعنوان IP المحفوظان مع الاستفسار، فنحتفظ بها للمدة اللازمة للرد على استفسارك أو تقديم الخدمة أو الوفاء بالالتزامات القانونية والمحاسبية، وبعد ذلك يتم حذفها أو إخفاء هويتها."],
       ["حقوقك", "بحسب موقعك، قد يكون لديك الحق في الوصول إلى معلوماتك الشخصية أو تصحيحها أو طلب حذفها، أو الاعتراض على بعض عمليات معالجتها. لممارسة أي من هذه الحقوق، تواصل معنا عبر التفاصيل أدناه."],
       ["خصوصية الأطفال", "هذا الموقع مخصص للاستخدام التجاري وغير موجّه للأطفال. نحن لا نجمع عن قصد معلومات شخصية من الأطفال."],
       ["تعديلات على هذه السياسة", "قد نقوم بتحديث هذه السياسة من وقت لآخر. ستنعكس التغييرات الجوهرية من خلال تاريخ تحديث جديد في هذه الصفحة."],
