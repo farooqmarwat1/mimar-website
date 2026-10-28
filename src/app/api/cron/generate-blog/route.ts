@@ -1,9 +1,10 @@
-import { timingSafeEqual } from "node:crypto";
 import { planAutoTopic } from "@/lib/ai/auto-topic";
 import { aiConfigured, runGeneration } from "@/lib/ai/generate-post";
+import { strategyInfo } from "@/lib/ai/keyword-plan";
 import { getProvider } from "@/lib/ai/provider";
 import { ensureAutoTopicQueued } from "@/lib/ai/topic-queue";
 import type { Usage } from "@/lib/ai/types";
+import { blogRecipients, cronAuthorized, escapeHtml } from "@/lib/cron";
 import { adminDb, isFirebaseConfigured } from "@/lib/firebase/admin";
 import { claimNextTopic, createJob, createRunningTopic, finishTopic, type BlogTopic } from "@/lib/generation";
 import { getMailer } from "@/lib/mailer";
@@ -15,38 +16,24 @@ import { siteConfig } from "@/lib/site-config";
  * Scheduled drafting (vercel.json: Mondays and Thursdays). Each run writes ONE draft:
  *
  *   1. a topic staff queued by hand, if there is one; otherwise
- *   2. an automatically planned topic: the next service x region combination in the
- *      rotation, with the specific topic chosen by the AI (src/lib/ai/auto-topic.ts).
+ *   2. an automatically planned topic: the next blog type and service x region combination
+ *      in the rotation, with a real Google search as the keyword where Search Console has
+ *      one and the specific topic chosen by the AI (src/lib/ai/auto-topic.ts).
  *
  * It then emails the reviewers that a draft is waiting for approval. It NEVER
  * publishes: a person approves every article in /admin/blog.
  *
- * Vercel Cron calls this with `Authorization: Bearer $CRON_SECRET`. With no
- * secret configured the endpoint refuses every request, so outsiders can never
- * trigger it to spend API credits.
+ * Only Vercel Cron may call it (src/lib/cron.ts).
  */
 
 export const maxDuration = 300;
 export const dynamic = "force-dynamic";
 
-// Who approves (To) and who is only kept informed (CC). Override with BLOG_NOTIFY_EMAIL / BLOG_NOTIFY_CC.
-// The approvers are the two blog editors; info@ is the mailbox the owner reads.
-const DEFAULT_APPROVERS = "muhammad.farooq@mim.archi,rabia.zaman@mim.archi";
-const DEFAULT_CC = "info@mim.archi";
-
-function authorized(request: Request): boolean {
-  const secret = process.env.CRON_SECRET?.trim();
-  if (!secret) return false;
-  const given = Buffer.from(request.headers.get("authorization") ?? "");
-  const expected = Buffer.from(`Bearer ${secret}`);
-  return given.length === expected.length && timingSafeEqual(given, expected);
-}
-
 const autoTopicsEnabled = () => !["false", "0", "off", "no"].includes((process.env.BLOG_AUTO_TOPICS ?? "").trim().toLowerCase());
 const maxPendingDrafts = () => Number(process.env.BLOG_MAX_PENDING_DRAFTS) || 6;
 
 export async function GET(request: Request) {
-  if (!authorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (!cronAuthorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!isFirebaseConfigured || !aiConfigured()) return Response.json({ skipped: "Firebase or the AI key is not configured." });
 
   const status = adminDb().collection("siteBlogPlanner").doc("schedule");
@@ -107,6 +94,10 @@ async function runScheduledGeneration() {
       seedUrls: [],
       source: "cron",
       createdBy: "scheduler",
+      strategy: topic.strategy,
+      keywordSource: topic.keywordSource,
+      keywordStats: topic.keywordStats,
+      relatedQueries: topic.relatedQueries,
     });
   } catch (err) {
     await finishTopic(topic.id, { status: "queued" });
@@ -118,25 +109,13 @@ async function runScheduledGeneration() {
     await finishTopic(topic.id, { status: "done", jobId, postId });
     if (autoTopicsEnabled()) await ensureAutoTopicQueued().catch((err) => console.error("[cron] could not refill topic queue", err));
     await notifyReviewers(postId, topic, waiting + 1).catch((err) => console.error("[cron] could not email reviewers:", err instanceof Error ? err.message : err));
-    return Response.json({ ok: true, mode, postId, topic: topic.topic, service: topic.group, region: topic.region });
+    return Response.json({ ok: true, mode, postId, topic: topic.topic, service: topic.group, region: topic.region, strategy: topic.strategy, keywordSource: topic.keywordSource });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Generation failed.";
     await finishTopic(topic.id, { status: "failed", jobId, error: message });
     if (autoTopicsEnabled()) await ensureAutoTopicQueued().catch((planningError) => console.error("[cron] could not prepare replacement topic", planningError));
     return Response.json({ ok: false, error: message }, { status: 500 });
   }
-}
-
-const escapeHtml = (value: string) => value.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
-
-function parseEmails(value: string | undefined, fallback: string): string[] {
-  // `||`, not `??`: a blank value copied from .env.example counts as unset.
-  const raw = value?.trim() || fallback;
-  if (raw.toLowerCase() === "none") return [];
-  return raw
-    .split(",")
-    .map((address) => address.trim())
-    .filter((address) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address));
 }
 
 async function notifyReviewers(postId: string, topic: BlogTopic, waiting: number) {
@@ -148,6 +127,10 @@ async function notifyReviewers(postId: string, topic: BlogTopic, waiting: number
   const link = `${base}/admin/blog/${postId}`;
   const from = process.env.CONTACT_FROM_EMAIL?.trim() || mailer.defaultFrom;
   const where = [topic.group, topic.region].filter(Boolean).join(" / ");
+  const type = strategyInfo(topic.strategy)?.label;
+  const blogType = type
+    ? `${type}, keyword "${topic.keyword}" ${topic.keywordSource === "search-console" ? "(a real Google search from Search Console)" : "(chosen by the AI: Search Console had none)"}`
+    : "";
   const subject = `Blog draft ready for your approval: ${post.title}`;
   const arabicNote = post.ar
     ? "The Arabic version was written automatically and goes live with the English one when you publish."
@@ -157,6 +140,7 @@ async function notifyReviewers(postId: string, topic: BlogTopic, waiting: number
     "",
     `Title: ${post.title}`,
     where ? `Planned for: ${where}` : "",
+    blogType ? `Blog type: ${blogType}` : "",
     `Drafts waiting for review: ${waiting}`,
     "",
     arabicNote,
@@ -167,14 +151,13 @@ async function notifyReviewers(postId: string, topic: BlogTopic, waiting: number
     .filter((line, index, all) => line !== "" || all[index - 1] !== "")
     .join("\n");
   const html = `<p>A new blog draft was written automatically and is <strong>waiting for your approval</strong>.</p>
-<p><strong>${escapeHtml(post.title)}</strong>${where ? `<br>Planned for: ${escapeHtml(where)}` : ""}<br>Drafts waiting for review: ${waiting}</p>
+<p><strong>${escapeHtml(post.title)}</strong>${where ? `<br>Planned for: ${escapeHtml(where)}` : ""}${blogType ? `<br>Blog type: ${escapeHtml(blogType)}` : ""}<br>Drafts waiting for review: ${waiting}</p>
 <p>${escapeHtml(arabicNote)}</p>
 <p>It is <strong>not published</strong>. Check the facts against its listed sources, edit if needed, then publish it or delete it.</p>
 <p><a href="${escapeHtml(link)}">Open the draft</a></p>`;
 
   // One email: the approvers in To, the people who only need to know in CC.
-  const approvers = parseEmails(process.env.BLOG_NOTIFY_EMAIL, DEFAULT_APPROVERS);
-  const cc = parseEmails(process.env.BLOG_NOTIFY_CC, DEFAULT_CC).filter((address) => !approvers.includes(address));
+  const { to: approvers, cc } = blogRecipients();
   if (approvers.length === 0) {
     console.error("[cron] BLOG_NOTIFY_EMAIL has no valid address; no approval email sent.");
     return;

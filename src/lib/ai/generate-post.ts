@@ -2,6 +2,7 @@ import "server-only";
 import { articlePolicyErrors } from "./editorial-policy";
 import { selectBlogCover } from "@/lib/blog-covers";
 import { z } from "zod";
+import { strategyInfo } from "@/lib/ai/keyword-plan";
 import { aiConfigured, aiSetupHint, getProvider } from "@/lib/ai/provider";
 import { fetchPageText, type FetchedPage } from "@/lib/ai/safe-fetch";
 import { maxOverlap, titleSimilarity } from "@/lib/ai/similarity";
@@ -135,7 +136,19 @@ Other fields
 - faq: 4-6 questions people really ask. Each answer is 2-4 sentences, correct on its own without "see above", and consistent with the body.
 - related: 2-4 entries chosen from the allowed link list - the most relevant service or region page plus related articles.`;
 
-function writerPrompt(input: { topic: string; keyword?: string; category?: string; geo?: string; brief: string; sources: { title: string }[]; links: LinkOption[]; feedback: string[] }): string {
+function blogTypeLines(job: Pick<GenerationJob, "strategy" | "keywordStats" | "relatedQueries">): string {
+  const info = strategyInfo(job.strategy);
+  if (!info) return "";
+  return [
+    `Blog type: ${info.label}. ${info.writer}`,
+    job.keywordStats?.page ? `Page that already ranks in Google for the primary keyword: ${job.keywordStats.page}` : "",
+    job.relatedQueries?.length ? `Related Google searches to cover where they fit naturally: ${job.relatedQueries.join("; ")}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+function writerPrompt(input: { topic: string; keyword?: string; category?: string; geo?: string; typeLines: string; brief: string; sources: { title: string }[]; links: LinkOption[]; feedback: string[] }): string {
   const today = new Date().toISOString().slice(0, 10);
   return `Today is ${today}.
 Write the article.
@@ -144,6 +157,7 @@ Topic: ${input.topic}
 Primary keyword: ${input.keyword || "Choose one specific 2–6 word phrase"}
 Required category: ${input.category || "Choose one allowed category"}
 Target location: ${input.geo || "none"}
+${input.typeLines}
 
 Verified site facts:
 ${siteFacts(input.geo)}
@@ -265,7 +279,7 @@ export async function runGeneration(jobId: string): Promise<string> {
     let gated: Gated | null = null;
     for (let attempt = 1; attempt <= 2; attempt++) {
       await updateJob(jobId, { status: "writing" }, attempt === 1 ? "Writing the article" : "Rewriting to fix quality checks");
-      const raw = await ai.write({ system: WRITER_SYSTEM, prompt: writerPrompt({ topic: job.topic, keyword: job.keyword, category: job.category, geo: job.geo, brief, sources, links, feedback }) }, usage);
+      const raw = await ai.write({ system: WRITER_SYSTEM, prompt: writerPrompt({ topic: job.topic, keyword: job.keyword, category: job.category, geo: job.geo, typeLines: blogTypeLines(job), brief, sources, links, feedback }) }, usage);
       const article = articleSchema.parse(raw);
       await updateJob(jobId, { status: "checking", usage }, "Running quality checks");
       gated = await runGates(article, { job, sources: checkAgainst, attempt });
@@ -307,8 +321,19 @@ export async function runGeneration(jobId: string): Promise<string> {
       console.error("[blog-generator] Arabic version failed:", err instanceof Error ? err.message : err);
     }
 
+    const type = strategyInfo(job.strategy);
+    const stats = job.keywordStats;
     const notes = [
       "AI draft: verify every fact and figure against the sources below before publishing.",
+      ...(type
+        ? [
+            `Blog type: ${type.label}. Keyword "${job.keyword}" ${
+              job.keywordSource === "search-console" && stats
+                ? `is a real Google search (Search Console, last 90 days: ${stats.impressions} impressions, ${stats.clicks} clicks, average position ${stats.position}).`
+                : "was chosen by the AI because Search Console had no suitable search."
+            } Keep it in the title so the performance report stays meaningful.`,
+          ]
+        : []),
       ...(gated.retryReasons.length ? [`Still needs attention before publishing: ${gated.retryReasons.join(" ")}`] : []),
       ...(ar ? [] : ["The Arabic version could not be written automatically. It is retried when you publish or save this post."]),
       ...gated.notes,
@@ -335,7 +360,16 @@ export async function runGeneration(jobId: string): Promise<string> {
       status: "draft",
       updatedAt: now,
       updatedBy: `${job.createdBy} (AI draft)`,
-      generation: { topic: job.topic, geo: job.geo, model: `${ai.name}:${ai.model}`, notes },
+      generation: {
+        topic: job.topic,
+        geo: job.geo,
+        model: `${ai.name}:${ai.model}`,
+        notes,
+        keyword: job.keyword,
+        strategy: job.strategy,
+        keywordSource: job.keywordSource,
+        keywordStats: job.keywordStats,
+      },
     });
 
     await updateJob(jobId, { status: "done", postId, usage }, "Draft saved for review");

@@ -1,6 +1,7 @@
 import "server-only";
 import { createHmac } from "node:crypto";
 import { isIP } from "node:net";
+import { FieldValue } from "firebase-admin/firestore";
 import { adminDb, isFirebaseConfigured } from "@/lib/firebase/admin";
 import { isNonVisitor } from "@/lib/bots";
 import { CHANNEL_LABELS, type Channel } from "@/lib/lead-constants";
@@ -311,7 +312,24 @@ export function applyEvent(existing: Visit | null, event: VisitEvent, req: Reque
   };
 }
 
+/**
+ * What one event adds to the per-day blog counters (`siteBlogDaily`), or null for pages that are not
+ * blog articles. Counts only, never who: these documents do not expire, so the blog performance
+ * report can compare articles over more than the 30 days a visit is kept.
+ */
+export function blogCounterIncrements(event: VisitEvent, visit: Pick<Visit, "channel">): { views?: number; organic?: number; seconds?: number } | null {
+  if (!/^(\/ar)?\/blog\/[^/]+$/.test(event.path)) return null;
+  if (event.kind === "leave") {
+    const seconds = Math.max(0, Math.min(MAX_SECONDS_PER_PAGE, Math.round(event.seconds)));
+    return seconds > 0 ? { seconds } : null;
+  }
+  return visit.channel === "organic" ? { views: 1, organic: 1 } : { views: 1 };
+}
+
 // ---- Store ----
+
+// SITE_BLOG_DAILY_COLLECTION is for local end-to-end tests only, like SITE_VISITORS_COLLECTION.
+export const BLOG_DAILY_COLLECTION = process.env.SITE_BLOG_DAILY_COLLECTION?.trim() || "siteBlogDaily";
 
 function stripUndefined<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
@@ -326,13 +344,26 @@ export async function recordVisit(headers: Headers, event: VisitEvent, siteHost?
 
   const day = dayKey(now);
   const ref = adminDb().collection(COLLECTION).doc(`${day}_${visitorHash(req.ip, req.userAgent, day, secret)}`);
-  return adminDb().runTransaction(async (tx) => {
+  const recorded = await adminDb().runTransaction(async (tx) => {
     const snap = await tx.get(ref);
     const next = applyEvent(snap.exists ? (snap.data() as Visit) : null, event, req, day, now, siteHost);
-    if (!next) return false;
+    if (!next) return null;
     tx.set(ref, { ...stripUndefined(next), expireAt: new Date(now.getTime() + RETENTION_DAYS * 86_400_000) });
-    return true;
+    return next;
   });
+  if (!recorded) return false;
+
+  const counts = blogCounterIncrements(event, recorded);
+  if (counts) {
+    // Outside the transaction: a counter that fails to update must not lose the visit itself.
+    const update = Object.fromEntries(Object.entries(counts).map(([field, value]) => [field, { [event.path]: FieldValue.increment(value) }]));
+    await adminDb()
+      .collection(BLOG_DAILY_COLLECTION)
+      .doc(day)
+      .set(update, { merge: true })
+      .catch((err) => console.error("[visits] could not update the blog counters:", err instanceof Error ? err.message : err));
+  }
+  return true;
 }
 
 /**

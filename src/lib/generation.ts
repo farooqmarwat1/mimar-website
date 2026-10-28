@@ -1,5 +1,6 @@
 import "server-only";
 import { FieldValue } from "firebase-admin/firestore";
+import type { BlogTagging } from "@/lib/ai/keyword-plan";
 import { adminDb } from "@/lib/firebase/admin";
 
 /**
@@ -26,7 +27,7 @@ export type GenerationJob = {
   createdAt: string;
   updatedAt: string;
   createdBy: string;
-};
+} & Partial<BlogTagging>;
 
 export type BlogTopic = {
   id: string;
@@ -44,7 +45,7 @@ export type BlogTopic = {
   group?: string;
   region?: string;
   keyword?: string;
-};
+} & Partial<BlogTagging>;
 
 const JOBS = "siteGenerationJobs";
 const TOPICS = "siteBlogTopics";
@@ -61,7 +62,7 @@ function clean<T extends object>(data: T): T {
   return JSON.parse(JSON.stringify(data)) as T;
 }
 
-export async function createJob(input: Pick<GenerationJob, "topic" | "keyword" | "geo" | "category" | "seedUrls" | "source" | "createdBy">): Promise<string> {
+export async function createJob(input: Pick<GenerationJob, "topic" | "keyword" | "geo" | "category" | "seedUrls" | "source" | "createdBy"> & Partial<BlogTagging>): Promise<string> {
   const ref = await adminDb()
     .collection(JOBS)
     .add(clean({ ...input, status: "queued", log: [], createdAt: now(), updatedAt: now() }));
@@ -124,7 +125,7 @@ export async function claimNextTopic(): Promise<BlogTopic | null> {
 }
 
 /** An automatically planned topic, recorded as already running (so it can never be picked twice). */
-export async function createRunningTopic(topic: Pick<BlogTopic, "topic" | "geo" | "category" | "group" | "region" | "keyword">): Promise<BlogTopic> {
+export async function createRunningTopic(topic: Pick<BlogTopic, "topic" | "geo" | "category" | "group" | "region" | "keyword"> & Partial<BlogTagging>): Promise<BlogTopic> {
   const data = clean({ ...topic, source: "auto" as const, status: "running" as const, createdAt: now() });
   const ref = await adminDb().collection(TOPICS).add(data);
   return { ...data, id: ref.id };

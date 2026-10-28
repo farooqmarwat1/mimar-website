@@ -3,6 +3,7 @@ import { deletePostAction, importLegacyAction, setPostStatusAction } from "@/app
 import ConfirmButton from "@/components/admin/ConfirmButton";
 import { fieldClass, primaryButtonClass, secondaryButtonClass, statusBadgeClass } from "@/components/admin/styles";
 import { requireRole } from "@/lib/admin/auth";
+import { strategyInfo } from "@/lib/ai/keyword-plan";
 import { isLegacyImported } from "@/lib/blog-import";
 import { isFirebaseConfigured } from "@/lib/firebase/admin";
 import { listPostRows, type PostRow } from "@/lib/posts";
@@ -38,6 +39,11 @@ function Row({ post }: { post: PostRow }) {
       </div>
       {post.legacy && <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800">WordPress</span>}
       {post.origin === "ai" && <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-800">AI draft</span>}
+      {strategyInfo(post.strategy) && (
+        <span title="Blog type, compared in Blog performance" className="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-900">
+          {strategyInfo(post.strategy)!.label}
+        </span>
+      )}
       <span
         title={post.arState === "none" ? "No Arabic version yet" : "Has an Arabic version"}
         className={`rounded-full px-3 py-1 text-xs font-medium ${post.arState === "none" ? "bg-neutral-100 text-neutral-500" : "bg-emerald-50 text-emerald-800"}`}
@@ -104,6 +110,9 @@ export default async function AdminBlogPage({ searchParams }: { searchParams: Pr
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
+          <Link href="/admin/blog/performance" className={secondaryButtonClass}>
+            Performance
+          </Link>
           <Link href="/admin/blog/generate" className={secondaryButtonClass}>
             Draft with AI
           </Link>
