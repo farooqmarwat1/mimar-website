@@ -34,6 +34,8 @@ export type Visit = {
   firstSeenAt: string;
   lastSeenAt: string;
   landingPath: string;
+  /** The page they opened most recently. `pages` is capped, so this stays right on a long visit. */
+  lastPath?: string;
   referrer?: string;
   channel: Channel;
   utm?: Utm;
@@ -234,6 +236,20 @@ export function cleanUtm(raw: Utm | undefined): Utm | undefined {
 }
 
 /**
+ * Fields a visit is missing but this request can supply. A visit that began before a field was
+ * recorded (the IP, for one) or without a header picks it up from the next event instead of staying blank.
+ */
+function fillGaps(existing: Visit, req: RequestInfo): Partial<Visit> {
+  const gaps: Partial<Visit> = {};
+  if (!existing.ip && req.ip) gaps.ip = req.ip;
+  if (!existing.country && req.country) gaps.country = req.country;
+  if (!existing.region && req.region) gaps.region = req.region;
+  if (!existing.city && req.city) gaps.city = req.city;
+  if (!existing.lang && req.lang) gaps.lang = req.lang;
+  return gaps;
+}
+
+/**
  * Applies one browser event to a visitor-day. Pure: returns the new document, or null when there is
  * nothing to write (a "leave" for a day we never saw, or a duplicate view).
  */
@@ -250,7 +266,7 @@ export function applyEvent(existing: Visit | null, event: VisitEvent, req: Reque
         break;
       }
     }
-    return { ...existing, pages, activeSeconds: Math.min(MAX_ACTIVE_SECONDS, existing.activeSeconds + seconds), lastSeenAt: at };
+    return { ...existing, ...fillGaps(existing, req), pages, activeSeconds: Math.min(MAX_ACTIVE_SECONDS, existing.activeSeconds + seconds), lastSeenAt: at };
   }
 
   if (!existing) {
@@ -262,6 +278,7 @@ export function applyEvent(existing: Visit | null, event: VisitEvent, req: Reque
       firstSeenAt: at,
       lastSeenAt: at,
       landingPath: event.path,
+      lastPath: event.path,
       referrer,
       channel: classifyChannel(utm, referrer, siteHost),
       utm,
@@ -286,6 +303,8 @@ export function applyEvent(existing: Visit | null, event: VisitEvent, req: Reque
 
   return {
     ...existing,
+    ...fillGaps(existing, req),
+    lastPath: event.path,
     pageCount: existing.pageCount + 1,
     pages: existing.pages.length >= MAX_PAGES ? existing.pages : [...existing.pages, { p: event.path, at, s: 0 }],
     lastSeenAt: at,
@@ -366,7 +385,7 @@ export type VisitStats = {
   activeNow: number;
   byChannel: { label: string; count: number }[];
   byCountry: { label: string; count: number }[];
-  /** Most viewed pages across the visits shown. */
+  /** Most viewed pages across the visits shown (top 10). */
   byPage: { label: string; count: number }[];
 };
 
@@ -389,7 +408,7 @@ export function computeVisitStats(rows: Visit[], now = new Date()): VisitStats {
     activeNow: rows.filter((row) => isActiveNow(row, now)).length,
     byChannel: tally(rows.map((row) => CHANNEL_LABELS[row.channel]), "Direct"),
     byCountry: tally(rows.map((row) => row.country), "Unknown"),
-    byPage: tally(rows.flatMap((row) => row.pages.map((page) => page.p)), "/").slice(0, 8),
+    byPage: tally(rows.flatMap((row) => row.pages.map((page) => page.p)), "/").slice(0, 10),
   };
 }
 
