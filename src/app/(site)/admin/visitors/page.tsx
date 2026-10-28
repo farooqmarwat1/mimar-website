@@ -27,7 +27,7 @@ function Stat({ label, value, hint }: { label: string; value: string; hint?: str
 }
 
 export default async function AdminVisitorsPage({ searchParams }: { searchParams: Promise<Params> }) {
-  await requireRole("leads");
+  await requireRole("visitors");
   const params = await searchParams;
   const range = RANGES.find(([value]) => value === one(params.range))?.[0] ?? "7d";
   const q = one(params.q);

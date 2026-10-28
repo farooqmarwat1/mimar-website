@@ -47,7 +47,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                     Blog
                   </Link>
                 )}
-                {canAccess(session.role, "leads") && (
+                {canAccess(session.role, "visitors") && (
                   <Link href="/admin/visitors" className="text-muted transition-colors hover:text-ink">
                     Visitors
                   </Link>

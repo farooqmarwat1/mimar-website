@@ -11,7 +11,7 @@
  * - Existing email: only the `role` custom claim is changed (their password is untouched).
  * - Uses the same FIREBASE_* variables as the site (see .env.example).
  *
- * Roles: hr -> jobs, editor -> blog, admin -> everything.
+ * Roles: hr -> jobs and applications, editor -> blog and visitors, admin -> everything (including leads).
  */
 import { randomBytes } from "node:crypto";
 import { cert, initializeApp } from "firebase-admin/app";
