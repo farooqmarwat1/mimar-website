@@ -21,11 +21,11 @@ Without the Firebase env vars the site renders exactly as before (no open roles,
 
 ## Roles
 
-| Role | Jobs and applications (`/admin/jobs`, `/admin/applications`) | Blog (`/admin/blog`) | Leads (`/admin/leads`) |
-|---|---|---|---|
-| `hr` | yes | no | no |
-| `editor` | no | yes | no |
-| `admin` | yes | yes | yes |
+| Role | Jobs and applications (`/admin/jobs`, `/admin/applications`) | Blog (`/admin/blog`) | Visitors (`/admin/visitors`) | Leads (`/admin/leads`) |
+|---|---|---|---|---|
+| `hr` | yes | no | no | no |
+| `editor` | no | yes | yes | no |
+| `admin` | yes | yes | yes | yes |
 
 A Firebase account without a `role` claim cannot sign in to `/admin`, even if it is a valid user of another app in the same project (e.g. the CRM portal).
 
@@ -71,7 +71,7 @@ A Firebase account without a `role` claim cannot sign in to `/admin`, even if it
 
 - A small client component (`src/components/VisitTracker.tsx`, in both root layouts) sends page-view beacons to `/api/track`. It uses **no cookie, localStorage or sessionStorage**. The server recognises a visitor only by a hash of IP + browser, keyed with `VISITOR_HASH_SECRET` and **the current UTC day**, so nobody can be followed beyond one day. Set `VISITOR_HASH_SECRET` in Vercel (production tracking is off without it).
 - One `siteVisitors` document per visitor-day holds the journey: landing page, referrer, UTM tags, channel, pages with seconds on each, device, language, time zone, screen width, country/region/city (from Vercel's edge headers, so no visitor IP goes to a third party). **The visitor's IP address is stored there too, for the same 30 days** (it is stripped from the snapshot copied onto a lead, which keeps its own). Do-Not-Track and Global Privacy Control visitors, bots and `/admin` pages are not recorded.
-- **Visitors page (`/admin/visitors`, admins only)**: everyone who opened the site, newest first, like a live traffic log: IP, city and country, device, how they arrived, campaign tags, and every page opened with time on each. Stats for visitors today, page views and who is active now, plus where visitors come from and the most viewed pages. Search by IP, place, page or browser. Locally the IP shows as `::1` and the location is empty, because the location comes from Vercel's edge headers.
+- **Visitors page (`/admin/visitors`, editors and admins)**: everyone who opened the site, newest first, like a live traffic log: IP, city and country, device, how they arrived, campaign tags, and every page opened with time on each. Stats for visitors today, page views and who is active now, plus where visitors come from and the most viewed pages. Search by IP, place, page or browser. Locally the IP shows as `::1` and the location is empty, because the location comes from Vercel's edge headers.
 - **Turn on the 30-day cleanup once**: in the Google Cloud console (console.cloud.google.com, same project as Firebase) open Firestore -> *Time-to-live (TTL)* -> *Create policy*, collection group `siteVisitors`, timestamp field `expireAt`, **expiration offset 0** (the field already holds visit time + 30 days; an offset of 30 would keep records for 60). Or with the CLI: `gcloud firestore fields ttls update expireAt --collection-group=siteVisitors --enable-ttl --project=<project id>`. Expired records are deleted automatically, usually within a day of expiring. Without it, visit records are kept until deleted by hand.
 - When the contact form is submitted, the same hash is recomputed from the request and the journey is **copied onto the lead**, so it survives the 30-day cleanup. The lead also keeps the request's IP address, approximate location, language and device even if nothing was tracked. Limits: only same-day visits link, and a visitor whose IP changes mid-visit (mobile network) will not link.
 - Lead page: a **Visitor** card with location, IP, device, how they arrived and the pages viewed. The list shows country and channel, and has filters for channel, country and job seekers. The stats strip shows the job-seeker count and where leads come from.

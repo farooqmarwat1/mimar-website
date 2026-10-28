@@ -224,6 +224,22 @@ test('getLeadBadgeCounts returns zeros without Firebase instead of throwing', as
   assert.equal(counts.overdue, 0);
 });
 
+test('every role sees exactly its own areas: hr has jobs, editors have blog and visitors, admins have everything', () => {
+  const { canAccess } = load('src/lib/admin/auth.ts', {
+    '@/lib/firebase/admin': { adminAuth: () => ({}), isFirebaseConfigured: true },
+    'next/headers': { cookies: async () => ({ get() {} }) },
+    'next/navigation': { redirect() {} },
+  });
+  const areas = ['jobs', 'blog', 'visitors', 'leads'];
+  const allowed = role => areas.filter(area => canAccess(role, area)).join(',');
+  assert.equal(allowed('hr'), 'jobs');
+  assert.equal(allowed('editor'), 'blog,visitors');
+  assert.equal(allowed('admin'), 'jobs,blog,visitors,leads');
+  assert.equal(canAccess('editor', 'jobs'), false, 'editors never see jobs or applications');
+  assert.equal(canAccess('hr', 'visitors'), false, 'HR cannot see visitors, so no IP addresses');
+  assert.equal(canAccess('editor', 'leads'), false, 'leads stay admin only');
+});
+
 test('staff may not reach leads unless they are admins', () => {
   const { canAccess } = load('src/lib/admin/auth.ts', {
     '@/lib/firebase/admin': { adminAuth: () => ({}), isFirebaseConfigured: true },
