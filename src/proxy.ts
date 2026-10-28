@@ -2,10 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { AR_PREFIX, LANG_COOKIE } from "@/i18n/config";
 import { arabicLandingCountries } from "@/i18n/geo";
+import { BOT_PATTERN } from "@/lib/bots";
 import { REGION_COOKIE, regionFromCountry } from "@/lib/region";
-
-// Search engines and link-preview bots must always get the English home page (ARABIC.md).
-const BOT_PATTERN = /bot|crawl|spider|slurp|archiver|facebookexternalhit|embedly|preview|lighthouse|pagespeed|headless|curl|wget/i;
 
 /**
  * First visit to the home page from an Arabic-speaking country (not the UAE) -> /ar.

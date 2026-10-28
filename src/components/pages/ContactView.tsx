@@ -61,6 +61,13 @@ export default function ContactView({ lang = "en" }: { lang?: Locale }) {
                 </a>
               </div>
               <div>
+                <p className="eyebrow mb-2 text-accent">{c.careersLabel}</p>
+                <a href={`mailto:${contact.hrEmail}`} className="text-sm transition-colors hover:text-accent" dir={rtl ? "ltr" : undefined}>
+                  {contact.hrEmail}
+                </a>
+                <p className="mt-2 text-xs leading-relaxed text-muted">{c.careersNote}</p>
+              </div>
+              <div>
                 <p className="eyebrow mb-2 text-accent">{c.phoneLabel}</p>
                 <ul className="flex flex-col gap-1.5">
                   {contactPhones.map((phone) => (

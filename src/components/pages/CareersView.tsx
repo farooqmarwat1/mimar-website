@@ -93,16 +93,16 @@ export default function CareersView({ jobs, lang = "en" }: { jobs: Job[]; lang?:
           {jobs.length > 0 ? (
             <p className="section-body max-w-xl">
               {c.dontSeePrefix}{" "}
-              <a href={`mailto:${contact.email}`} className="text-accent hover:underline" dir={rtl ? "ltr" : undefined}>{contact.email}</a>{c.dontSeeSuffix}
+              <a href={`mailto:${contact.hrEmail}`} className="text-accent hover:underline" dir={rtl ? "ltr" : undefined}>{contact.hrEmail}</a>{c.dontSeeSuffix}
             </p>
           ) : (
             <p className="section-body max-w-xl">
-              {c.noRolesPrefix}<a href={`mailto:${contact.email}`} className="text-accent hover:underline" dir={rtl ? "ltr" : undefined}>{contact.email}</a>.
+              {c.noRolesPrefix}<a href={`mailto:${contact.hrEmail}`} className="text-accent hover:underline" dir={rtl ? "ltr" : undefined}>{contact.hrEmail}</a>.
             </p>
           )}
         </Reveal>
         <Reveal delay={0.05}>
-          <Link href={localeHref(lang, "/contact")} className="button-pill mt-8 text-ink">{c.cta}</Link>
+          <Link href={localeHref(lang, "/careers/apply")} className="button-pill mt-8 text-ink">{c.cta}</Link>
         </Reveal>
       </div>
     </div>

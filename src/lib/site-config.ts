@@ -30,6 +30,8 @@ export const taglines = [
 
 export const contact = {
   email: "info@mim.archi",
+  /** Job and internship enquiries only, so they stay out of the project-enquiry inbox. */
+  hrEmail: "hr@mim.archi",
   phones: {
     pakistanHQ: "+92 51 8745047",
     pakistanMobile: "+92 300 511 2990",

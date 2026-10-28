@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { canAccess, getSession } from "@/lib/admin/auth";
 import { logoutAction } from "@/app/(site)/admin/actions";
+import { getLeadBadgeCounts } from "@/lib/leads";
 
 // Per-user pages: always rendered per request, never prerendered at build.
 export const dynamic = "force-dynamic";
@@ -18,6 +19,8 @@ export const metadata: Metadata = {
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
+  const leadBadges = session && canAccess(session.role, "leads") ? await getLeadBadgeCounts() : null;
+  const leadAlerts = leadBadges ? leadBadges.newCount + leadBadges.overdue : 0;
 
   return (
     <div className="min-h-svh bg-paper text-ink">
@@ -34,9 +37,27 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                     Jobs
                   </Link>
                 )}
+                {canAccess(session.role, "jobs") && (
+                  <Link href="/admin/applications" className="text-muted transition-colors hover:text-ink">
+                    Applications
+                  </Link>
+                )}
                 {canAccess(session.role, "blog") && (
                   <Link href="/admin/blog" className="text-muted transition-colors hover:text-ink">
                     Blog
+                  </Link>
+                )}
+                {canAccess(session.role, "leads") && (
+                  <Link href="/admin/leads" className="inline-flex items-center gap-2 text-muted transition-colors hover:text-ink">
+                    Leads
+                    {leadAlerts > 0 && (
+                      <span
+                        className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium leading-none text-paper"
+                        title={`${leadBadges?.newCount ?? 0} new, ${leadBadges?.overdue ?? 0} overdue follow-ups`}
+                      >
+                        {leadAlerts}
+                      </span>
+                    )}
                   </Link>
                 )}
               </nav>

@@ -12,6 +12,7 @@ import {
   EMPLOYMENT_TYPES,
   JOBS_TAG,
   JOB_STATUSES,
+  RESERVED_JOB_SLUGS,
   SALARY_PERIODS,
   WORK_MODES,
   deleteJob,
@@ -144,7 +145,7 @@ export async function saveJobAction(_prev: JobFormState, formData: FormData): Pr
   // The URL is locked once the job has been public, so shared links keep working.
   let slug = existing?.postedAt ? existing.slug : slugify(input.slug || input.title);
   if (!slug) return { error: "Could not build a URL from that title.", fieldErrors: { title: "Use letters or numbers." }, values };
-  if (await isJobSlugTaken(slug, id ?? undefined)) {
+  if (RESERVED_JOB_SLUGS.includes(slug) || (await isJobSlugTaken(slug, id ?? undefined))) {
     if (input.slug && !existing?.postedAt) return { error: "That URL is already used by another job.", fieldErrors: { slug: "Already taken." }, values };
     slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
   }
@@ -173,7 +174,7 @@ export async function saveJobAction(_prev: JobFormState, formData: FormData): Pr
     summary: input.summary,
     blocks,
     applyMethod: input.applyMethod,
-    applyEmail: input.applyMethod === "email" ? input.applyEmail || contact.email : undefined,
+    applyEmail: input.applyMethod === "email" ? input.applyEmail || contact.hrEmail : undefined,
     applyUrl: input.applyMethod === "url" ? input.applyUrl : undefined,
     status,
     // postedAt is stamped the first time a job goes open and never moves, so datePosted stays honest.

@@ -2,6 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { adminDb, isFirebaseConfigured } from "@/lib/firebase/admin";
 import type { ContentBlock } from "@/lib/content-blocks";
+import { contact } from "@/lib/site-config";
 
 /**
  * Job postings (Firestore collection `jobs`), edited in /admin/jobs and shown
@@ -48,11 +49,23 @@ export type Job = {
   updatedBy: string;
 };
 
-const COLLECTION = "siteJobs";
+// SITE_JOBS_COLLECTION is for local end-to-end tests only (so a test role never reaches the live /careers page).
+const COLLECTION = process.env.SITE_JOBS_COLLECTION?.trim() || "siteJobs";
 export const JOBS_TAG = "jobs";
+/** Addresses under /careers that are pages, not jobs. A role must not take one: /careers/apply is the application form. */
+export const RESERVED_JOB_SLUGS = ["apply"];
 
 function fromDoc(id: string, data: FirebaseFirestore.DocumentData): Job {
   return { ...(data as Omit<Job, "id">), id };
+}
+
+/**
+ * Where applications for a role go. Roles saved before the careers address existed carry the studio
+ * address (it used to be the default), so those are shown with the careers address too: job seekers
+ * must not land in the project-enquiry inbox. Any other address an admin typed is kept.
+ */
+export function jobApplyEmail(job: Pick<Job, "applyEmail">): string {
+  return !job.applyEmail || job.applyEmail.toLowerCase() === contact.email ? contact.hrEmail : job.applyEmail;
 }
 
 /** Is this job publicly listable right now (open, and not past its closing date)? */

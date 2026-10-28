@@ -11,6 +11,8 @@ type ContactCopy = {
   heading2: string;
   subhead: string;
   emailLabel: string;
+  careersLabel: string;
+  careersNote: string;
   phoneLabel: string;
   officePrefix: string;
   officeSuffix: string;
@@ -38,6 +40,8 @@ export const contactContent: Record<Locale, ContactCopy> = {
     heading2: "talk",
     subhead: "Tell us what you are building. We reply within one working day.",
     emailLabel: "Email",
+    careersLabel: "Careers",
+    careersNote: "Looking for a job or internship? Send your CV and portfolio here. This page and the form are for project enquiries only.",
     phoneLabel: "Phone",
     officePrefix: "",
     officeSuffix: " office",
@@ -63,6 +67,8 @@ export const contactContent: Record<Locale, ContactCopy> = {
     heading2: "نتحدث",
     subhead: "أخبرنا بما تبنيه. نرد خلال يوم عمل واحد.",
     emailLabel: "البريد الإلكتروني",
+    careersLabel: "الوظائف",
+    careersNote: "تبحث عن وظيفة أو تدريب؟ أرسل سيرتك الذاتية ومعرض أعمالك إلى هذا البريد. هذه الصفحة والنموذج مخصصان لاستفسارات المشاريع فقط.",
     phoneLabel: "الهاتف",
     officePrefix: "مكتب ",
     officeSuffix: "",

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Reveal from "@/components/ui/Reveal";
 import { blocksToHtml } from "@/lib/content-blocks";
-import { getOpenJobs, getPublicJobBySlug, isJobLive } from "@/lib/jobs";
+import { getOpenJobs, getPublicJobBySlug, isJobLive, jobApplyEmail } from "@/lib/jobs";
 import { breadcrumbJsonLd, buildMetadata, jobPostingJsonLd, jsonLdScript } from "@/lib/seo";
 import { contact } from "@/lib/site-config";
 
@@ -45,7 +45,7 @@ export default async function JobPage({ params }: { params: Promise<{ slug: stri
   const applyHref =
     job.applyMethod === "url"
       ? job.applyUrl
-      : `mailto:${job.applyEmail || contact.email}?subject=${encodeURIComponent(`Application: ${job.title}`)}`;
+      : `mailto:${jobApplyEmail(job)}?subject=${encodeURIComponent(`Application: ${job.title}`)}`;
 
   const facts: [string, string][] = [
     ["Department", job.department],
@@ -102,7 +102,7 @@ export default async function JobPage({ params }: { params: Promise<{ slug: stri
           <Reveal delay={0.12}>
             <p role="status" className="mt-8 max-w-2xl border border-line p-5 text-lg leading-relaxed">
               This position is no longer open. See our <Link href="/careers" className="text-accent hover:underline">current openings</Link> or send your portfolio to{" "}
-              <a href={`mailto:${contact.email}`} className="text-accent hover:underline">{contact.email}</a>.
+              <a href={`mailto:${contact.hrEmail}`} className="text-accent hover:underline">{contact.hrEmail}</a>.
             </p>
           </Reveal>
         )}
@@ -140,7 +140,7 @@ export default async function JobPage({ params }: { params: Promise<{ slug: stri
               {job.applyMethod === "email" && (
                 <p className="mt-4 text-sm text-muted">
                   Opens your email app. Attach your CV and portfolio and send to{" "}
-                  <a href={applyHref} className="text-accent hover:underline">{job.applyEmail || contact.email}</a>.
+                  <a href={applyHref} className="text-accent hover:underline">{jobApplyEmail(job)}</a>.
                 </p>
               )}
             </div>

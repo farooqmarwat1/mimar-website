@@ -79,7 +79,7 @@ export default function ContactForm({
         headers: { "Content-Type": "application/json" },
         // TURNSTILE-DISABLED (no Cloudflare access yet): send the token with the form:
         // body: JSON.stringify({ ...data, turnstileToken }),
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, lang }),
       });
       if (!res.ok) {
         if (rtl && messages) throw new ArabicFormError(arabicErrorFor(res.status, messages));

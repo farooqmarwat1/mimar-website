@@ -145,7 +145,7 @@ export default function JobForm({ initial, saved }: { initial: JobFormInitial; s
               <input name="applyUrl" type="url" defaultValue={v("applyUrl")} placeholder="https://" className={fieldClass} />
             </Field>
           ) : (
-            <Field error={err("applyEmail")} label="Send applications to" hint="Leave blank to use the studio address.">
+            <Field error={err("applyEmail")} label="Send applications to" hint="Leave blank to use the careers address (hr@mim.archi).">
               <input name="applyEmail" type="email" defaultValue={v("applyEmail")} className={fieldClass} />
             </Field>
           )}

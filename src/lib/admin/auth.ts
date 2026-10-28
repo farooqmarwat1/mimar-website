@@ -22,7 +22,7 @@ import { adminAuth, isFirebaseConfigured } from "@/lib/firebase/admin";
  */
 
 export type AdminRole = "admin" | "editor" | "hr";
-export type AdminArea = "jobs" | "blog";
+export type AdminArea = "jobs" | "blog" | "leads";
 export type AdminSession = { uid: string; email: string; role: AdminRole };
 
 export const SESSION_COOKIE = "mimar_admin_session";
@@ -31,6 +31,7 @@ const SESSION_MS = 8 * 60 * 60 * 1000;
 const AREA_ROLES: Record<AdminArea, AdminRole[]> = {
   jobs: ["hr", "admin"],
   blog: ["editor", "admin"],
+  leads: ["admin"],
 };
 
 const ROLES: AdminRole[] = ["admin", "editor", "hr"];
