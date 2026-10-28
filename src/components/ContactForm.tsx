@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent, type InvalidEvent } from "react";
 // TURNSTILE-DISABLED (no Cloudflare access yet): import TurnstileWidget from "@/components/TurnstileWidget";
+import PhoneField from "@/components/PhoneField";
 import { services } from "@/lib/site-config";
 import { isRtl, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -132,7 +133,7 @@ export default function ContactForm({
       </div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Field label={dict.email} name="email" type="email" required ltr={rtl} />
-        <Field label={dict.phone} name="phone" type="tel" ltr={rtl} />
+        <PhoneField lang={lang} label={dict.phone} />
       </div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <SelectField label={dict.pickService} name="service" options={serviceChoices} placeholder={dict.select} />
