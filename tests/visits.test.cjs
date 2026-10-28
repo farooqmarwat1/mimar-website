@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const { load } = require('./load.cjs');
 
 // In-memory Firestore: what src/lib/visits.ts and src/lib/leads.ts use, plus transactions.
-const FieldValue = { delete: () => ({ __delete: true }), arrayUnion: (...items) => ({ __union: items }) };
+const FieldValue = { delete: () => ({ __delete: true }), arrayUnion: (...items) => ({ __union: items }), increment: n => ({ __inc: n }) };
 
 function fakeDb() {
   const store = new Map();
@@ -261,6 +261,25 @@ test('recordVisit stores one document per visitor-day, never the IP, and skips o
   } finally {
     process.env.NODE_ENV = before;
   }
+});
+
+test('blog article views, Google visits and reading time are also counted per day, other pages are not', async () => {
+  const db = fakeDb();
+  const visits = load('src/lib/visits.ts', mocks(db));
+  assert.deepEqual({ ...visits.blogCounterIncrements({ kind: 'view', path: '/blog/a' }, { channel: 'organic' }) }, { views: 1, organic: 1 });
+  assert.deepEqual({ ...visits.blogCounterIncrements({ kind: 'view', path: '/ar/blog/a' }, { channel: 'direct' }) }, { views: 1 });
+  assert.deepEqual({ ...visits.blogCounterIncrements({ kind: 'leave', path: '/blog/a', seconds: 99999 }, { channel: 'direct' }) }, { seconds: 1800 });
+  assert.equal(visits.blogCounterIncrements({ kind: 'leave', path: '/blog/a', seconds: 0 }, { channel: 'direct' }), null);
+  assert.equal(visits.blogCounterIncrements({ kind: 'view', path: '/services' }, { channel: 'organic' }), null);
+  assert.equal(visits.blogCounterIncrements({ kind: 'view', path: '/blog/category/page' }, { channel: 'organic' }), null);
+
+  await visits.recordVisit(visitor(), { kind: 'view', path: '/services' }, 'mim.archi', at('2026-10-28T10:00:00Z'));
+  assert.equal(db.store.has('siteBlogDaily/20261028'), false);
+  await visits.recordVisit(visitor(), { kind: 'view', path: '/blog/a', referrer: 'https://www.google.com/' }, 'mim.archi', at('2026-10-28T10:01:00Z'));
+  const counters = db.store.get('siteBlogDaily/20261028');
+  assert.deepEqual(counters.views['/blog/a'], { __inc: 1 });
+  assert.equal(counters.organic, undefined, 'the visit arrived directly at /services first, so its channel is direct');
+  assert.ok(!JSON.stringify(counters).includes('203.0.113.7'), 'counts only, never who');
 });
 
 test('findVisitForRequest returns the same visitor\'s journey, and yesterday\'s only if it ended minutes ago', async () => {

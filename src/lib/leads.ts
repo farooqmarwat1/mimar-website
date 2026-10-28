@@ -298,6 +298,18 @@ export async function listLeadsAdmin(): Promise<LeadRow[]> {
   return snap.docs.map((doc) => rowFromDoc(doc.id, doc.data())).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
+/**
+ * When each website lead since `sinceIso` came in and which pages its visitor opened first. Pages and
+ * dates only, no contact details: the blog performance report (editors) counts leads per article with it.
+ */
+export async function listLeadJourneys(sinceIso: string): Promise<{ createdAt: string; pages: string[] }[]> {
+  const snap = await col().where("createdAt", ">=", sinceIso).select("createdAt", "visit.pages", "visit.landingPath").get();
+  return snap.docs.map((doc) => {
+    const visit = doc.get("visit") as Pick<Visit, "pages" | "landingPath"> | undefined;
+    return { createdAt: String(doc.get("createdAt") ?? ""), pages: [...new Set([visit?.landingPath ?? "", ...(visit?.pages ?? []).map((page) => page.p)].filter(Boolean))] };
+  });
+}
+
 export async function getLeadAdmin(id: string): Promise<Lead | null> {
   const doc = await col().doc(id).get();
   return doc.exists ? leadFromDoc(doc.id, doc.data()!) : null;

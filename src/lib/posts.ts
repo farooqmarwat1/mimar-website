@@ -1,4 +1,5 @@
 import "server-only";
+import type { BlogTagging } from "@/lib/ai/keyword-plan";
 import { selectBlogCover, type BlogCover } from "@/lib/blog-covers";
 import { adminDb } from "@/lib/firebase/admin";
 import type { ArticleBlock } from "@/lib/content-blocks";
@@ -71,8 +72,11 @@ export type Post = {
   publishedAt?: string;
   updatedAt: string;
   updatedBy: string;
-  /** AI drafts: what was asked for and any warnings from the quality gates. */
-  generation?: { topic: string; geo?: string; model: string; notes: string[] };
+  /**
+   * AI drafts: what was asked for and any warnings from the quality gates. Scheduled drafts also carry
+   * their blog type and keyword source (keyword-plan.ts), which /admin/blog/performance groups by.
+   */
+  generation?: { topic: string; geo?: string; model: string; notes: string[]; keyword?: string } & Partial<BlogTagging>;
   ar?: PostAr;
   /** Imported articles only: their position in the old blog archive / category lists (lower = earlier). */
   archiveRank?: number;
@@ -172,9 +176,10 @@ export function isReservedSlug(slug: string): boolean {
 /** What the admin list needs, without the article bodies. */
 export type PostRow = Pick<Post, "id" | "slug" | "path" | "legacy" | "title" | "origin" | "status" | "updatedAt" | "updatedBy" | "publishedAt" | "categories"> & {
   arState: "none" | "current" | "outdated";
+  strategy?: BlogTagging["strategy"];
 };
 
-const ROW_FIELDS = ["slug", "path", "legacy", "title", "origin", "status", "updatedAt", "updatedBy", "publishedAt", "categories", "category", "ar.sourceHash"] as const;
+const ROW_FIELDS = ["slug", "path", "legacy", "title", "origin", "status", "updatedAt", "updatedBy", "publishedAt", "categories", "category", "ar.sourceHash", "generation.strategy"] as const;
 
 export async function listPostRows(): Promise<PostRow[]> {
   const snap = await adminDb().collection(POSTS_COLLECTION).select(...ROW_FIELDS).get();
@@ -196,6 +201,7 @@ export async function listPostRows(): Promise<PostRow[]> {
         categories: data.categories ?? (data.category ? [data.category] : []),
         // "current" vs "outdated" needs the English text, so the list only tells present from missing.
         arState: data.ar?.sourceHash ? "current" : "none",
+        strategy: data.generation?.strategy,
       } satisfies PostRow;
     })
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
