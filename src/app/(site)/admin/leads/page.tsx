@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Breakdown from "@/components/admin/Breakdown";
 import LeadBoard, { type BoardItem } from "@/components/admin/LeadBoard";
 import { cardClass, fieldClass, primaryButtonClass, secondaryButtonClass } from "@/components/admin/styles";
 import { requireRole } from "@/lib/admin/auth";
@@ -59,29 +60,6 @@ function Stat({ label, value, hint, tone }: { label: string; value: string; hint
       <p className="eyebrow text-muted">{label}</p>
       <p className={`mt-2 text-2xl font-medium tracking-tight ${tone === "alert" ? "text-red-800" : ""}`}>{value}</p>
       {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
-    </div>
-  );
-}
-
-function Breakdown({ title, rows, total }: { title: string; rows: { label: string; count: number }[]; total: number }) {
-  return (
-    <div>
-      <h2 className="eyebrow text-muted">{title}</h2>
-      <ul className="mt-3 grid gap-2 text-sm">
-        {rows.slice(0, 5).map((row) => (
-          <li key={row.label}>
-            <div className="flex items-baseline justify-between gap-3">
-              <span className="min-w-0 truncate" title={row.label}>
-                {row.label}
-              </span>
-              <span className="text-xs text-muted">{row.count}</span>
-            </div>
-            <div className="mt-1 h-1 rounded-full bg-neutral-100">
-              <div className="h-1 rounded-full bg-ink/70" style={{ width: `${Math.max(4, Math.round((row.count / total) * 100))}%` }} />
-            </div>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }

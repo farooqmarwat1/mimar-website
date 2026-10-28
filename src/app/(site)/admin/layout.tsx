@@ -48,6 +48,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                   </Link>
                 )}
                 {canAccess(session.role, "leads") && (
+                  <Link href="/admin/visitors" className="text-muted transition-colors hover:text-ink">
+                    Visitors
+                  </Link>
+                )}
+                {canAccess(session.role, "leads") && (
                   <Link href="/admin/leads" className="inline-flex items-center gap-2 text-muted transition-colors hover:text-ink">
                     Leads
                     {leadAlerts > 0 && (

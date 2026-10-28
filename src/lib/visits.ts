@@ -3,7 +3,7 @@ import { createHmac } from "node:crypto";
 import { isIP } from "node:net";
 import { adminDb, isFirebaseConfigured } from "@/lib/firebase/admin";
 import { isNonVisitor } from "@/lib/bots";
-import type { Channel } from "@/lib/lead-constants";
+import { CHANNEL_LABELS, type Channel } from "@/lib/lead-constants";
 
 /**
  * Cookie-free visit tracking (Firestore collection `siteVisitors`).
@@ -13,10 +13,12 @@ import type { Channel } from "@/lib/lead-constants";
  * current UTC day, so the same person gets a different hash tomorrow and nobody can be followed
  * beyond one day. One document per visitor-day holds the journey (landing page, referrer, UTM,
  * pages and time on each) and expires after RETENTION_DAYS (set a Firestore TTL policy on `expireAt`).
+ * The visitor's IP address is stored in that document too, for the same RETENTION_DAYS, because the
+ * admin Visitors page shows it (owner request); the privacy policy says so.
  *
  * When that visitor submits the contact form, src/app/api/contact/route.ts recomputes the same hash
  * from the request and copies the journey onto the lead, so the lead keeps it after the visit
- * document has expired. The raw IP is never stored here, only on the lead.
+ * document has expired. The IP is not copied into that snapshot: the lead keeps its own in `client`.
  *
  * Geo comes from the host's edge headers (Vercel), so no visitor IP is sent to a third-party service.
  */
@@ -27,6 +29,8 @@ export type Utm = { source?: string; medium?: string; campaign?: string; term?: 
 /** What one visitor-day looks like, and also the snapshot copied onto a lead. */
 export type Visit = {
   day: string;
+  /** Visitor's IP address. Kept for RETENTION_DAYS with the visit; stripped from the snapshot copied onto a lead. */
+  ip?: string;
   firstSeenAt: string;
   lastSeenAt: string;
   landingPath: string;
@@ -254,6 +258,7 @@ export function applyEvent(existing: Visit | null, event: VisitEvent, req: Reque
     const referrer = cleanReferrer(event.referrer);
     return {
       day,
+      ip: req.ip ?? undefined,
       firstSeenAt: at,
       lastSeenAt: at,
       landingPath: event.path,
@@ -330,10 +335,78 @@ export async function findVisitForRequest(headers: Headers, now = new Date()): P
       if (!snap.exists) continue;
       const visit = snap.data() as Visit & { expireAt?: unknown };
       delete visit.expireAt;
+      delete visit.ip;
       if (date === now || now.getTime() - Date.parse(visit.lastSeenAt) < 2 * 3_600_000) return visit;
     }
   } catch (err) {
     console.error("[visits] could not look up the visit:", err instanceof Error ? err.message : err);
   }
   return null;
+}
+
+// ---- Admin Visitors page (admins only; the IP is shown here) ----
+
+export type VisitRow = Visit & { id: string };
+
+/** The most recently active visitor-days, newest first. A single-field order, so no index is needed. */
+export async function listVisitsAdmin(limit = 300): Promise<VisitRow[]> {
+  const snap = await adminDb().collection(COLLECTION).orderBy("lastSeenAt", "desc").limit(limit).get();
+  return snap.docs.map((doc) => {
+    const data = doc.data() as Visit & { expireAt?: unknown };
+    delete data.expireAt;
+    return { ...data, id: doc.id };
+  });
+}
+
+export type VisitStats = {
+  /** Visitor-days that started today (UTC). */
+  visitorsToday: number;
+  viewsToday: number;
+  /** Seen in the last five minutes. */
+  activeNow: number;
+  byChannel: { label: string; count: number }[];
+  byCountry: { label: string; count: number }[];
+  /** Most viewed pages across the visits shown. */
+  byPage: { label: string; count: number }[];
+};
+
+function tally(values: (string | undefined)[], fallback: string) {
+  const counts = new Map<string, number>();
+  for (const value of values) counts.set(value || fallback, (counts.get(value || fallback) ?? 0) + 1);
+  return [...counts.entries()].map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count);
+}
+
+export function isActiveNow(visit: Pick<Visit, "lastSeenAt">, now = new Date()) {
+  return now.getTime() - Date.parse(visit.lastSeenAt) < 5 * 60_000;
+}
+
+export function computeVisitStats(rows: Visit[], now = new Date()): VisitStats {
+  const today = dayKey(now);
+  const todays = rows.filter((row) => row.day === today);
+  return {
+    visitorsToday: todays.length,
+    viewsToday: todays.reduce((sum, row) => sum + row.pageCount, 0),
+    activeNow: rows.filter((row) => isActiveNow(row, now)).length,
+    byChannel: tally(rows.map((row) => CHANNEL_LABELS[row.channel]), "Direct"),
+    byCountry: tally(rows.map((row) => row.country), "Unknown"),
+    byPage: tally(rows.flatMap((row) => row.pages.map((page) => page.p)), "/").slice(0, 8),
+  };
+}
+
+export type VisitFilters = { range?: "today" | "7d" | "all"; q?: string };
+
+export function filterVisits<T extends Visit>(rows: T[], filters: VisitFilters, now = new Date()): T[] {
+  const q = filters.q?.trim().toLowerCase();
+  return rows.filter((row) => {
+    if (filters.range === "today" && row.day !== dayKey(now)) return false;
+    if (filters.range === "7d" && now.getTime() - Date.parse(row.lastSeenAt) > 7 * 86_400_000) return false;
+    if (q) {
+      const haystack = [row.ip, row.city, row.region, row.country, row.browser, row.os, row.referrer, row.landingPath, ...row.pages.map((p) => p.p)]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
 }

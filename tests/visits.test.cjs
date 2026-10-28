@@ -22,6 +22,15 @@ function fakeDb() {
     store,
     runTransaction: async fn => fn({ get: ref => ref.get(), set: (ref, data) => void store.set(ref.key, structuredClone(data)) }),
     collection: name => ({
+      orderBy: (field, direction) => ({
+        limit: n => ({
+          get: async () => {
+            const keys = [...store.keys()].filter(key => key.startsWith(`${name}/`));
+            keys.sort((a, b) => (direction === 'desc' ? -1 : 1) * String(store.get(a)[field]).localeCompare(String(store.get(b)[field])));
+            return { docs: keys.slice(0, n).map(snapshot) };
+          },
+        }),
+      }),
       doc: id => doc(name, id),
       add: async data => {
         const id = `doc${next++}`;
@@ -202,7 +211,8 @@ test('recordVisit stores one document per visitor-day, never the IP, and skips o
   assert.equal(saved.pageCount, 2);
   assert.ok(saved.expireAt instanceof Date);
   assert.ok(saved.expireAt.getTime() - Date.parse('2026-10-28T10:00:20Z') > 29 * 86_400_000);
-  assert.ok(!JSON.stringify(saved).includes('203.0.113.7'), 'the raw IP must not be stored with a visit');
+  assert.equal(saved.ip, '203.0.113.7', 'the admin Visitors page shows the IP, so it is kept with the visit for the retention period');
+  assert.ok(!key.includes('203.0.113.7'), 'but never in the document id, which is only the hash');
 
   assert.equal(await visits.recordVisit(visitor({ 'x-real-ip': '203.0.113.99' }), view, 'mim.archi', at('2026-10-28T11:00:00Z')), true);
   assert.equal(db.store.size, 2, 'a different address is a different visitor');
@@ -227,6 +237,7 @@ test('findVisitForRequest returns the same visitor\'s journey, and yesterday\'s 
   assert.equal(found.landingPath, '/careers');
   assert.equal(found.pages.length, 2);
   assert.equal(found.expireAt, undefined, 'the cleanup timestamp is not copied onto a lead');
+  assert.equal(found.ip, undefined, 'the IP is not copied into the lead snapshot; the lead keeps its own');
   assert.equal(await visits.findVisitForRequest(visitor({ 'user-agent': IPHONE }), at('2026-10-28T10:02:00Z')), null);
   assert.equal(await visits.findVisitForRequest(visitor({ 'x-real-ip': '198.51.100.1' }), at('2026-10-28T10:02:00Z')), null);
 
@@ -237,6 +248,66 @@ test('findVisitForRequest returns the same visitor\'s journey, and yesterday\'s 
   assert.ok(await visits.findVisitForRequest(visitor(night), at('2026-10-29T00:30:00Z')), 'yesterday is accepted when it ended under two hours ago');
   assert.equal(await visits.findVisitForRequest(visitor(night), at('2026-10-29T09:00:00Z')), null, 'but not when it ended hours ago');
   assert.equal(await visits.findVisitForRequest(visitor(), at('2026-10-29T00:30:00Z')), null, 'a visit from the morning is not linked the next day');
+});
+
+test('the Visitors page lists the newest visits first, with the IP and without the cleanup timestamp', async () => {
+  const db = fakeDb();
+  const visits = load('src/lib/visits.ts', mocks(db));
+  await visits.recordVisit(visitor({ 'x-real-ip': '203.0.113.1' }), { kind: 'view', path: '/' }, 'mim.archi', at('2026-10-28T08:00:00Z'));
+  await visits.recordVisit(visitor({ 'x-real-ip': '203.0.113.2' }), { kind: 'view', path: '/services' }, 'mim.archi', at('2026-10-28T10:00:00Z'));
+  await visits.recordVisit(visitor({ 'x-real-ip': '203.0.113.3' }), { kind: 'view', path: '/contact' }, 'mim.archi', at('2026-10-28T09:00:00Z'));
+  const rows = await visits.listVisitsAdmin();
+  assert.equal(rows.map(r => r.ip).join(), '203.0.113.2,203.0.113.3,203.0.113.1');
+  assert.ok(rows.every(r => r.id && r.expireAt === undefined));
+  assert.equal((await visits.listVisitsAdmin(2)).length, 2);
+});
+
+test('visit stats count today, who is active now, and rank channels, countries and pages', () => {
+  const { computeVisitStats, isActiveNow } = load('src/lib/visits.ts', mocks(fakeDb()));
+  const now = at('2026-10-28T12:00:00Z');
+  const visit = over => ({
+    day: '20261028', firstSeenAt: '2026-10-28T08:00:00.000Z', lastSeenAt: '2026-10-28T08:00:00.000Z', landingPath: '/', channel: 'direct',
+    pageCount: 1, pages: [{ p: '/', at: '2026-10-28T08:00:00.000Z', s: 0 }], activeSeconds: 0, deviceType: 'desktop', browser: 'Chrome', os: 'Windows', ...over,
+  });
+  const rows = [
+    visit({ country: 'PK', channel: 'organic', pageCount: 3, pages: [{ p: '/', s: 0 }, { p: '/careers', s: 0 }, { p: '/contact', s: 0 }], lastSeenAt: '2026-10-28T11:58:00.000Z' }),
+    visit({ country: 'PK', pageCount: 2, pages: [{ p: '/', s: 0 }, { p: '/careers', s: 0 }] }),
+    visit({ country: 'AE', channel: 'social', day: '20261027', pageCount: 5, lastSeenAt: '2026-10-27T20:00:00.000Z' }),
+    visit({}),
+  ];
+  const stats = computeVisitStats(rows, now);
+  assert.equal(stats.visitorsToday, 3);
+  assert.equal(stats.viewsToday, 3 + 2 + 1);
+  assert.equal(stats.activeNow, 1);
+  assert.equal(stats.byCountry.map(s => `${s.label}:${s.count}`).join(), 'PK:2,AE:1,Unknown:1');
+  assert.equal(stats.byChannel[0].label, 'Direct');
+  assert.equal(stats.byPage[0].label, '/');
+  assert.equal(stats.byPage[0].count, 4);
+  assert.equal(stats.byPage[1].label, '/careers');
+  assert.equal(stats.byPage[1].count, 2);
+  assert.equal(isActiveNow({ lastSeenAt: '2026-10-28T11:56:00.000Z' }, now), true);
+  assert.equal(isActiveNow({ lastSeenAt: '2026-10-28T11:50:00.000Z' }, now), false);
+  assert.equal(computeVisitStats([], now).visitorsToday, 0);
+});
+
+test('visit filters cover today, the last week, and a search over IP, place, page and browser', () => {
+  const { filterVisits } = load('src/lib/visits.ts', mocks(fakeDb()));
+  const now = at('2026-10-28T12:00:00Z');
+  const v = (id, over) => ({ id, day: '20261028', lastSeenAt: '2026-10-28T10:00:00.000Z', landingPath: '/', pages: [{ p: '/' }], browser: 'Chrome', os: 'Windows', ...over });
+  const rows = [
+    v('a', { ip: '203.0.113.7', city: 'Dubai', country: 'AE' }),
+    v('b', { day: '20261025', lastSeenAt: '2026-10-25T10:00:00.000Z', ip: '198.51.100.2', city: 'Karachi', country: 'PK', pages: [{ p: '/careers' }] }),
+    v('c', { day: '20261001', lastSeenAt: '2026-10-01T10:00:00.000Z', browser: 'Safari' }),
+  ];
+  const ids = f => filterVisits(rows, f, now).map(r => r.id).join();
+  assert.equal(ids({ range: 'today' }), 'a');
+  assert.equal(ids({ range: '7d' }), 'a,b');
+  assert.equal(ids({ range: 'all' }), 'a,b,c');
+  assert.equal(ids({ range: 'all', q: '198.51' }), 'b');
+  assert.equal(ids({ range: 'all', q: 'dubai' }), 'a');
+  assert.equal(ids({ range: 'all', q: '/careers' }), 'b');
+  assert.equal(ids({ range: 'all', q: 'safari' }), 'c');
+  assert.equal(ids({ range: 'all', q: 'nothing-matches' }), '');
 });
 
 test('findVisitForRequest never throws when the database is down', async () => {
