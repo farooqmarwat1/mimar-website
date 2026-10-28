@@ -182,6 +182,42 @@ test('applyEvent builds the journey page by page and ignores duplicates and orph
   assert.equal(applyEvent(null, { kind: 'leave', path: '/', seconds: 5 }, req(), day, at('2026-10-28T10:00:00Z')), null);
 });
 
+test('a visit recorded before the IP existed picks it up from the next event, without overwriting what it has', () => {
+  const { applyEvent } = load('src/lib/visits.ts', mocks(fakeDb()));
+  const day = '20261028';
+  const old = {
+    day, firstSeenAt: '2026-10-28T07:56:55.000Z', lastSeenAt: '2026-10-28T08:00:00.000Z', landingPath: '/', channel: 'direct', pageCount: 1,
+    pages: [{ p: '/', at: '2026-10-28T07:56:55.000Z', s: 0 }], activeSeconds: 0, deviceType: 'desktop', browser: 'Chrome', os: 'Windows', country: 'PK',
+  };
+  assert.equal(old.ip, undefined);
+
+  const viewed = applyEvent(old, { kind: 'view', path: '/services/interactive-services/property-explorer' }, req({ city: 'Islamabad' }), day, at('2026-10-28T09:00:00Z'));
+  assert.equal(viewed.ip, '203.0.113.7', 'the IP is filled in');
+  assert.equal(viewed.city, 'Islamabad', 'and so is a city it did not have');
+  assert.equal(viewed.country, 'PK');
+  assert.equal(viewed.lastPath, '/services/interactive-services/property-explorer');
+
+  const other = applyEvent(viewed, { kind: 'view', path: '/contact' }, req({ ip: '198.51.100.99', country: 'AE', city: 'Dubai' }), day, at('2026-10-28T09:01:00Z'));
+  assert.equal(other.ip, '203.0.113.7', 'an IP already recorded is never replaced');
+  assert.equal(other.country, 'PK');
+  assert.equal(other.city, 'Islamabad');
+  assert.equal(other.lastPath, '/contact');
+
+  const heartbeat = applyEvent(old, { kind: 'leave', path: '/', seconds: 30 }, req(), day, at('2026-10-28T09:02:00Z'));
+  assert.equal(heartbeat.ip, '203.0.113.7', 'a heartbeat fills it in too');
+  assert.equal(heartbeat.pages[0].s, 30);
+  assert.equal(heartbeat.lastSeenAt, '2026-10-28T09:02:00.000Z', 'and keeps the visitor active');
+});
+
+test('repeated heartbeats on one page add up the time read', () => {
+  const { applyEvent } = load('src/lib/visits.ts', mocks(fakeDb()));
+  let visit = applyEvent(null, { kind: 'view', path: '/services' }, req(), '20261028', at('2026-10-28T10:00:00Z'));
+  for (let i = 1; i <= 4; i += 1) visit = applyEvent(visit, { kind: 'leave', path: '/services', seconds: 30 }, req(), '20261028', at(`2026-10-28T10:0${i}:00Z`));
+  assert.equal(visit.pages[0].s, 120);
+  assert.equal(visit.activeSeconds, 120);
+  assert.equal(visit.lastPath, '/services');
+});
+
 test('applyEvent caps the stored pages but keeps counting views', () => {
   const { applyEvent, MAX_PAGES } = load('src/lib/visits.ts', mocks(fakeDb()));
   let visit = applyEvent(null, { kind: 'view', path: '/p0' }, req(), '20261028', at('2026-10-28T10:00:00Z'));

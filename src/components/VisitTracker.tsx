@@ -11,7 +11,8 @@ import { useCallback, useEffect, useRef } from "react";
  * on the server by a daily-rotating hash, so this component sends no identifier at all.
  *
  * Sends: the path on every page view; the referrer, UTM tags, time zone and screen width once per
- * full page load; and the seconds the tab was visible when a page is left or the tab is hidden.
+ * full page load; and the seconds the tab was visible when a page is left, the tab is hidden, or every
+ * 30 seconds while the page stays open.
  */
 
 const UTM_KEYS = ["source", "medium", "campaign", "term", "content"] as const;
@@ -78,6 +79,15 @@ export default function VisitTracker() {
         : {}),
     });
   }, [pathname, flush]);
+
+  // A heartbeat while the tab is open and visible: it adds the seconds read so far and keeps the visitor
+  // "active now" in the admin, instead of only reporting when the page is left.
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible" && current.current) flush();
+    }, 30_000);
+    return () => window.clearInterval(timer);
+  }, [flush]);
 
   useEffect(() => {
     const onVisibility = () => {

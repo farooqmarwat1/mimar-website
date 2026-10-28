@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AutoRefresh from "@/components/admin/AutoRefresh";
 import Breakdown from "@/components/admin/Breakdown";
 import { cardClass, fieldClass, primaryButtonClass, secondaryButtonClass } from "@/components/admin/styles";
 import { requireRole } from "@/lib/admin/auth";
@@ -51,6 +52,11 @@ export default async function AdminVisitorsPage({ searchParams }: { searchParams
           One row per visitor per day: where they are, what they use, how they arrived and every page they opened. No cookies are used. Bots, Do-Not-Track
           visitors and staff pages are not counted, and records are deleted after 30 days.
         </p>
+        <p className="mt-2 flex items-center gap-2 text-xs text-muted">
+          <span aria-hidden className="h-2 w-2 rounded-full bg-emerald-500" />
+          Live: this page refreshes itself every 15 seconds while the tab is open.
+        </p>
+        <AutoRefresh active everyMs={15000} />
       </div>
 
       {!isFirebaseConfigured && (
@@ -76,7 +82,7 @@ export default async function AdminVisitorsPage({ searchParams }: { searchParams
         <section aria-label="Traffic breakdown" className={`${cardClass} mt-4 grid gap-6 !p-5 md:grid-cols-3`}>
           <Breakdown title="How they arrived" rows={stats.byChannel} total={all.length} />
           <Breakdown title="Where they are" rows={stats.byCountry.map((row) => ({ ...row, label: row.label.length === 2 ? countryName(row.label) : row.label }))} total={all.length} />
-          <Breakdown title="Most viewed pages" rows={stats.byPage} total={Math.max(1, stats.byPage[0]?.count ?? 1)} limit={8} />
+          <Breakdown title="Most viewed pages" rows={stats.byPage} total={Math.max(1, stats.byPage[0]?.count ?? 1)} limit={10} />
         </section>
       )}
 
@@ -118,6 +124,7 @@ export default async function AdminVisitorsPage({ searchParams }: { searchParams
         <ul className="mt-6 divide-y divide-line rounded-2xl border border-line bg-white">
           {rows.map((visit) => {
             const place = [visit.city, visit.country ? countryName(visit.country) : undefined].filter(Boolean).join(", ");
+            const currentPage = visit.lastPath ?? visit.pages[visit.pages.length - 1]?.p ?? visit.landingPath;
             const utm = visit.utm ? Object.entries(visit.utm).map(([key, value]) => `${key}: ${value}`).join(" · ") : "";
             return (
               <li key={visit.id}>
@@ -132,9 +139,12 @@ export default async function AdminVisitorsPage({ searchParams }: { searchParams
                       <span className="block truncate text-muted">{place || "Unknown location"}</span>
                     </span>
                     <span className="min-w-0 text-sm">
-                      <span className="block truncate">{visit.landingPath}</span>
+                      <span className="block truncate">
+                        <span className="text-muted">{isActiveNow(visit, now) ? "Now on " : "Last on "}</span>
+                        {currentPage}
+                      </span>
                       <span className="block truncate text-muted">
-                        {visit.pageCount} {visit.pageCount === 1 ? "page" : "pages"} · {CHANNEL_LABELS[visit.channel]} · {visit.deviceType}
+                        {visit.pageCount} {visit.pageCount === 1 ? "page" : "pages"} · landed on {visit.landingPath} · {CHANNEL_LABELS[visit.channel]} · {visit.deviceType}
                       </span>
                     </span>
                     <span className="self-center text-xs uppercase tracking-[0.14em] text-muted group-open:text-ink">Details</span>

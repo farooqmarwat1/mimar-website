@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, type FormEvent, type InvalidEvent } from "react";
+import PhoneField from "@/components/PhoneField";
 import { isRtl, type Locale } from "@/i18n/config";
 import type { ApplyFormCopy } from "@/content/pages/apply";
 
@@ -90,7 +91,7 @@ export default function ApplicationForm({
       </div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Field label={copy.email} name="email" type="email" required ltr={rtl} />
-        <Field label={copy.phone} name="phone" type="tel" ltr={rtl} />
+        <PhoneField lang={lang} label={copy.phone} />
       </div>
 
       <label className="flex flex-col gap-2">
