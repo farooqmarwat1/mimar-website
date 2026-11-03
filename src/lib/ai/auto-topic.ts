@@ -14,8 +14,8 @@ import { getKeywordRows } from "@/lib/search-console";
 /**
  * Automatic topic planning for the scheduled generator.
  *
- * idea-plan.ts decides the approach (search demand, community questions, social
- * trends, customer questions, industry news) in proportion to BLOG_APPROACH_MIX,
+ * idea-plan.ts decides the approach (search demand, competitor topics, community
+ * questions, social trends, customer questions, industry news) in proportion to BLOG_APPROACH_MIX,
  * among those with a fresh idea collected (src/lib/ideas). For any approach but
  * search, the best idea for it becomes the topic, and its blog type is the one
  * the idea reads as.
@@ -26,7 +26,7 @@ import { getKeywordRows } from "@/lib/search-console";
  * blog type (quick win, question guide, buyer intent), taking the three in turn.
  * The keyword is a real Google search from Search Console for that type, region
  * and service (or that type and region, any service); failing that, a Google
- * autocomplete suggestion or a competitor gap the collectors found. Only when
+ * autocomplete suggestion the collectors found. Only when
  * there is none does the AI choose the keyword itself; the topic is tagged with
  * its keywordSource so the performance report can tell them apart.
  *
@@ -210,7 +210,7 @@ ${titles.slice(-150).map((title) => `- ${title}`).join("\n")}
     region: region?.name,
     seedUrls: idea.seedUrls.slice(0, 3),
     strategy,
-    keywordSource: required && (idea.source === "autocomplete" || idea.source === "competitor") ? idea.source : "ai",
+    keywordSource: idea.source === "competitor" ? "competitor" : required && idea.source === "autocomplete" ? "autocomplete" : "ai",
     approach: idea.approach,
     ideaId: idea.id,
     ideaBrief: ideaBrief(idea),
@@ -280,7 +280,7 @@ ${titles.slice(-150).map((title) => `- ${title}`).join("\n")}
     const chosen = await suggestTopic(provider, usage, prompt(pick), titles, pick.keyword);
     if (chosen) return { ...base, ...chosen, keywordSource: "search-console", keywordStats: pick.stats, relatedQueries: pick.related };
   }
-  // No Search Console keyword: a Google autocomplete suggestion or a competitor gap for this blog type.
+  // No Search Console keyword: a Google autocomplete suggestion for this blog type.
   const searchIdea = pickIdea(ideas, { approach: "search", strategy, region: region.name, group: combo.group, used });
   if (searchIdea) {
     const planned = await topicFromIdea(provider, usage, { ...searchIdea, region: searchIdea.region ?? region.name }, titles, combo);

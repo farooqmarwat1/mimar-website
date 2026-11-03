@@ -139,3 +139,80 @@ export async function fetchPageStats(path: string, startDate: string, endDate: s
 
 /** The last day Search Console has complete data for. */
 export const latestCompleteDay = (now = new Date()) => isoDay(daysAgo(GSC_LAG_DAYS, now));
+
+// ---- Where an article ranks, and whether it is in Google at all (blog-results.ts) --------
+
+export type KeywordPosition = {
+  /** Impression-weighted average position for the keyword, all countries. */
+  position: number;
+  clicks: number;
+  impressions: number;
+  /** The same in the target country (Search Console's lowercase alpha-3 code), or null when it had no impressions there. */
+  countryPosition: number | null;
+};
+
+/** Search Console rows of one keyword by country -> overall and target-country position. Null when Google never showed the page for it. */
+export function keywordPositionFromRows(rows: { keys?: string[]; clicks: number; impressions: number; position: number }[], country?: string): KeywordPosition | null {
+  const impressions = rows.reduce((sum, row) => sum + row.impressions, 0);
+  if (!impressions) return null;
+  const round = (value: number) => Math.round(value * 10) / 10;
+  const local = country ? rows.find((row) => row.keys?.[0] === country && row.impressions > 0) : undefined;
+  return {
+    position: round(rows.reduce((sum, row) => sum + row.position * row.impressions, 0) / impressions),
+    clicks: rows.reduce((sum, row) => sum + row.clicks, 0),
+    impressions,
+    countryPosition: local ? round(local.position) : null,
+  };
+}
+
+/**
+ * Where an article (English and Arabic pages together) ranked for the exact keyword it was written for,
+ * between two YYYY-MM-DD days. `country` is the target market's Search Console code ("are", "sau").
+ */
+export async function fetchKeywordPosition(path: string, keyword: string, startDate: string, endDate: string, country?: string): Promise<KeywordPosition | null> {
+  const rows = await query({
+    startDate,
+    endDate,
+    dimensions: ["country"],
+    dimensionFilterGroups: [
+      {
+        filters: [
+          { dimension: "page", operator: "includingRegex", expression: `^https?://[^/]+(/ar)?${escapeRegex(path)}/?$` },
+          { dimension: "query", operator: "equals", expression: keyword.trim().toLowerCase() },
+        ],
+      },
+    ],
+    rowLimit: 250,
+  });
+  return keywordPositionFromRows(rows, country);
+}
+
+export type IndexStatus = {
+  /** True when Google has the page in its index ("PASS"). */
+  indexed: boolean;
+  /** Google's own words, e.g. "Submitted and indexed", "Crawled - currently not indexed". */
+  coverage: string;
+  /** ISO, when Google last crawled it, if it has. */
+  lastCrawl?: string;
+};
+
+/** The URL Inspection API's answer, reduced to what the approaches report needs. */
+export function indexStatusFromInspection(json: unknown): IndexStatus {
+  const result = (json as { inspectionResult?: { indexStatusResult?: { verdict?: string; coverageState?: string; lastCrawlTime?: string } } })?.inspectionResult?.indexStatusResult;
+  return { indexed: result?.verdict === "PASS", coverage: result?.coverageState || result?.verdict || "Unknown", lastCrawl: result?.lastCrawlTime || undefined };
+}
+
+/** Whether Google has indexed a live URL, from Search Console's URL Inspection API (free, 2,000 a day per site). */
+export async function inspectUrl(url: string): Promise<IndexStatus> {
+  const response = await fetch("https://searchconsole.googleapis.com/v1/urlInspection/index:inspect", {
+    method: "POST",
+    headers: { authorization: `Bearer ${await accessToken()}`, "content-type": "application/json" },
+    body: JSON.stringify({ inspectionUrl: url, siteUrl: siteUrl(), languageCode: "en-US" }),
+    cache: "no-store",
+  });
+  if (response.status === 403) {
+    throw new Error(`Search Console refused the URL inspection. Add ${searchConsoleAccount()} as a user of ${siteUrl()} in Search Console.`);
+  }
+  if (!response.ok) throw new Error(`URL inspection failed (HTTP ${response.status}).`);
+  return indexStatusFromInspection(await response.json());
+}

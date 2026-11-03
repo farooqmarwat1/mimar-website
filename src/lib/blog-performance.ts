@@ -82,7 +82,9 @@ const OTHER = {
 };
 
 /** Drafts from before approaches were tracked that have a blog type were planned from Google searches. */
-export function approachOf(generation: { approach?: string; strategy?: string } | undefined): ApproachKey {
+export function approachOf(generation: { approach?: string; strategy?: string; keywordSource?: string } | undefined): ApproachKey {
+  // Before competitor topics were their own approach, they were drafted as search with a competitor keyword.
+  if (generation?.keywordSource === "competitor") return "competitors";
   if (APPROACH_KEYS.includes(generation?.approach as Approach)) return generation!.approach as Approach;
   return STRATEGIES.some((item) => item.key === generation?.strategy) ? "search" : "other";
 }

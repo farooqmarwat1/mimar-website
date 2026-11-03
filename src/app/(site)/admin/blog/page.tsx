@@ -115,6 +115,9 @@ export default async function AdminBlogPage({ searchParams }: { searchParams: Pr
           <Link href="/admin/blog/ideas" className={secondaryButtonClass}>
             Ideas
           </Link>
+          <Link href="/admin/blog/approaches" className={secondaryButtonClass}>
+            Approaches
+          </Link>
           <Link href="/admin/blog/performance" className={secondaryButtonClass}>
             Performance
           </Link>
