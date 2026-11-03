@@ -5,7 +5,8 @@ import { splitInlineLinks } from "@/lib/content-blocks";
 import type { SiteArticle } from "@/lib/posts";
 import { isRtl, localeHref, localizeDigits, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { blogUi } from "@/lib/ar/blog-ui";
+import { blogUi, localizeBlogCategory } from "@/lib/ar/blog-ui";
+import { blogCategories } from "@/lib/legacy-seo";
 
 // Inline `[label](/path)` links exist only in posts written in /admin. Text with
 // none (every migrated article) is returned as the bare string, so its markup is unchanged.
@@ -49,10 +50,18 @@ export default function LegacyArticle({ page, lang = "en" }: { page: SiteArticle
   const copy = getDictionary(lang).legacyArticle;
   const ui = blogUi(lang);
   const show = (text: string) => (ar ? localizeDigits(text, lang) : text);
+  // Posts written in /admin are filed under one of the four blog categories; the breadcrumb links to its page.
+  const category = page.isPost ? blogCategories.find((item) => item.slug === page.categories?.[0]) : undefined;
 
   return (
     <article className="pb-24 pt-32 md:pb-32 md:pt-40">
       <header className="container-page">
+        {category && (
+          <nav aria-label="Breadcrumb" className="eyebrow mb-6 text-muted">
+            <Link href={localeHref(lang, "/blog")} className="hover:text-accent">{ui.blog}</Link> /{" "}
+            <Link href={localeHref(lang, `/blog/${category.slug}`)} className="hover:text-accent">{localizeBlogCategory(category, lang).label}</Link>
+          </nav>
+        )}
         <Reveal><p className="eyebrow text-accent">{copy.eyebrow}</p></Reveal>
         <Reveal delay={0.05}>
           <h1

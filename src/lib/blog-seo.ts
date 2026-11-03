@@ -69,12 +69,15 @@ export function blogPostJsonLd(page: SiteArticle) {
 export function articleStructuredData(page: SiteArticle) {
   const ui = blogUi(page.lang);
   const href = (path: string) => localeHref(page.lang, path);
+  const category = page.isPost ? blogCategories.find((item) => item.slug === page.categories?.[0]) : undefined;
   return [
     breadcrumbJsonLd(
       page.isPost
         ? [
             { name: ui.home, path: href("/") },
             { name: ui.blog, path: href("/blog") },
+            // The article's category page, so Google sees the same Blog > Category > Article trail as visitors.
+            ...(category ? [{ name: localizeBlogCategory(category, page.lang).label, path: href(`/blog/${category.slug}`) }] : []),
             { name: page.title, path: href(page.path) },
           ]
         : [

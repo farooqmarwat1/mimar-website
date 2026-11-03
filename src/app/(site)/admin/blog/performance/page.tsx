@@ -94,13 +94,18 @@ export default async function BlogPerformancePage() {
           <p className="eyebrow text-muted">Blog</p>
           <h1 className="mt-2 text-3xl font-medium tracking-tight">Which blog type and idea source work</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted">
-            The automatic drafts take three blog types in turn, and their ideas come from five sources (see <Link href="/admin/blog/ideas" className="underline">Blog ideas</Link>). Every
+            The automatic drafts take three blog types in turn, and their ideas come from six sources (see <Link href="/admin/blog/ideas" className="underline">Blog ideas</Link>). Every
             published AI article is measured over its first {WINDOW_DAYS} days, and the rates are per week, so new and older articles compare fairly. English and Arabic are counted together.
           </p>
         </div>
-        <Link href="/admin/blog" className={secondaryButtonClass}>
-          All articles
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <Link href="/admin/blog/approaches" className={secondaryButtonClass}>
+            Approach ranking
+          </Link>
+          <Link href="/admin/blog" className={secondaryButtonClass}>
+            All articles
+          </Link>
+        </div>
       </div>
 
       {!report ? (

@@ -8,8 +8,10 @@ import { titleSimilarity } from "@/lib/ai/similarity";
  *
  * Five approaches feed the same drafting, approval and tracking pipeline:
  *
- *   search     - what people search on Google: Search Console (keyword-plan.ts), plus
- *                Google autocomplete questions and gaps against competitors' articles
+ *   search      - what people search on Google: Search Console (keyword-plan.ts), plus
+ *                 Google autocomplete questions
+ *   competitors - subjects several competing studios write about (the competitor bot,
+ *                 src/lib/ideas/competitor-crawl.ts), scored for how established they are
  *   community  - questions people ask on Reddit
  *   social     - design themes trending on Instagram (and trends staff add by hand)
  *   customers  - questions buyers send us through the enquiry form, anonymised
@@ -19,7 +21,7 @@ import { titleSimilarity } from "@/lib/ai/similarity";
  * default), and /admin/blog/performance compares them like it compares blog types.
  */
 
-export const APPROACH_KEYS = ["search", "community", "social", "customers", "news"] as const;
+export const APPROACH_KEYS = ["search", "competitors", "community", "social", "customers", "news"] as const;
 export type Approach = (typeof APPROACH_KEYS)[number];
 
 export type ApproachInfo = {
@@ -34,8 +36,14 @@ export const APPROACHES: ApproachInfo[] = [
   {
     key: "search",
     label: "Search demand",
-    description: "Real Google searches: Search Console, Google autocomplete questions and topics competitors cover that we do not.",
+    description: "Real Google searches: Search Console keywords and Google autocomplete questions.",
     planner: "The idea is a real Google search. Keep the searcher's exact wording as the keyword.",
+  },
+  {
+    key: "competitors",
+    label: "Competitor topics",
+    description: "Subjects several competing studios already write about, read from their blogs by the competitor bot and scored for how established they are.",
+    planner: "The idea is a subject several competing studios already cover. Write a clearly better, more useful article for our market. Never mention, copy or follow the structure of any competitor's article.",
   },
   {
     key: "community",
@@ -118,13 +126,13 @@ export type Idea = {
 export type NewIdea = Omit<Idea, "id" | "status" | "createdAt" | "expiresAt">;
 
 /** How long an unused idea stays useful. */
-export const IDEA_LIFETIME_DAYS: Record<Approach, number> = { search: 180, community: 60, social: 30, customers: 180, news: 30 };
+export const IDEA_LIFETIME_DAYS: Record<Approach, number> = { search: 180, competitors: 120, community: 60, social: 30, customers: 180, news: 30 };
 
 export const expiryFor = (approach: Approach, now = new Date()) => new Date(now.getTime() + IDEA_LIFETIME_DAYS[approach] * 86_400_000).toISOString();
 
 // ---- The mix ---------------------------------------------------------------
 
-export const DEFAULT_MIX = "search:4,community:1,social:1,customers:1,news:1";
+export const DEFAULT_MIX = "search:3,competitors:1,community:1,social:1,customers:1,news:1";
 
 /** "search:4,community:1,..." -> weights. Approaches left out get 0; a mix with no weight at all falls back to the default. */
 export function parseMix(raw: string | undefined): Record<Approach, number> {

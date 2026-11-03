@@ -9,7 +9,7 @@ import { getCompetitors, listIdeas } from "@/lib/ideas/store";
 import { getKeywordRows } from "@/lib/search-console";
 
 /**
- * Search approach: the subjects competitors write about that are established enough to be worth our
+ * Competitors approach: the subjects competitors write about that are established enough to be worth our
  * own, better article. The competitor bot (competitor-crawl.ts) reads each listed competitor's blog
  * politely and keeps titles and headings; the AI groups the titles into subjects; each subject is
  * then scored for how established it is (competitor-intel.ts: how many studios cover it, which a site
@@ -58,7 +58,7 @@ function siteItems(pages: CompetitorPage[], featured: Set<string>, covered: stri
 export const competitorsCollector: Collector = {
   key: "competitor",
   label: "Competitor topics",
-  approach: "search",
+  approach: "competitors",
   async collect(ctx) {
     const domains = await getCompetitors();
     if (domains.length === 0) return off("No competitor sites listed yet. Add them on this page.");
@@ -131,7 +131,7 @@ export const competitorsCollector: Collector = {
       const { fame, notes } = fameScore(signals);
       const lead = [...backing].sort((a, b) => Number(b.featured) - Number(a.featured) || Number(b.recent) - Number(a.recent))[0];
       return [
-        toIdea(suggestion, "search", "competitor", {
+        toIdea(suggestion, "competitors", "competitor", {
           url: lead?.url,
           count: sites.length,
           fame,

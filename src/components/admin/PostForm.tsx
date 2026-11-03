@@ -255,22 +255,30 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
         <h2 className="text-lg font-medium">Organisation</h2>
         <div className="grid gap-5 md:grid-cols-2">
           <fieldset className="grid gap-2">
-            <legend className="text-sm font-medium">Categories</legend>
+            <legend className="text-sm font-medium">{initial.legacy ? "Categories" : "Category (required to publish)"}</legend>
             <div className="flex flex-wrap gap-x-5 gap-y-2">
               {categories.map((option) => (
                 <label key={option.slug} className="flex items-center gap-2 text-sm font-normal">
-                  <input
-                    type="checkbox"
-                    name="categories"
-                    value={option.slug}
-                    checked={selected.includes(option.slug)}
-                    onChange={(event) => setSelected((current) => (event.target.checked ? [...current, option.slug] : current.filter((slug) => slug !== option.slug)))}
-                  />
+                  {initial.legacy ? (
+                    <input
+                      type="checkbox"
+                      name="categories"
+                      value={option.slug}
+                      checked={selected.includes(option.slug)}
+                      onChange={(event) => setSelected((current) => (event.target.checked ? [...current, option.slug] : current.filter((slug) => slug !== option.slug)))}
+                    />
+                  ) : (
+                    <input type="radio" name="categories" value={option.slug} checked={selected.includes(option.slug)} onChange={() => setSelected([option.slug])} />
+                  )}
                   {option.label}
                 </label>
               ))}
             </div>
-            <span className={hintClass}>The article is listed on each ticked category page.</span>
+            <span className={hintClass}>
+              {initial.legacy
+                ? "The article is listed on each ticked category page."
+                : "Every article belongs to one of the four blog categories. It is listed on that category page (/blog/…) and shown in the article's breadcrumb."}
+            </span>
             {err("category") && <span className="text-xs text-accent">{err("category")}</span>}
           </fieldset>
           {initial.slugLocked ? (

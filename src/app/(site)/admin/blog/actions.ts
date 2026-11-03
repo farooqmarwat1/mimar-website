@@ -7,7 +7,7 @@ import { z } from "zod";
 import { AdminAuthError, assertAccess } from "@/lib/admin/auth";
 import { aiConfigured } from "@/lib/ai/provider";
 import { ensureArabic } from "@/lib/ai/translate-post";
-import { importLegacyArticles } from "@/lib/blog-import";
+import { categorizeLegacyArticles, importLegacyArticles } from "@/lib/blog-import";
 import { parseBlocks } from "@/lib/content-blocks";
 import { parseFaq, parseLinks, parseList, parseSources } from "@/lib/post-fields";
 import { checkPost } from "@/lib/post-validation";
@@ -144,7 +144,9 @@ export async function savePostAction(_prev: PostFormState, formData: FormData): 
   const faq = parseFaq(input.faq);
   const related = parseLinks(input.related);
   const sources = parseSources(input.sources);
-  const categories = [...new Set(formData.getAll("categories").map(String))].filter((value) => blogCategories.some((category) => category.slug === value));
+  const chosen = [...new Set(formData.getAll("categories").map(String))].filter((value) => blogCategories.some((category) => category.slug === value));
+  // New posts have one main category; imported articles keep the (several or no) categories the old site gave them.
+  const categories = existing?.legacy ? chosen : chosen.slice(0, 1);
   const seoTitle = input.seoTitle || input.title;
   const knownCover = libraryCover(input.coverUrl);
   const coverImage = input.coverUrl ? { ...knownCover, url: input.coverUrl, alt: input.coverAlt } : undefined;
@@ -266,4 +268,12 @@ export async function importLegacyAction() {
   const result = await importLegacyArticles(session.email);
   revalidateBlog("/blog");
   redirect(`/admin/blog?imported=${result.created}`);
+}
+
+/** Files old articles that are in none of the four categories under the category they now belong to. Safe to run again. */
+export async function categorizeLegacyAction() {
+  await guard();
+  const result = await categorizeLegacyArticles();
+  revalidateBlog("/blog");
+  redirect(`/admin/blog?categorised=${result.updated}`);
 }

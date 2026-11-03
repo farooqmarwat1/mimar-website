@@ -98,13 +98,16 @@ export default async function BlogIdeasPage() {
           <p className="eyebrow text-muted">Blog</p>
           <h1 className="mt-2 text-3xl font-medium tracking-tight">Blog ideas</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted">
-            Every Sunday the studio collects ideas from five places. The Monday and Thursday drafts take them in turn, and you can pick any idea to be written next. Every draft still waits for
+            Every Sunday the studio collects ideas from six places. The Monday and Thursday drafts take them in turn, and you can pick any idea to be written next. Every draft still waits for
             your approval.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
           <Link href="/admin/blog/generate" className={secondaryButtonClass}>
             Draft with AI
+          </Link>
+          <Link href="/admin/blog/approaches" className={secondaryButtonClass}>
+            Approaches
           </Link>
           <Link href="/admin/blog/performance" className={secondaryButtonClass}>
             Performance
@@ -118,7 +121,7 @@ export default async function BlogIdeasPage() {
         </p>
       )}
 
-      <dl className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <dl className="mt-8 grid gap-4 md:grid-cols-3 xl:grid-cols-6">
         {APPROACHES.map((item) => (
           <div key={item.key} className={`${cardClass} !p-5`}>
             <dt className="font-medium">{item.label}</dt>

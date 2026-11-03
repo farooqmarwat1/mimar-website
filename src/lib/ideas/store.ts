@@ -23,12 +23,15 @@ function clean<T extends object>(data: T): T {
 
 export async function listIdeas(): Promise<Idea[]> {
   const snap = await adminDb().collection(IDEAS).get();
-  return snap.docs.map((doc) => ({ ...(doc.data() as Omit<Idea, "id">), id: doc.id }) as Idea).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return snap.docs.map((doc) => normalizeIdea({ ...(doc.data() as Omit<Idea, "id">), id: doc.id } as Idea)).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
+
+/** Competitor ideas stored before competitor topics became their own approach were filed under search. */
+export const normalizeIdea = (idea: Idea): Idea => (idea.source === "competitor" && idea.approach !== "competitors" ? { ...idea, approach: "competitors" } : idea);
 
 export async function getIdea(id: string): Promise<Idea | null> {
   const doc = await adminDb().collection(IDEAS).doc(id).get();
-  return doc.exists ? ({ ...(doc.data() as Omit<Idea, "id">), id: doc.id } as Idea) : null;
+  return doc.exists ? normalizeIdea({ ...(doc.data() as Omit<Idea, "id">), id: doc.id } as Idea) : null;
 }
 
 /** Saves the ideas that do not repeat a stored idea (any status) or anything in `covered`. Returns how many were new. */

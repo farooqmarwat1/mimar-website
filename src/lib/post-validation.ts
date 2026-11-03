@@ -53,6 +53,12 @@ export async function checkPost(post: PostCheckInput): Promise<PostCheck> {
   if (!post.description.trim()) errors.description = "Enter a meta description.";
 
   if (post.categories.some((slug) => !blogCategories.some((category) => category.slug === slug))) errors.category = "Unknown category.";
+  // Every article belongs on a category page: one of the blog's four types. New posts have exactly one main category;
+  // imported articles keep the (sometimes several, sometimes no) categories the old site gave them.
+  if (post.categories.length === 0) {
+    if (post.legacy) warnings.push("This article is in no blog category, so no category page lists it.");
+    else errors.category ??= "Choose a category: every article is listed on one of the four category pages.";
+  } else if (!post.legacy && post.categories.length > 1) errors.category ??= "Choose one main category.";
 
   const words = countWords(post.blocks);
   if (words < MIN_PUBLISH_WORDS) {

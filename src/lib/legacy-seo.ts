@@ -71,6 +71,9 @@ export const blogCategories: BlogCategory[] = [
       "/blog/3d-visualization/3d-exterior-visualization-services",
       "/3d-architectural-walkthrough-services",
       "/3d-visualization/why-you-need-real-estate-renders-to-sell-your-property",
+      // Added 3 Nov 2026 (SEO review): these articles were in none of the four categories.
+      "/blog/rendering-techniques",
+      "/blog/3d-rendering",
     ],
   },
   {
@@ -90,6 +93,12 @@ export const blogCategories: BlogCategory[] = [
       "/vr-real-estate/virtual-reality-applications",
       "/vr-real-estate/top-10-faqs-about-the-augmented-reality",
       "/blog/vr-real-estate/benefits-of-virtual-tours-for-real-estate",
+      // Added 3 Nov 2026 (SEO review): these articles were in none of the four categories.
+      "/metaverse-development-a-complete-guide-for-businesses",
+      "/metaverse/how-to-become-a-metaverse-developer",
+      "/metaverse/technologies-in-metaverse",
+      "/metaverse/top-six-faqs-about-real-estate-in-the-metaverse",
+      "/metaverse/top-6-questions-about-the-metaverse",
     ],
   },
   {
@@ -108,6 +117,9 @@ export const blogCategories: BlogCategory[] = [
       "/3d-visualization/3d-architectural-visualization-software",
       "/blog/architecture/residential-vs-commercial-architecture",
       "/blog/architecture/stages-of-architectural-design",
+      // Added 3 Nov 2026 (SEO review): these articles were in none of the four categories.
+      "/blog/architectural-services",
+      "/blog/importance-of-architectural-design-services-in-uae",
     ],
   },
   {
@@ -127,6 +139,9 @@ export const blogCategories: BlogCategory[] = [
       "/blog/elements-in-interior-design",
       "/technology/best-ways-to-sell-your-real-estate",
       "/blog/real-estate-tech/commercial-real-estate-technology",
+      // Added 3 Nov 2026 (SEO review): these articles were in none of the four categories.
+      "/blog/brand-vs-company",
+      "/metaverse/how-to-buy-nft",
     ],
   },
 ];

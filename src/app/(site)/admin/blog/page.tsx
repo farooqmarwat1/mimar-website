@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { deletePostAction, importLegacyAction, setPostStatusAction } from "@/app/(site)/admin/blog/actions";
+import { categorizeLegacyAction, deletePostAction, importLegacyAction, setPostStatusAction } from "@/app/(site)/admin/blog/actions";
 import ConfirmButton from "@/components/admin/ConfirmButton";
 import { fieldClass, primaryButtonClass, secondaryButtonClass, statusBadgeClass } from "@/components/admin/styles";
 import { requireRole } from "@/lib/admin/auth";
 import { strategyInfo } from "@/lib/ai/keyword-plan";
-import { isLegacyImported } from "@/lib/blog-import";
+import { countLegacyNeedingCategory, isLegacyImported } from "@/lib/blog-import";
 import { isFirebaseConfigured } from "@/lib/firebase/admin";
 import { listPostRows, type PostRow } from "@/lib/posts";
 
@@ -87,12 +87,14 @@ function Row({ post }: { post: PostRow }) {
   );
 }
 
-export default async function AdminBlogPage({ searchParams }: { searchParams: Promise<{ filter?: string; q?: string; imported?: string }> }) {
+export default async function AdminBlogPage({ searchParams }: { searchParams: Promise<{ filter?: string; q?: string; imported?: string; categorised?: string }> }) {
   await requireRole("blog");
-  const { filter: rawFilter, q = "", imported } = await searchParams;
+  const { filter: rawFilter, q = "", imported, categorised } = await searchParams;
   const filter: FilterKey = FILTERS.some((item) => item.key === rawFilter) ? (rawFilter as FilterKey) : "all";
 
   const [posts, alreadyImported] = isFirebaseConfigured ? await Promise.all([listPostRows(), isLegacyImported()]) : [[], true];
+  // Old articles stored in no category, although the four category pages now include them.
+  const needCategory = isFirebaseConfigured && alreadyImported ? await countLegacyNeedingCategory().catch(() => 0) : 0;
   const needle = q.trim().toLowerCase();
   const visible = posts.filter((post) => matches(post, filter) && (!needle || `${post.title} ${post.path}`.toLowerCase().includes(needle)));
   const drafts = visible.filter((post) => post.status === "draft");
@@ -113,6 +115,9 @@ export default async function AdminBlogPage({ searchParams }: { searchParams: Pr
           <Link href="/admin/blog/ideas" className={secondaryButtonClass}>
             Ideas
           </Link>
+          <Link href="/admin/blog/approaches" className={secondaryButtonClass}>
+            Approaches
+          </Link>
           <Link href="/admin/blog/performance" className={secondaryButtonClass}>
             Performance
           </Link>
@@ -129,6 +134,26 @@ export default async function AdminBlogPage({ searchParams }: { searchParams: Pr
         <p role="status" className="mt-6 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">
           {Number(imported) > 0 ? `Imported ${imported} articles from WordPress. They now appear below and can be edited here.` : "Nothing to import: the WordPress articles are already here."}
         </p>
+      )}
+
+      {categorised && (
+        <p role="status" className="mt-6 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">
+          {Number(categorised) > 0 ? `Filed ${categorised} old articles under their category. They now appear on the category pages.` : "Nothing to file: every old article already has a category."}
+        </p>
+      )}
+
+      {needCategory > 0 && (
+        <section className="mt-8 rounded-2xl border border-sky-200 bg-sky-50 p-6">
+          <h2 className="text-lg font-medium text-sky-950">{needCategory} old articles are in no category</h2>
+          <p className="mt-2 max-w-2xl text-sm text-sky-900">
+            The blog is organised in four categories (3D Visualization, AR/VR in Real Estate, Architecture Designing, Real Estate Technology), but some old WordPress articles were never filed in one, so no category page lists them. This files each under the category that fits it (the metaverse articles under AR/VR, rendering articles under 3D Visualization, and so on). It only fills in articles that have no category, so nothing you have set is changed, and running it again does nothing.
+          </p>
+          <form action={categorizeLegacyAction} className="mt-4">
+            <ConfirmButton message={`File ${needCategory} old articles under their category? Their addresses do not change.`} className={primaryButtonClass}>
+              File them under their category
+            </ConfirmButton>
+          </form>
+        </section>
       )}
 
       {!alreadyImported && (

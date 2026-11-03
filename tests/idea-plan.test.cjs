@@ -15,8 +15,8 @@ const idea = over => ({
 
 test('the mix defaults to search-heavy, ignores nonsense and never ends up empty', () => {
   const { parseMix } = plan();
-  assert.deepEqual(plain(parseMix(undefined)), { search: 4, community: 1, social: 1, customers: 1, news: 1 });
-  assert.deepEqual(plain(parseMix('search:2, news:1, bogus:5, social:x')), { search: 2, community: 0, social: 0, customers: 0, news: 1 });
+  assert.deepEqual(plain(parseMix(undefined)), { search: 3, competitors: 1, community: 1, social: 1, customers: 1, news: 1 });
+  assert.deepEqual(plain(parseMix('search:2, news:1, bogus:5, social:x')), { search: 2, competitors: 0, community: 0, social: 0, customers: 0, news: 1 });
   assert.deepEqual(plain(parseMix('search:0,news:0')), plain(parseMix(undefined)), 'all zero falls back to the default');
 });
 
