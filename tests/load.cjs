@@ -51,7 +51,7 @@ function load(file, mocks = {}) {
         const target = resolve(absolute, id);
         return target ? evaluate(target) : require(id);
       },
-      Date, Error, SyntaxError, TypeError, URL, URLSearchParams, Request, Response, Buffer, process, Map, Set, JSON, Promise,
+      Date, Error, SyntaxError, TypeError, URL, URLSearchParams, Request, Response, AbortSignal, Buffer, process, Map, Set, JSON, Promise,
       console: { error() {}, log() {}, warn() {} },
     };
     vm.runInNewContext(source, context, { filename: absolute });
