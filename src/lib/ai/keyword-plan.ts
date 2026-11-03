@@ -103,6 +103,24 @@ export function groupForQuery(query: string, page = ""): string | null {
   return null;
 }
 
+/**
+ * The blog category (legacy-seo.ts blogCategories, the four types the blog is organised in) for each
+ * service group, so an article is always listed on the category page of what it is about.
+ */
+export const CATEGORY_FOR_GROUP: Record<string, string> = {
+  "architectural-design": "architecture",
+  "3d-visualization": "3d-visualization",
+  "interactive-services": "vr-real-estate",
+  branding: "real-estate-tech",
+  marketing: "real-estate-tech",
+};
+
+/** The blog category a piece of text (a title and keywords) is about, or null when it names none of our services. */
+export function categoryForText(text: string): string | null {
+  const group = groupForQuery(text);
+  return group ? (CATEGORY_FOR_GROUP[group] ?? null) : null;
+}
+
 const BRANDED = /\bmim(ar)?\b|mim\s?archi|mimar\s?studios?/i;
 const QUESTION = /^(how|what|why|which|when|where|who|can|is|are|does|do|should|will)\b|\b(guide|tips|steps|process|checklist|explained|meaning)\b/i;
 const BUYER =

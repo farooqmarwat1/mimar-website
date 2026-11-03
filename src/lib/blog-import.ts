@@ -13,6 +13,9 @@ import { translationHashes } from "@/lib/post-translation";
  * text, same dates, same position in the blog archive and category lists
  * (kept as `archiveRank` / `categoryRanks`). Safe to run again: articles that
  * were already imported (even if since edited) are left alone.
+ *
+ * Later changes to which category an imported article is in (legacy-seo.ts blogCategories) reach the
+ * stored copies through categorizeLegacyArticles below, which only ever fills in an empty category list.
  */
 
 const docIdFor = (path: string) => `legacy-${path.slice(1).replace(/\//g, "__")}`;
@@ -105,4 +108,45 @@ export async function importLegacyArticles(importedBy: string): Promise<{ create
   // Written last: only now does the public site stop using the built-in copies.
   await db.doc(IMPORT_MARKER).set({ importedAt: now, importedBy, count: legacySeoPages.length });
   return { created, skipped: legacySeoPages.length - created };
+}
+
+/** The categories (and their order within each category page) legacy-seo.ts gives an imported article. */
+function expectedCategories(path: string) {
+  const categoryRanks = Object.fromEntries(
+    blogCategories.flatMap((category) => {
+      const rank = category.articlePaths.indexOf(path);
+      return rank < 0 ? [] : [[category.slug, rank] as const];
+    }),
+  );
+  return { categories: Object.keys(categoryRanks), categoryRanks };
+}
+
+/** Imported articles that are stored in no category although legacy-seo.ts now files them in one. */
+async function legacyNeedingCategory() {
+  const db = adminDb();
+  const snaps = await db.getAll(...legacySeoPages.map((page) => db.collection(POSTS_COLLECTION).doc(docIdFor(page.path))));
+  return snaps.flatMap((snap, index) => {
+    if (!snap.exists) return [];
+    const stored = (snap.get("categories") as string[] | undefined) ?? [];
+    const expected = expectedCategories(legacySeoPages[index].path);
+    return stored.length === 0 && expected.categories.length > 0 ? [{ ref: snap.ref, ...expected }] : [];
+  });
+}
+
+export async function countLegacyNeedingCategory(): Promise<number> {
+  return (await legacyNeedingCategory()).length;
+}
+
+/**
+ * Files imported articles that are in no category under the category legacy-seo.ts gives them. Only fills in
+ * an empty list: an article an editor has already categorised (or deliberately left alone after editing) is
+ * never changed, so running it again does nothing.
+ */
+export async function categorizeLegacyArticles(): Promise<{ updated: number }> {
+  const pending = await legacyNeedingCategory();
+  if (pending.length === 0) return { updated: 0 };
+  const batch = adminDb().batch();
+  for (const { ref, categories, categoryRanks } of pending) batch.update(ref, { categories, categoryRanks });
+  await batch.commit();
+  return { updated: pending.length };
 }

@@ -2,7 +2,7 @@ import "server-only";
 import { articlePolicyErrors } from "./editorial-policy";
 import { selectBlogCover } from "@/lib/blog-covers";
 import { z } from "zod";
-import { strategyInfo } from "@/lib/ai/keyword-plan";
+import { categoryForText, strategyInfo } from "@/lib/ai/keyword-plan";
 import { aiConfigured, aiSetupHint, getProvider } from "@/lib/ai/provider";
 import { fetchPageText, type FetchedPage } from "@/lib/ai/safe-fetch";
 import { maxOverlap, titleSimilarity } from "@/lib/ai/similarity";
@@ -176,6 +176,15 @@ Pages the research drew on (do not copy their wording): ${input.sources.map((s) 
 ${input.feedback.length ? `\nYour previous draft was rejected for these reasons - fix every one:\n${input.feedback.map((line) => `- ${line}`).join("\n")}` : ""}`;
 }
 
+/**
+ * The blog category (one of the four in legacy-seo.ts) an article is listed under: the planned one, else the
+ * model's own choice, else what its title and keywords are about. Empty only when none of them name a category.
+ */
+export function resolveCategory(planned: string | undefined, article: { category: string; title: string; keywords: string[] }): string {
+  const valid = (slug: string | undefined) => Boolean(slug) && blogCategories.some((c) => c.slug === slug);
+  return [planned, article.category].find(valid) ?? categoryForText(`${article.title} ${article.keywords.join(" ")}`) ?? "";
+}
+
 // ---- Quality gates ------------------------------------------------------
 
 type Gated = {
@@ -199,7 +208,7 @@ async function runGates(article: Article, ctx: { job: GenerationJob; sources: Fe
   const blocks = parseTextBlocks(unlink(article.body));
   const faq = article.faq.map((item) => ({ question: item.question.trim(), answer: unlink(item.answer).trim() })).filter((item) => item.question && item.answer);
   const related = article.related.filter((item) => item.label.trim() && isKnown(item.path)).map((item) => ({ label: item.label.trim(), path: normalizePath(item.path) }));
-  const category = blogCategories.some((c) => c.slug === article.category) ? article.category : "";
+  const category = resolveCategory(ctx.job.category, article);
 
   const retryReasons: string[] = articlePolicyErrors(article, ctx.job);
   const notes: string[] = [];
@@ -296,7 +305,7 @@ export async function runGeneration(jobId: string): Promise<string> {
     const { article, blocks, faq, related } = gated;
     let slug = slugify(article.title);
     for (let n = 2; !slug || isReservedSlug(slug) || (await isPostSlugTaken(slug)); n++) slug = `${slugify(article.title)}-${n}`;
-    const category = [job.category, gated.article.category].find((slug) => slug && blogCategories.some((c) => c.slug === slug)) ?? "";
+    const category = resolveCategory(job.category, gated.article);
     const coverImage = selectBlogCover({ title: article.title, category: category || undefined });
 
     // The Arabic version, written from the finished English text. A failure here does not lose the draft.

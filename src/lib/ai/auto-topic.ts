@@ -204,7 +204,8 @@ ${titles.slice(-150).map((title) => `- ${title}`).join("\n")}
   return {
     ...chosen,
     geo: region ? `${region.city}, ${region.name}` : undefined,
-    category: group.category,
+    // An idea that names no service leaves the category to the writer, which picks it from the finished article.
+    category: idea.group ? group.category : "",
     group: group.key,
     region: region?.name,
     seedUrls: idea.seedUrls.slice(0, 3),
