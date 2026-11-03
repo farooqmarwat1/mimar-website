@@ -25,7 +25,7 @@ export default function ServiceDetailView({ detail: englishDetail, lang = "en" }
   const ui = {
     liveTours: pick(lang, "Live 360 tours", "جولات 360° مباشرة"),
     toursSuffix: pick(lang, " tours", " جولات"),
-    mimarDigital: pick(lang, "Mimar Digital", "معمار ديجيتال"),
+    mimarDigital: pick(lang, "Mimar Digital", "معمار الرقمية"),
     tourAlt: (project: string, title: string) =>
       pick(lang, `${project} ${title} 360° virtual tour`, `جولة افتراضية 360° - ${project} - ${title}`),
     byMimar: (title: string) => pick(lang, `${title} by Mimar Studios`, `${title} من استوديوهات معمار`),
