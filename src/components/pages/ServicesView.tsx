@@ -76,7 +76,7 @@ export default function ServicesView({ lang = "en" }: { lang?: Locale }) {
           {serviceProjects.map((project, index) => (
             <Reveal key={project.slug} delay={(index % 2) * 0.05}>
               <Link href={localeHref(lang, `/projects/${project.slug}`)} className="group relative block aspect-video overflow-hidden bg-ink/5">
-                <Image src={project.cover} alt={lang === "ar" ? `${project.title} من ميمار ستوديوز` : `${project.title} by Mimar Studios`} fill quality={85} sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.025]" />
+                <Image src={project.cover} alt={lang === "ar" ? `${project.title} من استوديوهات معمار` : `${project.title} by Mimar Studios`} fill quality={85} sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.025]" />
                 <div className="absolute bottom-0 start-0 bg-paper px-5 py-4">
                   <p className="text-sm">{project.title}</p>
                   <p className="mt-1 text-xs text-muted">{project.location}</p>

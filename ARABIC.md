@@ -41,6 +41,10 @@ Home page only (`/` and `/ar`), browser-tab title only: the hero and every visib
 - `src/proxy.ts` writes a `mimar_region` cookie (`sa`, `ae`, `gulf`, `pk`, `us`, `arab`) from Vercel's `x-vercel-ip-country`, for human requests only (never bots, so Googlebot keeps the default), and rewrites it on every request so it cannot be spoofed in production. In development, with no country header, a hand-set cookie is left alone: run `document.cookie = "mimar_region=ae; path=/"` in the browser console, then reload.
 - `RegionalTitle` (client, renders nothing) sets `document.title` after hydration, in the format "Mimar: 3D Architecture & Rendering Firm in <region>". Inner pages keep their SEO-exact titles.
 
+## Studio name in Arabic (owner decision, 3 Nov 2026)
+
+The Arabic name of Mimar Studios is **استوديوهات معمار**. Use it everywhere the full name appears in Arabic (titles, meta, JSON-LD, footer, copy, the 45 legacy articles, and the AI translation prompt in `src/lib/ai/translate-post.ts`). The old spelling "ميمار ستوديوز" is retired. The Latin name stays "Mimar Studios" / "mimAR" in English text and in the `en` pages.
+
 ## Not translated (by design)
 - Staff portal `/admin` (English only: no Arabic interface and no Arabic fields; the Arabic text of articles is written by the AI, see below), `/api/*`.
 - Firestore jobs: `/careers/<slug>` is English only (no hreflang). `/ar/careers` shows Arabic page copy and links open roles to the English role pages.

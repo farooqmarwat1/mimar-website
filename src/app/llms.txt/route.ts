@@ -53,7 +53,7 @@ export async function GET() {
     "",
     "## Arabic version (العربية)",
     `The whole site is also available in Arabic under ${siteConfig.url}/ar (same paths, right-to-left).`,
-    `- [الصفحة الرئيسية](${siteConfig.url}${localeHref("ar", "/")}): الصفحة الرئيسية لميمار ستوديوز`,
+    `- [الصفحة الرئيسية](${siteConfig.url}${localeHref("ar", "/")}): الصفحة الرئيسية لاستوديوهات معمار`,
     ...localizeServices([...services], "ar").map(
       (s) => `- [${s.title}](${siteConfig.url}${localeHref("ar", servicePath(s.slug))}): ${s.short}`,
     ),

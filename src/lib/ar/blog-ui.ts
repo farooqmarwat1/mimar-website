@@ -88,7 +88,7 @@ const ar: BlogUi = {
   next: "التالي ←",
   archiveCount: ["/ ", " مقالاً"],
   pageOf: ["صفحة ", " من "],
-  itemListArchive: "أحدث مقالات ميمار ستوديوز",
+  itemListArchive: "أحدث مقالات استوديوهات معمار",
   breadcrumbBlog: "/ المدونة",
   faqHeading: "الأسئلة الشائعة",
   relatedHeading: "قراءات ذات صلة",
@@ -217,6 +217,6 @@ export const categoryViewUi = {
   },
   ar: {
     latestBlogs: "أحدث المقالات",
-    itemListName: (label: string) => `مقالات ${label} من ميمار ستوديوز`,
+    itemListName: (label: string) => `مقالات ${label} من استوديوهات معمار`,
   },
 } as const;

@@ -28,7 +28,7 @@ export default function ServiceDetailView({ detail: englishDetail, lang = "en" }
     mimarDigital: pick(lang, "Mimar Digital", "ميمار ديجيتال"),
     tourAlt: (project: string, title: string) =>
       pick(lang, `${project} ${title} 360° virtual tour`, `جولة افتراضية 360° - ${project} - ${title}`),
-    byMimar: (title: string) => pick(lang, `${title} by Mimar Studios`, `${title} من ميمار ستوديوز`),
+    byMimar: (title: string) => pick(lang, `${title} by Mimar Studios`, `${title} من استوديوهات معمار`),
     flipbook: (title: string) => pick(lang, `${title} flipbook preview`, `معاينة كتيب ${title}`),
   };
   const arrow = externalArrow(lang);

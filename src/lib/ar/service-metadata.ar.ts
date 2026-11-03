@@ -1,7 +1,7 @@
 /**
  * Arabic SEO overlay for src/lib/service-metadata.ts, keyed by service slug
  * (keywords stay in English in the English module; Arabic keywords here). A
- * service without an entry gets "{title} - ميمار ستوديوز" and its intro as
+ * service without an entry gets "{title} - استوديوهات معمار" and its intro as
  * the description.
  */
 export const serviceSeoAr: Record<string, { title: string; description: string; keywords: string[] }> = {
@@ -21,7 +21,7 @@ export const serviceSeoAr: Record<string, { title: string; description: string; 
     keywords: ["جولات الواقع الافتراضي 360", "الواقع الافتراضي العقاري", "جولة افتراضية 360", "الواقع الافتراضي المعماري", "الخدمات التفاعلية"],
   },
   "web-tours": {
-    title: "الجولات الإلكترونية - جولات افتراضية 360° للعقارات | ميمار ستوديوز",
+    title: "الجولات الإلكترونية - جولات افتراضية 360° للعقارات | استوديوهات معمار",
     description: "جولات إلكترونية عبر المتصفح مع نقاط تفاعلية وتنقل بين المخططات واستكشاف عقاري متوافق مع جميع الأجهزة.",
     keywords: ["الجولات الإلكترونية", "جولات الويب 360", "جولة افتراضية عقارية", "جولة عقارية 360", "جولة شقة افتراضية"],
   },

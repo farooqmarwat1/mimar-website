@@ -26,13 +26,13 @@ export const projectsContent: Record<Locale, ProjectsCopy> = {
     heading2: "Projects",
   },
   ar: {
-    title: "مشاريع العمارة والتصور ثلاثي الأبعاد | ميمار ستوديوز",
+    title: "مشاريع العمارة والتصور ثلاثي الأبعاد | استوديوهات معمار",
     description:
-      "استكشف أعمال ميمار ستوديوز من المشاريع السكنية والضيافية والتجارية والعامة المُنجزة لعملاء في أكثر من 14 دولة.",
+      "استكشف أعمال استوديوهات معمار من المشاريع السكنية والضيافية والتجارية والعامة المُنجزة لعملاء في أكثر من 14 دولة.",
     keywords: ["مشاريع العمارة", "معرض أعمال التصور ثلاثي الأبعاد", "معرض أعمال التصيير المعماري", "التصور الداخلي"],
     home: "الرئيسية",
     breadcrumbName: "المشاريع",
-    itemListName: "مشاريع ميمار ستوديوز",
+    itemListName: "مشاريع استوديوهات معمار",
     eyebrow: "/ الفهرس",
     heading1: "كل",
     heading2: "المشاريع",
@@ -55,10 +55,10 @@ export const projectDetailContent: Record<Locale, ProjectDetailCopy> = {
     galleryAlt: (title, index) => `${title} project view ${index}`,
   },
   ar: {
-    titleSuffix: " | ميمار ستوديوز",
+    titleSuffix: " | استوديوهات معمار",
     narrative: (location) =>
       `طُوِّر المشروع كدراسة تصميمية مركّزة، توازن بين طابع ${location} وتوجه واضح للخامات والمساحات. صُمِّم كل مشهد لنقل فكرة التصميم قبل التسليم.`,
-    imageAlt: (title) => `${title} من ميمار ستوديوز`,
+    imageAlt: (title) => `${title} من استوديوهات معمار`,
     galleryAlt: (title, index) => `${title} - منظر ${index} للمشروع`,
   },
 };
