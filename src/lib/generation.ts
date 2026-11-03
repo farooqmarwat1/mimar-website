@@ -39,8 +39,12 @@ export type BlogTopic = {
   jobId?: string;
   postId?: string;
   error?: string;
-  /** "auto" = planned by the weekly planner; anything else was typed in by staff. */
+  /** "auto" = planned by the weekly planner; anything else was typed in by staff or picked from an idea. */
   source?: "manual" | "auto";
+  /** Taken before any other queued topic (an idea an editor chose to write next). */
+  priority?: boolean;
+  /** Pages the research reads first (the news article an idea came from). */
+  seedUrls?: string[];
   /** Service group and region the planner covered; drives the rotation. */
   group?: string;
   region?: string;
@@ -103,14 +107,27 @@ export async function listTopics(): Promise<BlogTopic[]> {
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
 
-export async function removeTopic(id: string) {
-  await adminDb().collection(TOPICS).doc(id).delete();
+/** A topic planned from an idea an editor chose on /admin/blog/ideas: queued ahead of the others. */
+export async function addPriorityTopic(topic: Omit<BlogTopic, "id" | "status" | "createdAt" | "priority">): Promise<string> {
+  const ref = await adminDb()
+    .collection(TOPICS)
+    .add(clean({ ...topic, priority: true, status: "queued" as const, createdAt: now() }));
+  return ref.id;
 }
 
-/** Atomically takes the oldest queued topic (two overlapping cron runs never get the same one). */
+/** Deletes a topic and returns what it was (so a topic planned from an idea can give the idea back). */
+export async function removeTopic(id: string): Promise<BlogTopic | null> {
+  const ref = adminDb().collection(TOPICS).doc(id);
+  const snap = await ref.get();
+  if (!snap.exists) return null;
+  await ref.delete();
+  return { ...(snap.data() as Omit<BlogTopic, "id">), id };
+}
+
+/** Atomically takes the next queued topic, priority ones first, then the oldest (two overlapping cron runs never get the same one). */
 export async function claimNextTopic(): Promise<BlogTopic | null> {
   const db = adminDb();
-  const queued = (await listTopics()).filter((topic) => topic.status === "queued");
+  const queued = (await listTopics()).filter((topic) => topic.status === "queued").sort((a, b) => Number(Boolean(b.priority)) - Number(Boolean(a.priority)));
   for (const candidate of queued) {
     const ref = db.collection(TOPICS).doc(candidate.id);
     const claimed = await db.runTransaction(async (tx) => {
@@ -125,7 +142,7 @@ export async function claimNextTopic(): Promise<BlogTopic | null> {
 }
 
 /** An automatically planned topic, recorded as already running (so it can never be picked twice). */
-export async function createRunningTopic(topic: Pick<BlogTopic, "topic" | "geo" | "category" | "group" | "region" | "keyword"> & Partial<BlogTagging>): Promise<BlogTopic> {
+export async function createRunningTopic(topic: Pick<BlogTopic, "topic" | "geo" | "category" | "group" | "region" | "keyword" | "seedUrls"> & Partial<BlogTagging>): Promise<BlogTopic> {
   const data = clean({ ...topic, source: "auto" as const, status: "running" as const, createdAt: now() });
   const ref = await adminDb().collection(TOPICS).add(data);
   return { ...data, id: ref.id };

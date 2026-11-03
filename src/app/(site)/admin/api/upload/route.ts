@@ -1,7 +1,7 @@
-import { randomUUID } from "node:crypto";
 import { AdminAuthError, assertAccess, assertSameOrigin } from "@/lib/admin/auth";
-import { adminBucket, isFirebaseConfigured } from "@/lib/firebase/admin";
+import { isFirebaseConfigured } from "@/lib/firebase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { saveCover } from "@/lib/storage";
 
 /**
  * Cover-image upload for blog posts. Lives under /admin so the session cookie
@@ -43,20 +43,7 @@ export async function POST(request: Request) {
     const kind = sniff(buffer);
     if (!kind) return Response.json({ error: "Upload a JPEG, PNG or WebP image." }, { status: 415 });
 
-    const bucket = adminBucket();
-    const path = `blog/${new Date().getUTCFullYear()}/${randomUUID()}.${kind.ext}`;
-    const token = randomUUID();
-    await bucket.file(path).save(buffer, {
-      resumable: false,
-      metadata: {
-        contentType: kind.contentType,
-        cacheControl: "public, max-age=31536000, immutable",
-        metadata: { firebaseStorageDownloadTokens: token, uploadedBy: session.email },
-      },
-    });
-
-    // Firebase download URL: works for objects that are not publicly listable.
-    const url = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(path)}?alt=media&token=${token}`;
+    const url = await saveCover(buffer, kind, { uploadedBy: session.email });
     return Response.json({ url });
   } catch (err) {
     if (err instanceof AdminAuthError) return Response.json({ error: err.message }, { status: err.status });

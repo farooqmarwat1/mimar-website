@@ -77,7 +77,37 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
   const [coverAlt, setCoverAlt] = useState(v("coverAlt"));
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [imageIdea, setImageIdea] = useState("");
+  const [generating, setGenerating] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  /** A Gemini cover for this article (/admin/api/generate-image), from the title, main keyword and places, or the editor's own description. */
+  async function onGenerate(form: HTMLFormElement | null) {
+    setGenerating(true);
+    setUploadError("");
+    try {
+      const fields = form ? new FormData(form) : null;
+      const res = await fetch("/admin/api/generate-image", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          title,
+          keyword: String(fields?.get("keywords") ?? "").split(",")[0]?.trim(),
+          geo: String(fields?.get("geoTerms") ?? ""),
+          category: selected[0],
+          description: imageIdea,
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { url?: string; alt?: string; error?: string };
+      if (!res.ok || !data.url) throw new Error(data.error ?? "Image generation failed.");
+      setCoverUrl(data.url);
+      setCoverAlt(data.alt ?? "");
+    } catch (e) {
+      setUploadError(e instanceof Error ? e.message : "Image generation failed.");
+    } finally {
+      setGenerating(false);
+    }
+  }
 
   async function onFile(file: File | undefined) {
     if (!file) return;
@@ -118,7 +148,7 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
       )}
       {initial.origin === "ai" && initial.status === "draft" && (
         <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
-          AI draft - check every fact, figure and claim against the listed sources before publishing. The automatic cover comes from Mimar’s service library; review its relevance and alt text.
+          AI draft - check every fact, figure and claim against the listed sources before publishing. The automatic cover comes from Mimar’s service library; review its relevance and alt text, or generate a cover for this article with AI.
         </p>
       )}
       {initial.legacy && (
@@ -179,7 +209,7 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
             <Image src={coverUrl} alt="" fill sizes="576px" className="object-cover" />
           </div>
         ) : (
-          <p className={hintClass}>No cover image. Choose a matching library image or upload your own.</p>
+          <p className={hintClass}>No cover image. Choose a matching library image, upload your own or generate one with AI.</p>
         )}
         <div className="flex flex-wrap items-center gap-3">
           <button type="button" onClick={() => {
@@ -194,6 +224,26 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
             </button>
           )}
           {uploading && <span className="text-sm text-muted">Uploading…</span>}
+        </div>
+        <div className="grid gap-3 rounded-xl border border-line p-4">
+          <Field
+            label="Generate a cover with AI (Gemini)"
+            hint="Optional: describe what the image should show. Left empty, it is based on the title, main keyword and locations. Takes about 20 seconds; generated images never contain text, logos, real buildings or recognisable people."
+          >
+            <input
+              value={imageIdea}
+              onChange={(event) => setImageIdea(event.target.value)}
+              maxLength={400}
+              placeholder="e.g. a courtyard villa in Riyadh at dusk with palm trees and warm lighting"
+              className={fieldClass}
+            />
+          </Field>
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" disabled={generating || uploading || !title.trim()} onClick={(event) => onGenerate(event.currentTarget.form)} className={secondaryButtonClass}>
+              {generating ? "Generating image…" : coverUrl ? "Generate a new image" : "Generate image with AI"}
+            </button>
+            <span className={hintClass}>Check the image suits the article, then edit the alt text below if needed. It is saved with the post.</span>
+          </div>
         </div>
         {(uploadError || err("coverUrl")) && <p className="text-xs text-accent">{uploadError || err("coverUrl")}</p>}
         <Field label="Describe the image (alt text)" hint="For screen readers and search. Required if there is a cover." error={err("coverAlt")}>

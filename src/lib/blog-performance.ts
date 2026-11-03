@@ -1,5 +1,6 @@
 import "server-only";
 import { FieldPath } from "firebase-admin/firestore";
+import { APPROACHES, APPROACH_KEYS, type Approach } from "@/lib/ai/idea-plan";
 import { STRATEGIES, type BlogTagging, type Strategy } from "@/lib/ai/keyword-plan";
 import { adminDb } from "@/lib/firebase/admin";
 import { listLeadJourneys } from "@/lib/leads";
@@ -8,8 +9,8 @@ import { fetchPageStats, latestCompleteDay, searchConsoleConfigured, type PageSt
 import { BLOG_DAILY_COLLECTION } from "@/lib/visits";
 
 /**
- * Which blog type works: the AI articles grouped by blog type (keyword-plan.ts), for
- * /admin/blog/performance and the monthly email (/api/cron/blog-report).
+ * Which blog type and which idea source work: the AI articles grouped by blog type (keyword-plan.ts)
+ * and by approach (idea-plan.ts), for /admin/blog/performance and the monthly email (/api/cron/blog-report).
  *
  * Each article is measured over its first WINDOW_DAYS after publishing, so an article published
  * last week is not compared with one that has had three months; rates are per week of age.
@@ -23,6 +24,7 @@ export const WINDOW_DAYS = 28;
 const DAY_MS = 86_400_000;
 
 export type GroupKey = Strategy | "other";
+export type ApproachKey = Approach | "other";
 
 export type PostPerformance = {
   id: string;
@@ -31,6 +33,7 @@ export type PostPerformance = {
   status: Post["status"];
   publishedAt?: string;
   group: GroupKey;
+  approach: ApproachKey;
   keyword?: string;
   keywordSource?: BlogTagging["keywordSource"];
   geo?: string;
@@ -45,7 +48,7 @@ export type PostPerformance = {
 };
 
 export type GroupSummary = {
-  key: GroupKey;
+  key: GroupKey | ApproachKey;
   label: string;
   description: string;
   published: number;
@@ -66,6 +69,8 @@ export type BlogReport = {
   generatedAt: string;
   posts: PostPerformance[];
   groups: GroupSummary[];
+  /** The same numbers by idea source. */
+  approaches: GroupSummary[];
   /** "ok", "off" (not configured) or the error message. */
   gsc: string;
 };
@@ -75,6 +80,12 @@ const OTHER = {
   label: "Other AI drafts",
   description: "Topics typed in by staff, and drafts written before blog types were tracked.",
 };
+
+/** Drafts from before approaches were tracked that have a blog type were planned from Google searches. */
+export function approachOf(generation: { approach?: string; strategy?: string } | undefined): ApproachKey {
+  if (APPROACH_KEYS.includes(generation?.approach as Approach)) return generation!.approach as Approach;
+  return STRATEGIES.some((item) => item.key === generation?.strategy) ? "search" : "other";
+}
 
 const isoDay = (date: Date) => date.toISOString().slice(0, 10);
 const counterDay = (date: Date) => isoDay(date).replace(/-/g, "");
@@ -104,9 +115,15 @@ export function sumCounters(daily: DailyCounters, path: string, start: Date, end
 const round = (value: number, digits = 1) => Math.round(value * 10 ** digits) / 10 ** digits;
 
 /** One row per blog type (+ "other"), in the fixed order of STRATEGIES. */
-export function summarize(posts: PostPerformance[]): GroupSummary[] {
-  return [...STRATEGIES, OTHER].map(({ key, label, description }) => {
-    const group = posts.filter((post) => post.group === key);
+export const summarize = (posts: PostPerformance[]): GroupSummary[] => summarizeBy(posts, [...STRATEGIES, OTHER], (post) => post.group);
+
+/** One row per approach (+ "other"), in the fixed order of APPROACHES. */
+export const summarizeApproaches = (posts: PostPerformance[]): GroupSummary[] =>
+  summarizeBy(posts, [...APPROACHES, { ...OTHER, description: "Topics typed in by staff before idea sources were tracked." }], (post) => post.approach);
+
+function summarizeBy(posts: PostPerformance[], groups: { key: GroupSummary["key"]; label: string; description: string }[], keyOf: (post: PostPerformance) => string): GroupSummary[] {
+  return groups.map(({ key, label, description }) => {
+    const group = posts.filter((post) => keyOf(post) === key);
     const live = group.filter((post) => post.status === "published" && post.ageDays > 0);
     const perWeek = (value: (post: PostPerformance) => number) => (live.length ? round(live.reduce((sum, post) => sum + (value(post) / post.ageDays) * 7, 0) / live.length) : 0);
     const views = live.reduce((sum, post) => sum + post.views, 0);
@@ -135,7 +152,7 @@ export async function buildBlogReport(now = new Date()): Promise<BlogReport> {
   const snap = await adminDb()
     .collection(POSTS_COLLECTION)
     .where("origin", "==", "ai")
-    .select("title", "path", "status", "publishedAt", "generation.strategy", "generation.keywordSource", "generation.keyword", "generation.geo")
+    .select("title", "path", "status", "publishedAt", "generation.strategy", "generation.approach", "generation.keywordSource", "generation.keyword", "generation.geo")
     .get();
   const docs = snap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as PostDoc) }));
 
@@ -165,6 +182,7 @@ export async function buildBlogReport(now = new Date()): Promise<BlogReport> {
         status: doc.status ?? "draft",
         publishedAt: doc.publishedAt,
         group: STRATEGIES.some((item) => item.key === strategy) ? strategy! : "other",
+        approach: approachOf(doc.generation),
         keyword: doc.generation?.keyword,
         keywordSource: doc.generation?.keywordSource,
         geo: doc.generation?.geo,
@@ -201,5 +219,5 @@ export async function buildBlogReport(now = new Date()): Promise<BlogReport> {
   if (gsc !== "ok") for (const post of posts) post.gsc = null;
 
   posts.sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""));
-  return { generatedAt: now.toISOString(), posts, groups: summarize(posts), gsc };
+  return { generatedAt: now.toISOString(), posts, groups: summarize(posts), approaches: summarizeApproaches(posts), gsc };
 }

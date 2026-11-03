@@ -1,6 +1,6 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
-import { MAX_SOURCES, articleJsonSchema, topicJsonSchema, translationJsonSchema, type AiProvider, type Prompt, type SourceRef, type Usage } from "@/lib/ai/types";
+import { MAX_SOURCES, articleJsonSchema, ideasJsonSchema, topicJsonSchema, translationJsonSchema, type AiProvider, type Prompt, type SourceRef, type Usage } from "@/lib/ai/types";
 
 /** Claude: server-side web search for research, structured output for the article. */
 export function anthropicProvider(): AiProvider {
@@ -93,6 +93,25 @@ export function anthropicProvider(): AiProvider {
       usage.inputTokens += message.usage.input_tokens;
       usage.outputTokens += message.usage.output_tokens;
       if (message.stop_reason === "refusal") throw new Error("The model declined to suggest a topic.");
+      const text = message.content.flatMap((block) => (block.type === "text" ? [block.text] : [])).join("");
+      return JSON.parse(text) as unknown;
+    },
+
+    async ideas({ system, prompt }: Prompt, usage: Usage) {
+      const message = await client.messages
+        .stream({
+          model,
+          max_tokens: 8000,
+          output_config: { effort: "medium", format: { type: "json_schema", schema: ideasJsonSchema as unknown as Record<string, unknown> } },
+          system,
+          messages: [{ role: "user", content: prompt }],
+        })
+        .finalMessage();
+
+      usage.inputTokens += message.usage.input_tokens;
+      usage.outputTokens += message.usage.output_tokens;
+      if (message.stop_reason === "refusal") throw new Error("The model declined to suggest ideas.");
+      if (message.stop_reason === "max_tokens") throw new Error("The idea list was cut off before it finished.");
       const text = message.content.flatMap((block) => (block.type === "text" ? [block.text] : [])).join("");
       return JSON.parse(text) as unknown;
     },

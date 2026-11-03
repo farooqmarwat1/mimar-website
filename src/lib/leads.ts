@@ -310,6 +310,23 @@ export async function listLeadJourneys(sinceIso: string): Promise<{ createdAt: s
   });
 }
 
+/**
+ * The questions in website enquiries since `sinceIso`, for the customer-questions blog ideas
+ * (src/lib/ideas/collectors/customers.ts). Job seekers are left out. Names come back only so
+ * the collector can scrub them from the text and check the AI's output; they are never stored.
+ */
+export async function listLeadQuestions(sinceIso: string): Promise<{ message: string; service?: string; country?: string; names: string[] }[]> {
+  const snap = await col().where("createdAt", ">=", sinceIso).select("message", "service", "origin", "jobSeeker", "client.country", "firstName", "lastName").get();
+  return snap.docs
+    .filter((doc) => doc.get("origin") !== "manual" && !doc.get("jobSeeker"))
+    .map((doc) => ({
+      message: String(doc.get("message") ?? ""),
+      service: doc.get("service") ? String(doc.get("service")) : undefined,
+      country: doc.get("client.country") ? String(doc.get("client.country")) : undefined,
+      names: [doc.get("firstName"), doc.get("lastName")].filter((name): name is string => typeof name === "string" && name.trim().length > 0),
+    }));
+}
+
 export async function getLeadAdmin(id: string): Promise<Lead | null> {
   const doc = await col().doc(id).get();
   return doc.exists ? leadFromDoc(doc.id, doc.data()!) : null;

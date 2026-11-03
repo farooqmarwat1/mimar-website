@@ -7,7 +7,7 @@ import { siteConfig } from "@/lib/site-config";
 
 /**
  * Monthly blog report (vercel.json: the 1st of each month). Emails the editors (To) and info@ (CC),
- * the same people as the draft approval emails, which blog type is working: the same numbers as
+ * the same people as the draft approval emails, which blog type and idea source are working: the same numbers as
  * /admin/blog/performance, plus the AI articles published in the month that just ended.
  * Sent once per month, however often it is called. Only Vercel Cron may call it (src/lib/cron.ts).
  */
@@ -50,14 +50,19 @@ export async function GET(request: Request) {
       (report.gsc === "ok" ? `, ${group.clicks} Google clicks, ${group.impressions} impressions, average position ${group.position || "–"}` : "") +
       (group.key !== "other" && group.published < 3 ? " (fewer than 3 live articles: too early to judge)" : "");
     const groups = report.groups.filter((group) => group.published > 0 || group.drafts > 0);
+    const approaches = report.approaches.filter((group) => group.published > 0 || group.drafts > 0);
 
-    const subject = `Blog report for ${monthName}: which blog type is working`;
+    const subject = `Blog report for ${monthName}: which blog type and idea source are working`;
     const text = [
       `Blog report for ${monthName}.`,
       "",
       `Each AI article is measured over its first ${WINDOW_DAYS} days after publishing; the rates are per article per week.`,
       "",
+      "By blog type:",
       ...(groups.length ? groups.map(line) : ["No AI articles have been published yet."]),
+      "",
+      "By idea source:",
+      ...(approaches.length ? approaches.map(line) : ["No AI articles have been published yet."]),
       "",
       `Published in ${monthName}: ${newPosts.length ? "" : "none"}`,
       ...newPosts.map((post) => `- ${post.title}${post.keyword ? ` ("${post.keyword}")` : ""}`),
@@ -67,7 +72,10 @@ export async function GET(request: Request) {
     ].join("\n");
     const html = `<p>Blog report for <strong>${escapeHtml(monthName)}</strong>.</p>
 <p>Each AI article is measured over its first ${WINDOW_DAYS} days after publishing; the rates are per article per week.</p>
+<p><strong>By blog type</strong></p>
 <ul>${groups.length ? groups.map((group) => `<li>${escapeHtml(line(group))}</li>`).join("") : "<li>No AI articles have been published yet.</li>"}</ul>
+<p><strong>By idea source</strong></p>
+<ul>${approaches.length ? approaches.map((group) => `<li>${escapeHtml(line(group))}</li>`).join("") : "<li>No AI articles have been published yet.</li>"}</ul>
 <p><strong>Published in ${escapeHtml(monthName)}:</strong> ${newPosts.length ? "" : "none"}</p>
 ${newPosts.length ? `<ul>${newPosts.map((post) => `<li>${escapeHtml(post.title)}${post.keyword ? ` (&ldquo;${escapeHtml(post.keyword)}&rdquo;)` : ""}</li>`).join("")}</ul>` : ""}
 ${gscNote ? `<p>${escapeHtml(gscNote)}</p>` : ""}
