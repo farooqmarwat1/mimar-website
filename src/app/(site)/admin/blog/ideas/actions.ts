@@ -12,6 +12,7 @@ import { getProvider } from "@/lib/ai/provider";
 import { isFirebaseConfigured } from "@/lib/firebase/admin";
 import { addPriorityTopic } from "@/lib/generation";
 import { collectIdeas } from "@/lib/ideas/collect";
+import { MAX_COMPETITORS } from "@/lib/ideas/competitor-seeds";
 import { getIdea, normalizeDomain, saveNewIdeas, setCompetitors, setIdeaStatus } from "@/lib/ideas/store";
 import { checkRateLimit } from "@/lib/rate-limit";
 
@@ -99,6 +100,7 @@ export async function saveCompetitorsAction(_prev: IdeasState, formData: FormDat
   const domains = lines.map(normalizeDomain);
   const invalid = lines.filter((_, index) => !domains[index]);
   if (invalid.length) return { error: `Not a website address: ${invalid.slice(0, 3).join(", ")}` };
+  if (new Set(domains).size > MAX_COMPETITORS) return { error: `List at most ${MAX_COMPETITORS} competitor sites; each one is read every week.` };
   await setCompetitors(domains as string[]);
   revalidatePath(PATH);
   return { message: `Saved ${domains.length} competitor site${domains.length === 1 ? "" : "s"}. They are read at the next collection.` };

@@ -63,7 +63,8 @@ export function proxy(request: NextRequest) {
   if (pathname === "/") return arabicHomeRedirect(request) ?? withRegionCookie(request, NextResponse.next());
   if (pathname === "/ar") return withRegionCookie(request, NextResponse.next());
 
-  if (pathname === "/admin/login") return NextResponse.next();
+  // The sign-in and forgot-password pages are the only /admin pages a signed-out visitor may open.
+  if (pathname === "/admin/login" || pathname === "/admin/forgot-password") return NextResponse.next();
   if (!request.cookies.has("mimar_admin_session")) {
     return NextResponse.redirect(new URL("/admin/login", request.url));
   }

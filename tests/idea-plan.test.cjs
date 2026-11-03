@@ -222,3 +222,37 @@ test('ideas with no market stay general rather than borrowing one', async () => 
   assert.match(prompts[0], /Keep the topic general and mention no place/);
   assert.equal(topic.ideaUrl, undefined, 'customer ideas never link anywhere');
 });
+
+// ---- Competitor sitemaps ------------------------------------------------------
+
+test('post sitemaps are recognised, and their root-level slugs count as articles', () => {
+  const { isPostSitemap, slugPhrase } = plan();
+  for (const url of ['https://a.example/post-sitemap.xml', 'https://a.example/post-sitemap2.xml', 'https://a.example/wp-sitemap-posts-post-1.xml', 'https://a.example/sitemap-blog.xml', 'https://a.example/news-sitemap.xml']) {
+    assert(isPostSitemap(url), url);
+  }
+  for (const url of ['https://a.example/page-sitemap.xml', 'https://a.example/category-sitemap.xml', 'https://a.example/post_tag-sitemap.xml', 'https://a.example/author-sitemap.xml', 'https://a.example/projects-sitemap.xml', 'https://a.example/sitemap-geo-rendering.xml', 'https://a.example/sitemap_index.xml']) {
+    assert(!isPostSitemap(url), url);
+  }
+  const root = 'https://rival.example/how-much-does-3d-rendering-cost/';
+  assert.equal(slugPhrase(root), null, 'a root-level page is not an article unless its sitemap says so');
+  assert.equal(slugPhrase(root, true), 'how much does 3d rendering cost');
+  assert.equal(slugPhrase('https://rival.example/hello-world/', true), null, 'too short to be a subject');
+});
+
+test('a long blog is sampled across its whole length', () => {
+  const { sampleEvenly } = plan();
+  const items = Array.from({ length: 100 }, (_, index) => index);
+  assert.deepEqual(plain(sampleEvenly(items, 5)), [0, 20, 40, 60, 80]);
+  assert.deepEqual(plain(sampleEvenly([1, 2, 3], 5)), [1, 2, 3]);
+});
+
+test('the starter competitor list is clean: unique domains, within the limit, none of our own', () => {
+  const { DEFAULT_COMPETITORS, MAX_COMPETITORS } = load('src/lib/ideas/competitor-seeds.ts');
+  assert(DEFAULT_COMPETITORS.length > 0 && DEFAULT_COMPETITORS.length <= MAX_COMPETITORS);
+  assert.equal(new Set(DEFAULT_COMPETITORS).size, DEFAULT_COMPETITORS.length);
+  for (const domain of DEFAULT_COMPETITORS) {
+    assert.match(domain, /^[a-z0-9-]+(\.[a-z0-9-]+)+$/, domain);
+    assert(!domain.endsWith('mim.archi'));
+    assert(!domain.startsWith('www.'));
+  }
+});
