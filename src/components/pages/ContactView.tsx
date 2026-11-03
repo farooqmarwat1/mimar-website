@@ -31,7 +31,7 @@ export default function ContactView({ lang = "en" }: { lang?: Locale }) {
         )}
       />
 
-      <section className="container-page flex min-h-[31rem] flex-col justify-end pb-20 pt-32 md:min-h-[36rem] md:pb-24">
+      <section className="container-page pb-12 pt-32 md:pb-16 md:pt-40">
         <Reveal>
           <p className="eyebrow mb-8 text-accent">{c.eyebrow}</p>
         </Reveal>
@@ -44,7 +44,7 @@ export default function ContactView({ lang = "en" }: { lang?: Locale }) {
         </Reveal>
       </section>
 
-      <section className="container-page grid gap-14 py-16 md:min-h-[44rem] md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:gap-24 md:py-24">
+      <section className="container-page grid gap-14 pb-16 pt-4 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:gap-24 md:pb-24 md:pt-8">
         <div>
           <Reveal>
             <p className="max-w-xl text-[clamp(1.7rem,2.6vw,2.7rem)] leading-[1.08] tracking-[-.035em]">
