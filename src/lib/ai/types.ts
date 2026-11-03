@@ -9,6 +9,7 @@ import type { FetchedPage } from "@/lib/ai/safe-fetch";
  *   research  - web search -> a private brief + the pages it used
  *   write     - structured JSON article from the brief
  *   suggest   - one article topic
+ *   ideas     - blog ideas from collected questions, posts or news (src/lib/ideas)
  *   translate - the finished article in Arabic (translate-post.ts)
  */
 
@@ -27,6 +28,8 @@ export interface AiProvider {
   write(prompt: Prompt, usage: Usage): Promise<unknown>;
   /** Proposes one article topic (no web search). Returns parsed JSON; validated against topicSchema. */
   suggest(prompt: Prompt, usage: Usage): Promise<unknown>;
+  /** Turns collected material into blog ideas (no web search). Returns parsed JSON; validated against ideasSchema. */
+  ideas(prompt: Prompt, usage: Usage): Promise<unknown>;
   /** Returns the Arabic version as parsed JSON; validated against translationSchema. */
   translate(prompt: Prompt, usage: Usage): Promise<unknown>;
   /** A short, user-facing message for this provider's own API errors, or null if it is not one. */
@@ -139,5 +142,48 @@ export const translationJsonSchema = {
     coverAlt: { type: "string" },
   },
   required: ["title", "seoTitle", "description", "keywords", "geoTerms", "blocks", "faq", "relatedLabels", "coverAlt"],
+  additionalProperties: false,
+} as const;
+
+// ---- Blog ideas from raw material (src/lib/ideas) ---------------------------
+
+export const ideasSchema = z.object({
+  ideas: z.array(
+    z.object({
+      /** The question, trend or topic in one sentence. */
+      title: z.string(),
+      /** The phrase people would search for (2-6 words). */
+      keyword: z.string(),
+      /** One of our region names, or "" when it is not about one market. */
+      region: z.string(),
+      /** Why it is worth writing, in a few words. */
+      note: z.string(),
+      /** Numbers of the input items that back it up. */
+      sources: z.array(z.number()),
+    }),
+  ),
+});
+export type IdeaSuggestion = z.infer<typeof ideasSchema>["ideas"][number];
+
+export const ideasJsonSchema = {
+  type: "object",
+  properties: {
+    ideas: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          keyword: { type: "string" },
+          region: { type: "string" },
+          note: { type: "string" },
+          sources: { type: "array", items: { type: "integer" } },
+        },
+        required: ["title", "keyword", "region", "note", "sources"],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ["ideas"],
   additionalProperties: false,
 } as const;

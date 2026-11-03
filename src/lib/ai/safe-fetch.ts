@@ -54,45 +54,66 @@ export function htmlToText(html: string): { title: string; text: string } {
 
 export type FetchedPage = { url: string; title: string; text: string };
 
+/** Follows redirects safely and reads at most MAX_BYTES of a response whose type passes `accepts`. */
+async function fetchPublic(rawUrl: string, accept: string, accepts: (type: string) => boolean): Promise<{ url: URL; type: string; body: string } | null> {
+  let current = rawUrl;
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    const url = await assertPublicHttps(current);
+    const res = await fetch(url, {
+      redirect: "manual",
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+      headers: { "User-Agent": "MimarStudiosBot/1.0 (+https://mim.archi)", Accept: accept },
+      cache: "no-store",
+    });
+    if (res.status >= 300 && res.status < 400) {
+      const location = res.headers.get("location");
+      if (!location) return null;
+      current = new URL(location, url).toString();
+      continue;
+    }
+    if (!res.ok || !res.body) return null;
+    const type = res.headers.get("content-type") ?? "";
+    if (!accepts(type)) return null;
+
+    const reader = res.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let total = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > MAX_BYTES) {
+        await reader.cancel();
+        break;
+      }
+      chunks.push(value);
+    }
+    return { url, type, body: Buffer.concat(chunks).toString("utf8") };
+  }
+  return null;
+}
+
 export async function fetchPageText(rawUrl: string): Promise<FetchedPage | null> {
   try {
-    let current = rawUrl;
-    for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
-      const url = await assertPublicHttps(current);
-      const res = await fetch(url, {
-        redirect: "manual",
-        signal: AbortSignal.timeout(TIMEOUT_MS),
-        headers: { "User-Agent": "MimarStudiosBot/1.0 (+https://mim.archi)", Accept: "text/html,text/plain;q=0.9" },
-        cache: "no-store",
-      });
-      if (res.status >= 300 && res.status < 400) {
-        const location = res.headers.get("location");
-        if (!location) return null;
-        current = new URL(location, url).toString();
-        continue;
-      }
-      if (!res.ok || !res.body) return null;
-      const type = res.headers.get("content-type") ?? "";
-      if (!/text\/(html|plain)|application\/xhtml/i.test(type)) return null;
-
-      const reader = res.body.getReader();
-      const chunks: Uint8Array[] = [];
-      let total = 0;
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        total += value.byteLength;
-        if (total > MAX_BYTES) {
-          await reader.cancel();
-          break;
-        }
-        chunks.push(value);
-      }
-      const body = Buffer.concat(chunks).toString("utf8");
-      const { title, text } = type.includes("plain") ? { title: "", text: body } : htmlToText(body);
-      return text.length > 200 ? { url: url.toString(), title, text } : null;
-    }
+    const page = await fetchPublic(rawUrl, "text/html,text/plain;q=0.9", (type) => /text\/(html|plain)|application\/xhtml/i.test(type));
+    if (!page) return null;
+    const { title, text } = page.type.includes("plain") ? { title: "", text: page.body } : htmlToText(page.body);
+    return text.length > 200 ? { url: page.url.toString(), title, text } : null;
+  } catch {
     return null;
+  }
+}
+
+/**
+ * The raw text of a public feed, sitemap or robots.txt (for the blog idea collectors), with the
+ * same protections as fetchPageText. Null when it cannot be read.
+ */
+export async function fetchFeed(rawUrl: string): Promise<string | null> {
+  try {
+    const page = await fetchPublic(rawUrl, "application/rss+xml,application/atom+xml,application/xml,text/xml,text/plain;q=0.9", (type) =>
+      /xml|text\/plain/i.test(type),
+    );
+    return page?.body ?? null;
   } catch {
     return null;
   }

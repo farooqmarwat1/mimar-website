@@ -38,7 +38,8 @@ export default async function GenerateBlogPage() {
         <h2 className="text-lg font-medium">Automatic drafts</h2>
         <p className={`${hintClass} mt-1`}>
           Twice a week (Monday and Thursday) one draft is written automatically and the reviewers are emailed to approve it. The topic is chosen for you:
-          it rotates through every service in every region (5 services × 4 regions), picking a specific, searchable subject that is not already covered.
+          it takes turns between the five idea sources on <Link href="/admin/blog/ideas" className="underline">Blog ideas</Link> (about half from Google searches), rotating
+          through every service in every region (5 services × 4 regions), and picks a specific, searchable subject that is not already covered.
           Nothing is published without approval.
         </p>
         <AutoTopicQueue needsTopic={queued.length === 0} />

@@ -1,7 +1,7 @@
 import "server-only";
 import { ApiError, GoogleGenAI, type GenerateContentResponse } from "@google/genai";
 import { fetchPageText } from "@/lib/ai/safe-fetch";
-import { MAX_SOURCES, articleJsonSchema, topicJsonSchema, translationJsonSchema, type AiProvider, type Prompt, type SourceRef, type Usage } from "@/lib/ai/types";
+import { MAX_SOURCES, articleJsonSchema, ideasJsonSchema, topicJsonSchema, translationJsonSchema, type AiProvider, type Prompt, type SourceRef, type Usage } from "@/lib/ai/types";
 
 /**
  * Gemini: Grounding with Google Search for research, JSON-schema output for the article.
@@ -86,6 +86,18 @@ export function geminiProvider(): AiProvider {
       });
       addUsage(res.usageMetadata, usage);
       assertAnswered(res);
+      return JSON.parse(res.text ?? "") as unknown;
+    },
+
+    async ideas({ system, prompt }: Prompt, usage: Usage) {
+      const res = await ai.models.generateContent({
+        model,
+        contents: prompt,
+        config: { systemInstruction: system, responseMimeType: "application/json", responseJsonSchema: ideasJsonSchema, maxOutputTokens: 8000 },
+      });
+      addUsage(res.usageMetadata, usage);
+      const candidate = assertAnswered(res);
+      if (candidate.finishReason === "MAX_TOKENS") throw new Error("The idea list was cut off before it finished.");
       return JSON.parse(res.text ?? "") as unknown;
     },
 

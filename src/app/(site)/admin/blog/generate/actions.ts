@@ -8,6 +8,7 @@ import { AdminAuthError, assertAccess } from "@/lib/admin/auth";
 import { aiConfigured, aiSetupHint, runGeneration } from "@/lib/ai/generate-post";
 import { isFirebaseConfigured } from "@/lib/firebase/admin";
 import { createJob, removeTopic, claimNextTopic, finishTopic } from "@/lib/generation";
+import { releaseIdea, setIdeaStatus } from "@/lib/ideas/store";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 export type GenerateState = { error?: string };
@@ -45,18 +46,36 @@ export async function startGenerationAction(): Promise<GenerateState> {
   if (!topic) return { error: "AI is selecting the next topic. Please try again shortly." };
   let jobId;
   try {
-    jobId = await createJob({ topic: topic.topic, keyword: topic.keyword, geo: topic.geo, category: topic.category, seedUrls: [], source: "manual", createdBy: session.email });
+    jobId = await createJob({
+      topic: topic.topic,
+      keyword: topic.keyword,
+      geo: topic.geo,
+      category: topic.category,
+      seedUrls: topic.seedUrls ?? [],
+      source: "manual",
+      createdBy: session.email,
+      strategy: topic.strategy,
+      keywordSource: topic.keywordSource,
+      keywordStats: topic.keywordStats,
+      relatedQueries: topic.relatedQueries,
+      approach: topic.approach,
+      ideaId: topic.ideaId,
+      ideaBrief: topic.ideaBrief,
+      ideaUrl: topic.ideaUrl,
+    });
   } catch (err) {
     await finishTopic(topic.id, { status: "queued" });
     throw err;
   }
-  const topicId = topic.id;
+  const { id: topicId, ideaId } = topic;
   after(async () => {
     try {
       const postId = await runGeneration(jobId);
       await finishTopic(topicId, { status: "done", jobId, postId });
+      if (ideaId) await setIdeaStatus(ideaId, "used");
     } catch (err) {
       await finishTopic(topicId, { status: "failed", jobId, error: err instanceof Error ? err.message : "Generation failed." });
+      await releaseIdea(ideaId);
     }
     await ensureAutoTopicQueued().catch((err) => console.error("[blog] could not refill queue", err));
   });
@@ -72,8 +91,11 @@ export async function removeTopicAction(formData: FormData) {
     throw err;
   }
   const id = String(formData.get("id") ?? "");
-  if (id) await removeTopic(id);
+  const removed = id ? await removeTopic(id) : null;
+  // A queued topic planned from an idea gives the idea back to the inbox.
+  if (removed?.status === "queued") await releaseIdea(removed.ideaId);
   revalidatePath("/admin/blog/generate");
+  revalidatePath("/admin/blog/ideas");
 }
 
 export async function prepareAutoTopicAction(): Promise<GenerateState> {

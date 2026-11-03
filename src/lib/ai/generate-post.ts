@@ -136,11 +136,12 @@ Other fields
 - faq: 4-6 questions people really ask. Each answer is 2-4 sentences, correct on its own without "see above", and consistent with the body.
 - related: 2-4 entries chosen from the allowed link list - the most relevant service or region page plus related articles.`;
 
-function blogTypeLines(job: Pick<GenerationJob, "strategy" | "keywordStats" | "relatedQueries">): string {
+function blogTypeLines(job: Pick<GenerationJob, "strategy" | "keywordStats" | "relatedQueries" | "ideaBrief">): string {
   const info = strategyInfo(job.strategy);
   if (!info) return "";
   return [
     `Blog type: ${info.label}. ${info.writer}`,
+    job.ideaBrief ? `Where the topic came from: ${job.ideaBrief}. Answer what those people actually wanted to know; never mention where the idea came from, or any person, post or enquiry behind it.` : "",
     job.keywordStats?.page ? `Page that already ranks in Google for the primary keyword: ${job.keywordStats.page}` : "",
     job.relatedQueries?.length ? `Related Google searches to cover where they fit naturally: ${job.relatedQueries.join("; ")}` : "",
   ]
@@ -330,10 +331,17 @@ export async function runGeneration(jobId: string): Promise<string> {
             `Blog type: ${type.label}. Keyword "${job.keyword}" ${
               job.keywordSource === "search-console" && stats
                 ? `is a real Google search (Search Console, last 90 days: ${stats.impressions} impressions, ${stats.clicks} clicks, average position ${stats.position}).`
-                : "was chosen by the AI because Search Console had no suitable search."
+                : job.keywordSource === "autocomplete"
+                  ? "is a real Google search (Google autocomplete suggests it; there is no volume data)."
+                  : job.keywordSource === "competitor"
+                    ? "is a subject competitors cover and we did not."
+                    : job.approach && job.approach !== "search"
+                      ? "was chosen by the AI for the idea below."
+                      : "was chosen by the AI because Search Console had no suitable search."
             } Keep it in the title so the performance report stays meaningful.`,
           ]
         : []),
+      ...(job.ideaBrief ? [`Idea source: ${job.ideaBrief}${job.ideaUrl ? ` (${job.ideaUrl})` : ""}. Check the article answers it.`] : []),
       ...(gated.retryReasons.length ? [`Still needs attention before publishing: ${gated.retryReasons.join(" ")}`] : []),
       ...(ar ? [] : ["The Arabic version could not be written automatically. It is retried when you publish or save this post."]),
       ...gated.notes,
@@ -369,6 +377,10 @@ export async function runGeneration(jobId: string): Promise<string> {
         strategy: job.strategy,
         keywordSource: job.keywordSource,
         keywordStats: job.keywordStats,
+        approach: job.approach,
+        ideaId: job.ideaId,
+        ideaBrief: job.ideaBrief,
+        ideaUrl: job.ideaUrl,
       },
     });
 

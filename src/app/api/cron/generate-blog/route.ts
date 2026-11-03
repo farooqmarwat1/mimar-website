@@ -7,6 +7,7 @@ import type { Usage } from "@/lib/ai/types";
 import { blogRecipients, cronAuthorized, escapeHtml } from "@/lib/cron";
 import { adminDb, isFirebaseConfigured } from "@/lib/firebase/admin";
 import { claimNextTopic, createJob, createRunningTopic, finishTopic, type BlogTopic } from "@/lib/generation";
+import { releaseIdea, setIdeaStatus } from "@/lib/ideas/store";
 import { getMailer } from "@/lib/mailer";
 import { countPendingAiDrafts, getPostAdmin } from "@/lib/posts";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -16,9 +17,11 @@ import { siteConfig } from "@/lib/site-config";
  * Scheduled drafting (vercel.json: Mondays and Thursdays). Each run writes ONE draft:
  *
  *   1. a topic staff queued by hand, if there is one; otherwise
- *   2. an automatically planned topic: the next blog type and service x region combination
- *      in the rotation, with a real Google search as the keyword where Search Console has
- *      one and the specific topic chosen by the AI (src/lib/ai/auto-topic.ts).
+ *   2. an automatically planned topic: the next approach in the mix (search demand,
+ *      community or customer questions, social trends, industry news) and, for search, the
+ *      next blog type and service x region combination in the rotation, with a real Google
+ *      search as the keyword where there is one and the specific topic chosen by the AI
+ *      (src/lib/ai/auto-topic.ts, ideas collected by /api/cron/collect-ideas).
  *
  * It then emails the reviewers that a draft is waiting for approval. It NEVER
  * publishes: a person approves every article in /admin/blog.
@@ -91,13 +94,17 @@ async function runScheduledGeneration() {
       keyword: topic.keyword,
       geo: topic.geo,
       category: topic.category,
-      seedUrls: [],
+      seedUrls: topic.seedUrls ?? [],
       source: "cron",
       createdBy: "scheduler",
       strategy: topic.strategy,
       keywordSource: topic.keywordSource,
       keywordStats: topic.keywordStats,
       relatedQueries: topic.relatedQueries,
+      approach: topic.approach,
+      ideaId: topic.ideaId,
+      ideaBrief: topic.ideaBrief,
+      ideaUrl: topic.ideaUrl,
     });
   } catch (err) {
     await finishTopic(topic.id, { status: "queued" });
@@ -107,16 +114,25 @@ async function runScheduledGeneration() {
   try {
     const postId = await runGeneration(jobId);
     await finishTopic(topic.id, { status: "done", jobId, postId });
+    if (topic.ideaId) await setIdeaStatus(topic.ideaId, "used").catch((err) => console.error("[cron] could not mark idea used", err));
     if (autoTopicsEnabled()) await ensureAutoTopicQueued().catch((err) => console.error("[cron] could not refill topic queue", err));
     await notifyReviewers(postId, topic, waiting + 1).catch((err) => console.error("[cron] could not email reviewers:", err instanceof Error ? err.message : err));
-    return Response.json({ ok: true, mode, postId, topic: topic.topic, service: topic.group, region: topic.region, strategy: topic.strategy, keywordSource: topic.keywordSource });
+    return Response.json({ ok: true, mode, postId, topic: topic.topic, service: topic.group, region: topic.region, approach: topic.approach, strategy: topic.strategy, keywordSource: topic.keywordSource });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Generation failed.";
     await finishTopic(topic.id, { status: "failed", jobId, error: message });
+    await releaseIdea(topic.ideaId).catch((err) => console.error("[cron] could not release idea", err));
     if (autoTopicsEnabled()) await ensureAutoTopicQueued().catch((planningError) => console.error("[cron] could not prepare replacement topic", planningError));
     return Response.json({ ok: false, error: message }, { status: 500 });
   }
 }
+
+const KEYWORD_SOURCE_NOTE: Record<NonNullable<BlogTopic["keywordSource"]>, string> = {
+  "search-console": "(a real Google search from Search Console)",
+  autocomplete: "(a real Google search: Google autocomplete suggests it)",
+  competitor: "(a subject competitors cover and we did not)",
+  ai: "(chosen by the AI)",
+};
 
 async function notifyReviewers(postId: string, topic: BlogTopic, waiting: number) {
   const mailer = getMailer();
@@ -128,9 +144,8 @@ async function notifyReviewers(postId: string, topic: BlogTopic, waiting: number
   const from = process.env.CONTACT_FROM_EMAIL?.trim() || mailer.defaultFrom;
   const where = [topic.group, topic.region].filter(Boolean).join(" / ");
   const type = strategyInfo(topic.strategy)?.label;
-  const blogType = type
-    ? `${type}, keyword "${topic.keyword}" ${topic.keywordSource === "search-console" ? "(a real Google search from Search Console)" : "(chosen by the AI: Search Console had none)"}`
-    : "";
+  const blogType = type ? `${type}, keyword "${topic.keyword}" ${KEYWORD_SOURCE_NOTE[topic.keywordSource ?? "ai"]}` : "";
+  const ideaLine = topic.ideaBrief ? `${topic.ideaBrief}${topic.ideaUrl ? ` (${topic.ideaUrl})` : ""}` : "";
   const subject = `Blog draft ready for your approval: ${post.title}`;
   const arabicNote = post.ar
     ? "The Arabic version was written automatically and goes live with the English one when you publish."
@@ -141,6 +156,7 @@ async function notifyReviewers(postId: string, topic: BlogTopic, waiting: number
     `Title: ${post.title}`,
     where ? `Planned for: ${where}` : "",
     blogType ? `Blog type: ${blogType}` : "",
+    ideaLine ? `Idea source: ${ideaLine}` : "",
     `Drafts waiting for review: ${waiting}`,
     "",
     arabicNote,
@@ -151,7 +167,7 @@ async function notifyReviewers(postId: string, topic: BlogTopic, waiting: number
     .filter((line, index, all) => line !== "" || all[index - 1] !== "")
     .join("\n");
   const html = `<p>A new blog draft was written automatically and is <strong>waiting for your approval</strong>.</p>
-<p><strong>${escapeHtml(post.title)}</strong>${where ? `<br>Planned for: ${escapeHtml(where)}` : ""}${blogType ? `<br>Blog type: ${escapeHtml(blogType)}` : ""}<br>Drafts waiting for review: ${waiting}</p>
+<p><strong>${escapeHtml(post.title)}</strong>${where ? `<br>Planned for: ${escapeHtml(where)}` : ""}${blogType ? `<br>Blog type: ${escapeHtml(blogType)}` : ""}${topic.ideaBrief ? `<br>Idea source: ${escapeHtml(topic.ideaBrief)}${topic.ideaUrl ? ` (<a href="${escapeHtml(topic.ideaUrl)}">see it</a>)` : ""}` : ""}<br>Drafts waiting for review: ${waiting}</p>
 <p>${escapeHtml(arabicNote)}</p>
 <p>It is <strong>not published</strong>. Check the facts against its listed sources, edit if needed, then publish it or delete it.</p>
 <p><a href="${escapeHtml(link)}">Open the draft</a></p>`;

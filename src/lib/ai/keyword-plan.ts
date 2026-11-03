@@ -1,3 +1,4 @@
+import type { Approach } from "@/lib/ai/idea-plan";
 import { titleSimilarity } from "@/lib/ai/similarity";
 
 /**
@@ -63,10 +64,21 @@ export type KeywordStats = { impressions: number; clicks: number; position: numb
 /** What a planned topic, job and AI post carry so the report can group them. */
 export type BlogTagging = {
   strategy: Strategy;
-  /** "search-console" = a real Google search; "ai" = no usable Search Console keyword, so the AI chose one. */
-  keywordSource: "search-console" | "ai";
+  /**
+   * "search-console" = a real Google search; "autocomplete" = a Google autocomplete suggestion;
+   * "competitor" = a topic competitors cover and we do not; "ai" = the AI chose the keyword.
+   */
+  keywordSource: "search-console" | "autocomplete" | "competitor" | "ai";
   keywordStats?: KeywordStats;
   relatedQueries?: string[];
+  /** Where the topic came from (idea-plan.ts). Absent on drafts from before approaches were tracked: those are search. */
+  approach?: Approach;
+  /** The idea in siteBlogIdeas the topic was planned from. */
+  ideaId?: string;
+  /** One line for the writer, the reviewers and the notes: what the idea was and what backs it up. Never personal data. */
+  ideaBrief?: string;
+  /** A public page that shows the idea (a Reddit thread, an Instagram post, a news article). */
+  ideaUrl?: string;
 };
 
 /** Search Console country codes (ISO 3166-1 alpha-3, lowercase) of the region pages in regions.ts. */

@@ -110,6 +110,9 @@ export default async function AdminBlogPage({ searchParams }: { searchParams: Pr
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
+          <Link href="/admin/blog/ideas" className={secondaryButtonClass}>
+            Ideas
+          </Link>
           <Link href="/admin/blog/performance" className={secondaryButtonClass}>
             Performance
           </Link>

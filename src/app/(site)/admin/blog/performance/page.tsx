@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { cardClass, secondaryButtonClass } from "@/components/admin/styles";
 import { requireRole } from "@/lib/admin/auth";
+import { approachInfo } from "@/lib/ai/idea-plan";
 import { STRATEGIES, strategyInfo } from "@/lib/ai/keyword-plan";
-import { buildBlogReport, WINDOW_DAYS, type BlogReport } from "@/lib/blog-performance";
+import { buildBlogReport, WINDOW_DAYS, type BlogReport, type GroupSummary } from "@/lib/blog-performance";
 import { isFirebaseConfigured } from "@/lib/firebase/admin";
 import { formatDuration } from "@/lib/lead-constants";
 import { searchConsoleAccount } from "@/lib/search-console";
@@ -31,6 +32,53 @@ function GscNotice({ gsc }: { gsc: string }) {
   );
 }
 
+function SummaryTable({ title, groups, gsc, realKeywords }: { title: string; groups: GroupSummary[]; gsc: string; realKeywords: boolean }) {
+  return (
+    <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-white">
+      <table className="w-full min-w-[56rem] text-left text-sm">
+        <thead className="text-xs text-muted">
+          <tr className="border-b border-line">
+            <th className="p-4 font-medium">{title}</th>
+            <th className="p-4 font-medium">Live</th>
+            <th className="p-4 font-medium">Drafts</th>
+            <th className="p-4 font-medium" title="Average per article per week">Views / wk</th>
+            <th className="p-4 font-medium" title="Visits from search engines, average per article per week">Google visits / wk</th>
+            <th className="p-4 font-medium">Time on page</th>
+            <th className="p-4 font-medium">Leads</th>
+            <th className="p-4 font-medium">Google clicks</th>
+            <th className="p-4 font-medium">Impressions</th>
+            <th className="p-4 font-medium">Avg position</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-line">
+          {groups.map((group) => (
+            <tr key={group.key}>
+              <td className="p-4">
+                <span className="font-medium">{group.label}</span>
+                {group.key !== "other" && group.published > 0 && group.published < 3 && <span className="block text-xs text-amber-800">Fewer than 3 live articles: too early to judge</span>}
+                {realKeywords && group.key !== "other" && group.published > 0 && (
+                  <span className="block text-xs text-muted">
+                    {group.realKeywords} of {group.published} on a real Google search
+                  </span>
+                )}
+              </td>
+              <td className="p-4">{group.published}</td>
+              <td className="p-4">{group.drafts}</td>
+              <td className="p-4">{group.viewsPerWeek}</td>
+              <td className="p-4">{group.organicPerWeek}</td>
+              <td className="p-4">{group.avgSeconds ? formatDuration(group.avgSeconds) : "–"}</td>
+              <td className="p-4">{group.leads}</td>
+              <td className="p-4">{gsc === "ok" ? number(group.clicks) : "–"}</td>
+              <td className="p-4">{gsc === "ok" ? number(group.impressions) : "–"}</td>
+              <td className="p-4">{gsc === "ok" ? position(group.position) : "–"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export default async function BlogPerformancePage() {
   await requireRole("blog");
   const report: BlogReport | null = isFirebaseConfigured ? await buildBlogReport() : null;
@@ -44,10 +92,10 @@ export default async function BlogPerformancePage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="eyebrow text-muted">Blog</p>
-          <h1 className="mt-2 text-3xl font-medium tracking-tight">Which blog type works</h1>
+          <h1 className="mt-2 text-3xl font-medium tracking-tight">Which blog type and idea source work</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted">
-            The automatic drafts take three blog types in turn, each built on a real Google search for a service in one of our regions. Every published AI article is
-            measured over its first {WINDOW_DAYS} days, and the rates are per week, so new and older articles compare fairly. English and Arabic are counted together.
+            The automatic drafts take three blog types in turn, and their ideas come from five sources (see <Link href="/admin/blog/ideas" className="underline">Blog ideas</Link>). Every
+            published AI article is measured over its first {WINDOW_DAYS} days, and the rates are per week, so new and older articles compare fairly. English and Arabic are counted together.
           </p>
         </div>
         <Link href="/admin/blog" className={secondaryButtonClass}>
@@ -83,48 +131,8 @@ export default async function BlogPerformancePage() {
             />
           </div>
 
-          <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-white">
-            <table className="w-full min-w-[56rem] text-left text-sm">
-              <thead className="text-xs text-muted">
-                <tr className="border-b border-line">
-                  <th className="p-4 font-medium">Blog type</th>
-                  <th className="p-4 font-medium">Live</th>
-                  <th className="p-4 font-medium">Drafts</th>
-                  <th className="p-4 font-medium" title="Average per article per week">Views / wk</th>
-                  <th className="p-4 font-medium" title="Visits from search engines, average per article per week">Google visits / wk</th>
-                  <th className="p-4 font-medium">Time on page</th>
-                  <th className="p-4 font-medium">Leads</th>
-                  <th className="p-4 font-medium">Google clicks</th>
-                  <th className="p-4 font-medium">Impressions</th>
-                  <th className="p-4 font-medium">Avg position</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {report.groups.map((group) => (
-                  <tr key={group.key}>
-                    <td className="p-4">
-                      <span className="font-medium">{group.label}</span>
-                      {group.key !== "other" && group.published > 0 && group.published < 3 && <span className="block text-xs text-amber-800">Fewer than 3 live articles: too early to judge</span>}
-                      {group.key !== "other" && group.published > 0 && (
-                        <span className="block text-xs text-muted">
-                          {group.realKeywords} of {group.published} on a real Google search
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-4">{group.published}</td>
-                    <td className="p-4">{group.drafts}</td>
-                    <td className="p-4">{group.viewsPerWeek}</td>
-                    <td className="p-4">{group.organicPerWeek}</td>
-                    <td className="p-4">{group.avgSeconds ? formatDuration(group.avgSeconds) : "–"}</td>
-                    <td className="p-4">{group.leads}</td>
-                    <td className="p-4">{report.gsc === "ok" ? number(group.clicks) : "–"}</td>
-                    <td className="p-4">{report.gsc === "ok" ? number(group.impressions) : "–"}</td>
-                    <td className="p-4">{report.gsc === "ok" ? position(group.position) : "–"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <SummaryTable title="Blog type" groups={report.groups} gsc={report.gsc} realKeywords />
+          <SummaryTable title="Idea source" groups={report.approaches} gsc={report.gsc} realKeywords={false} />
 
           <h2 className="eyebrow mb-3 mt-10 text-muted">Articles ({report.posts.length})</h2>
           {report.posts.length === 0 ? (
@@ -136,6 +144,7 @@ export default async function BlogPerformancePage() {
                   <tr className="border-b border-line">
                     <th className="p-4 font-medium">Article</th>
                     <th className="p-4 font-medium">Type</th>
+                    <th className="p-4 font-medium">Idea source</th>
                     <th className="p-4 font-medium">Days measured</th>
                     <th className="p-4 font-medium">Views</th>
                     <th className="p-4 font-medium">Google visits</th>
@@ -154,11 +163,20 @@ export default async function BlogPerformancePage() {
                         </Link>
                         <span className="block text-xs text-muted">
                           {post.keyword ? `“${post.keyword}”` : "No keyword recorded"}
-                          {post.keywordSource === "search-console" ? " · Google search" : post.keywordSource === "ai" ? " · chosen by AI" : ""}
+                          {post.keywordSource === "search-console"
+                            ? " · Google search"
+                            : post.keywordSource === "autocomplete"
+                              ? " · Google autocomplete"
+                              : post.keywordSource === "competitor"
+                                ? " · competitor gap"
+                                : post.keywordSource === "ai"
+                                  ? " · chosen by AI"
+                                  : ""}
                           {post.geo ? ` · ${post.geo}` : ""}
                         </span>
                       </td>
                       <td className="p-4">{strategyInfo(post.group)?.label ?? "Other"}</td>
+                      <td className="p-4">{approachInfo(post.approach)?.label ?? "Other"}</td>
                       <td className="p-4">
                         {post.status === "draft" ? (
                           <span className="text-muted">Draft</span>
