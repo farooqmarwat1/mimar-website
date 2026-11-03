@@ -62,7 +62,7 @@ export const bookingContent: Record<Locale, BookingCopy> = {
     contactCta: "Contact the studio",
   },
   ar: {
-    title: "الحجز - ميمار",
+    title: "الحجز - معمار",
     description: "موعدك على بُعد نقرة واحدة!",
     home: "الرئيسية",
     breadcrumbName: "الحجز",
@@ -119,7 +119,7 @@ export const myBookingsContent: Record<Locale, MyBookingsCopy> = {
     contact: "Contact us",
   },
   ar: {
-    title: "حجوزاتي - ميمار",
+    title: "حجوزاتي - معمار",
     description: "أدر اجتماعك مع استوديوهات معمار: استخدم الرابط الوارد في بريد الحجز الإلكتروني، أو احجز اجتماعاً جديداً، أو تواصل مع فريقنا.",
     home: "الرئيسية",
     breadcrumbName: "حجوزاتي",
@@ -161,7 +161,7 @@ export const proposalContent: Record<Locale, ProposalCopy> = {
     contact: "Contact us",
   },
   ar: {
-    title: "عرض التصور البصري - ميمار",
+    title: "عرض التصور البصري - معمار",
     description: "اطلع على عرض استوديوهات معمار للتصور ثلاثي الأبعاد واحصل على عرض سعر لمشروعك.",
     home: "الرئيسية",
     breadcrumbName: "عرض التصور البصري",

@@ -109,7 +109,7 @@ const ar: Dictionary = {
     next: "الخدمات التالية",
   },
   legacyArticle: {
-    eyebrow: "/ رؤى ميمار",
+    eyebrow: "/ رؤى معمار",
     publishedBy: "نُشر بواسطة استوديوهات معمار",
     discussProject: "ناقش مشروعك معنا",
   },

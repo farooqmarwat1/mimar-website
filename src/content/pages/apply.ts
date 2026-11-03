@@ -102,7 +102,7 @@ export const applyContent: Record<Locale, ApplyCopy> = {
       portfolio: "رابط سيرتك الذاتية أو معرض أعمالك",
       portfolioHint: "Google Drive أو Behance أو LinkedIn أو موقعك الخاص. تأكد من أن أي شخص لديه الرابط يستطيع فتحه.",
       message: "نبذة عنك",
-      messageHint: "بضعة أسطر عن خبرتك ولماذا ميمار.",
+      messageHint: "بضعة أسطر عن خبرتك ولماذا معمار.",
       send: "إرسال الطلب",
       sending: "جارٍ الإرسال…",
       successTitle: "تم استلام طلبك.",

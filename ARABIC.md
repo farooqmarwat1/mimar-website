@@ -43,7 +43,7 @@ Home page only (`/` and `/ar`), browser-tab title only: the hero and every visib
 
 ## Studio name in Arabic (owner decision, 3 Nov 2026)
 
-The Arabic name of Mimar Studios is **استوديوهات معمار**. Use it everywhere the full name appears in Arabic (titles, meta, JSON-LD, footer, copy, the 45 legacy articles, and the AI translation prompt in `src/lib/ai/translate-post.ts`). The old spelling "ميمار ستوديوز" is retired. The Latin name stays "Mimar Studios" / "mimAR" in English text and in the `en` pages.
+The Arabic name of Mimar Studios is **استوديوهات معمار**. Use it everywhere the full name appears in Arabic (titles, meta, JSON-LD, footer, copy, the 45 legacy articles, and the AI translation prompt in `src/lib/ai/translate-post.ts`). The short form is **معمار** (titles, running text) and Mimar Digital is **معمار ديجيتال**; the old transliteration "ميمار" ("ميمار ستوديوز", "ميمار ديجيتال") is retired. The Latin name stays "Mimar Studios" / "mimAR" in English text and in the `en` pages.
 
 ## Not translated (by design)
 - Staff portal `/admin` (English only: no Arabic interface and no Arabic fields; the Arabic text of articles is written by the AI, see below), `/api/*`.

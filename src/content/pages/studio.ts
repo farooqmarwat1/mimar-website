@@ -74,7 +74,7 @@ export const studioContent: Record<Locale, StudioCopy> = {
     ],
   },
   ar: {
-    title: "الاستوديو - ميمار",
+    title: "الاستوديو - معمار",
     description: "شركة ناشئة حائزة على جوائز",
     home: "الرئيسية",
     aboutName: "من نحن",
@@ -105,12 +105,12 @@ export const studioContent: Record<Locale, StudioCopy> = {
     ],
     cultureEyebrow: "/ 07 — الثقافة وبيئة العمل",
     cultureHeading1: "الحياة في ",
-    cultureHeading2: "ميمار.",
-    cultureBody1: "في ميمار، فريقنا المذهل هو من يصنع ثقافتنا الفريدة. نحرص على بناء مكان عمل يشعر فيه الجميع بالتقدير والدعم.",
+    cultureHeading2: "معمار.",
+    cultureBody1: "في معمار، فريقنا المذهل هو من يصنع ثقافتنا الفريدة. نحرص على بناء مكان عمل يشعر فيه الجميع بالتقدير والدعم.",
     cultureBody2: "نريد لموظفينا أن ينموا شخصياً ومهنياً وأن يتواصلوا مع بعضهم. هدفنا تعزيز بيئة داعمة يزدهر فيها موظفونا ويساهمون في رسالتنا الكبرى.",
     photos: [
-      { src: "/about/studio/studio-lounge.jpg", alt: "لحظة في صالة استوديو ميمار", caption: "الحياة في الاستوديو" },
-      { src: "/about/studio/team-moment.jpg", alt: "أعضاء فريق ميمار في لقاء بالاستوديو", caption: "نعمل معاً" },
+      { src: "/about/studio/studio-lounge.jpg", alt: "لحظة في صالة استوديو معمار", caption: "الحياة في الاستوديو" },
+      { src: "/about/studio/team-moment.jpg", alt: "أعضاء فريق معمار في لقاء بالاستوديو", caption: "نعمل معاً" },
     ],
   },
 };

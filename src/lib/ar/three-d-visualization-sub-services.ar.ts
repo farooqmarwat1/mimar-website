@@ -63,7 +63,7 @@ export const threeDVisualizationSubServicesAr: Record<string, DeepPartial<ThreeD
     cta,
   },
   cinematics: {
-    seoTitle: "الأفلام السينمائية - ميمار",
+    seoTitle: "الأفلام السينمائية - معمار",
     seoDescription:
       "ارتقِ بإعلاناتك العقارية بفيديوهات سينمائية داخلية وخارجية. تصوّر مشاريعك المعمارية عبر أفلام سينمائية خارجية وداخلية واقعية ثلاثية الأبعاد، إضافةً إلى المؤثرات البصرية (VFX) والصور المولّدة بالحاسوب (CGI).",
     title: "الأفلام السينمائية",
