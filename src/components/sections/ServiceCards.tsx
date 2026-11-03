@@ -28,11 +28,11 @@ export default function ServiceCards({
             <article className="grid gap-8 border-b border-line py-12 md:grid-cols-12 md:items-center md:gap-12 md:py-16">
               <div className={`motion-media relative aspect-[16/10] overflow-hidden bg-ink/5 md:col-span-5 ${index % 2 === 1 ? "md:order-2" : ""}`}>
                 {card.mediaType === "video" ? (
-                  <video autoPlay muted loop playsInline preload="none" poster="/services/animations-poster.jpg" className="h-full w-full object-cover" aria-label={ar ? "رسوم معمارية متحركة من ميمار ستوديوز" : "Architectural animation by Mimar Studios"}>
+                  <video autoPlay muted loop playsInline preload="none" poster="/services/animations-poster.jpg" className="h-full w-full object-cover" aria-label={ar ? "رسوم معمارية متحركة من استوديوهات معمار" : "Architectural animation by Mimar Studios"}>
                     <source src={card.media} type="video/mp4" />
                   </video>
                 ) : (
-                  <Image src={card.media} alt={ar ? `${card.title} من ميمار ستوديوز` : `${card.title} by Mimar Studios`} fill unoptimized sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 42vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.025]" />
+                  <Image src={card.media} alt={ar ? `${card.title} من استوديوهات معمار` : `${card.title} by Mimar Studios`} fill unoptimized sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 42vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.025]" />
                 )}
               </div>
               <div className={`md:col-span-7 ${index % 2 === 1 ? "md:order-1" : ""}`}>

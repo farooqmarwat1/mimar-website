@@ -45,7 +45,7 @@ export function getServiceUi(lang: Locale): ServiceUi {
 
 /** "{title} by Mimar Studios" image alt text. */
 export function byMimar(title: string, lang: Locale): string {
-  return lang === "ar" ? `${title} من ميمار ستوديوز` : `${title} by Mimar Studios`;
+  return lang === "ar" ? `${title} من استوديوهات معمار` : `${title} by Mimar Studios`;
 }
 
 /** Title of a main service (architectural-design, 3d-visualization, branding, marketing...) in the page language. */

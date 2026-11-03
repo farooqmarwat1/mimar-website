@@ -48,7 +48,7 @@ export default function Hero({ lang = "en" }: { lang?: Locale }) {
             preload="metadata"
             poster="/hero/fallback.webp"
             className="h-full w-full object-cover"
-            aria-label={lang === "ar" ? "رحلة معمارية عبر أحد مشاريع ميمار ستوديوز" : "Architectural journey through a Mimar Studios development"}
+            aria-label={lang === "ar" ? "رحلة معمارية عبر أحد مشاريع استوديوهات معمار" : "Architectural journey through a Mimar Studios development"}
           >
             {/* WebM (VP9) first: same clip, about 18% smaller. The browser uses the first source it can play, so
                 browsers without WebM support fall back to the MP4. */}
@@ -80,7 +80,7 @@ export default function Hero({ lang = "en" }: { lang?: Locale }) {
         <h1 className="flex w-full justify-center">
           <Image
             src="/hero/hero-text.webp"
-            alt={lang === "ar" ? "ميمار ستوديوز - شركة عمارة وتصور ثلاثي الأبعاد" : "Mimar Studios - 3D Architecture Firm in Pakistan"}
+            alt={lang === "ar" ? "استوديوهات معمار - شركة عمارة وتصور ثلاثي الأبعاد" : "Mimar Studios - 3D Architecture Firm in Pakistan"}
             width={1800}
             height={157}
             priority
@@ -89,7 +89,7 @@ export default function Hero({ lang = "en" }: { lang?: Locale }) {
           />
         </h1>
         {lang === "ar" && (
-          <p className="text-[clamp(1.5rem,4.2vw,2.75rem)] font-medium text-paper/90">ميمار ستوديوز</p>
+          <p className="text-[clamp(1.5rem,4.2vw,2.75rem)] font-medium text-paper/90">استوديوهات معمار</p>
         )}
       </div>
     </section>

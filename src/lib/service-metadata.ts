@@ -48,7 +48,7 @@ export async function serviceMetadata(slug: string, lang: Locale = "en"): Promis
   const service = rawService ? localizeService(rawService, lang) : undefined;
   const detail = rawDetail ? localizeServiceDetail(rawDetail, lang) : undefined;
   const seo = lang === "ar" ? serviceSeoAr[slug] : serviceSeo[slug];
-  const suffix = lang === "ar" ? "ميمار ستوديوز" : "Mimar Studios";
+  const suffix = lang === "ar" ? "استوديوهات معمار" : "Mimar Studios";
   return buildMetadata({
     title: seo?.title ?? `${detail?.title ?? service?.title} - ${suffix}`,
     description: seo?.description ?? detail?.intro ?? service?.description ?? "",

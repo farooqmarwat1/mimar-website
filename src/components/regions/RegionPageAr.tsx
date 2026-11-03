@@ -56,7 +56,7 @@ export default function RegionPageAr({ regionKey }: { regionKey: keyof typeof re
               "@context": "https://schema.org",
               "@type": ["LocalBusiness", "ProfessionalService"],
               "@id": `${siteConfig.url}${pagePath}#${english.city.toLowerCase().replace(/\s+/g, "-")}`,
-              name: `ميمار ستوديوز - ${location.city}`,
+              name: `استوديوهات معمار - ${location.city}`,
               url: `${siteConfig.url}${pagePath}`,
               inLanguage: "ar",
               image: `${siteConfig.url}${siteConfig.ogImage}`,
@@ -83,7 +83,7 @@ export default function RegionPageAr({ regionKey }: { regionKey: keyof typeof re
           {
             "@context": "https://schema.org",
             "@type": "ItemList",
-            name: `مشاريع ميمار ستوديوز في ${region.name}`,
+            name: `مشاريع استوديوهات معمار في ${region.name}`,
             numberOfItems: projects.length,
             itemListElement: projects.map((project, index) => ({
               "@type": "ListItem",

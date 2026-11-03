@@ -299,10 +299,10 @@ export const siteJsonLdAr = {
         return {
           ...node,
           description:
-            "ميمار ستوديوز استوديو دولي للعمارة والتصور ثلاثي الأبعاد، يقدّم خدمات التصيير ثلاثي الأبعاد والرسوم المتحركة وجولات الواقع الافتراضي والتجارب الرقمية للعقارات.",
+            "استوديوهات معمار استوديو دولي للعمارة والتصور ثلاثي الأبعاد، يقدّم خدمات التصيير ثلاثي الأبعاد والرسوم المتحركة وجولات الواقع الافتراضي والتجارب الرقمية للعقارات.",
         };
       case "https://mim.archi/#website":
-        return { ...node, url: pageUrl("/", "ar"), name: "ميمار ستوديوز", inLanguage: "ar" };
+        return { ...node, url: pageUrl("/", "ar"), name: "استوديوهات معمار", inLanguage: "ar" };
       case "https://mim.archi/#service-3d-visualization":
         return {
           ...node,

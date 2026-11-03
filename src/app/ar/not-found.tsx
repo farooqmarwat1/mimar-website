@@ -6,7 +6,7 @@ import { getDictionary } from "@/i18n/dictionaries";
 // Arabic mirror of the English 404: a real 404 status, kept out of search
 // results, and without the home page's title/canonical.
 export const metadata: Metadata = {
-  title: "الصفحة غير موجودة | ميمار ستوديوز",
+  title: "الصفحة غير موجودة | استوديوهات معمار",
   description: "الصفحة التي كنت تبحث عنها غير موجودة.",
   robots: { index: false, follow: true },
   alternates: { canonical: null },
