@@ -105,6 +105,20 @@ export async function fetchPageText(rawUrl: string): Promise<FetchedPage | null>
 }
 
 /**
+ * The raw HTML of a public page, for the competitor crawler (src/lib/ideas/competitor-crawl.ts), with the
+ * same protections as fetchPageText. Unlike fetchPageText the markup is kept: the crawler reads only the
+ * title, headings and dates out of it. Null when it cannot be read.
+ */
+export async function fetchHtml(rawUrl: string): Promise<{ url: string; html: string } | null> {
+  try {
+    const page = await fetchPublic(rawUrl, "text/html,application/xhtml+xml;q=0.9", (type) => /text\/html|application\/xhtml/i.test(type));
+    return page ? { url: page.url.toString(), html: page.body } : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * The raw text of a public feed, sitemap or robots.txt (for the blog idea collectors), with the
  * same protections as fetchPageText. Null when it cannot be read.
  */

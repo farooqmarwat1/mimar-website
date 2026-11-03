@@ -1,6 +1,7 @@
 "use client";
 import { startTransition, useActionState } from "react";
 import { addIdeaAction, collectNowAction, saveCompetitorsAction, writeIdeaNextAction, type IdeasState } from "@/app/(site)/admin/blog/ideas/actions";
+import { MAX_COMPETITORS } from "@/lib/ideas/competitor-seeds";
 import { fieldClass, hintClass, labelClass, primaryButtonClass, secondaryButtonClass, textareaClass } from "@/components/admin/styles";
 
 /** The interactive parts of /admin/blog/ideas. Every action checks access itself (actions.ts). */
@@ -42,8 +43,11 @@ export function CompetitorsForm({ domains }: { domains: string[] }) {
     <form action={action} className="grid gap-3">
       <label className={labelClass}>
         Competitor websites
-        <textarea name="competitors" defaultValue={domains.join("\n")} rows={4} placeholder={"example-studio.com\nanother-agency.ae"} className={`${textareaClass} !min-h-28`} />
-        <span className={hintClass}>One per line, up to 8. Their public sitemaps are read weekly to find subjects they cover and we do not. Their pages are never copied or used as sources.</span>
+        <textarea name="competitors" defaultValue={domains.join("\n")} rows={10} placeholder={"example-studio.com\nanother-agency.ae"} className={`${textareaClass} !min-h-28`} />
+        <span className={hintClass}>
+          One per line, up to {MAX_COMPETITORS}. It starts with a researched list of studios in Pakistan, the UAE, the USA and Canada; edit it freely. Their public blog sitemaps are read weekly to find
+          subjects they cover and we do not. Their pages are never copied or used as sources.
+        </span>
       </label>
       <div className="flex flex-wrap items-center gap-4">
         <button type="submit" disabled={pending} className={secondaryButtonClass}>

@@ -1,6 +1,7 @@
 import "server-only";
 import { expiryFor, isDuplicateIdea, type Idea, type IdeaStatus, type NewIdea } from "@/lib/ai/idea-plan";
 import { adminDb } from "@/lib/firebase/admin";
+import { DEFAULT_COMPETITORS, MAX_COMPETITORS } from "@/lib/ideas/competitor-seeds";
 
 /**
  * Firestore bookkeeping for blog ideas (src/lib/ai/idea-plan.ts):
@@ -118,11 +119,13 @@ export function normalizeDomain(raw: string): string | null {
   return /^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(host) && !host.endsWith("mim.archi") ? host : null;
 }
 
+/** The editors' saved list (even an empty one), or the starter list until they save their own. */
 export async function getCompetitors(): Promise<string[]> {
   const snap = await adminDb().doc(SETTINGS_DOC).get();
-  return (snap.get("competitors") as string[] | undefined) ?? [];
+  const saved: unknown = snap.get("competitors");
+  return Array.isArray(saved) ? saved.filter((domain): domain is string => typeof domain === "string") : DEFAULT_COMPETITORS;
 }
 
 export async function setCompetitors(domains: string[]) {
-  await adminDb().doc(SETTINGS_DOC).set({ competitors: [...new Set(domains)].slice(0, 8) }, { merge: true });
+  await adminDb().doc(SETTINGS_DOC).set({ competitors: [...new Set(domains)].slice(0, MAX_COMPETITORS) }, { merge: true });
 }

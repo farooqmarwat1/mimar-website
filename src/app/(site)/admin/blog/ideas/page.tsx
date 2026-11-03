@@ -20,11 +20,12 @@ const stateBadge: Record<string, string> = {
 const pakistanTime = (iso: string) => new Date(iso).toLocaleString("en-GB", { timeZone: "Asia/Karachi", dateStyle: "medium", timeStyle: "short" });
 
 function Evidence({ idea }: { idea: Idea }) {
-  const { score, comments, count, note, url } = idea.evidence;
+  const { score, comments, count, note, url, fame, signals } = idea.evidence;
   const parts = [
     SOURCE_LABELS[idea.source],
     idea.region,
-    count && count > 1 ? `${count} ${idea.source === "leads" ? "enquiries" : idea.source === "autocomplete" ? "searches" : "posts"}` : "",
+    fame ? `fame ${fame}/100` : "",
+    count && count > 1 && !fame ? `${count} ${idea.source === "leads" ? "enquiries" : idea.source === "autocomplete" ? "searches" : "posts"}` : "",
     score ? `${score.toLocaleString("en-US")} reactions` : "",
     comments ? `${comments.toLocaleString("en-US")} comments` : "",
     `added ${idea.createdAt.slice(0, 10)}`,
@@ -33,6 +34,7 @@ function Evidence({ idea }: { idea: Idea }) {
     <span className="mt-1 block text-xs text-muted">
       {idea.keyword && idea.keyword !== idea.title.toLowerCase() ? <>“{idea.keyword}” · </> : null}
       {parts.join(" · ")}
+      {signals?.length ? <span className="block">Why it counts as established: {signals.join("; ")}.</span> : null}
       {note && note !== idea.title ? <span className="block">{note}</span> : null}
       {url ? (
         <a href={url} target="_blank" rel="noopener noreferrer nofollow" className="text-accent hover:underline">

@@ -70,7 +70,7 @@ export type IdeaSource = (typeof IDEA_SOURCES)[number];
 
 export const SOURCE_LABELS: Record<IdeaSource, string> = {
   autocomplete: "Google autocomplete",
-  competitor: "Competitor gap",
+  competitor: "Competitor topics",
   reddit: "Reddit",
   instagram: "Instagram",
   manual: "Added by staff",
@@ -89,6 +89,10 @@ export type IdeaEvidence = {
   /** How many posts, searches or enquiries back it up. */
   count?: number;
   note?: string;
+  /** 0-100: how established a competitor subject is (competitor-intel.ts fameScore). */
+  fame?: number;
+  /** The signals behind `fame`, one short line each. Never personal data. */
+  signals?: string[];
 };
 
 export type Idea = {
@@ -181,7 +185,7 @@ const isFresh = (idea: Pick<Idea, "status" | "expiresAt">, now: Date) => idea.st
 
 /** How strongly the evidence backs an idea: more people asking, more engagement. */
 export function ideaStrength(evidence: IdeaEvidence): number {
-  return 1 + Math.log10(1 + (evidence.score ?? 0) + 3 * (evidence.comments ?? 0)) + 2 * Math.log2(1 + (evidence.count ?? 1));
+  return 1 + Math.log10(1 + (evidence.score ?? 0) + 3 * (evidence.comments ?? 0)) + 2 * Math.log2(1 + (evidence.count ?? 1)) + (evidence.fame ?? 0) / 20;
 }
 
 /** The best fresh idea for this approach, or null when there is none. */
@@ -331,20 +335,52 @@ export function parseSitemap(xml: string): { urls: string[]; sitemaps: string[] 
   return { urls: locs(/<url>[\s\S]*?<\/url>/gi), sitemaps: locs(/<sitemap>[\s\S]*?<\/sitemap>/gi) };
 }
 
+/** Page URLs of a sitemap with their last-modified date (ISO, or "" when it gives none). */
+export function parseSitemapEntries(xml: string): { loc: string; lastmod: string }[] {
+  return (xml.match(/<url>[\s\S]*?<\/url>/gi) ?? []).flatMap((entry) => {
+    const loc = xmlText(tag(entry, "loc"));
+    const parsed = Date.parse(xmlText(tag(entry, "lastmod")));
+    return loc.startsWith("https://") ? [{ loc, lastmod: Number.isNaN(parsed) ? "" : new Date(parsed).toISOString() }] : [];
+  });
+}
+
 /** Sitemap URLs from robots.txt. */
 export const parseRobotsSitemaps = (robots: string) => [...robots.matchAll(/^\s*sitemap:\s*(https:\/\/\S+)/gim)].map((match) => match[1]);
 
 const ARTICLE_PATH = /\/(blog|blogs|insights?|news|articles?|journal|resources|guides?|stories|knowledge)\//i;
 
-/** An article URL as the phrase its slug spells ("/blog/how-much-does-3d-rendering-cost" -> "how much does 3d rendering cost"). */
-export function slugPhrase(url: string): string | null {
+const POST_SITEMAP = /post|blog|article|news|insight|journal/i;
+const OTHER_SITEMAP = /page|categor|tag|author|team|project|portfolio|case|service|product|showcase|local|location|geo|listicle|elementor|video|expertise|tour|member|people/i;
+
+/**
+ * Whether a sitemap file lists blog posts (WordPress / Yoast "post-sitemap.xml", "wp-sitemap-posts-post-1.xml",
+ * "sitemap-blog.xml"). Those sites often put posts at the root ("/how-much-does-rendering-cost/"),
+ * so every URL in such a sitemap is an article whatever its path.
+ */
+export function isPostSitemap(url: string): boolean {
+  const name = url.split("?")[0].split("/").pop() ?? "";
+  return POST_SITEMAP.test(name) && !OTHER_SITEMAP.test(name);
+}
+
+/** `count` items spread evenly over the list (not just its start), so a long blog is sampled across its years. */
+export function sampleEvenly<T>(items: T[], count: number): T[] {
+  if (items.length <= count) return items;
+  const step = items.length / count;
+  return Array.from({ length: count }, (_, index) => items[Math.floor(index * step)]);
+}
+
+/**
+ * An article URL as the phrase its slug spells ("/blog/how-much-does-3d-rendering-cost" -> "how much does 3d rendering cost").
+ * `anyPath` is for URLs from a post sitemap (isPostSitemap), which need no "/blog/" in the path.
+ */
+export function slugPhrase(url: string, anyPath = false): string | null {
   let path: string;
   try {
     path = new URL(url).pathname;
   } catch {
     return null;
   }
-  if (!ARTICLE_PATH.test(path)) return null;
+  if (!anyPath && !ARTICLE_PATH.test(path)) return null;
   const slug = path.replace(/\/$/, "").split("/").pop() ?? "";
   const phrase = decodeURIComponent(slug)
     .replace(/\.(html?|php|aspx?)$/i, "")
