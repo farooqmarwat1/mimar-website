@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       category: text(body.category, 60) || undefined,
       description: text(body.description, 400) || undefined,
     });
-    const url = await saveCover(image.bytes, image.kind, { uploadedBy: session.email, generatedBy: image.model });
+    const url = await saveCover(image.bytes, image.kind, { uploadedBy: session.email, generatedBy: image.model }, title);
     return Response.json({ url, alt: image.alt });
   } catch (err) {
     if (err instanceof AdminAuthError) return Response.json({ error: err.message }, { status: err.status });

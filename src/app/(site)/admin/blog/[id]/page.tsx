@@ -35,11 +35,10 @@ export default async function EditPostPage({
   if (!post) notFound();
 
   const initial = postToFormValues(post);
-  if (blocked === "1") {
-    // Came from "Publish" on the list: show exactly what is stopping it.
-    const { errors } = await checkPost({ ...post, legacy: post.legacy });
-    initial.notes = [...Object.values(errors), ...initial.notes];
-  }
+  // The publish rules and the SEO checklist, shown as soon as the post is opened.
+  const check = await checkPost({ ...post, legacy: post.legacy, geo: post.generation?.geo });
+  // Came from "Publish" on the list: show exactly what is stopping it, first.
+  initial.notes = [...(blocked === "1" ? Object.values(check.errors) : []), ...initial.notes, ...check.warnings];
   const arState = arabicState(post);
 
   return (

@@ -1,6 +1,7 @@
 import "server-only";
 import { articlePolicyErrors } from "./editorial-policy";
 import { selectBlogCover } from "@/lib/blog-covers";
+import { libraryCoverAlt } from "@/lib/ai/image-prompt";
 import { z } from "zod";
 import { categoryForText, strategyInfo } from "@/lib/ai/keyword-plan";
 import { aiConfigured, aiSetupHint, getProvider } from "@/lib/ai/provider";
@@ -18,7 +19,7 @@ import { translateToArabic } from "@/lib/ai/translate-post";
 import { regionList } from "@/lib/regions";
 import { servicePath } from "@/lib/service-details";
 import { offices, services, siteConfig } from "@/lib/site-config";
-import { slugify } from "@/lib/slug";
+import { articleSlug } from "@/lib/slug";
 
 export { aiConfigured, aiSetupHint };
 
@@ -102,7 +103,7 @@ Search the web (several distinct searches) and produce a research brief with the
 1. KEY FACTS - the facts, figures, definitions and dates that a correct article must get right. Put the source name next to each fact. Only include a number or date if a source states it.
 2. WHAT READERS ASK - the 6-10 questions people actually ask about this topic, plus the search phrases they use.
 3. COVERAGE GAPS - what the top existing articles on this topic leave out or get wrong, so ours can be more useful.
-4. LOCAL ANGLE - location-specific points, or "none".
+4. LOCAL ANGLE - for the target location: the districts, neighbourhoods, housing schemes or nearby cities that matter for this topic; the local authorities, approvals or standards involved; how local buyers and developers behave; local costs in the local currency only if a source states them; and the local search phrases people use (e.g. "<service> in <city>"). Put the source next to each point, or write "none".
 5. CAUTIONS - claims that are disputed, out of date, or that we must not make.
 ${seedText ? `\nThe editor supplied these pages as starting points:\n${seedText}` : ""}`;
 }
@@ -117,12 +118,25 @@ Ground rules
 
 Structure (this is also what makes the article quotable by search engines and AI answer engines)
 - Open with a direct 2-3 sentence answer to the main question, before any background.
-- Then a "## Key takeaways" section with 3-5 bullets, each a complete, self-contained statement.
+- Then a "## Key takeaways: <the topic in a few words, using the primary keyword>" section with 3-5 bullets, each a complete, self-contained statement.
 - Then 4-7 "## " sections that each answer one question a reader has, with specific detail. Use "### " only when a section truly needs sub-sections.
 - Close with a short conclusion section and one natural, low-pressure pointer to the most relevant Mimar Studios service page.
 - 1,000-1,600 words in the body, excluding FAQ and SEO fields.
-- Start with a direct answer before the first heading in at most 120 words. Include the primary keyword naturally in the title, SEO title, description and first 100 words; keep that keyword first in keywords.
-- Use at least three H2 sections. For a target location, include its city and country in the body and geoTerms, plus a substantive local market considerations section. Never invent local regulations or prices; distinguish researched local facts from general guidance.
+- Start with a direct answer before the first heading in at most 120 words. Include the primary keyword naturally in the title, SEO title, description and first sentence; keep that keyword first in keywords.
+
+Keyword placement (natural, never stuffed)
+- Use the primary keyword, or a close variant (plural, different word order), in at least 2 "## " headings and again in the closing section.
+- Aim for the keyword to be about 0.5-1.5% of the words: use natural variants and related phrases instead of repeating the exact phrase.
+
+Readable flow
+- Keep sentences short: 20 words or fewer on average. Paragraphs have at most 3 sentences.
+- Link ideas with transition words (however, because, for example, as a result) and write in the active voice.
+
+Local intent (when there is a target location)
+- Name the city (or the country) in at least 2 "## " headings, including a substantive local section on what is different there, and in at least one FAQ question.
+- Use the local specifics the research brief confirms: districts, neighbourhoods or nearby cities, local authorities and approvals, local buyer behaviour, and costs in the local currency only if a source states them.
+- Never invent local regulations, places or prices; distinguish researched local facts from general guidance.
+- Use at least three H2 sections.
 - Write clear, self-contained explanations useful to searchers and AI answer engines, with 4–6 distinct FAQs of at least 20 words per answer.
 
 Format of "body" (strict): "## " for section headings, "### " for sub-headings, "- " for bullets, a blank line between paragraphs. Do NOT repeat the title as a heading, and use no HTML, bold, italics or tables. Add 3-6 inline links in the form [anchor text](/path), using ONLY paths from the allowed link list, never inside headings, and with descriptive anchor text.
@@ -130,8 +144,8 @@ Format of "body" (strict): "## " for section headings, "### " for sub-headings, 
 Other fields
 - title: the page heading - specific, promises what the article delivers, contains the main keyword.
 - seoTitle: 50-60 characters, main keyword near the start.
-- description: 140-160 characters, an accurate summary that makes a searcher want to click.
-- keywords: 5-8 search phrases, the main one first. geoTerms: the place names the article targets (city, country), or an empty array.
+- description: 120-150 characters including the primary keyword, an accurate benefit-led summary that makes a searcher want to click.
+- keywords: 5-8 search phrases, the main one first. geoTerms: 3-6 places the article targets: the city, the country, and the districts or nearby cities it covers (only places the research confirms), or an empty array when there is no location.
 - category: use the required category, or select exactly one allowed category slug.
 - faq: 4-6 questions people really ask. Each answer is 2-4 sentences, correct on its own without "see above", and consistent with the body.
 - related: 2-4 entries chosen from the allowed link list - the most relevant service or region page plus related articles.`;
@@ -216,7 +230,7 @@ async function runGates(article: Article, ctx: { job: GenerationJob; sources: Fe
   const words = countWords(blocks);
   if (words < MIN_WORDS) retryReasons.push(`Too short (${words} words). Write 1,000-1,600 words.`);
 
-  const check = await checkPost({ title: article.title, seoTitle: article.seoTitle, description: article.description, categories: category ? [category] : [], blocks, faq, related, sources: [], coverImage: undefined });
+  const check = await checkPost({ title: article.title, seoTitle: article.seoTitle, description: article.description, categories: category ? [category] : [], blocks, faq, related, sources: [], coverImage: undefined, seo: false });
   for (const [field, message] of Object.entries(check.errors)) retryReasons.push(`${field}: ${message}`);
   notes.push(...check.warnings);
   if (related.length < 2 || related.length > 4) retryReasons.push("related: choose 2-4 paths from the allowed link list.");
@@ -303,10 +317,12 @@ export async function runGeneration(jobId: string): Promise<string> {
     if (gated.rejectReason) throw new Error(`${gated.rejectReason} The draft was discarded; try again or give it different seed sources.`);
 
     const { article, blocks, faq, related } = gated;
-    let slug = slugify(article.title);
-    for (let n = 2; !slug || isReservedSlug(slug) || (await isPostSlugTaken(slug)); n++) slug = `${slugify(article.title)}-${n}`;
+    let slug = articleSlug(article.title);
+    for (let n = 2; !slug || isReservedSlug(slug) || (await isPostSlugTaken(slug)); n++) slug = `${articleSlug(article.title)}-${n}`;
     const category = resolveCategory(job.category, gated.article);
-    const coverImage = selectBlogCover({ title: article.title, category: category || undefined });
+    const library = selectBlogCover({ title: article.title, category: category || undefined });
+    // The library photo's description, tied to the article's keyword and place (alt text is an SEO signal too).
+    const coverImage = { ...library, alt: libraryCoverAlt(library.alt, job.keyword || article.keywords[0], job.geo?.split(",")[0]) };
 
     // The Arabic version, written from the finished English text. A failure here does not lose the draft.
     let ar: PostAr | undefined;

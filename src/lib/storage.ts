@@ -1,6 +1,7 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { adminBucket, isFirebaseConfigured } from "@/lib/firebase/admin";
+import { slugify } from "@/lib/slug";
 
 /**
  * Blog cover images live in Firebase Storage under blog/. Posts store the
@@ -33,9 +34,11 @@ export function coverObjectPath(url: string): string | null {
  * Saves a cover image under blog/YYYY/ and returns its Firebase download URL (works for objects
  * that are not publicly listable). Used by uploads and by AI-generated covers.
  */
-export async function saveCover(bytes: Buffer, kind: { ext: string; contentType: string }, metadata: Record<string, string>): Promise<string> {
+export async function saveCover(bytes: Buffer, kind: { ext: string; contentType: string }, metadata: Record<string, string>, name?: string): Promise<string> {
   const bucket = adminBucket();
-  const path = `${COVER_PREFIX}${new Date().getUTCFullYear()}/${randomUUID()}.${kind.ext}`;
+  // A descriptive file name ("interactive-master-plan-islamabad-3f9a2c1b.jpg") is a small image-SEO signal.
+  const base = name ? coverFileBase(name) : "";
+  const path = `${COVER_PREFIX}${new Date().getUTCFullYear()}/${base ? `${base}-${randomUUID().slice(0, 8)}` : randomUUID()}.${kind.ext}`;
   const token = randomUUID();
   await bucket.file(path).save(bytes, {
     resumable: false,
@@ -47,6 +50,9 @@ export async function saveCover(bytes: Buffer, kind: { ext: string; contentType:
   });
   return `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(path)}?alt=media&token=${token}`;
 }
+
+/** The readable part of a cover's file name, from the post title: lowercase words, at most 60 characters. */
+export const coverFileBase = (name: string) => slugify(name, 60);
 
 /** Best effort: a failure here must never block saving or deleting the post. */
 export async function deleteCover(url: string | undefined) {

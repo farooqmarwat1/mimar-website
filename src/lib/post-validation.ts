@@ -2,6 +2,7 @@ import "server-only";
 import { countWords, isTextBlock, type ArticleBlock } from "@/lib/content-blocks";
 import { findUnknownPaths, collectLinkedPaths } from "@/lib/internal-paths";
 import { blogCategories } from "@/lib/legacy-seo";
+import { seoIssues } from "@/lib/ai/seo-checks";
 import type { FaqItem, LinkItem, SourceItem } from "@/lib/posts";
 import { isHttpsSourceUrl } from "@/lib/post-fields";
 
@@ -28,6 +29,13 @@ export type PostCheckInput = {
   related: LinkItem[];
   sources: SourceItem[];
   coverImage?: { url: string; alt: string };
+  /** For the SEO checklist: the main keyword is the first one. */
+  keywords?: string[];
+  geoTerms?: string[];
+  /** "City, Country" the post targets (AI drafts record it), else the first geoTerms are used. */
+  geo?: string;
+  /** false skips the SEO checklist warnings (the AI writer runs the same checks as hard rules). */
+  seo?: boolean;
 };
 
 export type PostCheck = { errors: Record<string, string>; warnings: string[] };
@@ -48,7 +56,7 @@ export async function checkPost(post: PostCheckInput): Promise<PostCheck> {
   if (post.seoTitle.length < 10 || post.seoTitle.length > 70) soft("seoTitle", "Use 10-70 characters (about 60 is ideal).");
   else if (post.seoTitle.length > 60) warnings.push("The SEO title is over 60 characters and may be cut off in search results.");
   if (post.description.length < 50 || post.description.length > 175) soft("description", "Use 50-175 characters (about 155 is ideal).");
-  else if (post.description.length > 160) warnings.push("The meta description is over 160 characters and may be cut off in search results.");
+  else if (post.description.length > 155) warnings.push(`The meta description is ${post.description.length} characters: over 155 it may be cut off in search results.`);
   if (!post.title.trim()) errors.title = "Enter a title.";
   if (!post.description.trim()) errors.description = "Enter a meta description.";
 
@@ -78,6 +86,27 @@ export async function checkPost(post: PostCheckInput): Promise<PostCheck> {
 
   if (post.sources.some((source) => !source.title.trim() || !isHttpsSourceUrl(source.url))) errors.sources = "Each source needs a title and a valid full https:// link.";
   if (post.coverImage?.url && !post.coverImage.alt.trim()) errors.coverAlt = "Describe the cover image (alt text).";
+
+  // The on-page SEO checklist (keyword placement, flow, local intent, image alt): advice, never a blocker.
+  if (post.seo !== false) {
+    const unlink = (text: string) => text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+    const text = post.blocks.filter(isTextBlock);
+    warnings.push(
+      ...seoIssues(
+        {
+          keyword: post.keywords?.[0],
+          description: post.description,
+          headings: text.filter((block) => block.type === "h2").map((block) => unlink(block.text)),
+          paragraphs: text.filter((block) => block.type === "p" || block.type === "li").map((block) => unlink(block.text)),
+          faqQuestions: post.faq.map((item) => item.question),
+          geoTerms: post.geoTerms ?? [],
+          geo: post.geo ?? (post.geoTerms?.length ? post.geoTerms.join(", ") : undefined),
+          coverAlt: post.coverImage?.alt,
+        },
+        { description: false },
+      ).map((issue) => `SEO: ${issue}`),
+    );
+  }
 
   return { errors, warnings };
 }

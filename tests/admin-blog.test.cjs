@@ -77,9 +77,9 @@ function article() {
     seoTitle: 'Architectural rendering in Dubai: a developer guide',
     description: 'Architectural rendering helps Dubai developers explain projects clearly. Learn how to plan views, compare deliverables and brief a visualization studio.',
     keywords: ['architectural rendering', 'rendering brief', 'exterior visualization', 'interior visualization', 'developer guide'],
-    geoTerms: ['Dubai', 'UAE'], category: 'architecture',
-    body: 'Architectural rendering explains a planned building before construction begins. Developers in Dubai, UAE can use clear views to communicate design decisions.\n\n## Planning the brief\nDefine the intended audience.\n\n## Local market considerations\nCheck local project requirements against authoritative sources.\n\n## Comparing deliverables\nReview the agreed scope.',
-    faq: Array.from({ length: 4 }, (_, i) => ({ question: `What should a developer consider at stage ${i + 1}?`, answer: 'A developer should define the audience, clarify the design scope and agree which views are necessary before requesting a detailed proposal from a studio.' })),
+    geoTerms: ['Dubai', 'UAE', 'Dubai Marina'], category: 'architecture',
+    body: 'Architectural rendering explains a planned building before construction begins. Developers in Dubai, UAE can use clear views to communicate design decisions.\n\n## Planning an architectural rendering brief\nDefine the intended audience.\n\n## Architectural rendering in Dubai: local market considerations\nCheck local project requirements against authoritative sources.\n\n## Comparing deliverables across the UAE\nReview the agreed scope before ordering architectural rendering.',
+    faq: Array.from({ length: 4 }, (_, i) => ({ question: `What should a developer in Dubai consider at stage ${i + 1}?`, answer: 'A developer should define the audience, clarify the design scope and agree which views are necessary before requesting a detailed proposal from a studio.' })),
     related: [],
   };
 }

@@ -1,6 +1,6 @@
 import "server-only";
 import { ApiError, GoogleGenAI, Modality, ThinkingLevel } from "@google/genai";
-import { ALT_TEXT_PROMPT, buildImagePrompt, cleanAltText, usableAltText, type ImagePromptInput } from "@/lib/ai/image-prompt";
+import { altTextPrompt, buildImagePrompt, cleanAltText, usableAltText, type ImagePromptInput } from "@/lib/ai/image-prompt";
 
 /**
  * AI blog covers with Gemini's image model ("Generate image with AI" in the post editor). Uses the
@@ -24,11 +24,11 @@ const imageModel = () => process.env.GEMINI_IMAGE_MODEL?.trim() || "gemini-3.1-f
  * Alt text from a quick look at the finished image by the text model (GEMINI_MODEL). Image models
  * often return the picture alone; this costs a fraction of a cent. Null when it fails.
  */
-export async function describeImage(ai: GoogleGenAI, image: { data: string; mimeType: string }): Promise<string | null> {
+export async function describeImage(ai: GoogleGenAI, image: { data: string; mimeType: string }, context: { keyword?: string; place?: string } = {}): Promise<string | null> {
   try {
     const res = await ai.models.generateContent({
       model: process.env.GEMINI_MODEL?.trim() || "gemini-3.8-flash",
-      contents: [{ role: "user", parts: [{ inlineData: image }, { text: ALT_TEXT_PROMPT }] }],
+      contents: [{ role: "user", parts: [{ inlineData: image }, { text: altTextPrompt(context) }] }],
       // Low thinking (gemini-3.8-flash refuses MINIMAL), with room to spare: a thinking model can otherwise spend the budget before it answers.
       config: { maxOutputTokens: 2000, thinkingConfig: { thinkingLevel: ThinkingLevel.LOW } },
     });
@@ -60,7 +60,9 @@ export async function generateCoverImage(input: ImagePromptInput): Promise<Gener
     .filter((part) => part.text && !part.thought)
     .map((part) => part.text)
     .join(" ");
-  const alt = usableAltText(text) ?? (await describeImage(ai, { data: image.inlineData.data, mimeType: image.inlineData.mimeType! }));
+  // Described from the finished picture with the article's keyword and place in mind; the image model's own sentence is the fallback.
+  const place = input.geo?.split(",")[0]?.trim();
+  const alt = (await describeImage(ai, { data: image.inlineData.data, mimeType: image.inlineData.mimeType! }, { keyword: input.keyword, place })) ?? usableAltText(text);
   return { bytes, kind: KINDS[image.inlineData.mimeType!], alt: cleanAltText(alt ?? undefined, input), model };
 }
 
