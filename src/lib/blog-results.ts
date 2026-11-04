@@ -11,9 +11,9 @@ import {
   type CheckpointKey,
   type Snapshot,
 } from "@/lib/ai/approach-score";
-import { APPROACHES, regionForText } from "@/lib/ai/idea-plan";
+import { APPROACHES, approachOf, regionForText } from "@/lib/ai/idea-plan";
 import { COUNTRY_TO_REGION } from "@/lib/ai/keyword-plan";
-import { approachOf, sumCounters, type ApproachKey, type DailyCounters } from "@/lib/blog-performance";
+import { sumCounters, type ApproachKey, type DailyCounters } from "@/lib/blog-performance";
 import { adminDb } from "@/lib/firebase/admin";
 import { listLeadJourneys } from "@/lib/leads";
 import { POSTS_COLLECTION, type Post } from "@/lib/posts";
@@ -81,7 +81,7 @@ function meta(post: ResultPost): Omit<ArticleResult, "id" | "checkpoints"> {
   return {
     path: post.path,
     title: post.title,
-    approach: approachOf(generation),
+    approach: approachOf(generation, post.origin),
     strategy: generation?.strategy,
     keyword: generation?.keyword,
     keywordSource: generation?.keywordSource,

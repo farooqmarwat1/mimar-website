@@ -1,6 +1,6 @@
 import "server-only";
 import { FieldPath } from "firebase-admin/firestore";
-import { APPROACHES, APPROACH_KEYS, type Approach } from "@/lib/ai/idea-plan";
+import { APPROACHES, approachOf, type Approach } from "@/lib/ai/idea-plan";
 import { STRATEGIES, type BlogTagging, type Strategy } from "@/lib/ai/keyword-plan";
 import { adminDb } from "@/lib/firebase/admin";
 import { listLeadJourneys } from "@/lib/leads";
@@ -82,12 +82,7 @@ const OTHER = {
 };
 
 /** Drafts from before approaches were tracked that have a blog type were planned from Google searches. */
-export function approachOf(generation: { approach?: string; strategy?: string; keywordSource?: string } | undefined): ApproachKey {
-  // Before competitor topics were their own approach, they were drafted as search with a competitor keyword.
-  if (generation?.keywordSource === "competitor") return "competitors";
-  if (APPROACH_KEYS.includes(generation?.approach as Approach)) return generation!.approach as Approach;
-  return STRATEGIES.some((item) => item.key === generation?.strategy) ? "search" : "other";
-}
+export { approachOf };
 
 const isoDay = (date: Date) => date.toISOString().slice(0, 10);
 const counterDay = (date: Date) => isoDay(date).replace(/-/g, "");
@@ -184,7 +179,8 @@ export async function buildBlogReport(now = new Date()): Promise<BlogReport> {
         status: doc.status ?? "draft",
         publishedAt: doc.publishedAt,
         group: STRATEGIES.some((item) => item.key === strategy) ? strategy! : "other",
-        approach: approachOf(doc.generation),
+        // Every document here is an AI draft (the query above).
+        approach: approachOf(doc.generation, "ai"),
         keyword: doc.generation?.keyword,
         keywordSource: doc.generation?.keywordSource,
         geo: doc.generation?.geo,

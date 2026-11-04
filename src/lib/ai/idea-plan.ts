@@ -1,5 +1,5 @@
 import { decodeEntities } from "@/lib/ai/html-entities";
-import { classifyStrategies, groupForQuery, isBranded, type Strategy } from "@/lib/ai/keyword-plan";
+import { STRATEGIES, classifyStrategies, groupForQuery, isBranded, type Strategy } from "@/lib/ai/keyword-plan";
 import { titleSimilarity } from "@/lib/ai/similarity";
 
 /**
@@ -72,6 +72,22 @@ export const APPROACHES: ApproachInfo[] = [
 ];
 
 export const approachInfo = (key: string | undefined) => APPROACHES.find((item) => item.key === key);
+
+/** An approach, or "other" for articles no approach planned (written by hand, or imported from WordPress). */
+export type ApproachOrOther = Approach | "other";
+
+/**
+ * The approach an article came from, from what its draft recorded. Drafts written before approaches
+ * were tracked are filed where they belong: every automatic draft back then was planned from search
+ * demand (the service x region rotation, with a Search Console or AI-chosen keyword), and competitor
+ * topics were drafted as search with a competitor keyword until they became their own approach.
+ */
+export function approachOf(generation: { approach?: string; strategy?: string; keywordSource?: string } | undefined, origin?: string): ApproachOrOther {
+  if (generation?.keywordSource === "competitor") return "competitors";
+  if (APPROACH_KEYS.includes(generation?.approach as Approach)) return generation!.approach as Approach;
+  if (STRATEGIES.some((item) => item.key === generation?.strategy) || origin === "ai") return "search";
+  return "other";
+}
 
 export const IDEA_SOURCES = ["autocomplete", "competitor", "reddit", "instagram", "manual", "leads", "rss"] as const;
 export type IdeaSource = (typeof IDEA_SOURCES)[number];
