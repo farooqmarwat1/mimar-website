@@ -1,3 +1,4 @@
+import { siteUrl } from "./site-url";
 import type { Metadata } from "next";
 import { siteConfig, faqs as defaultFaqs } from "./site-config";
 import { servicePath } from "./service-details";
@@ -90,17 +91,17 @@ export function articleJsonLd(article: {
   return {
     "@context": "https://schema.org",
     "@type": "Article",
-    "@id": `${siteConfig.url}${articlePath}#article`,
+    "@id": `${siteUrl(articlePath)}#article`,
     headline: article.title,
     description: article.description,
-    url: `${siteConfig.url}${articlePath}`,
+    url: siteUrl(articlePath),
     datePublished: article.published ? `${article.published.replace(" ", "T")}Z` : undefined,
     dateModified: article.modified ? `${article.modified.replace(" ", "T")}Z` : undefined,
     keywords: article.keywords.join(", ") || undefined,
     image: article.image,
     author: { "@id": `${siteConfig.url}/#organization` },
     publisher: { "@id": `${siteConfig.url}/#organization` },
-    mainEntityOfPage: { "@type": "WebPage", "@id": `${siteConfig.url}${articlePath}` },
+    mainEntityOfPage: { "@type": "WebPage", "@id": siteUrl(articlePath) },
     inLanguage: locale === "ar" ? "ar" : "en-US",
   };
 }
@@ -130,7 +131,7 @@ export function jobPostingJsonLd(job: {
   validThrough?: string;
   updatedAt: string;
 }) {
-  const url = `${siteConfig.url}/careers/${job.slug}`;
+  const url = siteUrl(`/careers/${job.slug}`);
   const remote = job.workMode === "remote";
   return {
     "@context": "https://schema.org",
@@ -147,7 +148,7 @@ export function jobPostingJsonLd(job: {
       "@type": "Organization",
       "@id": `${siteConfig.url}/#organization`,
       name: "Mimar Studios",
-      sameAs: siteConfig.url,
+      sameAs: siteUrl("/"),
       logo: `${siteConfig.url}/logo.png`,
     },
     jobLocationType: remote ? "TELECOMMUTE" : undefined,
@@ -186,7 +187,7 @@ export const siteJsonLd = {
       "@type": "Organization",
       "@id": "https://mim.archi/#organization",
       name: "Mimar Studios",
-      url: "https://mim.archi",
+      url: "https://mim.archi/",
       logo: "https://mim.archi/logo.png",
       email: "info@mim.archi",
       description:
@@ -221,7 +222,7 @@ export const siteJsonLd = {
     {
       "@type": "WebSite",
       "@id": "https://mim.archi/#website",
-      url: "https://mim.archi",
+      url: "https://mim.archi/",
       name: "Mimar Studios",
       publisher: { "@id": "https://mim.archi/#organization" },
       inLanguage: "en",
@@ -231,7 +232,7 @@ export const siteJsonLd = {
       "@id": "https://mim.archi/#localbusiness-jeddah",
       name: "Mimar Studios - Jeddah",
       image: "https://mim.archi/logo.png",
-      url: "https://mim.archi",
+      url: "https://mim.archi/",
       telephone: "+966597439044",
       priceRange: "$$$",
       hasMap: "https://maps.app.goo.gl/weNLH7xskTdbXjdL7",
@@ -249,7 +250,7 @@ export const siteJsonLd = {
       "@id": "https://mim.archi/#localbusiness-islamabad",
       name: "Mimar Studios - Islamabad",
       image: "https://mim.archi/logo.png",
-      url: "https://mim.archi",
+      url: "https://mim.archi/",
       telephone: "+923005112990",
       priceRange: "$$$",
       address: {
@@ -270,7 +271,7 @@ export const siteJsonLd = {
       areaServed: ["Saudi Arabia", "UAE", "Pakistan", "USA"],
       description:
         "Photorealistic 3D visualization, interior and exterior architectural rendering services for real estate developers and architects.",
-      url: "https://mim.archi/services/3d-visualization",
+      url: "https://mim.archi/services/3d-visualization/",
     },
     {
       "@type": "Service",
@@ -281,7 +282,7 @@ export const siteJsonLd = {
       areaServed: ["Saudi Arabia", "UAE", "Pakistan", "USA"],
       description:
         "Comprehensive architectural design services from schematic design and concept development to construction documentation.",
-      url: "https://mim.archi/services/architectural-design",
+      url: "https://mim.archi/services/architectural-design/",
     },
   ],
 };
@@ -335,7 +336,7 @@ export function itemListJsonLd(name: string, items: { name: string; path: string
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      url: new URL(item.path, siteConfig.url).toString(),
+      url: siteUrl(item.path),
     })),
   };
 }
@@ -353,10 +354,10 @@ export function serviceJsonLd(
   return {
     "@context": "https://schema.org",
     "@type": "Service",
-    "@id": `${siteConfig.url}${path}#service`,
+    "@id": `${siteUrl(path)}#service`,
     name: service.title,
     description: service.intro,
-    url: `${siteConfig.url}${path}`,
+    url: siteUrl(path),
     provider: { "@id": `${siteConfig.url}/#organization` },
     areaServed: "Worldwide",
     serviceType: service.title,
@@ -399,7 +400,7 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
       "@type": "ListItem",
       position: i + 1,
       name: item.name,
-      item: new URL(item.path, siteConfig.url).toString(),
+      item: siteUrl(item.path),
     })),
   };
 }

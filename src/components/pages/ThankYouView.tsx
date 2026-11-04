@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import Reveal from "@/components/ui/Reveal";
 import { thankYouContent } from "@/content/pages/contact";
 import { localeHref, type Locale } from "@/i18n/config";

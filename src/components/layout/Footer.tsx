@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { contact, contactPhones, social, telHref } from "@/lib/site-config";
 import { localizedOffices } from "@/lib/localized-site";
 import { comma, localeHref, localizeDigits, type Locale } from "@/i18n/config";

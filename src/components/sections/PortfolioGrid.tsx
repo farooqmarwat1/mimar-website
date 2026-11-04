@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import ProjectShowcase from "@/components/sections/ProjectShowcase";
 import type { Project } from "@/lib/site-config";
 import { localizedPortfolioIntro } from "@/lib/localized-site";

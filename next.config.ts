@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withTrailingSlash } from "./src/lib/trailing-slash";
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -85,6 +86,17 @@ const nonPortalPaths = `/:path((?!${portalPathPrefixes.join("|")}).*)`;
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Page URLs end in a slash, exactly like the old WordPress site (/about-us/), so every URL
+  // Google already ranks stays the canonical (SEO_MIGRATION.md §0.23). trailingSlash makes Next
+  // add the slash to canonical, hreflang and Open Graph URLs. Next's own slash redirect is
+  // switched off because it would also hit /portal, /api and /__/auth (proxied to the portal
+  // app, which does not use slashes) and would run before redirects(), giving legacy URLs two
+  // hops. Instead redirects() below sends legacy URLs straight to the final slash URL, and
+  // src/proxy.ts adds the slash to every other page path (one 308). With the built-in redirect off, Next
+  // no longer adds the slash to <Link> hrefs either: public pages use src/components/ui/Link.tsx
+  // and localeHref(), which add it (src/lib/trailing-slash.ts).
+  trailingSlash: true,
+  skipTrailingSlashRedirect: true,
   // LOCAL DEVELOPMENT ONLY. When the dev server is reached through a tunnel (VS Code
   // port forwarding / dev tunnels), the browser's Origin ("localhost:3000") differs from
   // the forwarded host, and Next rejects the staff portal's Server Actions as a possible
@@ -138,19 +150,13 @@ const nextConfig: NextConfig = {
     ];
   },
   async redirects() {
-    return [
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.mim.archi" }],
-        destination: "https://mim.archi/:path*",
-        permanent: true,
-      },
+    const legacyRedirects = [
       { source: "/our-portfolio", destination: "/projects", permanent: true },
       { source: "/about", destination: "/about-us", permanent: true },
       { source: "/contact-us", destination: "/contact", permanent: true },
       // The old /meta hub and /meta/app/edtech are real pages. Other nested legacy
       // /meta paths still need individual content decisions, so keep their redirect.
-      { source: "/meta/:path((?!app/edtech$).+)", destination: "/services/interactive-services/vr-360-tours", permanent: true },
+      { source: "/meta/:path((?!app/edtech/?$).+)", destination: "/services/interactive-services/vr-360-tours", permanent: true },
       { source: "/real-estate-360-tours", destination: "/services/interactive-services/web-tours", permanent: true },
       { source: "/interior-design-services", destination: "/services/architectural-design/interior-design-services", permanent: true },
       // 3d-views and cinematics are real pages again (src/app/services/3d-visualization/[slug]).
@@ -161,7 +167,7 @@ const nextConfig: NextConfig = {
       // terrain-mapping, 3d-on-plan and 3d-on-construction-site are real pages again
       // (src/app/services/3d-visualization-hamza/*).
       { source: "/services/3d-visualization-hamza", destination: "/services/3d-visualization", permanent: true },
-      { source: "/services/3d-visualization-hamza/:path((?!(?:terrain-mapping|3d-on-plan|3d-on-construction-site)$).+)", destination: "/services/3d-visualization", permanent: true },
+      { source: "/services/3d-visualization-hamza/:path((?!(?:terrain-mapping|3d-on-plan|3d-on-construction-site)/?$).+)", destination: "/services/3d-visualization", permanent: true },
       // Interactive sub-services live under /services/interactive-services, as on the old site.
       { source: "/services/vr-360-tours", destination: "/services/interactive-services/vr-360-tours", permanent: true },
       { source: "/services/web-tours", destination: "/services/interactive-services/web-tours", permanent: true },
@@ -176,11 +182,11 @@ const nextConfig: NextConfig = {
       // (src/lib/legacy-service-pages.ts). The exact smart-topography-survey
       // URL is unmatched here and falls through to the dynamic route; any
       // other nested path still redirects to the parent.
-      { source: "/services/architectural-design/smart-topography-survey/:path((?!sample-spatial-data$).+)", destination: "/services/architectural-design", permanent: true },
+      { source: "/services/architectural-design/smart-topography-survey/:path((?!sample-spatial-data/?$).+)", destination: "/services/architectural-design", permanent: true },
       // tv-commercials-and-advertisements is a real page again.
       // The Digital Marketing, Social Media Marketing, Web Development and SEO sub-pages
       // are real pages too (src/lib/branding-marketing-sub-services.ts).
-      { source: "/services/marketing/:path((?!(?:tv-commercials-and-advertisements|digital-marketing|social-media-marketing|web-development|seo)$).+)", destination: "/services/marketing", permanent: true },
+      { source: "/services/marketing/:path((?!(?:tv-commercials-and-advertisements|digital-marketing|social-media-marketing|web-development|seo)/?$).+)", destination: "/services/marketing", permanent: true },
       // Renamed 2026-08: service slugs/names were realigned to match the
       // pre-migration mim.archi site (see legacy /services/* redirects
       // above) to preserve historical SEO equity. These carry forward the
@@ -209,6 +215,23 @@ const nextConfig: NextConfig = {
       { source: "/blog/top-7-elements-of-interior-design", destination: "/blog/elements-in-interior-design", permanent: true },
       { source: "/blog/best-ways-to-sell-your-real-estate", destination: "/technology/best-ways-to-sell-your-real-estate", permanent: true },
     ];
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.mim.archi" }],
+        destination: "https://mim.archi/:path*",
+        permanent: true,
+      },
+      // Each legacy rule twice, with and without the trailing slash, both straight to the final
+      // URL (with its slash): one hop either way.
+      ...legacyRedirects.flatMap((rule) => {
+        const target = { ...rule, destination: withTrailingSlash(rule.destination) };
+        return [target, { ...target, source: `${rule.source}/` }];
+      }),
+      // Every other page path without a slash gets one in src/proxy.ts, not here: these rules
+      // match with an optional trailing slash, so a rule here cannot tell /about-us from
+      // /about-us/ and loops.
+    ];
   },
   async rewrites() {
     return {
@@ -228,8 +251,14 @@ const nextConfig: NextConfig = {
       afterFiles: [
         // Pano2VR exports: serve each tour's index.html at the old URL. The page
         // sets <base href> so its relative files resolve without a trailing slash.
+        // Requests arrive with the trailing slash (the canonical form); the no-slash form is
+        // kept too in case a redirect is ever bypassed.
+        { source: `/tours/hmr/:unit(${hmrTourUnits})/`, destination: "/tours/hmr/:unit/index.html" },
         { source: `/tours/hmr/:unit(${hmrTourUnits})`, destination: "/tours/hmr/:unit/index.html" },
-        ...legacyTours.map(([source, folder]) => ({ source, destination: `/tours/${folder}/index.html` })),
+        ...legacyTours.flatMap(([source, folder]) => [
+          { source: `${source}/`, destination: `/tours/${folder}/index.html` },
+          { source, destination: `/tours/${folder}/index.html` },
+        ]),
         // The backlinked company profile keeps both old URLs. The file lives at
         // public/storage/... because Vercel's firewall denies /wp-content/* until
         // that rule is relaxed in the Vercel dashboard.

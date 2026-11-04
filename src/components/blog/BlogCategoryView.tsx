@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { BlogArticleList, BlogCategoryLinks } from "@/components/blog/BlogCatalog";
 import { breadcrumbJsonLd, itemListJsonLd, jsonLdScript } from "@/lib/seo";
 import { localeHref, type Locale } from "@/i18n/config";

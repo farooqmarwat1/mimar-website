@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { BlogArticleList, BlogCategoryLinks } from "@/components/blog/BlogCatalog";
 import { getArchive, getArchivePage, getArchivePageCount } from "@/lib/blog-store";
 import { breadcrumbJsonLd, itemListJsonLd, jsonLdScript } from "@/lib/seo";

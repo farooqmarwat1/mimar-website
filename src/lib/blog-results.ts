@@ -1,3 +1,4 @@
+import { siteUrl } from "./site-url";
 import "server-only";
 import { FieldPath } from "firebase-admin/firestore";
 import {
@@ -119,7 +120,7 @@ async function snapshotFor(post: ResultPost, days: CheckpointDays, data: { daily
     const [page, ranking, index] = await Promise.all([
       fetchPageStats(post.path, start, end),
       keyword ? fetchKeywordPosition(post.path, keyword, start, end, countryCode(post.generation?.geo)) : Promise.resolve(null),
-      inspectUrl(new URL(post.path, siteConfig.url).toString()),
+      inspectUrl(siteUrl(post.path)),
     ]);
     Object.assign(snapshot, {
       clicks: page.clicks,

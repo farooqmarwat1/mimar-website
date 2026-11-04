@@ -1,3 +1,4 @@
+import { siteUrl } from "@/lib/site-url";
 import type { MetadataRoute } from "next";
 import { siteConfig, services } from "@/lib/site-config";
 import { getProjects } from "@/lib/cms";
@@ -35,30 +36,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [projects, openJobs, articles] = await Promise.all([getProjects(), getOpenJobs(), getBlogEntries()]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: siteConfig.url, changeFrequency: "weekly", priority: 1 },
-    { url: `${siteConfig.url}/about-us`, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${siteConfig.url}/about-us/studio`, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${siteConfig.url}/meta`, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${siteConfig.url}/projects`, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteConfig.url}/services`, changeFrequency: "monthly", priority: 0.9 },
-    { url: `${siteConfig.url}/contact`, changeFrequency: "yearly", priority: 0.6 },
-    { url: `${siteConfig.url}/booking`, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${siteConfig.url}/blog`, changeFrequency: "weekly", priority: 0.7 },
-    { url: `${siteConfig.url}/careers`, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${siteConfig.url}/expos`, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${siteConfig.url}/privacy-policy`, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${siteConfig.url}/meta/app/edtech`, changeFrequency: "yearly", priority: 0.4 },
-    { url: `${siteConfig.url}/visualization-proposal`, changeFrequency: "yearly", priority: 0.4 },
-    { url: `${siteConfig.url}/my-bookings`, changeFrequency: "yearly", priority: 0.3 },
+    { url: siteUrl("/"), changeFrequency: "weekly", priority: 1 },
+    { url: siteUrl("/about-us"), changeFrequency: "monthly", priority: 0.8 },
+    { url: siteUrl("/about-us/studio"), changeFrequency: "monthly", priority: 0.7 },
+    { url: siteUrl("/meta"), changeFrequency: "monthly", priority: 0.7 },
+    { url: siteUrl("/projects"), changeFrequency: "weekly", priority: 0.9 },
+    { url: siteUrl("/services"), changeFrequency: "monthly", priority: 0.9 },
+    { url: siteUrl("/contact"), changeFrequency: "yearly", priority: 0.6 },
+    { url: siteUrl("/booking"), changeFrequency: "monthly", priority: 0.6 },
+    { url: siteUrl("/blog"), changeFrequency: "weekly", priority: 0.7 },
+    { url: siteUrl("/careers"), changeFrequency: "monthly", priority: 0.5 },
+    { url: siteUrl("/expos"), changeFrequency: "monthly", priority: 0.5 },
+    { url: siteUrl("/privacy-policy"), changeFrequency: "yearly", priority: 0.3 },
+    { url: siteUrl("/meta/app/edtech"), changeFrequency: "yearly", priority: 0.4 },
+    { url: siteUrl("/visualization-proposal"), changeFrequency: "yearly", priority: 0.4 },
+    { url: siteUrl("/my-bookings"), changeFrequency: "yearly", priority: 0.3 },
     // HMR 360 tours served from public/tours/hmr (see rewrites in next.config.ts).
     ...["one-bedroom", "two-bedroom", "three-bedroom", "four-bedroom", "penthouse", "townhouse"].map((unit) => ({
-      url: `${siteConfig.url}/tours/hmr/${unit}`,
+      url: siteUrl(`/tours/hmr/${unit}`),
       changeFrequency: "yearly" as const,
       priority: 0.4,
     })),
-    ...legacyTourPaths.map((path) => ({ url: `${siteConfig.url}${path}`, changeFrequency: "yearly" as const, priority: 0.4 })),
+    ...legacyTourPaths.map((path) => ({ url: siteUrl(path), changeFrequency: "yearly" as const, priority: 0.4 })),
     ...legacyCategories.map((category) => ({
-      url: `${siteConfig.url}${legacyCategoryPath(category.slug)}`,
+      url: siteUrl(legacyCategoryPath(category.slug)),
       changeFrequency: "monthly" as const,
       priority: 0.6,
     })),
@@ -66,7 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Only genuinely open roles: closed or expired job pages are noindex and stay out of the sitemap.
   const jobRoutes: MetadataRoute.Sitemap = openJobs.map((job) => ({
-    url: `${siteConfig.url}/careers/${job.slug}`,
+    url: siteUrl(`/careers/${job.slug}`),
     lastModified: new Date(job.updatedAt),
     changeFrequency: "weekly",
     priority: 0.5,
@@ -75,50 +76,50 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Every published article, migrated or written in /admin (drafts, unpublished and deleted ones never appear).
   // The migrated ones keep their original yearly cadence; new posts are refreshed monthly.
   const articleRoutes: MetadataRoute.Sitemap = articles.map((article) => ({
-    url: `${siteConfig.url}${article.path}`,
+    url: siteUrl(article.path),
     lastModified: new Date(`${article.modified.replace(" ", "T")}Z`),
     changeFrequency: article.legacy ? "yearly" : "monthly",
     priority: 0.6,
   }));
 
   const blogCategoryRoutes: MetadataRoute.Sitemap = blogCategories.map((c) => ({
-    url: `${siteConfig.url}/blog/${c.slug}`,
+    url: siteUrl(`/blog/${c.slug}`),
     changeFrequency: "weekly",
     priority: 0.6,
   }));
 
   const projectRoutes: MetadataRoute.Sitemap = projects.map((p) => ({
-    url: `${siteConfig.url}/projects/${p.slug}`,
+    url: siteUrl(`/projects/${p.slug}`),
     changeFrequency: "monthly",
     priority: 0.7,
   }));
 
   const serviceRoutes: MetadataRoute.Sitemap = [...services.map((s) => s.slug), interactiveServicesSlug].map((slug) => ({
-    url: `${siteConfig.url}${servicePath(slug)}`,
+    url: siteUrl(servicePath(slug)),
     changeFrequency: "monthly",
     priority: 0.7,
   }));
 
   const architecturalSubServiceRoutes: MetadataRoute.Sitemap = architecturalSubServiceSlugs.map((slug) => ({
-    url: `${siteConfig.url}${architecturalSubServicePath(slug)}`,
+    url: siteUrl(architecturalSubServicePath(slug)),
     changeFrequency: "monthly",
     priority: 0.6,
   }));
 
   const threeDVisualizationSubServiceRoutes: MetadataRoute.Sitemap = threeDVisualizationSubServiceSlugs.map((slug) => ({
-    url: `${siteConfig.url}${threeDVisualizationSubServicePath(slug)}`,
+    url: siteUrl(threeDVisualizationSubServicePath(slug)),
     changeFrequency: "monthly",
     priority: 0.6,
   }));
 
   const brandingMarketingSubServiceRoutes: MetadataRoute.Sitemap = brandingMarketingSubServicePaths.map((path) => ({
-    url: `${siteConfig.url}${path}`,
+    url: siteUrl(path),
     changeFrequency: "monthly",
     priority: 0.6,
   }));
 
   const legacyServiceRoutes: MetadataRoute.Sitemap = Object.values(legacyServicePages).map((page) => ({
-    url: `${siteConfig.url}${page.path}`,
+    url: siteUrl(page.path),
     changeFrequency: "monthly",
     priority: 0.6,
   }));
@@ -126,7 +127,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Country landing pages. These keep their original WordPress paths but are
   // no longer in legacySeoPages, so they are listed explicitly here.
   const regionRoutes: MetadataRoute.Sitemap = regionList.map((region) => ({
-    url: `${siteConfig.url}${region.path}`,
+    url: siteUrl(region.path),
     changeFrequency: "monthly",
     priority: 0.8,
   }));
@@ -149,11 +150,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // (English only), articles that have no Arabic version yet, and the static Pano2VR tours.
   const englishOnly = new Set<string>([
     ...jobRoutes.map((route) => route.url),
-    ...articles.filter((article) => article.titleAr === undefined).map((article) => `${siteConfig.url}${article.path}`),
-    ...legacyTourPaths.map((path) => `${siteConfig.url}${path}`),
+    ...articles.filter((article) => article.titleAr === undefined).map((article) => siteUrl(article.path)),
+    ...legacyTourPaths.map((path) => siteUrl(path)),
     ...staticRoutes.filter((route) => route.url.includes("/tours/")).map((route) => route.url),
   ]);
-  const arabicUrl = (url: string) => `${siteConfig.url}${localeHref("ar", url.slice(siteConfig.url.length) || "/")}`;
+  const arabicUrl = (url: string) => siteUrl(localeHref("ar", url.slice(siteConfig.url.length) || "/"));
 
   return englishRoutes.flatMap((route) => {
     if (englishOnly.has(route.url)) return [route];

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { blogCategories } from "@/lib/legacy-seo";
 import { isRtl, localeHref, type Locale } from "@/i18n/config";
 import Num from "@/i18n/Num";

@@ -1,3 +1,4 @@
+import { siteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 
 import RegionLanding from "@/components/regions/RegionLanding";
@@ -57,9 +58,9 @@ export default function UaeRegionPage() {
           ...region.locations.map((location) => ({
             "@context": "https://schema.org",
             "@type": ["LocalBusiness", "ProfessionalService"],
-            "@id": `${siteConfig.url}${region.path}#${location.city.toLowerCase().replace(/\s+/g, "-")}`,
+            "@id": `${siteUrl(region.path)}#${location.city.toLowerCase().replace(/\s+/g, "-")}`,
             name: `${siteConfig.name} - ${location.city}`,
-            url: `${siteConfig.url}${region.path}`,
+            url: siteUrl(region.path),
             image: `${siteConfig.url}${siteConfig.ogImage}`,
             address: {
               "@type": "PostalAddress",
@@ -89,7 +90,7 @@ export default function UaeRegionPage() {
               "@type": "ListItem",
               position: index + 1,
               name: project.title,
-              url: `${siteConfig.url}/projects/${project.slug}`,
+              url: siteUrl(`/projects/${project.slug}`),
             })),
           },
         ])}

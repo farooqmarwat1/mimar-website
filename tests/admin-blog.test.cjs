@@ -43,7 +43,7 @@ test('blog image metadata uses absolute URLs, correct dimensions, alt text and a
   const cover = load('src/lib/blog-covers.ts').BLOG_COVERS.rendering;
   const page = { path: '/blog/rendering-guide', title: 'Rendering guide', seoTitle: 'Rendering guide', description: 'A useful guide', keywords: [], published: '2026-10-22 10:00:00', modified: '2026-10-22 11:00:00', blocks: [{ type: 'p', text: 'A clear explanation.' }], cover, isPost: true, hasAr: false, lang: 'en', categories: ['3d-visualization'], geoTerms: ['Dubai'], sources: [{ title: 'Verified source', url: 'https://example.com/research' }] };
   const metadata = blog.blogMetadata(page), schema = blog.blogPostJsonLd(page);
-  assert.equal(metadata.alternates.canonical, 'https://mim.archi/blog/rendering-guide');
+  assert.equal(metadata.alternates.canonical, 'https://mim.archi/blog/rendering-guide/');
   assert.equal(metadata.openGraph.type, 'article'); assert.equal(metadata.openGraph.images[0].alt, cover.alt);
   assert.equal(metadata.openGraph.images[0].width, cover.width);
   assert.equal(schema['@type'], 'BlogPosting'); assert.equal(schema.image.url, 'https://mim.archi' + cover.url);

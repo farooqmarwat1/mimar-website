@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { withoutTrailingSlash } from "@/lib/trailing-slash";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { localeHref, type Locale } from "@/i18n/config";
@@ -28,7 +29,7 @@ const navItems = [
  */
 export default function Header({ lang = "en", dict }: { lang?: Locale; dict: Dictionary }) {
   const pathname = usePathname();
-  const isHome = pathname === "/" || pathname === "/ar";
+  const isHome = pathname === "/" || withoutTrailingSlash(pathname) === "/ar";
   const isAr = lang === "ar";
   // Tajawal at the English 11px tracked-caps size is too small; Arabic nav text is a plain 14px.
   const labelClass = isAr ? "text-sm font-medium" : "eyebrow";

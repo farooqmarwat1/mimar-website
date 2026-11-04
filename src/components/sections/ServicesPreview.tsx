@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { useEffect, useRef, useState } from "react";
 import Reveal from "@/components/ui/Reveal";
 import { isRtl, localeHref, localizeDigits, type Locale } from "@/i18n/config";

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { useState, type FormEvent, type InvalidEvent } from "react";
 import PhoneField from "@/components/PhoneField";
 import { isRtl, type Locale } from "@/i18n/config";

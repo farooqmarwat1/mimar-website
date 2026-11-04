@@ -118,11 +118,11 @@ test('the article trail is Home > Blog > Category > Article, in both languages, 
   const page = over => ({ path: '/blog/rendering-guide', title: 'Rendering guide', seoTitle: 'Rendering guide', description: 'A useful guide', keywords: [], published: '2026-10-22 10:00:00', modified: '2026-10-22 11:00:00', blocks: [{ type: 'p', text: 'Text.' }], isPost: true, hasAr: false, lang: 'en', categories: ['3d-visualization'], ...over });
   const trail = data => plain(data[0].itemListElement.map(item => [item.name, item.item]));
   assert.deepEqual(trail(blog.articleStructuredData(page())), [
-    ['Home', 'https://mim.archi/'], ['Blog', 'https://mim.archi/blog'], ['3D Visualization', 'https://mim.archi/blog/3d-visualization'], ['Rendering guide', 'https://mim.archi/blog/rendering-guide'],
+    ['Home', 'https://mim.archi/'], ['Blog', 'https://mim.archi/blog/'], ['3D Visualization', 'https://mim.archi/blog/3d-visualization/'], ['Rendering guide', 'https://mim.archi/blog/rendering-guide/'],
   ]);
   const arabic = trail(blog.articleStructuredData(page({ lang: 'ar', path: '/blog/rendering-guide' })));
   assert.equal(arabic.length, 4);
-  assert.equal(arabic[2][1], 'https://mim.archi/ar/blog/3d-visualization');
+  assert.equal(arabic[2][1], 'https://mim.archi/ar/blog/3d-visualization/');
   assert.notEqual(arabic[2][0], '3D Visualization', 'the category name is translated');
   assert.equal(trail(blog.articleStructuredData(page({ categories: [] }))).length, 3, 'no category, no extra level');
   assert.equal(trail(blog.articleStructuredData(page({ isPost: undefined }))).length, 2, 'imported articles keep their old trail');

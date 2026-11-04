@@ -1,3 +1,4 @@
+import { siteUrl } from "@/lib/site-url";
 import RegionLanding from "@/components/regions/RegionLanding";
 import { regionProjects, regions } from "@/lib/regions";
 import { breadcrumbJsonLd, jsonLdScript, serviceJsonLd } from "@/lib/seo";
@@ -42,7 +43,7 @@ export default function RegionPageAr({ regionKey }: { regionKey: keyof typeof re
               "ar",
             ),
             inLanguage: "ar",
-            url: `${siteConfig.url}${pagePath}`,
+            url: siteUrl(pagePath),
             // Cities we work in, including those with no profile of their own.
             areaServed: [
               { "@type": "Country", name: country },
@@ -55,9 +56,9 @@ export default function RegionPageAr({ regionKey }: { regionKey: keyof typeof re
             return {
               "@context": "https://schema.org",
               "@type": ["LocalBusiness", "ProfessionalService"],
-              "@id": `${siteConfig.url}${pagePath}#${english.city.toLowerCase().replace(/\s+/g, "-")}`,
+              "@id": `${siteUrl(pagePath)}#${english.city.toLowerCase().replace(/\s+/g, "-")}`,
               name: `استوديوهات معمار - ${location.city}`,
-              url: `${siteConfig.url}${pagePath}`,
+              url: siteUrl(pagePath),
               inLanguage: "ar",
               image: `${siteConfig.url}${siteConfig.ogImage}`,
               address: {
@@ -89,7 +90,7 @@ export default function RegionPageAr({ regionKey }: { regionKey: keyof typeof re
               "@type": "ListItem",
               position: index + 1,
               name: project.title,
-              url: `${siteConfig.url}${localeHref("ar", `/projects/${project.slug}`)}`,
+              url: siteUrl(localeHref("ar", `/projects/${project.slug}`)),
             })),
           },
         ])}

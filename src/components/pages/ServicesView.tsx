@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import FaqSection from "@/components/sections/FaqSection";
 import ServiceCards from "@/components/sections/ServiceCards";
 import Reveal from "@/components/ui/Reveal";

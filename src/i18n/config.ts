@@ -9,6 +9,8 @@
  * header link only, so crawlers and the legacy redirect map never see a hop.
  */
 
+import { withTrailingSlash } from "@/lib/trailing-slash";
+
 export const locales = ["en", "ar"] as const;
 export type Locale = (typeof locales)[number];
 
@@ -101,10 +103,11 @@ export function localizeDigitsDeep<T>(value: T, locale: Locale): T {
  */
 export function localeHref(locale: Locale, href: string): string {
   if (/^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith("#")) return href;
-  if (locale === defaultLocale) return href;
+  // Page URLs end in a slash, like the old site (src/lib/trailing-slash.ts).
+  if (locale === defaultLocale) return withTrailingSlash(href);
   const path = href.startsWith("/") ? href : `/${href}`;
-  if (path === AR_PREFIX || path.startsWith(`${AR_PREFIX}/`) || path.startsWith(`${AR_PREFIX}?`)) return path;
-  return path === "/" ? AR_PREFIX : `${AR_PREFIX}${path}`;
+  if (path === AR_PREFIX || path.startsWith(`${AR_PREFIX}/`) || path.startsWith(`${AR_PREFIX}?`)) return withTrailingSlash(path);
+  return withTrailingSlash(path === "/" ? AR_PREFIX : `${AR_PREFIX}${path}`);
 }
 
 /** The locale of a pathname: "ar" under /ar, otherwise English. */
