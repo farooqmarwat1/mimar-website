@@ -77,20 +77,35 @@ export default function Hero({ lang = "en" }: { lang?: Locale }) {
       )}
 
       <div className={lang === "ar" ? "container-page relative z-10 flex h-full flex-col items-center justify-end gap-4 pb-14 text-center md:gap-5 md:pb-14" : "container-page relative z-10 flex h-full items-end justify-center pb-14 text-center md:pb-14"}>
-        <h1 className="flex w-full justify-center">
+        {/* The H1 must carry real text, not only an image alt (SEO review 4 Nov 2026: crawlers and audit tools
+            read it as empty). The "MIMAR STUDIOS" wordmark image is decorative here: in English the studio name
+            it shows is repeated as screen-reader text, in Arabic it is the visible line under it. The tagline
+            line keeps the old site's H1 wording ("3d Architecture Firm"). Same text for every visitor and bot. */}
+        <h1 className={lang === "ar" ? "flex w-full flex-col items-center gap-4 md:gap-5" : "flex w-full flex-col items-center gap-3 md:gap-4"}>
           <Image
             src="/hero/hero-text.webp"
-            alt={lang === "ar" ? "استوديوهات معمار - شركة عمارة وتصور ثلاثي الأبعاد" : "Mimar Studios - 3D Architecture Firm in Pakistan"}
+            alt=""
+            aria-hidden="true"
             width={1800}
             height={157}
             priority
             sizes="(max-width: 640px) 90vw, 45vw"
             className="h-auto w-[92vw] opacity-90 md:w-[clamp(18rem,45vw,56rem)] md:max-w-[90vw] md:opacity-80"
           />
+          {lang === "ar" ? (
+            <>
+              <span className="block text-[clamp(1.5rem,4.2vw,2.75rem)] font-medium text-paper/90">استوديوهات معمار</span>
+              <span className="block text-[clamp(1rem,2.4vw,1.375rem)] font-normal text-paper/80">شركة عمارة وتصور ثلاثي الأبعاد</span>
+            </>
+          ) : (
+            <>
+              <span className="sr-only">Mimar Studios: </span>
+              <span className="block text-[clamp(.75rem,1.6vw,1rem)] font-normal uppercase tracking-[.35em] text-paper/80">
+                3D Architecture Firm
+              </span>
+            </>
+          )}
         </h1>
-        {lang === "ar" && (
-          <p className="text-[clamp(1.5rem,4.2vw,2.75rem)] font-medium text-paper/90">استوديوهات معمار</p>
-        )}
       </div>
     </section>
   );
