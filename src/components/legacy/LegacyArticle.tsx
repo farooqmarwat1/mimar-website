@@ -82,7 +82,7 @@ export default function LegacyArticle({ page, lang = "en" }: { page: SiteArticle
       {page.cover && (
         <div className="container-page mt-12 md:mt-16">
           <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-line">
-            <Image src={page.cover.url} alt={page.cover.alt} fill priority sizes="(max-width: 1280px) 100vw, 1200px" className="object-cover" />
+            <Image src={page.cover.url} alt={page.cover.alt} title={page.title} fill priority sizes="(max-width: 1280px) 100vw, 1200px" className="object-cover" />
           </div>
         </div>
       )}
@@ -100,6 +100,7 @@ export default function LegacyArticle({ page, lang = "en" }: { page: SiteArticle
                   <Image
                     src={block.src}
                     alt={block.alt}
+                    title={block.alt || undefined}
                     width={block.width ?? 2000}
                     height={block.height ?? 1250}
                     sizes="(max-width: 768px) 100vw, 768px"

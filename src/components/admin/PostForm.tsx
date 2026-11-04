@@ -117,6 +117,7 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
       const blob = await compressToWebp(file);
       const body = new FormData();
       body.append("file", new File([blob], "cover.webp", { type: blob.type }));
+      body.append("name", title);
       const res = await fetch("/admin/api/upload", { method: "POST", body });
       const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
       if (!res.ok || !data.url) throw new Error(data.error ?? "Upload failed.");
@@ -130,7 +131,8 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
     }
   }
 
-  const notes = [...initial.notes, ...(state.warnings ?? [])];
+  // The checklist from opening the post and from the last save often repeat; show each once.
+  const notes = [...new Set([...initial.notes, ...(state.warnings ?? [])])];
 
   return (
     <form action={action} className="grid gap-6">

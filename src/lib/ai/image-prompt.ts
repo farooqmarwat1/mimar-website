@@ -73,6 +73,25 @@ export function cleanAltText(text: string | undefined, input: Pick<ImagePromptIn
   return usableAltText(text) ?? `Illustration for ${input.keyword?.trim() || input.title.trim()}`.slice(0, 160);
 }
 
+/**
+ * The alt-text request for a finished cover. With the article's keyword and place it asks for them to be
+ * worked in when they truly describe the picture (alt text is read by search engines and screen readers),
+ * never claiming the image shows a real project or place.
+ */
+export function altTextPrompt(context: { keyword?: string; place?: string } = {}): string {
+  const about = [context.keyword?.trim() ? `"${context.keyword.trim()}"` : "", context.place?.trim() ? `in ${context.place.trim()}` : ""].filter(Boolean).join(" ");
+  return about
+    ? `${ALT_TEXT_PROMPT} The article is about ${about}: work that keyword or place into the sentence naturally if it fits what the image shows, without claiming the image shows a real project or a real place.`
+    : ALT_TEXT_PROMPT;
+}
+
+/** Library covers on AI drafts: the photo's own description, tied to the article's keyword and place. */
+export function libraryCoverAlt(alt: string, keyword?: string, place?: string): string {
+  const topic = keyword?.trim();
+  if (!topic) return alt;
+  return `${alt.replace(/[.\s]+$/, "")}, illustrating ${topic}${place?.trim() ? ` in ${place.trim()}` : ""}`.slice(0, 160);
+}
+
 /** For a second, text-only look at the finished image when the image model gave no alt text. */
 export const ALT_TEXT_PROMPT =
   "Write alt text for this website cover image: one plain sentence under 125 characters describing what it shows (building type, setting, materials, light). Do not start with 'Image of' or 'Picture of'. Reply with the sentence only.";

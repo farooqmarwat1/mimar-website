@@ -1,3 +1,4 @@
+import { seoIssues, splitMarkdownBody } from "./seo-checks";
 import type { Article } from "./types";
 
 const words = (value: string) => value.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
@@ -26,7 +27,6 @@ export function articlePolicyErrors(article: Article, context: { keyword?: strin
     if (!contains(article.keywords[0] ?? "", keyword)) errors.push("Keep the planned primary keyword first in keywords.");
   }
   if (article.seoTitle.trim().length < 50 || article.seoTitle.trim().length > 60) errors.push("SEO title must contain 50–60 characters.");
-  if (article.description.trim().length < 140 || article.description.trim().length > 160) errors.push("Description must contain 140–160 characters.");
   if (article.keywords.length < 5 || article.keywords.length > 8 || new Set(article.keywords.map(k => words(k).join(" "))).size !== article.keywords.length) errors.push("Provide 5–8 distinct, relevant keyword phrases.");
   if (!introduction || words(introduction).length > 120) errors.push("Open with a direct answer or definition in at most 120 words, before the first heading.");
   if ((article.body.match(/^## /gm) ?? []).length < 3) errors.push("Provide at least three useful H2 sections.");
@@ -40,5 +40,8 @@ export function articlePolicyErrors(article: Article, context: { keyword?: strin
     }
     if (!/^## .*\b(local|regional|market|practice|considerations|dubai|islamabad|riyadh|usa|pakistan|saudi|uae|united states)\b/im.test(article.body)) errors.push("Include a substantive section on local market considerations, supported by the research.");
   }
+  // Keyword placement, flow, local intent and description length (seo-checks.ts), shared with the editor's checklist.
+  const { headings, paragraphs } = splitMarkdownBody(article.body);
+  errors.push(...seoIssues({ keyword, description: article.description, headings, paragraphs, faqQuestions: article.faq.map((item) => item.question), geoTerms: article.geoTerms, geo: context.geo }));
   return errors;
 }

@@ -43,7 +43,9 @@ export async function POST(request: Request) {
     const kind = sniff(buffer);
     if (!kind) return Response.json({ error: "Upload a JPEG, PNG or WebP image." }, { status: 415 });
 
-    const url = await saveCover(buffer, kind, { uploadedBy: session.email });
+    // The post title, for a descriptive file name (optional).
+    const name = typeof form.get("name") === "string" ? String(form.get("name")).slice(0, 200) : undefined;
+    const url = await saveCover(buffer, kind, { uploadedBy: session.email }, name);
     return Response.json({ url });
   } catch (err) {
     if (err instanceof AdminAuthError) return Response.json({ error: err.message }, { status: err.status });

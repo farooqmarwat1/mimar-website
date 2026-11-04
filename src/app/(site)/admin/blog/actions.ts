@@ -22,7 +22,7 @@ import {
   type Post,
   type PostStatus,
 } from "@/lib/posts";
-import { slugify } from "@/lib/slug";
+import { articleSlug, slugify } from "@/lib/slug";
 import { coverObjectPath, deleteCover } from "@/lib/storage";
 import { blogCategories } from "@/lib/legacy-seo";
 import { libraryCover } from "@/lib/blog-covers";
@@ -128,7 +128,8 @@ export async function savePostAction(_prev: PostFormState, formData: FormData): 
   if (id && !existing) return { error: "That post no longer exists.", values };
 
   // A published address never changes, so inbound links and rankings keep working.
-  const slug = existing?.publishedAt ? existing.slug : slugify(input.slug || input.title);
+  // An editor's own URL ending is kept as typed; one made from the title is shortened (slug.ts articleSlug).
+  const slug = existing?.publishedAt ? existing.slug : input.slug ? slugify(input.slug) : articleSlug(input.title);
   if (!slug) return { error: "Could not build a URL from that title.", fieldErrors: { title: "Use letters or numbers." }, values };
   if (!existing?.publishedAt) {
     if (isReservedSlug(slug)) {
@@ -155,7 +156,7 @@ export async function savePostAction(_prev: PostFormState, formData: FormData): 
     return { error: "The cover image must be uploaded here.", fieldErrors: { coverUrl: "Upload the image again." }, values };
   }
 
-  const check = await checkPost({ title: input.title, seoTitle, description: input.description, categories, blocks, faq, related, sources, coverImage, legacy: existing?.legacy });
+  const check = await checkPost({ title: input.title, seoTitle, description: input.description, categories, blocks, faq, related, sources, coverImage, legacy: existing?.legacy, keywords: parseList(input.keywords), geoTerms: parseList(input.geoTerms), geo: existing?.generation?.geo });
   // Drafts may be saved incomplete; publishing needs every rule to pass.
   if (status === "published" && Object.keys(check.errors).length) {
     return { error: "This post is not ready to publish. Fix the highlighted fields, or save it as a draft.", fieldErrors: check.errors, warnings: check.warnings, values };
