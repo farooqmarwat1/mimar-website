@@ -12,6 +12,7 @@ import "@fontsource/tajawal/700.css";
 import "../globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Analytics from "@/components/Analytics";
 import VisitTracker from "@/components/VisitTracker";
 import { buildMetadata, siteJsonLdAr, jsonLdScript } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
@@ -45,6 +46,7 @@ export default function ArabicRootLayout({ children }: { children: React.ReactNo
         <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(siteJsonLdAr)} />
       </head>
       <body className="min-h-full flex flex-col bg-paper text-ink">
+        <Analytics />
         <VisitTracker />
         <Header lang="ar" dict={dict} />
         <main className="flex-1 isolate">{children}</main>
