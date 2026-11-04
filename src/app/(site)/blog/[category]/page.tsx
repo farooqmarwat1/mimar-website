@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { notFound } from "next/navigation";
 import BlogArchiveView from "@/components/blog/BlogArchiveView";
 import { BlogArticleList, BlogCategoryLinks } from "@/components/blog/BlogCatalog";

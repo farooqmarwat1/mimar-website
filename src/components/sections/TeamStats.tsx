@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import Reveal from "@/components/ui/Reveal";
 import AnimatedStatValue from "@/components/ui/AnimatedStatValue";
 import ViewportVideo from "@/components/ui/ViewportVideo";

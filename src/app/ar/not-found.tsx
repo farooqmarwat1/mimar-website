@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { localeHref, localizeDigits } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 

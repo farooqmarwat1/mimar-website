@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { jsonLdScript } from "@/lib/seo";
 import { localizedBreadcrumb } from "@/lib/page-helpers";
 import { bookingContent, myBookingsContent, proposalContent } from "@/content/pages/booking";

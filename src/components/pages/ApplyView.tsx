@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import ApplicationForm from "@/components/ApplicationForm";
 import Reveal from "@/components/ui/Reveal";
 import { applyContent } from "@/content/pages/apply";

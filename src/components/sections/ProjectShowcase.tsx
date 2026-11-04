@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import ViewportVideo from "@/components/ui/ViewportVideo";
 import type { Project } from "@/lib/site-config";

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 // Rendered for URLs that match no route (and for the two catch-alls' unknown paths). It bypasses both
 // root layouts, so fonts, styles and the site chrome are imported here.
 import "@fontsource/dm-sans/400.css";

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import Reveal from "@/components/ui/Reveal";
 import DriveVideo from "@/components/ui/DriveVideo";
 import { faqJsonLd, jsonLdScript, serviceJsonLd } from "@/lib/seo";
@@ -10,6 +10,7 @@ import { localizeProjects } from "@/lib/localized-site";
 import { localizeServiceCards, localizeServiceDetail } from "@/lib/localized-services";
 import { arClass, externalArrow, localizedBreadcrumb } from "@/lib/page-helpers";
 import { getDictionary } from "@/i18n/dictionaries";
+import { withTrailingSlash } from "@/lib/trailing-slash";
 import { isRtl, localeHref, localizeDigits, pick, type Locale } from "@/i18n/config";
 import Num from "@/i18n/Num";
 
@@ -176,7 +177,7 @@ export default function ServiceDetailView({ detail: englishDetail, lang = "en" }
             {detail.tours.map((tour, index) => (
               <Reveal key={tour.href} delay={(index % 3) * 0.05}>
                 {/* Plain <a>: tours are static Pano2VR pages, not Next.js routes. */}
-                <a href={tour.href} className="group relative block aspect-[4/3] overflow-hidden bg-ink/5">
+                <a href={withTrailingSlash(tour.href)} className="group relative block aspect-[4/3] overflow-hidden bg-ink/5">
                   <Image src={tour.image} alt={ui.tourAlt(tour.project, tour.title)} fill unoptimized sizes="(max-width: 768px) 50vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent px-4 pb-4 pt-16 text-paper">
                     <p className="eyebrow text-paper/60">{tour.project}</p>

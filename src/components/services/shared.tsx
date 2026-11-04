@@ -1,5 +1,6 @@
+import { siteUrl } from "@/lib/site-url";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import type { ReactNode } from "react";
 import Reveal from "@/components/ui/Reveal";
 import { localeHref, type Locale } from "@/i18n/config";
@@ -49,10 +50,10 @@ export function subServiceJsonLd({
     {
       "@context": "https://schema.org",
       "@type": "Service",
-      "@id": `${siteConfig.url}${localPath}#service`,
+      "@id": `${siteUrl(localPath)}#service`,
       name: title,
       description,
-      url: `${siteConfig.url}${localPath}`,
+      url: siteUrl(localPath),
       provider: { "@id": `${siteConfig.url}/#organization` },
       areaServed: "Worldwide",
       serviceType: parent.title,

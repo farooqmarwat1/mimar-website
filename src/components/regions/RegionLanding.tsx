@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 
 import ContactCta from "@/components/sections/ContactCta";
 import FaqSection from "@/components/sections/FaqSection";

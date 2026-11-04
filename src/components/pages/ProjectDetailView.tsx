@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import Reveal from "@/components/ui/Reveal";
 import { creativeWorkJsonLd, jsonLdScript } from "@/lib/seo";
 import { projects as fallbackProjects, type Project } from "@/lib/site-config";

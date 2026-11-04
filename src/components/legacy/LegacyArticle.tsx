@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import Reveal from "@/components/ui/Reveal";
 import { splitInlineLinks } from "@/lib/content-blocks";
 import type { SiteArticle } from "@/lib/posts";

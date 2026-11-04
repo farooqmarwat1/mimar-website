@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 
 // Real 404s (Next sends the 404 status). Kept out of search results and without
 // the homepage's title/canonical, which the root layout would otherwise inherit

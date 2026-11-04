@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import Reveal from "@/components/ui/Reveal";
 import { jsonLdScript } from "@/lib/seo";
 import { localizedBreadcrumb } from "@/lib/page-helpers";

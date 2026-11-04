@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import Reveal from "@/components/ui/Reveal";
 import type { Service } from "@/lib/site-config";
 import { servicePath } from "@/lib/service-details";

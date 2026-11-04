@@ -4,6 +4,7 @@ import { AR_PREFIX, LANG_COOKIE } from "@/i18n/config";
 import { arabicLandingCountries } from "@/i18n/geo";
 import { BOT_PATTERN } from "@/lib/bots";
 import { REGION_COOKIE, regionFromCountry } from "@/lib/region";
+import { withTrailingSlash, withoutTrailingSlash } from "@/lib/trailing-slash";
 
 /**
  * First visit to the home page from an Arabic-speaking country (not the UAE) -> /ar.
@@ -27,7 +28,8 @@ function arabicHomeRedirect(request: NextRequest) {
     }
   }
 
-  const response = NextResponse.redirect(new URL(AR_PREFIX, request.url), 307);
+  // Straight to the final URL with its trailing slash (src/lib/trailing-slash.ts), so no second hop.
+  const response = NextResponse.redirect(new URL(`${AR_PREFIX}/`, request.url), 307);
   response.headers.set("Cache-Control", "private, no-store");
   return response;
 }
@@ -53,15 +55,26 @@ function withRegionCookie(request: NextRequest, response: NextResponse) {
 }
 
 /**
- * Jobs: (1) the geo landing redirect above, (2) the region cookie, and (3) the optimistic gate for the staff portal:
+ * Jobs: (1) the trailing slash: every page URL ends in "/", like the old WordPress site, so a page
+ * path without it gets one 308 (SEO_MIGRATION.md §0.23; legacy URLs were already sent straight to
+ * their final slash URL by next.config.ts redirects(), which run first), (2) the geo landing
+ * redirect above, (3) the region cookie, and (4) the optimistic gate for the staff portal:
  * no session cookie -> sign-in page. The portal gate is a UX redirect only. The cookie is not
  * verified here; every admin page and Server Action re-verifies it with Firebase (src/lib/admin/auth.ts).
  */
 export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  // The path exactly as requested: request.nextUrl hides the trailing slash when trailingSlash is on.
+  const url = new URL(request.url);
+  const slashed = withTrailingSlash(url.pathname);
+  if (slashed !== url.pathname) {
+    url.pathname = slashed;
+    return NextResponse.redirect(url, 308);
+  }
+  const pathname = withoutTrailingSlash(url.pathname);
 
   if (pathname === "/") return arabicHomeRedirect(request) ?? withRegionCookie(request, NextResponse.next());
-  if (pathname === "/ar") return withRegionCookie(request, NextResponse.next());
+  if (pathname === AR_PREFIX) return withRegionCookie(request, NextResponse.next());
+  if (pathname !== "/admin" && !pathname.startsWith("/admin/")) return NextResponse.next();
 
   // The sign-in and forgot-password pages are the only /admin pages a signed-out visitor may open.
   if (pathname === "/admin/login" || pathname === "/admin/forgot-password") return NextResponse.next();
@@ -72,5 +85,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/ar", "/admin", "/admin/:path*"],
+  // Every page path, so the slash rule above can run. Skipped: files (a dot in the last segment),
+  // the API, Next's assets, the proxied portal and its auth handler (src/lib/trailing-slash.ts).
+  matcher: ["/((?!api(?:/|$)|_next/|portal(?:/|$)|__/|\\.well-known/|(?:.*/)?[^/]*\\.[^/]*$).*)"],
 };

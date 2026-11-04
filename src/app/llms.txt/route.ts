@@ -1,3 +1,4 @@
+import { siteUrl } from "@/lib/site-url";
 import { NextResponse } from "next/server";
 import { siteConfig, contact, contactPhones, offices, faqs, services } from "@/lib/site-config";
 import { getProjects } from "@/lib/cms";
@@ -30,21 +31,21 @@ export async function GET() {
     `- Email: ${contact.email}`,
     ...contactPhones.map((phone) => `- Phone (${phone.country}): ${phone.number}`),
     ...offices.map((office) => `- ${office.city} office: ${office.lines.join(", ")}`),
-    `- Website: ${siteConfig.url}`,
+    `- Website: ${siteUrl("/")}`,
     "",
     "## Services",
-    ...services.map((s) => `- [${s.title}](${siteConfig.url}${servicePath(s.slug)}): ${s.short}`),
+    ...services.map((s) => `- [${s.title}](${siteUrl(servicePath(s.slug))}): ${s.short}`),
     "",
     "## Selected projects",
-    ...projects.map((p) => `- [${p.title}](${siteConfig.url}/projects/${p.slug}): ${p.summary}`),
+    ...projects.map((p) => `- [${p.title}](${siteUrl(`/projects/${p.slug}`)}): ${p.summary}`),
     "",
     "## Insights and guides",
-    ...articles.map((page) => `- [${page.title}](${siteConfig.url}${page.path}): ${page.description}`),
+    ...articles.map((page) => `- [${page.title}](${siteUrl(page.path)}): ${page.description}`),
     "",
     ...(openJobs.length
       ? [
           "## Open roles",
-          ...openJobs.map((job) => `- [${job.title}](${siteConfig.url}/careers/${job.slug}): ${job.summary}`),
+          ...openJobs.map((job) => `- [${job.title}](${siteUrl(`/careers/${job.slug}`)}): ${job.summary}`),
           "",
         ]
       : []),
@@ -52,18 +53,18 @@ export async function GET() {
     ...faqs.map((f) => `Q: ${f.question}\nA: ${f.answer}\n`),
     "",
     "## Arabic version (العربية)",
-    `The whole site is also available in Arabic under ${siteConfig.url}/ar (same paths, right-to-left).`,
-    `- [الصفحة الرئيسية](${siteConfig.url}${localeHref("ar", "/")}): الصفحة الرئيسية لاستوديوهات معمار`,
+    `The whole site is also available in Arabic under ${siteUrl("/ar")} (same paths, right-to-left).`,
+    `- [الصفحة الرئيسية](${siteUrl(localeHref("ar", "/"))}): الصفحة الرئيسية لاستوديوهات معمار`,
     ...localizeServices([...services], "ar").map(
-      (s) => `- [${s.title}](${siteConfig.url}${localeHref("ar", servicePath(s.slug))}): ${s.short}`,
+      (s) => `- [${s.title}](${siteUrl(localeHref("ar", servicePath(s.slug)))}): ${s.short}`,
     ),
     ...localizeProjects(projects, "ar").map(
-      (p) => `- [${p.title}](${siteConfig.url}${localeHref("ar", `/projects/${p.slug}`)}): ${p.summary}`,
+      (p) => `- [${p.title}](${siteUrl(localeHref("ar", `/projects/${p.slug}`))}): ${p.summary}`,
     ),
     "",
     "## المقالات",
     ...articles.flatMap((page) =>
-      page.titleAr ? [`- [${page.titleAr}](${siteConfig.url}${localeHref("ar", page.path)}): ${page.descriptionAr ?? ""}`] : [],
+      page.titleAr ? [`- [${page.titleAr}](${siteUrl(localeHref("ar", page.path))}): ${page.descriptionAr ?? ""}`] : [],
     ),
     "",
     ...localizedFaqs("ar").map((f) => `س: ${f.question}\nج: ${f.answer}\n`),
