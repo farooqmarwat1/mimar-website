@@ -9,6 +9,7 @@ import "../globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SiteChrome from "@/components/layout/SiteChrome";
+import Analytics from "@/components/Analytics";
 import VisitTracker from "@/components/VisitTracker";
 import { buildMetadata, siteJsonLd, jsonLdScript } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(siteJsonLd)} />
       </head>
       <body className="min-h-full flex flex-col bg-paper text-ink">
+        <Analytics />
         <VisitTracker />
         <SiteChrome><Header dict={dict} /></SiteChrome>
         <main className="flex-1 isolate">{children}</main>

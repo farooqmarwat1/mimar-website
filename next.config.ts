@@ -8,6 +8,11 @@ const isDev = process.env.NODE_ENV !== "production";
 // production build (where VERCEL_ENV is undefined) is never noindexed by mistake.
 const isNonProductionDeployment = process.env.VERCEL === "1" && process.env.VERCEL_ENV !== "production";
 
+// Google Tag Manager / GA4 (src/components/Analytics.tsx). The origins are only allowed when
+// an ID is set, so a build without analytics keeps the stricter policy.
+const hasGoogleTags = Boolean(process.env.NEXT_PUBLIC_GTM_ID || process.env.NEXT_PUBLIC_GA_ID);
+const googleTags = (...origins: string[]) => (hasGoogleTags ? ` ${origins.join(" ")}` : "");
+
 // Sanity's CDN + Studio API need explicit allowances; keep this list tight
 // and update it if new third-party origins (analytics, fonts, etc.) are added.
 const csp = [
@@ -16,14 +21,14 @@ const csp = [
   // checkbox needs https://challenges.cloudflare.com added to script-src,
   // connect-src and frame-src below. Left out while the checkbox is off so the
   // policy doesn't allow an origin nothing uses.
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}${googleTags("https://www.googletagmanager.com")}`,
   "style-src 'self' 'unsafe-inline'",
   // lh3.googleusercontent.com is where drive.google.com/thumbnail redirects
   // to - needed for DriveVideo's poster image (src/components/ui/DriveVideo.tsx).
-  "img-src 'self' data: blob: https://cdn.sanity.io https://drive.google.com https://lh3.googleusercontent.com",
+  `img-src 'self' data: blob: https://cdn.sanity.io https://drive.google.com https://lh3.googleusercontent.com${googleTags("https://www.googletagmanager.com", "https://*.google-analytics.com")}`,
   "font-src 'self' data:",
-  "connect-src 'self' https://*.api.sanity.io https://*.sanity.io",
-  "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://drive.google.com https://online.fliphtml5.com https://koalendar.com https://www.canva.com",
+  `connect-src 'self' https://*.api.sanity.io https://*.sanity.io${googleTags("https://www.googletagmanager.com", "https://*.google-analytics.com", "https://*.analytics.google.com", "https://*.g.doubleclick.net")}`,
+  `frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://drive.google.com https://online.fliphtml5.com https://koalendar.com https://www.canva.com${googleTags("https://www.googletagmanager.com")}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
