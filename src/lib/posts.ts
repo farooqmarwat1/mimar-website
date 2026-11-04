@@ -1,4 +1,5 @@
 import "server-only";
+import { approachOf, type ApproachOrOther } from "@/lib/ai/idea-plan";
 import type { BlogTagging } from "@/lib/ai/keyword-plan";
 import { selectBlogCover, type BlogCover } from "@/lib/blog-covers";
 import { adminDb } from "@/lib/firebase/admin";
@@ -177,9 +178,11 @@ export function isReservedSlug(slug: string): boolean {
 export type PostRow = Pick<Post, "id" | "slug" | "path" | "legacy" | "title" | "origin" | "status" | "updatedAt" | "updatedBy" | "publishedAt" | "categories"> & {
   arState: "none" | "current" | "outdated";
   strategy?: BlogTagging["strategy"];
+  /** Where an AI draft's idea came from (idea-plan.ts approachOf); "other" for posts no approach planned. */
+  approach: ApproachOrOther;
 };
 
-const ROW_FIELDS = ["slug", "path", "legacy", "title", "origin", "status", "updatedAt", "updatedBy", "publishedAt", "categories", "category", "ar.sourceHash", "generation.strategy"] as const;
+const ROW_FIELDS = ["slug", "path", "legacy", "title", "origin", "status", "updatedAt", "updatedBy", "publishedAt", "categories", "category", "ar.sourceHash", "generation.strategy", "generation.approach", "generation.keywordSource"] as const;
 
 export async function listPostRows(): Promise<PostRow[]> {
   const snap = await adminDb().collection(POSTS_COLLECTION).select(...ROW_FIELDS).get();
@@ -202,6 +205,7 @@ export async function listPostRows(): Promise<PostRow[]> {
         // "current" vs "outdated" needs the English text, so the list only tells present from missing.
         arState: data.ar?.sourceHash ? "current" : "none",
         strategy: data.generation?.strategy,
+        approach: approachOf(data.generation, data.origin),
       } satisfies PostRow;
     })
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));

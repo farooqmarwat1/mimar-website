@@ -123,6 +123,14 @@ test('competitor topics are their own approach, for new ideas, old stored ideas 
   assert.equal(approachOf({ approach: 'search', strategy: 'question', keywordSource: 'search-console' }), 'search');
   assert.equal(approachOf({ strategy: 'question' }), 'search');
   assert.equal(approachOf(undefined), 'other');
+  // Drafts written before approaches (or blog types) were tracked were all planned from search demand.
+  assert.equal(approachOf({ keyword: '3d rendering cost' }, 'ai'), 'search');
+  assert.equal(approachOf(undefined, 'ai'), 'search');
+  assert.equal(approachOf(undefined, 'manual'), 'other', 'written by hand');
+  assert.equal(approachOf(undefined, 'legacy'), 'other', 'imported from WordPress');
+  assert.equal(approachOf({ approach: 'news' }, 'ai'), 'news');
+  const shared = load('src/lib/ai/idea-plan.ts');
+  assert.equal(shared.approachOf(undefined, 'ai'), 'search', 'the article list uses the same rule');
 });
 
 test('a competitor idea is planned as competitor topics, with the writer choosing the keyword', async () => {
