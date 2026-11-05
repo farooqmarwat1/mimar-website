@@ -27,7 +27,7 @@ export default function ProjectsView({ projects: source, lang = "en" }: { projec
         </Reveal>
         <Reveal delay={0.05}>
           <h1 className="index-heading">
-            <span className="block">{c.heading1}</span>
+            <span className="block">{c.heading1}</span>{" "}
             <span className="block text-accent">{c.heading2}</span>
           </h1>
         </Reveal>

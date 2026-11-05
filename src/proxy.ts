@@ -55,8 +55,25 @@ function withRegionCookie(request: NextRequest, response: NextResponse) {
 }
 
 /**
- * Jobs: (1) the trailing slash: every page URL ends in "/", like the old WordPress site, so a page
- * path without it gets one 308 (SEO_MIGRATION.md §0.23; legacy URLs were already sent straight to
+ * Spam query strings on the home page from the old site's hack (SEO_MIGRATION.md §6):
+ * "/?shop/X472359913/", "/?cate-12-1056", "/?page_id=12". Without this they render the home page
+ * with a 200 and Google keeps them. Only these prefixes, so ?utm_…, ?gclid= and other real
+ * queries on "/" still get the home page. Next re-encodes the query before the proxy sees it
+ * ("?shop/X1/" arrives as "?shop%2FX1%2F="), so the slash is matched in both forms.
+ */
+const JUNK_HOME_QUERY = /^\?(?:shop(?:\/|%2F)|cate-\d|page_id=)/i;
+
+function junkHomeQuery(url: URL) {
+  if (url.pathname !== "/" || !JUNK_HOME_QUERY.test(url.search)) return null;
+  return new NextResponse("Gone", {
+    status: 410,
+    headers: { "Content-Type": "text/plain; charset=utf-8", "X-Robots-Tag": "noindex", "Cache-Control": "public, max-age=86400" },
+  });
+}
+
+/**
+ * Jobs: (0) 410 for the junk home-page queries above, (1) the trailing slash: every page URL ends
+ * in "/", like the old WordPress site, so a page path without it gets one 308 (SEO_MIGRATION.md §0.23; legacy URLs were already sent straight to
  * their final slash URL by next.config.ts redirects(), which run first), (2) the geo landing
  * redirect above, (3) the region cookie, and (4) the optimistic gate for the staff portal:
  * no session cookie -> sign-in page. The portal gate is a UX redirect only. The cookie is not
@@ -65,6 +82,8 @@ function withRegionCookie(request: NextRequest, response: NextResponse) {
 export function proxy(request: NextRequest) {
   // The path exactly as requested: request.nextUrl hides the trailing slash when trailingSlash is on.
   const url = new URL(request.url);
+  const gone = junkHomeQuery(url);
+  if (gone) return gone;
   const slashed = withTrailingSlash(url.pathname);
   if (slashed !== url.pathname) {
     url.pathname = slashed;

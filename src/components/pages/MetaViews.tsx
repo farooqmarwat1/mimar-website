@@ -40,7 +40,7 @@ export function MetaView({ lang = "en" }: { lang?: Locale }) {
         <div className="container-page relative z-20 w-full pb-16 pt-36 md:pb-24 md:pt-44">
           <p className="eyebrow text-paper/70">{c.heroEyebrow}</p>
           <h1 className="index-heading mt-8 max-w-5xl">
-            {c.heroLines[0]}<br />{c.heroLines[1]}<br /><span className="text-accent">{c.heroAccent}</span>
+            {c.heroLines[0]}{" "}<br />{c.heroLines[1]}{" "}<br /><span className="text-accent">{c.heroAccent}</span>
           </h1>
           <p className="mt-9 max-w-xl text-lg leading-relaxed text-paper/85 md:text-xl">
             {c.heroBody}

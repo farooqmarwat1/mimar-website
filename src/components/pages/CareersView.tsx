@@ -71,7 +71,7 @@ export default function CareersView({ jobs, lang = "en" }: { jobs: Job[]; lang?:
                   >
                     <p className="eyebrow text-muted">
                       {job.department}
-                      <br />
+                      {" "}<br />
                       {job.location} · {c.modeLabel[job.workMode]}
                     </p>
                     <div>
