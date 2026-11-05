@@ -14,7 +14,7 @@ export default function ContactCta({ lang = "en", dict = getDictionary(lang) }: 
         <Reveal delay={0.05}>
           <h2 className="section-heading mx-auto mt-6">
             {c.heading1}
-            <br />
+            {" "}<br />
             <span className="text-accent">{c.heading2}</span>
           </h2>
         </Reveal>

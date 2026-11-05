@@ -182,7 +182,7 @@ export function ConsultationCta({
         <Reveal delay={0.05}>
           <p className="section-heading mx-auto mt-6">
             {heading[0]}
-            <br />
+            {" "}<br />
             <span className="text-accent">{heading[1]}</span>
           </p>
         </Reveal>

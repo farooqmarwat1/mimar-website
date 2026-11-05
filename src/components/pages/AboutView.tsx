@@ -71,7 +71,7 @@ export default function AboutView({ lang = "en" }: { lang?: Locale }) {
     </section>
 
     <section className="container-page grid gap-10 py-20 md:min-h-[44rem] md:grid-cols-2 md:items-center md:py-0">
-      <Reveal><div className="max-w-xl md:py-28"><h2 className={`text-[clamp(4rem,7vw,7rem)] font-medium uppercase leading-[.82] tracking-[-.06em]${arClass(lang, "rtl:leading-[1.2]")}`}>{c.founderFirst}<br /><span className="text-accent">{c.founderLast}</span></h2><blockquote className="mt-12 text-2xl leading-tight tracking-[-.03em] md:text-3xl">{c.founderQuote}</blockquote><p className="section-body mt-10 max-w-lg">{c.founderBio}</p><Link href={localeHref(lang, "/contact")} className="button-pill mt-10 text-ink">{c.founderCta}</Link></div></Reveal>
+      <Reveal><div className="max-w-xl md:py-28"><h2 className={`text-[clamp(4rem,7vw,7rem)] font-medium uppercase leading-[.82] tracking-[-.06em]${arClass(lang, "rtl:leading-[1.2]")}`}>{c.founderFirst}{" "}<br /><span className="text-accent">{c.founderLast}</span></h2><blockquote className="mt-12 text-2xl leading-tight tracking-[-.03em] md:text-3xl">{c.founderQuote}</blockquote><p className="section-body mt-10 max-w-lg">{c.founderBio}</p><Link href={localeHref(lang, "/contact")} className="button-pill mt-10 text-ink">{c.founderCta}</Link></div></Reveal>
       <Reveal delay={0.08} className="motion-media relative h-[28rem] self-end sm:h-[34rem] md:h-[42rem]"><Image src="/about/naqi-ejaz-final.png" alt={c.founderAlt} fill sizes="(max-width: 768px) 100vw, 50vw" quality={90} className="object-contain object-bottom" /></Reveal>
     </section>
 

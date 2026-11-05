@@ -45,7 +45,7 @@ export default function ServicesView({ lang = "en" }: { lang?: Locale }) {
           </Reveal>
           <Reveal delay={0.05}>
             <h1 className="index-heading">
-              <span className="block">{c.heading1}</span>
+              <span className="block">{c.heading1}</span>{" "}
               <span className="block text-accent">{c.heading2}</span>
             </h1>
           </Reveal>
@@ -93,7 +93,7 @@ export default function ServicesView({ lang = "en" }: { lang?: Locale }) {
         <Reveal>
           <h2 className={`max-w-6xl text-[clamp(2.75rem,5.8vw,6rem)] font-medium leading-[.95] tracking-[-.055em]${arClass(lang, "rtl:leading-[1.25]")}`}>
             {c.closingHeading1}
-            <br />
+            {" "}<br />
             <span className="text-accent">{c.closingHeading2}</span>
           </h2>
         </Reveal>

@@ -23,7 +23,7 @@ export default async function ApplyView({ lang = "en" }: { lang?: Locale }) {
         <Reveal delay={0.05}>
           <h1 className={`max-w-4xl text-[clamp(3rem,13vw,8rem)] font-medium uppercase leading-[.82] tracking-[-.06em]${arClass(lang, "rtl:leading-[1.2]")}`}>
             {c.heading1}
-            <br />
+            {" "}<br />
             <span className="text-accent">{c.heading2}</span>
           </h1>
         </Reveal>

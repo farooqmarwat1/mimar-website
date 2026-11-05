@@ -38,7 +38,7 @@ export default function ContactView({ lang = "en" }: { lang?: Locale }) {
         <Reveal delay={0.05}>
           <h1 className={`max-w-4xl text-[clamp(3.75rem,18vw,9.5rem)] font-medium uppercase leading-[.78] tracking-[-.065em]${arClass(lang, "rtl:leading-[1.2]")}`}>
             {c.heading1}
-            <br />
+            {" "}<br />
             <span className="text-accent">{c.heading2}</span>
           </h1>
         </Reveal>
@@ -90,7 +90,7 @@ export default function ContactView({ lang = "en" }: { lang?: Locale }) {
                     className="block text-sm leading-relaxed transition-colors hover:text-accent"
                   >
                     {office.lines[0]}{c.comma}
-                    <br />
+                    {" "}<br />
                     {office.lines[1]}
                   </a>
                 </div>
