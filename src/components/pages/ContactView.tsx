@@ -1,4 +1,5 @@
 import ContactForm from "@/components/ContactForm";
+import WorkStrips from "@/components/sections/WorkStrips";
 import Reveal from "@/components/ui/Reveal";
 import { jsonLdScript } from "@/lib/seo";
 import { contact, contactPhones, services, telHref } from "@/lib/site-config";
@@ -31,29 +32,46 @@ export default function ContactView({ lang = "en" }: { lang?: Locale }) {
         )}
       />
 
-      <section className="container-page pb-12 pt-32 md:pb-16 md:pt-40">
-        <Reveal>
-          <p className="eyebrow mb-8 text-accent">{c.eyebrow}</p>
-        </Reveal>
-        <Reveal delay={0.05}>
-          <h1 className={`max-w-4xl text-[clamp(3.75rem,18vw,9.5rem)] font-medium uppercase leading-[.78] tracking-[-.065em]${arClass(lang, "rtl:leading-[1.2]")}`}>
-            {c.heading1}
-            {" "}<br />
-            <span className="text-accent">{c.heading2}</span>
-          </h1>
-        </Reveal>
+      {/* Same hero recipe as /about-us: full-screen looping video, a black fade from the reading side, text bottom-start. */}
+      <section className="relative h-[100svh] min-h-[32rem] overflow-hidden bg-ink text-paper md:h-screen md:min-h-[38rem]">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/projects/home-videos/abuja-poster.jpg"
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+        >
+          <source src="/projects/home-videos/abuja.mp4" type="video/mp4" />
+        </video>
+        <div className={`absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-transparent${arClass(lang, "rtl:bg-gradient-to-l")}`} />
+        <div className="container-page relative flex h-full items-end pb-14 pt-32 md:pb-16">
+          <div className="w-full">
+            <Reveal>
+              <p className="eyebrow mb-8 text-paper/65">{c.heroEyebrow}</p>
+            </Reveal>
+            <Reveal delay={0.05}>
+              <h1 className={`max-w-5xl break-words text-[clamp(3rem,13vw,8rem)] font-medium uppercase leading-[.82] tracking-[-.065em]${arClass(lang, "rtl:leading-[1.2]")}`}>
+                {c.heading1}
+                {" "}{c.heading2}
+              </h1>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="mt-10 max-w-[30rem] text-lg leading-snug text-paper/90 md:text-xl">{c.subhead}</p>
+            </Reveal>
+            <Reveal delay={0.15}>
+              <a href="#form" className="button-pill mt-10 text-paper">{c.heroCta}</a>
+            </Reveal>
+          </div>
+        </div>
       </section>
 
-      <section className="container-page grid gap-14 pb-16 pt-4 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:gap-24 md:pb-24 md:pt-8">
+      <section className="container-page grid gap-14 py-16 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:gap-24 md:py-24">
         <div>
-          <Reveal>
-            <p className="max-w-xl text-[clamp(1.7rem,2.6vw,2.7rem)] leading-[1.08] tracking-[-.035em]">
-              {c.subhead}
-            </p>
-          </Reveal>
-
           <Reveal delay={0.08}>
-            <address className="mt-14 flex max-w-sm flex-col gap-7 not-italic">
+            <address className="flex max-w-sm flex-col gap-7 not-italic">
               <div>
                 <p className="eyebrow mb-2 text-accent">{c.emailLabel}</p>
                 <a href={`mailto:${contact.email}`} className="text-sm transition-colors hover:text-accent" dir={rtl ? "ltr" : undefined}>
@@ -100,7 +118,7 @@ export default function ContactView({ lang = "en" }: { lang?: Locale }) {
         </div>
 
         <Reveal delay={0.1}>
-          <div>
+          <div id="form" className="scroll-mt-24">
             <p className="eyebrow mb-10 text-accent">{c.enquiry}</p>
             <ContactForm
               lang={lang}
@@ -111,6 +129,8 @@ export default function ContactView({ lang = "en" }: { lang?: Locale }) {
           </div>
         </Reveal>
       </section>
+
+      <WorkStrips lang={lang} copy={c.work} />
     </div>
   );
 }

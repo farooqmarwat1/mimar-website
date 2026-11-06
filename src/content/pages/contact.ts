@@ -6,10 +6,12 @@ type ContactCopy = {
   description: string;
   breadcrumbHome: string;
   breadcrumbName: string;
-  eyebrow: string;
+  heroEyebrow: string;
   heading1: string;
   heading2: string;
   subhead: string;
+  heroCta: string;
+  work: { heading1: string; heading2: string; label: string };
   emailLabel: string;
   careersLabel: string;
   careersNote: string;
@@ -35,10 +37,12 @@ export const contactContent: Record<Locale, ContactCopy> = {
       "Tell Mimar Studios what you are building. Contact our Islamabad or Jeddah studio for architecture, visualization, VR and interactive projects.",
     breadcrumbHome: "Home",
     breadcrumbName: "Contact",
-    eyebrow: "/ Contact",
+    heroEyebrow: "Contact Mimar Studios",
     heading1: "Let's",
     heading2: "talk",
     subhead: "Tell us what you are building. We reply within one working day.",
+    heroCta: "Send an enquiry",
+    work: { heading1: "Selected", heading2: "work", label: "/ Architecture, visualised" },
     emailLabel: "Email",
     careersLabel: "Careers",
     careersNote: "Looking for a job or internship? Send your CV and portfolio here. This page and the form are for project enquiries only.",
@@ -62,10 +66,12 @@ export const contactContent: Record<Locale, ContactCopy> = {
       "أخبر استوديوهات معمار بما تبنيه. تواصل مع استوديونا في إسلام آباد أو جدة لمشاريع العمارة والتصور البصري والواقع الافتراضي والتجارب التفاعلية.",
     breadcrumbHome: "الرئيسية",
     breadcrumbName: "تواصل معنا",
-    eyebrow: "/ تواصل معنا",
+    heroEyebrow: "تواصل مع استوديوهات معمار",
     heading1: "دعنا",
     heading2: "نتحدث",
     subhead: "أخبرنا بما تبنيه. نرد خلال يوم عمل واحد.",
+    heroCta: "أرسل استفسارك",
+    work: { heading1: "أعمال", heading2: "مختارة", label: "/ العمارة بصورة مرئية" },
     emailLabel: "البريد الإلكتروني",
     careersLabel: "الوظائف",
     careersNote: "تبحث عن وظيفة أو تدريب؟ أرسل سيرتك الذاتية ومعرض أعمالك إلى هذا البريد. هذه الصفحة والنموذج مخصصان لاستفسارات المشاريع فقط.",
