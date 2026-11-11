@@ -36,8 +36,11 @@ export type ProjectStory = {
   faqs: { question: string; answer: string }[];
   /** The service page this project belongs to. The country page is added from the region data. */
   service: { path: string; label: string };
-  /** One line above the "Get a quote" / "Book a meeting" buttons after the FAQs. */
-  cta: string;
+  /**
+   * The "Get in touch" block at the end (same design as the home page, ContactCta): a two-part
+   * heading (the second part in the accent colour) and one sentence. Eyebrow and button stay shared.
+   */
+  cta: { heading1: string; heading2: string; body: string };
 };
 
 type StoryLabels = { related: string; showcase: (title: string) => string; faqs: (title: string) => string };
@@ -104,7 +107,11 @@ const stories: Record<string, Partial<Record<Locale, ProjectStory>>> = {
         },
       ],
       service: { path: "/services/3d-visualization", label: "3D visualization services" },
-      cta: "Launching an off-plan residential project in the UAE? Tell us about it and we will plan the renders with you.",
+      cta: {
+        heading1: "Selling off-plan in Dubai?",
+        heading2: "We will plan the renders.",
+        body: "Share a few details about the development and one of our architects will get back to you within a day.",
+      },
     },
     ar: {
       seo: {
@@ -156,7 +163,11 @@ const stories: Record<string, Partial<Record<Locale, ProjectStory>>> = {
         },
       ],
       service: { path: "/services/3d-visualization", label: "خدمات التصور ثلاثي الأبعاد" },
-      cta: "تطلق مشروعاً سكنياً على الخارطة في الإمارات؟ أخبرنا عنه وسنخطط معك للتصورات المطلوبة.",
+      cta: {
+        heading1: "تبيع على الخارطة في دبي؟",
+        heading2: "سنخطط معك للتصورات.",
+        body: "شاركنا بعض التفاصيل عن المشروع وسيتواصل معك أحد معماريينا خلال يوم واحد.",
+      },
     },
   },
 };
