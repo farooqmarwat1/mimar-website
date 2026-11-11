@@ -94,7 +94,7 @@ export default function Hero({ lang = "en" }: { lang?: Locale }) {
           />
           {lang === "ar" ? (
             <>
-              <span className="block text-[clamp(1.5rem,4.2vw,2.75rem)] font-medium text-paper/90">استوديوهات معمار</span>
+              <span className="block text-[clamp(1.5rem,4.2vw,2.75rem)] font-medium text-paper/90">استوديوهات معمار</span>{" "}
               <span className="block text-[clamp(1rem,2.4vw,1.375rem)] font-normal text-paper/80">شركة عمارة وتصور ثلاثي الأبعاد</span>
             </>
           ) : (
