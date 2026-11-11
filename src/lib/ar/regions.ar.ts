@@ -650,16 +650,6 @@ export function officesAr(count: number): string {
   return localizeDigits(`${count} ${count <= 10 ? "مكاتب" : "مكتباً"}`, "ar");
 }
 
-/** Alt text for a project photo. */
-export function regionProjectAlt(
-  project: { title: string; category: string; location: string },
-  lang: Locale,
-): string {
-  return lang === "ar"
-    ? `${project.title} - ${project.category} من استوديوهات معمار في ${project.location}`
-    : `${project.title} - ${project.category} by Mimar Studios in ${project.location}`;
-}
-
 /** Cities named in each region's `areaServed` JSON-LD. */
 export const regionAreaServed: Record<string, { en: [string, string[]]; ar: [string, string[]] }> = {
   uae: {

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import ProjectDetailView from "@/components/pages/ProjectDetailView";
 import { buildMetadata } from "@/lib/seo";
 import { getProjectBySlug, getProjects } from "@/lib/cms";
+import { getProjectStory } from "@/content/pages/project-stories";
 
 export async function generateStaticParams() {
   const projects = await getProjects();
@@ -13,9 +14,10 @@ export async function generateMetadata({ params }: PageProps<"/projects/[slug]">
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
   if (!project) return {};
+  const story = getProjectStory(project.slug, "en");
   return buildMetadata({
-    title: `${project.title} | Mimar Studios`,
-    description: project.summary,
+    title: story?.seo.title ?? `${project.title} | Mimar Studios`,
+    description: story?.seo.description ?? project.summary,
     path: `/projects/${project.slug}`,
     ogImage: project.cover,
   });

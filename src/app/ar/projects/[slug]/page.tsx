@@ -5,6 +5,7 @@ import { buildMetadata } from "@/lib/seo";
 import { getProjectBySlug, getProjects } from "@/lib/cms";
 import { localizeProject } from "@/lib/localized-site";
 import { projectDetailContent } from "@/content/pages/projects";
+import { getProjectStory } from "@/content/pages/project-stories";
 
 export async function generateStaticParams() {
   const projects = await getProjects();
@@ -16,9 +17,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const source = await getProjectBySlug(slug);
   if (!source) return {};
   const project = localizeProject(source, "ar");
+  const story = getProjectStory(project.slug, "ar");
   return buildMetadata({
-    title: `${project.title}${projectDetailContent.ar.titleSuffix}`,
-    description: project.summary,
+    title: story?.seo.title ?? `${project.title}${projectDetailContent.ar.titleSuffix}`,
+    description: story?.seo.description ?? project.summary,
     path: `/projects/${project.slug}`,
     locale: "ar",
     ogImage: project.cover,

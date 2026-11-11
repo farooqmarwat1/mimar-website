@@ -11,7 +11,8 @@ import { stats } from "@/lib/site-config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { comma, localeHref, localizeDigits, type Locale } from "@/i18n/config";
 import { localizeProject, localizedStats } from "@/lib/localized-site";
-import { developmentsAr, deliveredAr, localizeRegion, officesAr, regionProjectAlt, regionUi } from "@/lib/ar/regions.ar";
+import { developmentsAr, deliveredAr, localizeRegion, officesAr, regionUi } from "@/lib/ar/regions.ar";
+import { projectCoverAlt } from "@/lib/project-alt";
 
 /**
  * "Global offices" is dropped here: it is a company-wide figure that says
@@ -153,7 +154,7 @@ export default function RegionLanding({ region: englishRegion, lang = "en" }: { 
                   <div className="relative aspect-[4/3] overflow-hidden bg-ink/5">
                     <Image
                       src={project.cover}
-                      alt={regionProjectAlt(project, lang)}
+                      alt={projectCoverAlt(project, lang)}
                       fill
                       quality={85}
                       sizes={projectSizes}

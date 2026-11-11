@@ -12,6 +12,7 @@ import { arClass, externalArrow, localizedBreadcrumb } from "@/lib/page-helpers"
 import { getDictionary } from "@/i18n/dictionaries";
 import { withTrailingSlash } from "@/lib/trailing-slash";
 import { isRtl, localeHref, localizeDigits, pick, type Locale } from "@/i18n/config";
+import { projectCoverAlt } from "@/lib/project-alt";
 import Num from "@/i18n/Num";
 
 /**
@@ -265,7 +266,7 @@ export default function ServiceDetailView({ detail: englishDetail, lang = "en" }
           {recentProjects.map((project, index) => (
             <Reveal key={project.slug} delay={index * 0.06}>
               <Link href={localeHref(lang, `/projects/${project.slug}`)} className="group block">
-                <div className="relative aspect-video overflow-hidden bg-ink/5"><Image src={project.cover} alt={ui.byMimar(project.title)} fill quality={85} sizes={`(max-width: 768px) 100vw, ${recentProjects.length >= 3 ? "33vw" : "50vw"}`} className="object-cover transition-transform duration-700 group-hover:scale-[1.025]" /></div>
+                <div className="relative aspect-video overflow-hidden bg-ink/5"><Image src={project.cover} alt={projectCoverAlt(project, lang)} fill quality={85} sizes={`(max-width: 768px) 100vw, ${recentProjects.length >= 3 ? "33vw" : "50vw"}`} className="object-cover transition-transform duration-700 group-hover:scale-[1.025]" /></div>
                 <div className="mt-4"><p>{project.title}</p></div>
               </Link>
             </Reveal>

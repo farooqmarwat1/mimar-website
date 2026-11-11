@@ -413,15 +413,21 @@ export function creativeWorkJsonLd(
     slug: string;
     location?: string;
     year?: number;
+    category?: string;
+    /** Every image of the project (cover first). Defaults to the cover alone. */
+    images?: string[];
   },
   locale: Locale = "en",
 ) {
+  const images = (project.images?.length ? project.images : [project.cover]).map((src) => new URL(src, siteConfig.url).toString());
   return {
     "@context": "https://schema.org",
     "@type": "CreativeWork",
     name: project.title,
     description: project.summary,
-    image: new URL(project.cover, siteConfig.url).toString(),
+    image: images.length === 1 ? images[0] : images,
+    genre: project.category,
+    inLanguage: locale,
     url: new URL(localeHref(locale, `/projects/${project.slug}`), siteConfig.url).toString(),
     dateCreated: project.year ? String(project.year) : undefined,
     // contentLocation ties each project to a real place - useful both for
