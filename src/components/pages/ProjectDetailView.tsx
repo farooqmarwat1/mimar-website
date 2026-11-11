@@ -8,6 +8,7 @@ import { arClass, localizedBreadcrumb } from "@/lib/page-helpers";
 import { projectDetailContent, projectsContent } from "@/content/pages/projects";
 import { getDictionary } from "@/i18n/dictionaries";
 import { localeHref, type Locale } from "@/i18n/config";
+import { projectCoverAlt, projectGalleryAlt } from "@/lib/project-alt";
 
 /** Shared body of /projects/[slug] and /ar/projects/[slug]. Receives the English project data. */
 export default function ProjectDetailView({
@@ -57,7 +58,7 @@ export default function ProjectDetailView({
       <section className="relative flex h-[100svh] min-h-[32rem] items-end overflow-hidden bg-ink text-paper md:h-screen md:min-h-[38rem]">
         <Image
           src={project.cover}
-          alt={c.imageAlt(project.title)}
+          alt={projectCoverAlt(project, lang)}
           fill
           priority
           quality={90}
@@ -90,7 +91,7 @@ export default function ProjectDetailView({
                 <div className={`motion-media relative ${index % 3 === 0 ? "aspect-[1.75]" : "aspect-[1.25]"}`}>
                   <Image
                     src={image}
-                    alt={c.galleryAlt(project.title, index + 1)}
+                    alt={projectGalleryAlt(project, lang, index + 1)}
                     fill
                     unoptimized
                     sizes={index % 3 === 0 ? "100vw" : "(max-width: 768px) 100vw, 50vw"}
@@ -114,7 +115,7 @@ export default function ProjectDetailView({
             <Link href={localeHref(lang, "/projects")} className="button-pill mt-10 text-ink md:mt-12">{dict.common.backToAllProjects}</Link>
           </div>
         </Reveal>
-        <Reveal delay={0.08} className="order-1 md:order-2"><Link href={localeHref(lang, `/projects/${nextProject.slug}`)} className="group block"><div className="relative aspect-video overflow-hidden bg-ink/5"><Image src={nextProject.cover} alt={c.imageAlt(nextProject.title)} fill quality={85} sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.025]" /></div></Link></Reveal>
+        <Reveal delay={0.08} className="order-1 md:order-2"><Link href={localeHref(lang, `/projects/${nextProject.slug}`)} className="group block"><div className="relative aspect-video overflow-hidden bg-ink/5"><Image src={nextProject.cover} alt={projectCoverAlt(nextProject, lang)} fill quality={85} sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.025]" /></div></Link></Reveal>
       </section>
     </article>
   );

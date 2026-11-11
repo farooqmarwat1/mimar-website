@@ -3,6 +3,7 @@ import Link from "@/components/ui/Link";
 import Reveal from "@/components/ui/Reveal";
 import { type Project } from "@/lib/site-config";
 import { localeHref, type Locale } from "@/i18n/config";
+import { projectCoverAlt } from "@/lib/project-alt";
 
 export default function ProjectsFilter({ projects, lang = "en" }: { projects: Project[]; lang?: Locale }) {
   return (
@@ -14,7 +15,7 @@ export default function ProjectsFilter({ projects, lang = "en" }: { projects: Pr
               <div className="relative aspect-video w-full overflow-hidden bg-ink/5">
                 <Image
                   src={project.cover}
-                  alt={lang === "ar" ? `${project.title} من استوديوهات معمار` : `${project.title} by Mimar Studios`}
+                  alt={projectCoverAlt(project, lang)}
                   fill
                   preload={i < 3}
                   quality={85}

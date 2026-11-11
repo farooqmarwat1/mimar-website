@@ -42,8 +42,6 @@ export const projectsContent: Record<Locale, ProjectsCopy> = {
 type ProjectDetailCopy = {
   titleSuffix: string;
   narrative: (location: string) => string;
-  imageAlt: (title: string) => string;
-  galleryAlt: (title: string, index: number) => string;
 };
 
 export const projectDetailContent: Record<Locale, ProjectDetailCopy> = {
@@ -51,14 +49,10 @@ export const projectDetailContent: Record<Locale, ProjectDetailCopy> = {
     titleSuffix: " | Mimar Studios",
     narrative: (location) =>
       `The project was developed as a focused design study, balancing the character of ${location} with a clear material and spatial direction. Every view was composed to communicate the design before delivery.`,
-    imageAlt: (title) => `${title} by Mimar Studios`,
-    galleryAlt: (title, index) => `${title} project view ${index}`,
   },
   ar: {
     titleSuffix: " | استوديوهات معمار",
     narrative: (location) =>
       `طُوِّر المشروع كدراسة تصميمية مركّزة، توازن بين طابع ${location} وتوجه واضح للخامات والمساحات. صُمِّم كل مشهد لنقل فكرة التصميم قبل التسليم.`,
-    imageAlt: (title) => `${title} من استوديوهات معمار`,
-    galleryAlt: (title, index) => `${title} - منظر ${index} للمشروع`,
   },
 };

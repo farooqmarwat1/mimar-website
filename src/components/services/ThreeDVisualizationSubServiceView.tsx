@@ -14,10 +14,11 @@ import MediaSlider from "@/components/ui/MediaSlider";
 import Reveal from "@/components/ui/Reveal";
 import { isRtl, localeHref, type Locale } from "@/i18n/config";
 import { localizeThreeDSubService } from "@/lib/ar/localized-sub-services";
-import { byMimar, getServiceUi } from "@/lib/ar/service-ui";
+import { getServiceUi } from "@/lib/ar/service-ui";
 import { localizeProject } from "@/lib/localized-site";
 import { buildMetadata, jsonLdScript } from "@/lib/seo";
 import { projects } from "@/lib/site-config";
+import { projectCoverAlt } from "@/lib/project-alt";
 import {
   threeDVisualizationSlug,
   threeDVisualizationSubServicePath,
@@ -86,7 +87,7 @@ export default function ThreeDVisualizationSubServiceView({ service: baseService
                 {sectionProjects.map((project, index) => (
                   <Reveal key={project.slug} delay={(index % 3) * 0.05}>
                     <Link href={localeHref(lang, `/projects/${project.slug}`)} className="group relative block aspect-video overflow-hidden bg-ink/5">
-                      <Image src={project.cover} alt={byMimar(project.title, lang)} fill quality={85} sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                      <Image src={project.cover} alt={projectCoverAlt(project, lang)} fill quality={85} sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 pb-4 pt-12 text-paper">
                         <h3 className="flex items-end justify-between gap-3 text-sm md:text-base">
                           <span>{project.title}</span>
