@@ -13,6 +13,7 @@ import { getProjectStory, projectStoryLabels } from "@/content/pages/project-sto
 import { regionList } from "@/lib/regions";
 import { localizeRegion } from "@/lib/ar/regions.ar";
 import { splitInlineLinks } from "@/lib/content-blocks";
+import ContactCta from "@/components/sections/ContactCta";
 
 /** Story text with `[words](/path)` turned into internal links in the page language. */
 function linkedText(text: string, lang: Locale) {
@@ -176,16 +177,7 @@ export default function ProjectDetailView({
               ))}
             </div>
           </section>
-          <section className="container-page pb-16 md:pb-28">
-            <Reveal><p className="max-w-4xl text-[clamp(1.65rem,2.7vw,2.8rem)] leading-[1.12] tracking-[-.035em]">{story.cta}</p></Reveal>
-            <Reveal delay={0.05}>
-              <div className="mt-10 flex flex-wrap gap-3">
-                <Link href={localeHref(lang, "/contact")} className="button-pill text-accent">{dict.header.getQuote}</Link>
-                <Link href={localeHref(lang, "/booking")} className="button-pill text-ink">{dict.nav.booking}</Link>
-              </div>
-            </Reveal>
-          </section>
-          <section className="container-page pb-16 md:pb-28">
+          <section className="container-page pb-4 md:pb-8">
             <Reveal><p className="eyebrow mb-10 text-muted">{`/ ${storyLabels.related}`}</p></Reveal>
             <Reveal delay={0.05}>
               <div className="flex flex-wrap gap-3">
@@ -194,22 +186,27 @@ export default function ProjectDetailView({
               </div>
             </Reveal>
           </section>
+          {/* Same block as the home page's "Get in touch", with this project's line. */}
+          <ContactCta lang={lang} dict={dict} content={story.cta} />
         </>
       )}
 
-      <section className="container-page grid items-center gap-12 py-16 md:min-h-[34rem] md:grid-cols-2 md:py-32">
-        <Reveal className="order-2 md:order-1">
+      {/* Next project as a full-width banner, like "Next service" on the service pages. The whole banner
+          links to the next project (stretched link); "Back to all projects" sits above it as its own link. */}
+      <section className="group relative min-h-[18rem] overflow-hidden bg-ink text-paper md:min-h-[24rem]">
+        <Image src={nextProject.cover} alt="" fill quality={75} sizes="100vw" className="object-cover opacity-35 transition-transform duration-700 group-hover:scale-[1.02]" />
+        <div className="absolute inset-0 bg-black/30" />
+        <div className="container-page relative flex min-h-[18rem] flex-col justify-center gap-8 py-14 md:min-h-[24rem] md:flex-row md:items-end md:justify-between md:py-16">
           <div>
-            <p className="eyebrow mb-8 text-muted md:mb-14">/ {dict.common.nextProject}</p>
-            <Link href={localeHref(lang, `/projects/${nextProject.slug}`)} className="group block">
+            <p className="eyebrow mb-8 text-paper/55">{`/ ${dict.common.nextProject}`}</p>
+            <Link href={localeHref(lang, `/projects/${nextProject.slug}`)} className="after:absolute after:inset-0 after:content-['']">
               {/* Not a heading: the next project is another page's topic. */}
-              <p className="text-[clamp(2.75rem,5vw,5.5rem)] leading-none tracking-[-.055em] transition-colors group-hover:text-accent">{nextProject.title}</p>
-              <p className="mt-5 text-sm text-muted">{nextProject.location}</p>
+              <span className="block text-[clamp(2.5rem,5vw,5rem)] leading-none tracking-[-.05em]">{nextProject.title}</span>
+              <span className="mt-4 block text-sm text-paper/70">{nextProject.location}</span>
             </Link>
-            <Link href={localeHref(lang, "/projects")} className="button-pill mt-10 text-ink md:mt-12">{dict.common.backToAllProjects}</Link>
           </div>
-        </Reveal>
-        <Reveal delay={0.08} className="order-1 md:order-2"><Link href={localeHref(lang, `/projects/${nextProject.slug}`)} className="group block"><div className="relative aspect-video overflow-hidden bg-ink/5"><Image src={nextProject.cover} alt={projectCoverAlt(nextProject, lang)} fill quality={85} sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.025]" /></div></Link></Reveal>
+          <Link href={localeHref(lang, "/projects")} className="button-pill relative z-10 text-paper">{dict.common.backToAllProjects}</Link>
+        </div>
       </section>
     </article>
   );

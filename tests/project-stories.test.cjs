@@ -28,7 +28,7 @@ test('the Aark Residences story is complete in English and Arabic', () => {
     assert.equal(new Set(story.views.map(view => view.alt)).size, story.views.length, `${lang} alt texts are all different`);
     assert.ok(story.faqs.length >= 3 && story.faqs.every(faq => faq.question && faq.answer), `${lang} has FAQs`);
     assert.ok(story.service.path.startsWith('/services/'), `${lang} links to a service page`);
-    assert.ok(story.cta, `${lang} has a call to action`);
+    assert.ok(story.cta.heading1 && story.cta.heading2 && story.cta.body, `${lang} has a call to action`);
   }
   const ar = getProjectStory('aark-residences', 'ar');
   assert.match(ar.heading, arabic, 'Arabic heading is Arabic');

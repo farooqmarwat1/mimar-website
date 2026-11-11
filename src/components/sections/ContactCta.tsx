@@ -3,8 +3,19 @@ import Reveal from "@/components/ui/Reveal";
 import { localeHref, type Locale } from "@/i18n/config";
 import { getDictionary, type Dictionary } from "@/i18n/dictionaries";
 
-export default function ContactCta({ lang = "en", dict = getDictionary(lang) }: { lang?: Locale; dict?: Dictionary }) {
-  const c = dict.contactCta;
+/** Page-specific heading and body for the same block (project pages use it with the project's own line). */
+export type ContactCtaContent = { heading1: string; heading2: string; body: string };
+
+export default function ContactCta({
+  lang = "en",
+  dict = getDictionary(lang),
+  content,
+}: {
+  lang?: Locale;
+  dict?: Dictionary;
+  content?: ContactCtaContent;
+}) {
+  const c = { ...dict.contactCta, ...content };
   return (
     <section className="section-py">
       <div className="container-page mx-auto max-w-3xl text-center">
