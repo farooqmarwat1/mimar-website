@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "@/components/ui/Link";
 import Reveal from "@/components/ui/Reveal";
@@ -9,11 +10,13 @@ import { projectDetailContent, projectsContent } from "@/content/pages/projects"
 import { getDictionary } from "@/i18n/dictionaries";
 import { localeHref, type Locale } from "@/i18n/config";
 import { projectCoverAlt, projectGalleryAlt } from "@/lib/project-alt";
-import { galleryRatio, getProjectStory, projectStoryLabels } from "@/content/pages/project-stories";
+import { galleryRatio, galleryRatioValue, getProjectStory, planGalleryRows, projectStoryLabels } from "@/content/pages/project-stories";
 import { regionList } from "@/lib/regions";
 import { localizeRegion } from "@/lib/ar/regions.ar";
 import { splitInlineLinks } from "@/lib/content-blocks";
 import ContactCta from "@/components/sections/ContactCta";
+import GalleryLightbox from "@/components/ui/GalleryLightbox";
+import { mediaUi } from "@/lib/ar/media-ui";
 
 /** Story text with `[words](/path)` turned into internal links in the page language. */
 function linkedText(text: string, lang: Locale) {
@@ -130,44 +133,81 @@ export default function ProjectDetailView({
               <p className="eyebrow mb-10 text-muted">/ {dict.common.gallery}</p>
             )}
           </Reveal>
-          <div className="grid gap-10 md:grid-cols-2 md:gap-8">
-            {gallery.map((image, index) => {
-              // A story describes each image: the caption under it and its alt text.
-              const view = story?.views.find((item) => item.image === image);
-              const fullWidth = index % 3 === 0;
-              const ratio = galleryRatio(image);
-              const [ratioW, ratioH] = ratio.split("/").map(Number);
-              // A tall render in a full-width row would leave the row half empty, so its caption sits beside it instead.
-              const captionBeside = Boolean(view) && fullWidth && ratioW / ratioH < 1.2;
-              return (
-                <Reveal key={image} delay={(index % 2) * 0.05} className={fullWidth ? "md:col-span-2" : ""}>
-                  <figure className={captionBeside ? "md:flex md:items-end md:gap-10" : undefined}>
-                    {/* A captioned image gets a box of its own shape, so the caption sits right under the picture instead of
-                        under empty letterbox space. A tall render is capped at 85% of the screen height (its width shrinks with it). */}
-                    <div
-                      className={`motion-media relative shrink-0 ${view ? "" : fullWidth ? "aspect-[1.75]" : "aspect-[1.25]"}`}
-                      style={view ? { aspectRatio: ratio, width: `min(100%, calc(85vh * ${ratio}))` } : undefined}
-                    >
-                      <Image
-                        src={image}
-                        alt={view?.alt ?? projectGalleryAlt(project, lang, index + 1)}
-                        fill
-                        unoptimized
-                        sizes={index % 3 === 0 ? "100vw" : "(max-width: 768px) 100vw, 50vw"}
-                        className="object-contain"
-                      />
-                    </div>
-                    {view && (
-                      <figcaption className={`mt-4 max-w-xl${captionBeside ? " md:mt-0" : ""}`}>
-                        <span className="eyebrow block text-muted">{view.title}</span>
-                        <span className="mt-2 block text-sm">{view.text}</span>
-                      </figcaption>
-                    )}
-                  </figure>
+          {story ? (
+            // Full-width render, then a pair, then full width... (planGalleryRows). In a row every render has the
+            // same height: each takes a share of the width equal to its width/height ratio, so captions line up.
+            // A click on a render opens it large in GalleryLightbox, with previous/next through the whole set.
+            <GalleryLightbox
+              lang={lang}
+              label={mediaUi[lang].imageViewer(project.title)}
+              items={gallery.map((image) => {
+                const view = story.views.find((item) => item.image === image);
+                return { src: image, alt: view?.alt ?? projectGalleryAlt(project, lang, gallery.indexOf(image) + 1), title: view?.title, text: view?.text };
+              })}
+            >
+            <div className="flex flex-col gap-12 md:gap-16">
+              {planGalleryRows(gallery).map((row) => (
+                <div key={row[0]} className="flex flex-col gap-12 md:flex-row md:gap-8">
+                  {row.map((image, index) => {
+                    const view = story.views.find((item) => item.image === image);
+                    const ratio = galleryRatio(image);
+                    return (
+                      <Reveal
+                        key={image}
+                        delay={index * 0.05}
+                        className="min-w-0 md:[flex:var(--ratio)_1_0%]"
+                        style={{ "--ratio": galleryRatioValue(image) } as CSSProperties}
+                      >
+                        <figure>
+                          {/* A box of the render's own shape: no letterbox, and the caption sits right under the picture. */}
+                          <button
+                            type="button"
+                            data-lightbox-index={gallery.indexOf(image)}
+                            aria-label={mediaUi[lang].openImage(view?.title ?? project.title)}
+                            className="motion-media relative block w-full cursor-zoom-in"
+                            style={{ aspectRatio: ratio }}
+                          >
+                            <Image
+                              src={image}
+                              alt={view?.alt ?? projectGalleryAlt(project, lang, gallery.indexOf(image) + 1)}
+                              fill
+                              unoptimized
+                              sizes={row.length === 1 ? "100vw" : `(max-width: 768px) 100vw, ${Math.round(100 / row.length)}vw`}
+                              className="object-cover"
+                            />
+                          </button>
+                          {view && (
+                            <figcaption className="mt-4 max-w-xl">
+                              <span className="eyebrow block text-muted">{view.title}</span>
+                              <span className="mt-2 block text-sm">{view.text}</span>
+                            </figcaption>
+                          )}
+                        </figure>
+                      </Reveal>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+            </GalleryLightbox>
+          ) : (
+            <div className="grid gap-10 md:grid-cols-2 md:gap-8">
+              {gallery.map((image, index) => (
+                <Reveal key={image} delay={(index % 2) * 0.05} className={index % 3 === 0 ? "md:col-span-2" : ""}>
+                  <div className={`motion-media relative ${index % 3 === 0 ? "aspect-[1.75]" : "aspect-[1.25]"}`}>
+                    <Image
+                      src={image}
+                      alt={projectGalleryAlt(project, lang, index + 1)}
+                      fill
+                      unoptimized
+                      sizes={index % 3 === 0 ? "100vw" : "(max-width: 768px) 100vw, 50vw"}
+                      className="object-contain"
+                    />
+                  </div>
                 </Reveal>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
       )}
 

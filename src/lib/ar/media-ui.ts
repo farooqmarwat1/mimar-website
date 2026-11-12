@@ -14,6 +14,8 @@ export const mediaUi = {
     playSlide: (title: string, n: string) => `Play ${title} - slide ${n}`,
     showSlide: (n: string) => `Show slide ${n}`,
     videoPreview: (title: string) => `${title} video preview`,
+    openImage: (title: string) => `View larger: ${title}`,
+    imageViewer: (project: string) => `${project} images`,
   },
   ar: {
     previous: "السابق",
@@ -23,5 +25,7 @@ export const mediaUi = {
     playSlide: (title: string, n: string) => `تشغيل ${title} - الشريحة ${n}`,
     showSlide: (n: string) => `عرض الشريحة ${n}`,
     videoPreview: (title: string) => `معاينة فيديو ${title}`,
+    openImage: (title: string) => `عرض بحجم أكبر: ${title}`,
+    imageViewer: (project: string) => `صور ${project}`,
   },
 } as const satisfies Record<Locale, unknown>;

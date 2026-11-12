@@ -72,7 +72,46 @@ export function galleryRatio(image: string): string {
   return galleryRatios[image] ?? "16 / 9";
 }
 
-type StoryLabels ={ related: string; showcase: (title: string) => string; faqs: (title: string) => string };
+const ratioOf = (image: string) => {
+  const [w, h] = galleryRatio(image).split("/").map(Number);
+  return w / h;
+};
+
+/** Width/height of a gallery render as a number (sizes the renders of a row to one height). */
+export function galleryRatioValue(image: string): number {
+  return ratioOf(image);
+}
+
+/**
+ * Rows of a captioned gallery, in the images' own order: one full-width render, then a pair, then a
+ * full-width render, and so on. A tall render (narrower than 1.2:1) is never full width; it joins a
+ * pair. No render is left alone at the end: a lone last render joins the row before it (a full row
+ * becomes a pair, a pair becomes a row of three). The page gives every render in a row the same height.
+ */
+export function planGalleryRows(images: string[]): string[][] {
+  const rows: string[][] = [];
+  let wantFull = true;
+  for (let i = 0; i < images.length; ) {
+    const left = images.length - i;
+    const fullFits = wantFull && ratioOf(images[i]) >= 1.2;
+    if (left === 1 && !fullFits && rows.length > 0) {
+      rows[rows.length - 1].push(images[i]);
+      break;
+    }
+    if (fullFits || left === 1) {
+      rows.push([images[i]]);
+      i += 1;
+      wantFull = false;
+    } else {
+      rows.push(images.slice(i, i + 2));
+      i += 2;
+      wantFull = true;
+    }
+  }
+  return rows;
+}
+
+type StoryLabels = { related: string; showcase: (title: string) => string; faqs: (title: string) => string };
 
 /** Section headings on a project page with a story. The gallery and FAQ headings are H2s with the project name. */
 export const projectStoryLabels: Record<Locale, StoryLabels> = {
