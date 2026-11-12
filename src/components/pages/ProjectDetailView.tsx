@@ -9,7 +9,7 @@ import { projectDetailContent, projectsContent } from "@/content/pages/projects"
 import { getDictionary } from "@/i18n/dictionaries";
 import { localeHref, type Locale } from "@/i18n/config";
 import { projectCoverAlt, projectGalleryAlt } from "@/lib/project-alt";
-import { getProjectStory, projectStoryLabels } from "@/content/pages/project-stories";
+import { galleryRatio, getProjectStory, projectStoryLabels } from "@/content/pages/project-stories";
 import { regionList } from "@/lib/regions";
 import { localizeRegion } from "@/lib/ar/regions.ar";
 import { splitInlineLinks } from "@/lib/content-blocks";
@@ -134,11 +134,20 @@ export default function ProjectDetailView({
             {gallery.map((image, index) => {
               // A story describes each image: the caption under it and its alt text.
               const view = story?.views.find((item) => item.image === image);
+              const fullWidth = index % 3 === 0;
+              const ratio = galleryRatio(image);
+              const [ratioW, ratioH] = ratio.split("/").map(Number);
+              // A tall render in a full-width row would leave the row half empty, so its caption sits beside it instead.
+              const captionBeside = Boolean(view) && fullWidth && ratioW / ratioH < 1.2;
               return (
-                <Reveal key={image} delay={(index % 2) * 0.05} className={index % 3 === 0 ? "md:col-span-2" : ""}>
-                  <figure>
-                    {/* A captioned image gets a 16:9 box (the shape of the renders), so the caption sits right under the picture instead of under empty letterbox space. */}
-                    <div className={`motion-media relative ${view ? "aspect-video" : index % 3 === 0 ? "aspect-[1.75]" : "aspect-[1.25]"}`}>
+                <Reveal key={image} delay={(index % 2) * 0.05} className={fullWidth ? "md:col-span-2" : ""}>
+                  <figure className={captionBeside ? "md:flex md:items-end md:gap-10" : undefined}>
+                    {/* A captioned image gets a box of its own shape, so the caption sits right under the picture instead of
+                        under empty letterbox space. A tall render is capped at 85% of the screen height (its width shrinks with it). */}
+                    <div
+                      className={`motion-media relative shrink-0 ${view ? "" : fullWidth ? "aspect-[1.75]" : "aspect-[1.25]"}`}
+                      style={view ? { aspectRatio: ratio, width: `min(100%, calc(85vh * ${ratio}))` } : undefined}
+                    >
                       <Image
                         src={image}
                         alt={view?.alt ?? projectGalleryAlt(project, lang, index + 1)}
@@ -149,7 +158,7 @@ export default function ProjectDetailView({
                       />
                     </div>
                     {view && (
-                      <figcaption className="mt-4 max-w-xl">
+                      <figcaption className={`mt-4 max-w-xl${captionBeside ? " md:mt-0" : ""}`}>
                         <span className="eyebrow block text-muted">{view.title}</span>
                         <span className="mt-2 block text-sm">{view.text}</span>
                       </figcaption>
