@@ -158,6 +158,32 @@ test('every captioned render gets a box of its real shape (no letterbox around i
   }
 });
 
+test('the gallery alternates full-width renders and pairs, with no render left alone', () => {
+  const { planGalleryRows, galleryRatioValue } = load('src/content/pages/project-stories.ts');
+  for (const project of projects) {
+    const images = (project.gallery ?? []).filter(image => image !== project.cover);
+    const rows = Array.from(planGalleryRows(images), row => Array.from(row));
+    assert.deepEqual(rows.flat(), Array.from(images), `${project.slug}: every render once, in order`);
+    for (const [index, row] of rows.entries()) {
+      assert.ok(row.length >= 1 && row.length <= 3, `${project.slug}: row ${index + 1} has ${row.length} renders`);
+      if (row.length === 1 && images.length > 1) {
+        assert.ok(galleryRatioValue(row[0]) >= 1.2, `${project.slug}: a tall render (${row[0]}) is not full width`);
+        assert.ok(!rows[index - 1] || rows[index - 1].length > 1, `${project.slug}: two full-width rows in a row`);
+      }
+    }
+  }
+  // The rhythm on plain 16:9 sets of different sizes.
+  const wide = n => Array.from({ length: n }, (_, i) => `/projects/catalog/x/image-${i + 1}.jpg`);
+  const shape = n => Array.from(planGalleryRows(wide(n)), row => row.length).join(',');
+  assert.equal(shape(1), '1');
+  assert.equal(shape(2), '2');
+  assert.equal(shape(3), '1,2');
+  assert.equal(shape(4), '1,2,1');
+  assert.equal(shape(5), '1,2,2');
+  assert.equal(shape(6), '1,2,1,2');
+  assert.equal(shape(8), '1,2,1,2,2');
+});
+
 test('a project without a story (a new CMS project) gets no story, so the page keeps the old layout', () => {
   assert.equal(getProjectStory('a-new-cms-project', 'en'), undefined);
   assert.equal(getProjectStory('a-new-cms-project', 'ar'), undefined);
