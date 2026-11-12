@@ -1,4 +1,6 @@
 import type { Locale } from "@/i18n/config";
+import { enStories } from "./project-stories-en";
+import { arStories } from "./project-stories-ar";
 
 /**
  * Written content for a project page, on top of the one-line summary every project has
@@ -17,6 +19,8 @@ import type { Locale } from "@/i18n/config";
  * - FAQs are about this project. At most one general question per page, so 19 pages do not
  *   repeat the same block.
  * - The page H1 stays the project name. A project without a story keeps the old layout.
+ *
+ * The stories themselves live in project-stories-en.ts and project-stories-ar.ts (one per project and language).
  */
 export type ProjectStory = {
   /** Search-result title (50-60 characters) and description (120-155) for this project. */
@@ -43,7 +47,32 @@ export type ProjectStory = {
   cta: { heading1: string; heading2: string; body: string };
 };
 
-type StoryLabels = { related: string; showcase: (title: string) => string; faqs: (title: string) => string };
+/**
+ * Width/height of the gallery renders that are not 16:9 (most are). A captioned image gets a box of
+ * its own shape, so the caption sits right under the picture with no letterbox space around it.
+ * tests/project-stories.test.cjs reads the real files and fails if a ratio here is wrong or missing.
+ */
+const galleryRatios: Record<string, string> = {
+  "/projects/catalog/h-and-s/image-1.jpg": "1500 / 2000",
+  "/projects/catalog/h-and-s/image-4.jpg": "1412 / 2000",
+  "/projects/catalog/karma-trinity/image-7.jpg": "2000 / 988",
+  "/projects/catalog/nana-222/image-2.jpg": "2000 / 1680",
+  "/projects/catalog/nana-222/image-3.jpg": "2000 / 1682",
+  "/projects/catalog/nana-222/image-5.jpg": "1536 / 1086",
+  "/projects/catalog/nana-222/image-8.jpg": "1536 / 1141",
+  "/projects/catalog/360-residences/image-2.jpg": "1600 / 2000",
+  "/projects/catalog/aurum-one/image-3.jpg": "2000 / 785",
+  "/projects/catalog/cafe-interior/image-3.jpg": "2048 / 1365",
+  "/projects/catalog/dha-multan-highrise/image-2.jpg": "2000 / 1143",
+  "/projects/catalog/dha-multan-highrise/image-3.jpg": "2000 / 1143",
+};
+
+/** CSS aspect-ratio of a gallery render ("16 / 9" unless listed above). */
+export function galleryRatio(image: string): string {
+  return galleryRatios[image] ?? "16 / 9";
+}
+
+type StoryLabels ={ related: string; showcase: (title: string) => string; faqs: (title: string) => string };
 
 /** Section headings on a project page with a story. The gallery and FAQ headings are H2s with the project name. */
 export const projectStoryLabels: Record<Locale, StoryLabels> = {
@@ -55,123 +84,8 @@ export const projectStoryLabels: Record<Locale, StoryLabels> = {
   },
 };
 
-const stories: Record<string, Partial<Record<Locale, ProjectStory>>> = {
-  "aark-residences": {
-    en: {
-      seo: {
-        title: "Aark Residences Dubai | 3D Rendering Project | Mimar Studios",
-        description:
-          "3D architectural renders of Aark Residences in Dubai: terraced tower exteriors, balcony detail and a rooftop pool terrace by Mimar Studios.",
-      },
-      typology: "Residential tower",
-      heading: "Aark Residences 3D rendering in Dubai",
-      paragraphs: [
-        "Aark Residences is a residential development in [Dubai, UAE](/3d-visualization-services-uae), visualized by Mimar Studios as a set of [photorealistic 3D architectural renders](/services/3d-visualization). The set shows the building the way a buyer meets it: the terraced tower from the street at dusk, the balconies and façade up close, and the rooftop pool terrace with the Dubai skyline beyond. Renders like these let a developer market off-plan apartments with images of the finished building long before construction is complete.",
-        "Each view answers a different question a buyer asks. The façade views show the proportions of the stepped balconies and the vertical timber fins against the sky. The night view shows how the tower sits in its street and how the lit terraces read from a distance. The terrace view sells the lifestyle: shade, planting, soft seating and the pool edge, with the city as a backdrop. Modern residential rendering works when it feels like a place, not a diagram, and that is how these images were composed.",
-      ],
-      views: [
-        {
-          image: "/projects/catalog/aark-residences/image-1.jpg",
-          title: "Tower exterior in daylight",
-          text: "A low view up the tower: stepped balconies, vertical timber fins and the glass-sided rooftop pool against the sky.",
-          alt: "Aark Residences, Dubai: low-angle daylight view of the tower with stepped balconies, timber fins and a glass rooftop pool, 3D architectural visualization",
-        },
-        {
-          image: "/projects/catalog/aark-residences/image-2.jpg",
-          title: "Street view at dusk",
-          text: "The tower in its street, with lit terraces and the light trails of passing traffic.",
-          alt: "Aark Residences, Dubai: the residential tower at dusk with lit terraces and light trails in the street, 3D exterior rendering",
-        },
-        {
-          image: "/projects/catalog/aark-residences/image-3.jpg",
-          title: "Façade and balcony detail",
-          text: "Glass balustrades, planted terraces and a glimpse of a lit living room through the glazing.",
-          alt: "Aark Residences, Dubai: close view of balconies with glass balustrades, planters and a lit living room behind the glazing, 3D architectural visualization",
-        },
-      ],
-      faqs: [
-        {
-          question: "What did Mimar Studios deliver for Aark Residences?",
-          answer:
-            "A set of photorealistic 3D architectural renders of the Aark Residences development in Dubai: exterior views in daylight and at dusk, a view of the façade and balcony detail, and a view of the rooftop pool terrace.",
-        },
-        {
-          question: "Why use 3D rendering for a residential development in the UAE?",
-          answer:
-            "Renders let buyers and investors see the finished building, its terraces and its amenities before construction ends, so a residential development can be marketed early with consistent images for brochures, websites and sales galleries.",
-        },
-        {
-          question: "How do renders like the Aark Residences set help sell off-plan apartments?",
-          answer:
-            "Off-plan buyers cannot visit the finished building, so the renders show it to them: the daylight and dusk exteriors show the tower and its street, the balcony view shows the quality of the homes, and the rooftop terrace shows the amenities. One consistent set works on property portals, in brochures and in the sales gallery.",
-        },
-      ],
-      service: { path: "/services/3d-visualization", label: "3D visualization services" },
-      cta: {
-        heading1: "Selling off-plan in Dubai?",
-        heading2: "We will plan the renders.",
-        body: "Share a few details about the development and one of our architects will get back to you within a day.",
-      },
-    },
-    ar: {
-      seo: {
-        title: "آرك ريزيدنسز دبي | تصور ثلاثي الأبعاد | استوديوهات معمار",
-        description:
-          "تصورات معمارية ثلاثية الأبعاد لمشروع آرك ريزيدنسز في دبي: واجهات البرج المتدرّج وتفاصيل الشرفات وتراس مسبح السطح من استوديوهات معمار.",
-      },
-      typology: "برج سكني",
-      heading: "تصور ثلاثي الأبعاد لمشروع آرك ريزيدنسز في دبي",
-      paragraphs: [
-        "آرك ريزيدنسز مشروع سكني في [دبي بالإمارات العربية المتحدة](/3d-visualization-services-uae)، صوّرته استوديوهات معمار في مجموعة من [التصورات المعمارية ثلاثية الأبعاد الواقعية](/services/3d-visualization). تعرض المجموعة المبنى كما سيراه المشتري: البرج المتدرّج من الشارع عند الغسق، وتفاصيل الواجهة والشرفات عن قرب، وتراس المسبح على السطح وخلفه أفق مدينة دبي. وتتيح تصورات كهذه للمطوّر تسويق الشقق على الخارطة بصور للمبنى في شكله النهائي قبل وقت طويل من اكتمال البناء.",
-        "صُمّم كل مشهد ليجيب عن سؤال مختلف يطرحه المشتري. تُظهر مشاهد الواجهة نِسَب الشرفات المتدرّجة والزعانف الخشبية العمودية على خلفية السماء. ويُظهر المشهد الليلي كيف يقف البرج في شارعه وكيف تبدو التراسات المضاءة من بعيد. أما مشهد التراس فيعرض نمط الحياة: الظل والنباتات والمقاعد الوثيرة وحافة المسبح، والمدينة في الخلفية. ويكون التصور المعماري السكني الحديث ناجحاً حين يبدو مكاناً حقيقياً لا مجرد مخطط، وبهذا الأسلوب رُكّبت هذه الصور.",
-      ],
-      views: [
-        {
-          image: "/projects/catalog/aark-residences/image-1.jpg",
-          title: "واجهة البرج في ضوء النهار",
-          text: "منظر من الأسفل نحو البرج: الشرفات المتدرّجة والزعانف الخشبية العمودية ومسبح السطح ذو الجوانب الزجاجية على خلفية السماء.",
-          alt: "آرك ريزيدنسز، دبي: منظر نهاري من الأسفل للبرج مع الشرفات المتدرّجة والزعانف الخشبية ومسبح السطح الزجاجي، تصور معماري ثلاثي الأبعاد",
-        },
-        {
-          image: "/projects/catalog/aark-residences/image-2.jpg",
-          title: "منظر الشارع عند الغسق",
-          text: "البرج في شارعه مع تراسات مضاءة وخطوط أضواء السيارات العابرة.",
-          alt: "آرك ريزيدنسز، دبي: البرج السكني عند الغسق مع تراسات مضاءة وأضواء السيارات في الشارع، تصور خارجي ثلاثي الأبعاد",
-        },
-        {
-          image: "/projects/catalog/aark-residences/image-3.jpg",
-          title: "تفاصيل الواجهة والشرفات",
-          text: "حواجز زجاجية وتراسات مزروعة ولمحة عن غرفة معيشة مضاءة من خلف الزجاج.",
-          alt: "آرك ريزيدنسز، دبي: لقطة قريبة للشرفات بحواجزها الزجاجية ونباتاتها وغرفة معيشة مضاءة خلف الزجاج، تصور معماري ثلاثي الأبعاد",
-        },
-      ],
-      faqs: [
-        {
-          question: "ماذا قدّمت استوديوهات معمار لمشروع آرك ريزيدنسز؟",
-          answer:
-            "قدّمت مجموعة من التصورات المعمارية ثلاثية الأبعاد الواقعية لمشروع آرك ريزيدنسز في دبي: مشاهد خارجية في النهار وعند الغسق، ومشهداً لتفاصيل الواجهة والشرفات، ومشهداً لتراس مسبح السطح.",
-        },
-        {
-          question: "لماذا يُستخدم التصور ثلاثي الأبعاد للمشاريع السكنية في الإمارات؟",
-          answer:
-            "يتيح التصور للمشترين والمستثمرين رؤية المبنى النهائي وتراساته ومرافقه قبل اكتمال البناء، فيمكن تسويق المشروع السكني مبكراً بصور متسقة للكتيبات والمواقع الإلكترونية وصالات المبيعات.",
-        },
-        {
-          question: "كيف تساعد تصورات مثل مجموعة آرك ريزيدنسز في بيع الشقق على الخارطة؟",
-          answer:
-            "لا يستطيع مشتري العقار على الخارطة زيارة المبنى المكتمل، فتعرضه التصورات بدلاً منه: المشاهد الخارجية في النهار وعند الغسق تُظهر البرج وشارعه، ومشهد الشرفات يُظهر جودة الوحدات، وتراس السطح يُظهر المرافق. وتصلح مجموعة واحدة متسقة لمنصات العقارات والكتيبات وصالة المبيعات.",
-        },
-      ],
-      service: { path: "/services/3d-visualization", label: "خدمات التصور ثلاثي الأبعاد" },
-      cta: {
-        heading1: "تبيع على الخارطة في دبي؟",
-        heading2: "سنخطط معك للتصورات.",
-        body: "شاركنا بعض التفاصيل عن المشروع وسيتواصل معك أحد معماريينا خلال يوم واحد.",
-      },
-    },
-  },
-};
+const stories: Record<Locale, Record<string, ProjectStory>> = { en: enStories, ar: arStories };
 
 export function getProjectStory(slug: string, lang: Locale): ProjectStory | undefined {
-  return stories[slug]?.[lang === "ar" ? "ar" : "en"];
+  return stories[lang === "ar" ? "ar" : "en"][slug];
 }
