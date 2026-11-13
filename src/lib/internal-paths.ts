@@ -5,7 +5,7 @@ import { getBlogEntries } from "@/lib/blog-store";
 import { blogCategories } from "@/lib/legacy-seo";
 import { legacyServicePages } from "@/lib/legacy-service-pages";
 import { regionList } from "@/lib/regions";
-import { interactiveServicesSlug, servicePath } from "@/lib/service-details";
+import { interactiveServicesSlug, interactiveSubServiceSlugs, servicePath } from "@/lib/service-details";
 import { services } from "@/lib/site-config";
 import { threeDVisualizationSubServicePath, threeDVisualizationSubServiceSlugs } from "@/lib/three-d-visualization-sub-services";
 import { isTextBlock, type ArticleBlock } from "@/lib/content-blocks";
@@ -26,6 +26,7 @@ function staticPaths(): string[] {
     ...FIXED,
     ...services.map((s) => servicePath(s.slug)),
     servicePath(interactiveServicesSlug),
+    ...interactiveSubServiceSlugs.map(servicePath),
     ...architecturalSubServiceSlugs.map(architecturalSubServicePath),
     ...threeDVisualizationSubServiceSlugs.map(threeDVisualizationSubServicePath),
     ...brandingMarketingSubServicePaths,

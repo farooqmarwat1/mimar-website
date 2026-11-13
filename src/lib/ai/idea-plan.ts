@@ -6,7 +6,7 @@ import { titleSimilarity } from "@/lib/ai/similarity";
  * Where blog topics come from. Pure (no server imports) so it can be unit-tested; the
  * collectors in src/lib/ideas/collectors fetch the raw material and ideas.ts stores it.
  *
- * Five approaches feed the same drafting, approval and tracking pipeline:
+ * Seven approaches feed the same drafting, approval and tracking pipeline:
  *
  *   search      - what people search on Google: Search Console (keyword-plan.ts), plus
  *                 Google autocomplete questions
@@ -16,12 +16,15 @@ import { titleSimilarity } from "@/lib/ai/similarity";
  *   social     - design themes trending on Instagram (and trends staff add by hand)
  *   customers  - questions buyers send us through the enquiry form, anonymised
  *   news       - industry and Gulf property news worth explaining to our clients
+ *   keywords   - our SEO consultant's method: a competitor title split into keywords, the best
+ *                keyword by demand / difficulty / intent, 3-5 titles rechecked against competitors
+ *                (keyword-research.ts); also every article written from an SEO brief (blog-brief.ts)
  *
  * The scheduler takes the approaches in proportion to BLOG_APPROACH_MIX (search-heavy by
  * default), and /admin/blog/performance compares them like it compares blog types.
  */
 
-export const APPROACH_KEYS = ["search", "competitors", "community", "social", "customers", "news"] as const;
+export const APPROACH_KEYS = ["search", "competitors", "community", "social", "customers", "news", "keywords"] as const;
 export type Approach = (typeof APPROACH_KEYS)[number];
 
 export type ApproachInfo = {
@@ -69,6 +72,13 @@ export const APPROACHES: ApproachInfo[] = [
     description: "Architecture, real estate and Gulf development news worth explaining to developers and buyers.",
     planner: "The idea comes from recent industry news. Write the explainer a developer or buyer needs (what it means for them, what to do next), not a news report. Use only facts the research confirms.",
   },
+  {
+    key: "keywords",
+    label: "Keyword research",
+    description:
+      "Our SEO consultant's method: a competitor title split into its keywords, the best keyword by estimated demand, difficulty and intent, then 3-5 titles rechecked against competitors. Also articles written from an SEO brief.",
+    planner: "The idea is a keyword chosen by keyword research, with a title already checked against competitors. Keep the keyword word for word and stay close to the title's angle. Never mention, copy or follow the structure of any competitor's article.",
+  },
 ];
 
 export const approachInfo = (key: string | undefined) => APPROACHES.find((item) => item.key === key);
@@ -89,7 +99,7 @@ export function approachOf(generation: { approach?: string; strategy?: string; k
   return "other";
 }
 
-export const IDEA_SOURCES = ["autocomplete", "competitor", "reddit", "instagram", "manual", "leads", "rss"] as const;
+export const IDEA_SOURCES = ["autocomplete", "competitor", "reddit", "instagram", "manual", "leads", "rss", "keyword-research"] as const;
 export type IdeaSource = (typeof IDEA_SOURCES)[number];
 
 export const SOURCE_LABELS: Record<IdeaSource, string> = {
@@ -100,6 +110,7 @@ export const SOURCE_LABELS: Record<IdeaSource, string> = {
   manual: "Added by staff",
   leads: "Our enquiries",
   rss: "News feed",
+  "keyword-research": "Keyword research",
 };
 
 export type IdeaStatus = "new" | "queued" | "used" | "dismissed";
@@ -117,6 +128,10 @@ export type IdeaEvidence = {
   fame?: number;
   /** The signals behind `fame`, one short line each. Never personal data. */
   signals?: string[];
+  /** Keyword research: the other titles that passed the competitor recheck. */
+  alternates?: string[];
+  /** Keyword research: the keywords found in the competitor title, best first, with their estimates. */
+  candidates?: string[];
 };
 
 export type Idea = {
@@ -142,13 +157,13 @@ export type Idea = {
 export type NewIdea = Omit<Idea, "id" | "status" | "createdAt" | "expiresAt">;
 
 /** How long an unused idea stays useful. */
-export const IDEA_LIFETIME_DAYS: Record<Approach, number> = { search: 180, competitors: 120, community: 60, social: 30, customers: 180, news: 30 };
+export const IDEA_LIFETIME_DAYS: Record<Approach, number> = { search: 180, competitors: 120, community: 60, social: 30, customers: 180, news: 30, keywords: 120 };
 
 export const expiryFor = (approach: Approach, now = new Date()) => new Date(now.getTime() + IDEA_LIFETIME_DAYS[approach] * 86_400_000).toISOString();
 
 // ---- The mix ---------------------------------------------------------------
 
-export const DEFAULT_MIX = "search:3,competitors:1,community:1,social:1,customers:1,news:1";
+export const DEFAULT_MIX = "search:3,competitors:1,community:1,social:1,customers:1,news:1,keywords:1";
 
 /** "search:4,community:1,..." -> weights. Approaches left out get 0; a mix with no weight at all falls back to the default. */
 export function parseMix(raw: string | undefined): Record<Approach, number> {

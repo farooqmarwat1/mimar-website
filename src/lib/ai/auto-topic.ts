@@ -172,6 +172,14 @@ function ideaContext(idea: Idea): string {
     .join("\n");
 }
 
+/** An idea's own title as the topic, when it passes the editorial policy and is not too close to what we have. */
+function readyTitle(title: string, keyword: string, titles: string[]): { topic: string; keyword: string } | null {
+  const topic = title.replace(/\s+/g, " ").trim();
+  if (topicPolicyErrors(topic, keyword).length) return null;
+  if (titles.some((other) => titleSimilarity(topic, other) >= SIMILARITY_LIMIT)) return null;
+  return { topic, keyword };
+}
+
 /** The editorial policy wants a 2-6 word primary keyword. */
 const usableKeyword = (keyword: string | undefined): keyword is string => Boolean(keyword) && keyword!.split(/\s+/).length >= 2 && keyword!.split(/\s+/).length <= 6;
 
@@ -184,8 +192,9 @@ async function topicFromIdea(provider: AiProvider, usage: Usage, idea: Idea, tit
   const group = SERVICE_GROUPS.find((item) => item.key === idea.group) ?? SERVICE_GROUPS.find((item) => item.key === fallback?.group) ?? SERVICE_GROUPS[0];
   const strategy = ideaStrategy(idea);
   const info = strategyInfo(strategy)!;
-  // Search ideas are real searches: keep them word for word. Other ideas get the keyword the AI picks.
-  const required = idea.approach === "search" && usableKeyword(idea.keyword) ? idea.keyword : undefined;
+  // Search ideas are real searches, and keyword-research ideas were picked for their numbers: keep those
+  // keywords word for word. Other ideas get the keyword the AI picks.
+  const required = (idea.approach === "search" || idea.approach === "keywords") && usableKeyword(idea.keyword) ? idea.keyword : undefined;
   const market = region
     ? `Market: ${region.name} (primary city: ${region.city}). Context about this market: ${region.keyFacts.slice(0, 4).join(" ")}`
     : "Market: all of the studio's markets (UAE, Saudi Arabia, Pakistan, USA). Keep the topic general and mention no place.";
@@ -199,7 +208,9 @@ ${required ? `Required primary keyword (a real Google search; use it word for wo
 Already covered (do not repeat or closely resemble):
 ${titles.slice(-150).map((title) => `- ${title}`).join("\n")}
 `;
-  const chosen = await suggestTopic(provider, usage, prompt, titles, required);
+  // A keyword-research title was already rechecked against competitors: use it as is when it still passes.
+  const ready = idea.approach === "keywords" && required ? readyTitle(idea.title, required, titles) : null;
+  const chosen = ready ?? (await suggestTopic(provider, usage, prompt, titles, required));
   if (!chosen) return null;
   return {
     ...chosen,
@@ -210,7 +221,7 @@ ${titles.slice(-150).map((title) => `- ${title}`).join("\n")}
     region: region?.name,
     seedUrls: idea.seedUrls.slice(0, 3),
     strategy,
-    keywordSource: idea.source === "competitor" ? "competitor" : required && idea.source === "autocomplete" ? "autocomplete" : "ai",
+    keywordSource: idea.source === "competitor" ? "competitor" : idea.approach === "keywords" && required ? "research" : required && idea.source === "autocomplete" ? "autocomplete" : "ai",
     approach: idea.approach,
     ideaId: idea.id,
     ideaBrief: ideaBrief(idea),

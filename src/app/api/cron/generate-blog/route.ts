@@ -105,6 +105,7 @@ async function runScheduledGeneration() {
       ideaId: topic.ideaId,
       ideaBrief: topic.ideaBrief,
       ideaUrl: topic.ideaUrl,
+      brief: topic.brief,
     });
   } catch (err) {
     await finishTopic(topic.id, { status: "queued" });
@@ -131,6 +132,7 @@ const KEYWORD_SOURCE_NOTE: Record<NonNullable<BlogTopic["keywordSource"]>, strin
   "search-console": "(a real Google search from Search Console)",
   autocomplete: "(a real Google search: Google autocomplete suggests it)",
   competitor: "(a subject competitors cover and we did not)",
+  research: "(chosen by keyword research: an SEO brief or the keyword-research approach)",
   ai: "(chosen by the AI)",
 };
 

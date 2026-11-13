@@ -1,5 +1,6 @@
 import "server-only";
 import { approachOf, type ApproachOrOther } from "@/lib/ai/idea-plan";
+import type { BlogBrief } from "@/lib/ai/blog-brief";
 import type { BlogTagging } from "@/lib/ai/keyword-plan";
 import { selectBlogCover, type BlogCover } from "@/lib/blog-covers";
 import { adminDb } from "@/lib/firebase/admin";
@@ -77,7 +78,7 @@ export type Post = {
    * AI drafts: what was asked for and any warnings from the quality gates. Scheduled drafts also carry
    * their blog type and keyword source (keyword-plan.ts), which /admin/blog/performance groups by.
    */
-  generation?: { topic: string; geo?: string; model: string; notes: string[]; keyword?: string } & Partial<BlogTagging>;
+  generation?: { topic: string; geo?: string; model: string; notes: string[]; keyword?: string; brief?: BlogBrief } & Partial<BlogTagging>;
   ar?: PostAr;
   /** Imported articles only: their position in the old blog archive / category lists (lower = earlier). */
   archiveRank?: number;

@@ -66,9 +66,10 @@ export type BlogTagging = {
   strategy: Strategy;
   /**
    * "search-console" = a real Google search; "autocomplete" = a Google autocomplete suggestion;
-   * "competitor" = a topic competitors cover and we do not; "ai" = the AI chose the keyword.
+   * "competitor" = a topic competitors cover and we do not; "research" = picked by keyword research
+   * (an SEO editor's brief, or the keyword-research approach); "ai" = the AI chose the keyword.
    */
-  keywordSource: "search-console" | "autocomplete" | "competitor" | "ai";
+  keywordSource: "search-console" | "autocomplete" | "competitor" | "research" | "ai";
   keywordStats?: KeywordStats;
   relatedQueries?: string[];
   /** Where the topic came from (idea-plan.ts). Absent on drafts from before approaches were tracked: those are search. */

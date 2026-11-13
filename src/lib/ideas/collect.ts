@@ -9,6 +9,7 @@ import { autocompleteCollector } from "@/lib/ideas/collectors/autocomplete";
 import { competitorsCollector } from "@/lib/ideas/collectors/competitors";
 import { customersCollector } from "@/lib/ideas/collectors/customers";
 import { instagramCollector } from "@/lib/ideas/collectors/instagram";
+import { keywordResearchCollector } from "@/lib/ideas/collectors/keyword-research";
 import { newsCollector } from "@/lib/ideas/collectors/news";
 import { redditCollector } from "@/lib/ideas/collectors/reddit";
 import { acquireIdeasLease, deleteExpiredIdeas, finishIdeasRun, saveNewIdeas, type SourceRun } from "@/lib/ideas/store";
@@ -19,7 +20,7 @@ import { acquireIdeasLease, deleteExpiredIdeas, finishIdeasRun, saveNewIdeas, ty
  * without repeating stored ideas or covered articles, and expired ideas are cleared.
  */
 
-export const COLLECTORS: Collector[] = [autocompleteCollector, competitorsCollector, redditCollector, instagramCollector, customersCollector, newsCollector];
+export const COLLECTORS: Collector[] = [autocompleteCollector, competitorsCollector, redditCollector, instagramCollector, customersCollector, newsCollector, keywordResearchCollector];
 
 /** Longer than the route's maxDuration, so a crashed run's lease always expires on its own. */
 const LEASE_MS = 330_000;

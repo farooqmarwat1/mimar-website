@@ -72,6 +72,7 @@ export function AddIdeaForm() {
             <option value="community">A question asked online</option>
             <option value="customers">A question clients ask us</option>
             <option value="search">A Google search</option>
+            <option value="keywords">Keyword research (a title and keyword our SEO consultant picked)</option>
           </select>
         </label>
         <label className={labelClass}>

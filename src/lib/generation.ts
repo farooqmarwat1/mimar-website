@@ -1,5 +1,6 @@
 import "server-only";
 import { FieldValue } from "firebase-admin/firestore";
+import type { BlogBrief } from "@/lib/ai/blog-brief";
 import type { BlogTagging } from "@/lib/ai/keyword-plan";
 import { adminDb } from "@/lib/firebase/admin";
 
@@ -24,6 +25,8 @@ export type GenerationJob = {
   error?: string;
   usage?: { inputTokens: number; outputTokens: number; searches: number };
   source: "manual" | "cron";
+  /** An SEO editor's brief (blog-brief.ts): the writer follows its title, outline and keywords. */
+  brief?: BlogBrief;
   createdAt: string;
   updatedAt: string;
   createdBy: string;
@@ -49,6 +52,8 @@ export type BlogTopic = {
   group?: string;
   region?: string;
   keyword?: string;
+  /** An SEO editor's brief (blog-brief.ts), queued from /admin/blog/generate. */
+  brief?: BlogBrief;
 } & Partial<BlogTagging>;
 
 const JOBS = "siteGenerationJobs";
@@ -66,7 +71,7 @@ function clean<T extends object>(data: T): T {
   return JSON.parse(JSON.stringify(data)) as T;
 }
 
-export async function createJob(input: Pick<GenerationJob, "topic" | "keyword" | "geo" | "category" | "seedUrls" | "source" | "createdBy"> & Partial<BlogTagging>): Promise<string> {
+export async function createJob(input: Pick<GenerationJob, "topic" | "keyword" | "geo" | "category" | "seedUrls" | "source" | "createdBy" | "brief"> & Partial<BlogTagging>): Promise<string> {
   const ref = await adminDb()
     .collection(JOBS)
     .add(clean({ ...input, status: "queued", log: [], createdAt: now(), updatedAt: now() }));

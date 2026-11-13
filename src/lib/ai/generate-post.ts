@@ -1,5 +1,7 @@
 import "server-only";
 import { articlePolicyErrors } from "./editorial-policy";
+import { briefWriterLines, missingSections, type BlogBrief } from "@/lib/ai/blog-brief";
+import { splitMarkdownBody } from "@/lib/ai/seo-checks";
 import { selectBlogCover } from "@/lib/blog-covers";
 import { libraryCoverAlt } from "@/lib/ai/image-prompt";
 import { z } from "zod";
@@ -65,14 +67,20 @@ function siteFacts(geo?: string): string {
 
 type LinkOption = { label: string; path: string };
 
-async function linkOptions(topic: string, region?: ReturnType<typeof findRegion>): Promise<LinkOption[]> {
+async function linkOptions(topic: string, region?: ReturnType<typeof findRegion>, brief?: BlogBrief): Promise<LinkOption[]> {
   const articles = (await getBlogEntries())
     .map((article) => ({ ...article, score: titleSimilarity(topic, article.title) }))
     .filter((article) => article.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, 6);
 
+  const known = await knownInternalPaths();
+  // A brief's call-to-action page, when it is a real page and not already in the list below.
+  const cta = brief && known.has(normalizePath(brief.ctaPath)) ? [{ label: "The brief's call-to-action page (must be linked)", path: normalizePath(brief.ctaPath) }] : [];
+  const extra = (brief?.links ?? []).map(normalizePath).filter((path) => known.has(path)).map((path) => ({ label: "Page the brief suggests linking", path }));
   return [
+    ...cta,
+    ...extra,
     ...services.map((s) => ({ label: s.title, path: servicePath(s.slug) })),
     ...(region ? [{ label: `3D visualization services in ${region.name}`, path: region.path }] : regionList.map((r) => ({ label: `3D visualization services in ${r.name}`, path: r.path }))),
     { label: "Projects", path: "/projects" },
@@ -163,7 +171,7 @@ function blogTypeLines(job: Pick<GenerationJob, "strategy" | "keywordStats" | "r
     .join("\n");
 }
 
-function writerPrompt(input: { topic: string; keyword?: string; category?: string; geo?: string; typeLines: string; brief: string; sources: { title: string }[]; links: LinkOption[]; feedback: string[] }): string {
+function writerPrompt(input: { topic: string; keyword?: string; category?: string; geo?: string; typeLines: string; plan?: BlogBrief; brief: string; sources: { title: string }[]; links: LinkOption[]; feedback: string[] }): string {
   const today = new Date().toISOString().slice(0, 10);
   return `Today is ${today}.
 Write the article.
@@ -173,7 +181,9 @@ Primary keyword: ${input.keyword || "Choose one specific 2–6 word phrase"}
 Required category: ${input.category || "Choose one allowed category"}
 Target location: ${input.geo || "none"}
 ${input.typeLines}
-
+${input.plan ? `
+${briefWriterLines(input.plan)}
+` : ""}
 Verified site facts:
 ${siteFacts(input.geo)}
 
@@ -242,6 +252,12 @@ async function runGates(article: Article, ctx: { job: GenerationJob; sources: Fe
   if (!inlinePaths.some(path => services.some(service => servicePath(service.slug) === path))) retryReasons.push("Include a contextual link to the relevant Mimar service page.");
   const targetRegion = findRegion(ctx.job.geo);
   if (targetRegion && !inlinePaths.includes(targetRegion.path)) retryReasons.push(`Include a contextual link to the target region page ${targetRegion.path}.`);
+  const brief = ctx.job.brief;
+  if (brief) {
+    if (!inlinePaths.map(normalizePath).includes(normalizePath(brief.ctaPath))) retryReasons.push(`Include a contextual link to the brief's call-to-action page ${brief.ctaPath} in the body.`);
+    const missing = missingSections(brief, splitMarkdownBody(article.body).headings);
+    if (missing.length) retryReasons.push(`Follow the brief's outline: these sections are missing or reworded beyond recognition: ${missing.map((text) => `"${text}"`).join("; ")}.`);
+  }
   if (/\[[^\]]+\]\(https?:/i.test(article.body)) retryReasons.push("Keep body links internal; research source links are listed separately.");
   if (words > 1800) retryReasons.push("Keep the article under 1,800 words.");
   if (!category) retryReasons.push("Choose a valid blog category.");
@@ -297,14 +313,14 @@ export async function runGeneration(jobId: string): Promise<string> {
     await updateJob(jobId, {}, `Read ${fetched.length} of ${sources.length} source pages for the originality check`);
 
     const region = findRegion(job.geo);
-    const links = await linkOptions(job.topic, region);
+    const links = await linkOptions(job.topic, region, job.brief);
 
     let feedback: string[] = [];
     let gated: Gated | null = null;
     for (let attempt = 1; attempt <= 2; attempt++) {
       await updateJob(jobId, { status: "writing" }, attempt === 1 ? "Writing the article" : "Rewriting to fix quality checks");
-      const raw = await ai.write({ system: WRITER_SYSTEM, prompt: writerPrompt({ topic: job.topic, keyword: job.keyword, category: job.category, geo: job.geo, typeLines: blogTypeLines(job), brief, sources, links, feedback }) }, usage);
-      const article = articleSchema.parse(raw);
+      const raw = await ai.write({ system: WRITER_SYSTEM, prompt: writerPrompt({ topic: job.topic, keyword: job.keyword, category: job.category, geo: job.geo, typeLines: blogTypeLines(job), plan: job.brief, brief, sources, links, feedback }) }, usage);
+      const article = withBriefFields(articleSchema.parse(raw), job.brief);
       await updateJob(jobId, { status: "checking", usage }, "Running quality checks");
       gated = await runGates(article, { job, sources: checkAgainst, attempt });
       if (gated.retryReasons.length === 0) break;
@@ -342,6 +358,8 @@ export async function runGeneration(jobId: string): Promise<string> {
         },
         ai,
         usage,
+        undefined,
+        { target: job.brief?.ar },
       );
     } catch (err) {
       console.error("[blog-generator] Arabic version failed:", err instanceof Error ? err.message : err);
@@ -354,7 +372,9 @@ export async function runGeneration(jobId: string): Promise<string> {
       ...(type
         ? [
             `Blog type: ${type.label}. Keyword "${job.keyword}" ${
-              job.keywordSource === "search-console" && stats
+              job.keywordSource === "research"
+                ? "was chosen by keyword research (an SEO brief or the keyword-research approach)."
+                : job.keywordSource === "search-console" && stats
                 ? `is a real Google search (Search Console, last 90 days: ${stats.impressions} impressions, ${stats.clicks} clicks, average position ${stats.position}).`
                 : job.keywordSource === "autocomplete"
                   ? "is a real Google search (Google autocomplete suggests it; there is no volume data)."
@@ -364,6 +384,12 @@ export async function runGeneration(jobId: string): Promise<string> {
                       ? "was chosen by the AI for the idea below."
                       : "was chosen by the AI because Search Console had no suitable search."
             } Keep it in the title so the performance report stays meaningful.`,
+          ]
+        : []),
+      ...(job.brief
+        ? [
+            `Written from an SEO brief${job.brief.ref ? ` (${job.brief.ref})` : ""}: check the sections follow its outline and that every case study, statistic or regulation is backed by the sources.`,
+            ...(job.brief.visual ? [`Planned visuals: ${job.brief.visual} Use our own renders (Projects) or a new image; never another studio's work.`] : []),
           ]
         : []),
       ...(job.ideaBrief ? [`Idea source: ${job.ideaBrief}${job.ideaUrl ? ` (${job.ideaUrl})` : ""}. Check the article answers it.`] : []),
@@ -406,6 +432,7 @@ export async function runGeneration(jobId: string): Promise<string> {
         ideaId: job.ideaId,
         ideaBrief: job.ideaBrief,
         ideaUrl: job.ideaUrl,
+        brief: job.brief,
       },
     });
 
@@ -417,6 +444,20 @@ export async function runGeneration(jobId: string): Promise<string> {
     await updateJob(jobId, { status: "failed", error: message, usage }, `Failed: ${message}`).catch(() => undefined);
     throw new Error(message);
   }
+}
+
+/** The fields an SEO brief fixes are used exactly as written; the writer only supplies the rest. */
+function withBriefFields(article: Article, brief: BlogBrief | undefined): Article {
+  if (!brief) return article;
+  const rest = article.keywords.filter((keyword) => keyword.trim().toLowerCase() !== brief.keyword);
+  return {
+    ...article,
+    title: brief.title,
+    seoTitle: brief.seoTitle ?? article.seoTitle,
+    description: brief.description ?? article.description,
+    keywords: [brief.keyword, ...rest].slice(0, 8),
+    category: brief.category || article.category,
+  };
 }
 
 function describeError(err: unknown, provider: AiProvider | null): string {

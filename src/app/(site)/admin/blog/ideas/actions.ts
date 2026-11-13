@@ -57,7 +57,7 @@ export async function dismissIdeaAction(formData: FormData) {
   revalidatePath(PATH);
 }
 
-const MANUAL_APPROACHES: Approach[] = ["social", "news", "community", "customers", "search"];
+const MANUAL_APPROACHES: Approach[] = ["social", "news", "community", "customers", "search", "keywords"];
 
 /** A trend or question staff spotted themselves (TikTok, Pinterest, a client meeting). */
 export async function addIdeaAction(_prev: IdeasState, formData: FormData): Promise<IdeasState> {

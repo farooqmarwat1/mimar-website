@@ -38,7 +38,7 @@ export function articlePolicyErrors(article: Article, context: { keyword?: strin
     for (const place of context.geo.split(",").map(p => p.trim()).filter(Boolean)) {
       if (!contains(plain, place) || !article.geoTerms.some(term => contains(term, place))) errors.push(`Include the target location ${place} naturally in the article and geoTerms.`);
     }
-    if (!/^## .*\b(local|regional|market|practice|considerations|dubai|islamabad|riyadh|usa|pakistan|saudi|uae|united states)\b/im.test(article.body)) errors.push("Include a substantive section on local market considerations, supported by the research.");
+    if (!/^## .*\b(local|regional|market|practice|considerations|dubai|abu dhabi|islamabad|rawalpindi|lahore|karachi|riyadh|jeddah|red sea|usa|us|new york|dallas|texas|san francisco|california|pakistan|saudi|uae|gcc|gulf|middle east|united states)\b/im.test(article.body)) errors.push("Include a substantive section on local market considerations, supported by the research.");
   }
   // Keyword placement, flow, local intent and description length (seo-checks.ts), shared with the editor's checklist.
   const { headings, paragraphs } = splitMarkdownBody(article.body);

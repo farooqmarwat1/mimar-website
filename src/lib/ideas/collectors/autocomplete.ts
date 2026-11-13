@@ -39,7 +39,8 @@ const TEMPLATES: ((seed: string, city: string) => string)[] = [
 /** Queries per weekly run, so we never hammer the endpoint. */
 const PER_RUN = 60;
 
-async function suggestions(query: string, gl: string): Promise<string[]> {
+/** Google autocomplete suggestions for a query in a country (`gl`). Also used by the keyword-research approach. */
+export async function suggestions(query: string, gl: string): Promise<string[]> {
   const url = `https://suggestqueries.google.com/complete/search?client=firefox&hl=en&gl=${gl}&q=${encodeURIComponent(query)}`;
   const res = await fetch(url, { signal: AbortSignal.timeout(6000), headers: { "User-Agent": "MimarStudiosBot/1.0 (+https://mim.archi)" }, cache: "no-store" });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);

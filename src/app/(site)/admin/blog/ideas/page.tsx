@@ -20,11 +20,12 @@ const stateBadge: Record<string, string> = {
 const pakistanTime = (iso: string) => new Date(iso).toLocaleString("en-GB", { timeZone: "Asia/Karachi", dateStyle: "medium", timeStyle: "short" });
 
 function Evidence({ idea }: { idea: Idea }) {
-  const { score, comments, count, note, url, fame, signals } = idea.evidence;
+  const { score, comments, count, note, url, fame, signals, candidates, alternates } = idea.evidence;
+  const research = idea.approach === "keywords";
   const parts = [
     SOURCE_LABELS[idea.source],
     idea.region,
-    fame ? `fame ${fame}/100` : "",
+    fame ? (research ? `demand ~${fame}/100 (estimate)` : `fame ${fame}/100`) : "",
     count && count > 1 && !fame ? `${count} ${idea.source === "leads" ? "enquiries" : idea.source === "autocomplete" ? "searches" : "posts"}` : "",
     score ? `${score.toLocaleString("en-US")} reactions` : "",
     comments ? `${comments.toLocaleString("en-US")} comments` : "",
@@ -34,7 +35,13 @@ function Evidence({ idea }: { idea: Idea }) {
     <span className="mt-1 block text-xs text-muted">
       {idea.keyword && idea.keyword !== idea.title.toLowerCase() ? <>“{idea.keyword}” · </> : null}
       {parts.join(" · ")}
-      {signals?.length ? <span className="block">Why it counts as established: {signals.join("; ")}.</span> : null}
+      {signals?.length ? <span className="block">{research ? "Competitor recheck" : "Why it counts as established"}: {signals.join("; ")}.</span> : null}
+      {candidates?.length ? (
+        <span className="block">
+          Keywords in the competitor title, best first (estimates from autocomplete, Search Console and competitor coverage; no paid volume data): {candidates.join(" · ")}
+        </span>
+      ) : null}
+      {alternates?.length ? <span className="block">Other titles that passed the competitor recheck: {alternates.map((title) => `“${title}”`).join("; ")}</span> : null}
       {note && note !== idea.title ? <span className="block">{note}</span> : null}
       {url ? (
         <a href={url} target="_blank" rel="noopener noreferrer nofollow" className="text-accent hover:underline">
@@ -98,7 +105,7 @@ export default async function BlogIdeasPage() {
           <p className="eyebrow text-muted">Blog</p>
           <h1 className="mt-2 text-3xl font-medium tracking-tight">Blog ideas</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted">
-            Every Sunday the studio collects ideas from six places. The Monday and Thursday drafts take them in turn, and you can pick any idea to be written next. Every draft still waits for
+            Every Sunday the studio collects ideas from seven places. The Monday and Thursday drafts take them in turn, and you can pick any idea to be written next. Every draft still waits for
             your approval.
           </p>
         </div>
