@@ -23,8 +23,13 @@ import { arStories } from "./project-stories-ar";
  * The stories themselves live in project-stories-en.ts and project-stories-ar.ts (one per project and language).
  */
 export type ProjectStory = {
-  /** Search-result title (50-60 characters) and description (120-155) for this project. */
-  seo: { title: string; description: string };
+  /**
+   * Search-result title (50-60 characters) and description (120-155) for this project, and the
+   * page's meta keywords: the D7 keywords that fit (no claims, misspellings or off-topic searches),
+   * spelled as the page spells the project. Google ignores meta keywords; every other page has
+   * them, and SEO tools report the tag as missing without them.
+   */
+  seo: { title: string; description: string; keywords: string[] };
   /** Replaces the "Hospitality / Residential" spec when that label does not fit the project. */
   typology?: string;
   /** H2 above the overview. Carries the project's main keyword. */

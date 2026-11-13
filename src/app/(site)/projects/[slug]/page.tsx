@@ -19,6 +19,7 @@ export async function generateMetadata({ params }: PageProps<"/projects/[slug]">
     title: story?.seo.title ?? `${project.title} | Mimar Studios`,
     description: story?.seo.description ?? project.summary,
     path: `/projects/${project.slug}`,
+    keywords: story?.seo.keywords,
     ogImage: project.cover,
   });
 }

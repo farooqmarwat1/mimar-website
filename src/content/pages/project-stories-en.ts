@@ -32,6 +32,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "Aark Residences Dubai | 3D Rendering Project | Mimar Studios",
       description:
         "3D architectural renders of Aark Residences in Dubai: terraced tower exteriors, balcony detail and a rooftop pool terrace by Mimar Studios.",
+      keywords: ["aark residences", "aark residences dubai", "modern residential rendering", "off-plan property renders", "residential development in uae"],
     },
     typology: "Residential tower",
     heading: "Aark Residences 3D rendering in Dubai",
@@ -85,6 +86,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "Amer Al Ghurair Dubai | 3D Visualization | Mimar Studios",
       description:
         "3D renders of Amer Al Ghurair in Dubai: residential towers around a landscaped pool, an indoor pool, a gym and aerial views over the community.",
+      keywords: ["amer al ghurair", "amer al ghurair dubai", "3d visualization dubai", "3d visualizer in uae"],
     },
     typology: "Residential towers",
     heading: "Amer Al Ghurair architectural renders in Dubai",
@@ -150,6 +152,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "Amerat Park Muscat | Architectural Design | Mimar Studios",
       description:
         "Architectural design renders of Amerat Park in Muscat, Oman: a palm-lined promenade, a clock-tower plaza at dusk and aerial views of the site.",
+      keywords: ["amerat park", "al amerat park", "amerat park muscat", "architectural design oman"],
     },
     typology: "Retail and leisure destination",
     heading: "Amerat Park architectural design in Muscat",
@@ -203,6 +206,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "Divine Golf Dubai | Residential 3D Rendering | Mimar Studios",
       description:
         "3D renders of Divine Golf in Dubai: low-rise apartments beside a golf course, a lakeside view at dusk, a lit night façade and the park by day.",
+      keywords: ["divine golf", "divine golf dubai", "residential 3d rendering dubai", "3d visualizer in uae"],
     },
     typology: "Residential community",
     heading: "Divine Golf 3D renders in Dubai",
@@ -256,6 +260,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "Divine Residencia Dubai | 3D Visualization | Mimar Studios",
       description:
         "3D renders of Divine Residencia in Dubai: a low-rise apartment building with a garden, its pool deck from above and close views of the balconies.",
+      keywords: ["divine residencia", "divine residencia dubai", "architectural renders dubai", "3d visualizer in uae"],
     },
     typology: "Low-rise residential",
     heading: "Divine Residencia architectural renders in Dubai",
@@ -309,6 +314,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "H&S Dubai | Residential Building 3D Renders | Mimar Studios",
       description:
         "3D renders of the H&S residential building in Dubai: a curved façade at night, a street view at dusk, a daytime view and an aerial to the skyline.",
+      keywords: ["h&s real estate", "h&s real estate projects", "h&s dubai", "residential building renders dubai"],
     },
     typology: "Residential building",
     heading: "H&S residential building renders in Dubai",
@@ -362,6 +368,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "Karma Trinity Dubai | Residential 3D Renders | Mimar Studios",
       description:
         "A full 3D marketing set for Karma Trinity in Dubai: terraced tower exteriors, the lobby, apartment interiors, a gym, the pool and a play area.",
+      keywords: ["karma trinity", "karma trinity dubai", "3d visualization dubai", "residential 3d renders"],
     },
     typology: "Residential tower",
     heading: "Karma Trinity 3D visualization in Dubai",
@@ -445,6 +452,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "NANA 222 Riyadh | Residential Tower Renders | Mimar Studios",
       description:
         "3D renders of NANA 222 in Riyadh: a residential tower with flowing planted balconies, balcony detail, a material board and a 3D floor plan cutaway.",
+      keywords: ["nana 222", "nana 222 riyadh", "nana 222 saudi arabia", "residential tower renders riyadh"],
     },
     typology: "Residential tower",
     heading: "NANA 222 residential tower renders in Riyadh",
@@ -504,6 +512,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "Nomi Downtown Miami | Mixed-Use 3D Renders | Mimar Studios",
       description:
         "3D renders of Nomi Downtown in Miami: an aerial of the city-block development, its pool deck from above, the entrance plaza and a street café.",
+      keywords: ["nomi downtown", "nomi downtown miami", "downtown miami", "mixed-use 3d renders"],
     },
     typology: "Mixed-use development",
     heading: "Nomi Downtown 3D renders in Miami",
@@ -557,6 +566,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "The Garden Residences USA | Interior Renders | Mimar Studios",
       description:
         "Interior design renders of The Garden Residences in the USA: living rooms, an open-plan kitchen and a bedroom in warm, neutral tones.",
+      keywords: ["the garden residences", "the garden residences interiors", "interior renders usa", "residential interior design"],
     },
     typology: "Residential interiors",
     heading: "The Garden Residences interior renders",
@@ -610,6 +620,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "360 Residences Pakistan | 3D Rendering | Mimar Studios",
       description:
         "3D renders of 360 Residences in Pakistan: four residential towers above a retail podium, aerial views among forested hills and a rooftop pool.",
+      keywords: ["360 residences 3d rendering", "luxury residential 3d visualization", "apartment building architectural render", "3d rendering in pakistan"],
     },
     typology: "Residential towers",
     heading: "360 Residences 3D rendering",
@@ -669,6 +680,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "Aurum One Pakistan | Tower and Mall Renders | Mimar Studios",
       description:
         "3D renders of Aurum One in Pakistan: a glass tower rising through low cloud, a multi-level atrium under a skylight and a retail promenade.",
+      keywords: ["aurum one", "aurum one pakistan", "tower and mall renders", "3d visualization pakistan"],
     },
     typology: "Tower and retail mall",
     heading: "Aurum One 3D rendering in Pakistan",
@@ -716,6 +728,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "Café Interior Design Pakistan | 3D Renders | Mimar Studios",
       description:
         "Interior design and 3D renders of a café in Pakistan: a timber coffee counter, rust-toned seating, pendant lights and a moodboard of finishes.",
+      keywords: ["café interior design", "cafe interior design pakistan", "café design", "restaurant interior renders"],
     },
     typology: "Café interior",
     heading: "Café interior design and visualization",
@@ -769,6 +782,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "DHA Multan Highrise | 3D Tower Renders | Mimar Studios",
       description:
         "3D renders of a residential high-rise in DHA Multan, Pakistan: curved balconies at dusk, a planted podium at street level and a balcony close-up.",
+      keywords: ["dha multan", "dha multan highrise", "dha multan real estate", "residential tower renders pakistan"],
     },
     typology: "Residential tower",
     heading: "DHA Multan Highrise architectural renders",
@@ -816,6 +830,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "Faisal Hills Islamabad | Master Plan Renders | Mimar Studios",
       description:
         "Master plan renders of Faisal Hills, Islamabad: aerial views of the housing community, its central district, the arch gateway and the hills.",
+      keywords: ["faisal hills", "faisal hills islamabad", "faisal hills master plan", "master plan visualization"],
     },
     typology: "Master-planned community",
     heading: "Faisal Hills master plan visualization in Islamabad",
@@ -875,6 +890,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "Faisal Town II Islamabad | Urban Planning | Mimar Studios",
       description:
         "Urban planning renders of Faisal Town II (Phase 2), Islamabad: the plan at night, a business district, a lake district, a golf course and a stadium.",
+      keywords: ["faisal town islamabad", "faisal town ii", "faisal town phase 2", "urban planning islamabad"],
     },
     typology: "Master-planned community",
     heading: "Faisal Town II master plan renders in Islamabad",
@@ -940,6 +956,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "HMR Karachi | Waterfront 3D Renders | Mimar Studios",
       description:
         "3D renders of HMR in Karachi: high-rise towers on the waterfront, a promenade at sunset, the skyline reflected at night and a shoreline aerial.",
+      keywords: ["hmr", "hmr karachi", "hmr waterfront", "waterfront renders karachi"],
     },
     typology: "Waterfront towers",
     heading: "HMR waterfront renders in Karachi",
@@ -993,6 +1010,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "Lake City Lahore | Residential 3D Renders | Mimar Studios",
       description:
         "3D renders of Lake City in Lahore: residential towers under a wave-shaped canopy beside a lake, lit at night, and a rooftop terrace view.",
+      keywords: ["lake city", "lake city lahore", "lake city pakistan", "lake city housing society"],
     },
     typology: "Residential towers",
     heading: "Lake City residential renders in Lahore",
@@ -1040,6 +1058,7 @@ export const enStories: Record<string, ProjectStory> = {
       title: "Abuja Nigeria | Interior Design & 3D Renders | Mimar Studios",
       description:
         "Interior design and 3D renders of a project in Abuja, Nigeria: a terraced glass building by a lake, an atrium, a bedroom and a living room.",
+      keywords: ["abuja interior design", "abuja architectural rendering", "3d visualization abuja nigeria", "interior design nigeria"],
     },
     typology: "Mixed-use development",
     heading: "Abuja interior design and renders",
