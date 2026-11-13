@@ -53,18 +53,18 @@ export type ProjectStory = {
  * tests/project-stories.test.cjs reads the real files and fails if a ratio here is wrong or missing.
  */
 const galleryRatios: Record<string, string> = {
-  "/projects/catalog/h-and-s/image-1.jpg": "1500 / 2000",
-  "/projects/catalog/h-and-s/image-4.jpg": "1412 / 2000",
-  "/projects/catalog/karma-trinity/image-7.jpg": "2000 / 988",
-  "/projects/catalog/nana-222/image-2.jpg": "2000 / 1680",
-  "/projects/catalog/nana-222/image-3.jpg": "2000 / 1682",
-  "/projects/catalog/nana-222/image-5.jpg": "1536 / 1086",
-  "/projects/catalog/nana-222/image-8.jpg": "1536 / 1141",
-  "/projects/catalog/360-residences/image-2.jpg": "1600 / 2000",
-  "/projects/catalog/aurum-one/image-3.jpg": "2000 / 785",
-  "/projects/catalog/cafe-interior/image-3.jpg": "2048 / 1365",
-  "/projects/catalog/dha-multan-highrise/image-2.jpg": "2000 / 1143",
-  "/projects/catalog/dha-multan-highrise/image-3.jpg": "2000 / 1143",
+  "/projects/catalog/h-and-s/image-1.webp": "1500 / 2000",
+  "/projects/catalog/h-and-s/image-4.webp": "1412 / 2000",
+  "/projects/catalog/karma-trinity/image-7.webp": "2000 / 988",
+  "/projects/catalog/nana-222/image-2.webp": "2000 / 1680",
+  "/projects/catalog/nana-222/image-3.webp": "2000 / 1682",
+  "/projects/catalog/nana-222/image-5.webp": "1536 / 1086",
+  "/projects/catalog/nana-222/image-8.webp": "1536 / 1141",
+  "/projects/catalog/360-residences/image-2.webp": "1600 / 2000",
+  "/projects/catalog/aurum-one/image-3.webp": "2000 / 785",
+  "/projects/catalog/cafe-interior/image-3.webp": "2048 / 1365",
+  "/projects/catalog/dha-multan-highrise/image-2.webp": "2000 / 1143",
+  "/projects/catalog/dha-multan-highrise/image-3.webp": "2000 / 1143",
 };
 
 /** CSS aspect-ratio of a gallery render ("16 / 9" unless listed above). */

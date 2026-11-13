@@ -131,27 +131,39 @@ test('gallery and FAQ headings carry the project name', () => {
   assert.match(projectStoryLabels.ar.faqs('آرك ريزيدنسز'), /آرك ريزيدنسز/);
 });
 
-// Width and height of a JPEG, read from its SOF marker (no image library needed).
-function jpegSize(file) {
+// Width and height of a WebP, read from its first chunk header (no image library needed).
+function webpSize(file) {
   const buf = require('node:fs').readFileSync(file);
-  let i = 2;
-  while (i < buf.length) {
-    const marker = buf[i + 1];
-    const length = buf.readUInt16BE(i + 2);
-    if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) {
-      return { height: buf.readUInt16BE(i + 5), width: buf.readUInt16BE(i + 7) };
-    }
-    i += 2 + length;
+  if (buf.toString('ascii', 0, 4) !== 'RIFF' || buf.toString('ascii', 8, 12) !== 'WEBP') throw new Error(`${file} is not a WebP`);
+  const chunk = buf.toString('ascii', 12, 16);
+  if (chunk === 'VP8X') return { width: 1 + buf.readUIntLE(24, 3), height: 1 + buf.readUIntLE(27, 3) };
+  if (chunk === 'VP8 ') return { width: buf.readUInt16LE(26) & 0x3fff, height: buf.readUInt16LE(28) & 0x3fff };
+  if (chunk === 'VP8L') {
+    const bits = buf.readUInt32LE(21);
+    return { width: (bits & 0x3fff) + 1, height: ((bits >> 14) & 0x3fff) + 1 };
   }
   throw new Error(`no size in ${file}`);
 }
+
+test('the project renders are WebP files and every one the site uses exists', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const dir = path.join(__dirname, '..', 'public', 'projects', 'catalog');
+  const files = fs.readdirSync(dir).flatMap(slug => fs.readdirSync(path.join(dir, slug)).map(name => `/projects/catalog/${slug}/${name}`));
+  assert.deepEqual(files.filter(file => !file.endsWith('.webp')), [], 'only WebP renders in the catalog');
+  for (const project of projects) {
+    for (const image of [project.cover, ...(project.gallery ?? [])]) {
+      assert.ok(fs.existsSync(path.join(__dirname, '..', 'public', image)), `${project.slug}: ${image} is missing`);
+    }
+  }
+});
 
 test('every captioned render gets a box of its real shape (no letterbox around it)', () => {
   const path = require('node:path');
   const { galleryRatio } = load('src/content/pages/project-stories.ts');
   for (const project of projects) {
     for (const view of getProjectStory(project.slug, 'en').views) {
-      const { width, height } = jpegSize(path.join(__dirname, '..', 'public', view.image));
+      const { width, height } = webpSize(path.join(__dirname, '..', 'public', view.image));
       const [w, h] = galleryRatio(view.image).split('/').map(Number);
       assert.ok(Math.abs(width / height - w / h) < 0.02, `${view.image} is ${width}x${height} but its box is ${galleryRatio(view.image)}`);
     }
@@ -181,7 +193,7 @@ test('the gallery alternates full-width renders and pairs, with no render left a
   assert.deepEqual(hsRows.map(row => row.length), [2, 1]);
   assert.ok(hsRows[0].every(image => galleryRatioValue(image) < 1.2), 'the H&S pair is the two portraits');
   // The rhythm on plain 16:9 sets of different sizes.
-  const wide = n => Array.from({ length: n }, (_, i) => `/projects/catalog/x/image-${i + 1}.jpg`);
+  const wide = n => Array.from({ length: n }, (_, i) => `/projects/catalog/x/image-${i + 1}.webp`);
   const shape = n => Array.from(planGalleryRows(wide(n)), row => row.length).join(',');
   assert.equal(shape(1), '1');
   assert.equal(shape(2), '2');
@@ -206,11 +218,11 @@ test('every render in a gallery row has the same width and box, and nothing is c
     }
   }
   // The pair from the Café Interior page: the moodboard keeps its edges, the photo loses a little top and bottom.
-  const cafe = galleryRowLayout(['/projects/catalog/cafe-interior/image-3.jpg', '/projects/catalog/cafe-interior/image-4.jpg']);
+  const cafe = galleryRowLayout(['/projects/catalog/cafe-interior/image-3.webp', '/projects/catalog/cafe-interior/image-4.webp']);
   assert.deepEqual(Array.from(cafe.items, item => item.fit), ['cover', 'cover']);
   assert.ok(Math.abs(cafe.ratio - 16 / 9) < 0.001);
   // A portrait beside a landscape is extended, not cropped (360 Residences).
-  const r360 = galleryRowLayout(['/projects/catalog/360-residences/image-2.jpg', '/projects/catalog/360-residences/image-3.jpg']);
+  const r360 = galleryRowLayout(['/projects/catalog/360-residences/image-2.webp', '/projects/catalog/360-residences/image-3.webp']);
   assert.deepEqual(Array.from(r360.items, item => item.fit), ['extend', 'cover']);
 });
 

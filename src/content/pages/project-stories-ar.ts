@@ -5,7 +5,7 @@ import type { ProjectStory } from "./project-stories";
  * word-for-word translation). Needs a native review before it is final.
  */
 
-const img = (slug: string, n: number) => `/projects/catalog/${slug}/image-${n}.jpg`;
+const img = (slug: string, n: number) => `/projects/catalog/${slug}/image-${n}.webp`;
 
 const service = {
   visualization: { path: "/services/3d-visualization", label: "خدمات التصور ثلاثي الأبعاد" },
