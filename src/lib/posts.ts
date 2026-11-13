@@ -80,6 +80,11 @@ export type Post = {
    */
   generation?: { topic: string; geo?: string; model: string; notes: string[]; keyword?: string; brief?: BlogBrief } & Partial<BlogTagging>;
   ar?: PostAr;
+  /**
+   * A draft waiting to publish itself: the weekday job (/api/cron/publish-scheduled) publishes the
+   * earliest one due, one per weekday, from this date (YYYY-MM-DD, Pakistan time) on.
+   */
+  scheduledFor?: string;
   /** Imported articles only: their position in the old blog archive / category lists (lower = earlier). */
   archiveRank?: number;
   categoryRanks?: Record<string, number>;
@@ -176,14 +181,14 @@ export function isReservedSlug(slug: string): boolean {
 // ---- Admin reads/writes (uncached; callers must have passed assertAccess) --
 
 /** What the admin list needs, without the article bodies. */
-export type PostRow = Pick<Post, "id" | "slug" | "path" | "legacy" | "title" | "origin" | "status" | "updatedAt" | "updatedBy" | "publishedAt" | "categories"> & {
+export type PostRow = Pick<Post, "id" | "slug" | "path" | "legacy" | "title" | "origin" | "status" | "updatedAt" | "updatedBy" | "publishedAt" | "categories" | "scheduledFor"> & {
   arState: "none" | "current" | "outdated";
   strategy?: BlogTagging["strategy"];
   /** Where an AI draft's idea came from (idea-plan.ts approachOf); "other" for posts no approach planned. */
   approach: ApproachOrOther;
 };
 
-const ROW_FIELDS = ["slug", "path", "legacy", "title", "origin", "status", "updatedAt", "updatedBy", "publishedAt", "categories", "category", "ar.sourceHash", "generation.strategy", "generation.approach", "generation.keywordSource"] as const;
+const ROW_FIELDS = ["slug", "path", "legacy", "title", "origin", "status", "updatedAt", "updatedBy", "publishedAt", "scheduledFor", "categories", "category", "ar.sourceHash", "generation.strategy", "generation.approach", "generation.keywordSource"] as const;
 
 export async function listPostRows(): Promise<PostRow[]> {
   const snap = await adminDb().collection(POSTS_COLLECTION).select(...ROW_FIELDS).get();
@@ -202,6 +207,7 @@ export async function listPostRows(): Promise<PostRow[]> {
         updatedAt: data.updatedAt ?? "",
         updatedBy: data.updatedBy ?? "",
         publishedAt: data.publishedAt,
+        scheduledFor: data.scheduledFor,
         categories: data.categories ?? (data.category ? [data.category] : []),
         // "current" vs "outdated" needs the English text, so the list only tells present from missing.
         arState: data.ar?.sourceHash ? "current" : "none",
@@ -222,10 +228,25 @@ export async function isPostSlugTaken(slug: string, exceptId?: string): Promise<
   return snap.docs.some((doc) => doc.id !== exceptId);
 }
 
-/** AI drafts nobody has reviewed yet (the scheduler stops adding more past a limit). */
+/** AI drafts nobody has reviewed yet (the scheduler stops adding more past a limit). Scheduled ones are already decided. */
 export async function countPendingAiDrafts(): Promise<number> {
-  const snap = await adminDb().collection(POSTS_COLLECTION).where("status", "==", "draft").select("origin").get();
-  return snap.docs.filter((doc) => doc.get("origin") === "ai").length;
+  const snap = await adminDb().collection(POSTS_COLLECTION).where("status", "==", "draft").select("origin", "scheduledFor").get();
+  return snap.docs.filter((doc) => doc.get("origin") === "ai" && !doc.get("scheduledFor")).length;
+}
+
+/** The SEO brief refs (blog-brief.ts) that already have a post, in any status, so a brief is never written twice. */
+export async function briefRefsWithPosts(): Promise<Set<string>> {
+  const snap = await adminDb().collection(POSTS_COLLECTION).select("generation.brief.ref").get();
+  return new Set(snap.docs.map((doc) => doc.get("generation.brief.ref")).filter((ref): ref is string => typeof ref === "string" && ref.length > 0));
+}
+
+/** Scheduled drafts, earliest first (the weekday publishing job and the admin list). */
+export async function listScheduledDrafts(): Promise<Post[]> {
+  const snap = await adminDb().collection(POSTS_COLLECTION).where("status", "==", "draft").get();
+  return snap.docs
+    .map((doc) => fromDoc(doc.id, doc.data()))
+    .filter((post) => Boolean(post.scheduledFor))
+    .sort((a, b) => a.scheduledFor!.localeCompare(b.scheduledFor!) || a.updatedAt.localeCompare(b.updatedAt));
 }
 
 export async function countDrafts(): Promise<number> {

@@ -66,8 +66,10 @@ test('a typed outline becomes H2 and H3 headings, and a brief is checked before 
   const brief = normalizeBrief({ title: 'Short', keyword: 'one', outline: 'H2: A', ctaPath: 'https://evil.example', category: 'nope', seoTitle: 'Too short', description: 'Too short' });
   const problems = briefProblems(brief, CATEGORIES).join(' ');
   for (const part of ['12-120 characters', '2-6 words', 'SEO title is', 'meta description is', 'at least 3 sections', 'path on our site', 'four blog categories']) assert.match(problems, new RegExp(part));
-  const good = normalizeBrief({ title: 'Real Estate Rendering in Dubai: Top Trends', keyword: 'Real Estate Rendering Dubai', outline: 'H2: Trends in Dubai\nH2: Lighting\nH2: Animation', ctaPath: '/3d-visualization-services-uae/', category: '3d-visualization' });
-  assert.equal(good.keyword, 'real estate rendering dubai');
+  const loose = normalizeBrief({ title: 'Real Estate Rendering in Dubai: Top Trends', keyword: 'real estate rendering dubai', outline: 'H2: A\nH2: B\nH2: C', ctaPath: '/x', category: '3d-visualization' });
+  assert.match(briefProblems(loose, CATEGORIES).join(' '), /word for word/, 'the article gates want the keyword exactly, so "in Dubai" matters');
+  const good = normalizeBrief({ title: 'Real Estate Rendering in Dubai: Top Trends', keyword: 'Real Estate Rendering in Dubai', outline: 'H2: Trends in Dubai\nH2: Lighting\nH2: Animation', ctaPath: '/3d-visualization-services-uae/', category: '3d-visualization' });
+  assert.equal(good.keyword, 'real estate rendering in dubai');
   assert.equal(good.ctaPath, '/3d-visualization-services-uae');
   assert.deepEqual(plain(briefProblems(good, CATEGORIES)), []);
   assert.deepEqual(plain(missingSections(good, ['Trends in Dubai for 2027', 'Cinematic Animation'])), ['Lighting']);

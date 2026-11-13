@@ -186,6 +186,8 @@ export async function savePostAction(_prev: PostFormState, formData: FormData): 
     updatedBy: session.email,
   };
 
+  // Publishing by hand takes the post off the weekday schedule; saving a draft keeps its date.
+  if (status === "published") delete post.scheduledFor;
   const savedId = await savePost(id, post);
   // The cover was replaced or removed: its old file is no longer referenced.
   if (existing?.coverImage?.url && existing.coverImage.url !== coverImage?.url) await deleteCover(existing.coverImage.url);
@@ -220,8 +222,11 @@ export async function setPostStatusAction(formData: FormData) {
   }
 
   const now = new Date().toISOString();
+  // Publishing or unpublishing by hand takes the post off the weekday schedule.
+  const { scheduledFor: _unscheduled, ...unscheduled } = post;
+  void _unscheduled;
   await savePost(id, {
-    ...post,
+    ...unscheduled,
     status: status.data,
     publishedAt: post.publishedAt ?? (status.data === "published" ? now : undefined),
     updatedAt: now,
@@ -230,6 +235,18 @@ export async function setPostStatusAction(formData: FormData) {
   revalidateBlog(post.path);
   revalidatePath("/admin/blog");
   translateAfterSave({ id, path: post.path, status: status.data });
+}
+
+/** Takes a draft off the weekday publishing schedule; it stays a draft. */
+export async function unschedulePostAction(formData: FormData) {
+  const session = await guard();
+  const id = String(formData.get("id") ?? "");
+  const post = id ? await getPostAdmin(id) : null;
+  if (!post?.scheduledFor) return;
+  const { scheduledFor: _unscheduled, ...rest } = post;
+  void _unscheduled;
+  await savePost(id, { ...rest, updatedAt: new Date().toISOString(), updatedBy: session.email });
+  revalidatePath("/admin/blog");
 }
 
 export async function deletePostAction(formData: FormData) {
