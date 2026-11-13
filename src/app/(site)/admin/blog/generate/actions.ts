@@ -3,6 +3,7 @@
 import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { BRIEF_SETS, queueBriefs } from "@/lib/ai/brief-queue";
 import { ensureAutoTopicQueued } from "@/lib/ai/topic-queue";
 import { AdminAuthError, assertAccess } from "@/lib/admin/auth";
 import { aiConfigured, aiSetupHint, runGeneration } from "@/lib/ai/generate-post";
@@ -11,7 +12,7 @@ import { createJob, removeTopic, claimNextTopic, finishTopic } from "@/lib/gener
 import { releaseIdea, setIdeaStatus } from "@/lib/ideas/store";
 import { checkRateLimit } from "@/lib/rate-limit";
 
-export type GenerateState = { error?: string };
+export type GenerateState = { error?: string; message?: string };
 
 const DAILY_LIMIT = Number(process.env.BLOG_GENERATION_DAILY_LIMIT) || 10;
 
@@ -62,6 +63,7 @@ export async function startGenerationAction(): Promise<GenerateState> {
       ideaId: topic.ideaId,
       ideaBrief: topic.ideaBrief,
       ideaUrl: topic.ideaUrl,
+      brief: topic.brief,
     });
   } catch (err) {
     await finishTopic(topic.id, { status: "queued" });
@@ -109,4 +111,58 @@ export async function prepareAutoTopicAction(): Promise<GenerateState> {
     console.error("[blog] could not prepare topic", err);
     return { error: "Could not select the next topic. Please try again." };
   }
+}
+
+async function briefGuard(): Promise<GenerateState | null> {
+  try {
+    await assertAccess("blog");
+  } catch (err) {
+    if (err instanceof AdminAuthError) return { error: err.message };
+    throw err;
+  }
+  return isFirebaseConfigured ? null : { error: "Firebase is not configured." };
+}
+
+function describeQueued(result: Awaited<ReturnType<typeof queueBriefs>>): GenerateState {
+  const skipped = result.skipped.map((item) => `${item.title}: ${item.reason}`).join(" ");
+  if (result.queued.length === 0) return { error: skipped || "Nothing to queue." };
+  return {
+    message: `Queued ${result.queued.length} brief${result.queued.length === 1 ? "" : "s"} ahead of the automatic topics.${skipped ? ` Skipped: ${skipped}` : ""}`,
+  };
+}
+
+/** "Write from a brief": one brief typed in by the SEO editor, queued ahead of the automatic topics. */
+export async function queueBriefAction(_prev: GenerateState, formData: FormData): Promise<GenerateState> {
+  const refused = await briefGuard();
+  if (refused) return refused;
+  const field = (name: string) => String(formData.get(name) ?? "");
+  const result = await queueBriefs([
+    {
+      title: field("title"),
+      keyword: field("keyword"),
+      secondaryKeywords: field("secondaryKeywords"),
+      outline: field("outline"),
+      ctaPath: field("ctaPath"),
+      geo: field("geo"),
+      category: field("category"),
+      seoTitle: field("seoTitle"),
+      description: field("description"),
+      ar: { keyword: field("arKeyword"), seoTitle: field("arSeoTitle"), description: field("arDescription") },
+      notes: field("notes"),
+      visual: field("visual"),
+    },
+  ]);
+  revalidatePath("/admin/blog/generate");
+  return describeQueued(result);
+}
+
+/** Queues every brief in one of the brief files (src/content/briefs) that is not queued or written yet. */
+export async function importBriefsAction(_prev: GenerateState, formData: FormData): Promise<GenerateState> {
+  const refused = await briefGuard();
+  if (refused) return refused;
+  const set = BRIEF_SETS[String(formData.get("set") ?? "")];
+  if (!set) return { error: "Choose a set of briefs." };
+  const result = await queueBriefs(set.briefs);
+  revalidatePath("/admin/blog/generate");
+  return describeQueued(result);
 }

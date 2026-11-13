@@ -7,6 +7,9 @@ import { aiConfigured, aiSetupHint } from "@/lib/ai/generate-post";
 import { isFirebaseConfigured } from "@/lib/firebase/admin";
 import { getScheduleStatus, listRecentJobs, listTopics } from "@/lib/generation";
 import AutoTopicQueue from "@/components/admin/AutoTopicQueue";
+import { BriefForm, ImportBriefsButton } from "@/components/admin/BriefForm";
+import { BRIEF_SETS } from "@/lib/ai/brief-queue";
+import { blogCategories } from "@/lib/legacy-seo";
 
 
 // The generation itself runs after the form is submitted (see actions.ts) and is
@@ -34,11 +37,22 @@ export default async function GenerateBlogPage() {
 
       <GenerateForm />
 
+      <div className="mt-10 grid gap-6">
+        <BriefForm categories={blogCategories.map((category) => ({ slug: category.slug, label: category.label }))} />
+        <section className={cardClass}>
+          <h2 className="text-lg font-medium">Import a set of briefs</h2>
+          <p className={`${hintClass} mt-1 mb-4`}>
+            Briefs our SEO consultant planned, already checked against our pages so none competes with a service or region page. Each one is queued once; any already queued or written is skipped.
+          </p>
+          <ImportBriefsButton sets={Object.entries(BRIEF_SETS).map(([key, set]) => ({ key, label: set.label }))} />
+        </section>
+      </div>
+
       <section className={`${cardClass} mt-10`}>
         <h2 className="text-lg font-medium">Automatic drafts</h2>
         <p className={`${hintClass} mt-1`}>
           Twice a week (Monday and Thursday) one draft is written automatically and the reviewers are emailed to approve it. The topic is chosen for you:
-          it takes turns between the six idea sources on <Link href="/admin/blog/ideas" className="underline">Blog ideas</Link> (the largest share from Google searches), rotating
+          it takes turns between the seven idea sources on <Link href="/admin/blog/ideas" className="underline">Blog ideas</Link> (the largest share from Google searches), rotating
           through every service in every region (5 services × 4 regions), and picks a specific, searchable subject that is not already covered.
           Nothing is published without approval.
         </p>
@@ -53,6 +67,7 @@ export default async function GenerateBlogPage() {
             {topics.map((topic) => (
               <li key={topic.id} className="flex flex-wrap items-center gap-3 py-3">
                 <span className="min-w-0 flex-1">
+                  {topic.brief ? <span className="mr-2 rounded-full bg-sky-50 px-2 py-0.5 text-xs text-sky-800">SEO brief{topic.brief.ref ? ` ${topic.brief.ref}` : ""}</span> : null}
                   {topic.topic}
                   {topic.geo ? <span className="text-muted"> · {topic.geo}</span> : null}
                   {topic.error ? <span className="block text-xs text-accent">{topic.error}</span> : null}

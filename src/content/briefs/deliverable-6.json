@@ -1,0 +1,786 @@
+{
+  "source": "Deliverable 6 - Mimar Blogs Plan (SEO consultant), revised 13 Nov 2026",
+  "briefs": [
+    {
+      "ref": "D6-B1",
+      "source": "Deliverable 6, Blog 1 (USA)",
+      "title": "Architectural Visualization for Real Estate Developers: Why US Firms Are Investing More",
+      "keyword": "architectural visualization for real estate developers",
+      "secondaryKeywords": [
+        "3d rendering investment roi",
+        "pre-construction rendering",
+        "real estate rendering usa"
+      ],
+      "outline": [
+        {
+          "level": 2,
+          "text": "The Shifting Capital Dynamics in USA Real Estate"
+        },
+        {
+          "level": 3,
+          "text": "De-risking Lender Pitch Decks with Photorealistic Renders"
+        },
+        {
+          "level": 2,
+          "text": "Zoning and Permit Reviews in Major USA Cities"
+        },
+        {
+          "level": 2,
+          "text": "Pre-Construction Sales: Architectural Visualization for Real Estate Developers"
+        },
+        {
+          "level": 3,
+          "text": "Converting Off-Plan Buyers Before Breaking Ground"
+        },
+        {
+          "level": 2,
+          "text": "Budgeting Architectural Visualization for Real Estate Developers in the USA"
+        }
+      ],
+      "ctaPath": "/3d-visualization-usa",
+      "geo": "USA",
+      "category": "3d-visualization",
+      "seoTitle": "Architectural Visualization for Real Estate Developers",
+      "description": "Why US developers now budget for architectural visualization for real estate developers: stronger lender decks, clearer zoning reviews, earlier sales.",
+      "ar": {
+        "keyword": "التصور المعماري للمطورين العقاريين",
+        "seoTitle": "التصور المعماري للمطورين العقاريين في أمريكا",
+        "description": "التصور المعماري للمطورين العقاريين في أمريكا: لماذا يزيد الاستثمار فيه، وكيف يقوّي عروض الممولين ومراجعات التخطيط والمبيعات قبل البناء."
+      },
+      "notes": "Never say renders speed up permits or guarantee zoning approval; explain how visuals help boards and community reviews understand a scheme. Our US examples are Nomi Downtown (Miami) and The Garden Residences: name them only as work we delivered, with no results or figures. No made-up ROI percentages.",
+      "visual": "Hero: clay model next to the final render of a mixed-use tower (two images; the blog has no slider). Use our Nomi Downtown renders or a new image. The Behance link in the plan is another studio's work: mood reference only."
+    },
+    {
+      "ref": "D6-B2",
+      "source": "Deliverable 6, Blog 2 (UAE)",
+      "title": "Real Estate Rendering in Dubai: Top Trends in Luxury Development",
+      "keyword": "real estate rendering dubai",
+      "secondaryKeywords": [
+        "3d visualization trends uae",
+        "luxury architectural walkthroughs dubai"
+      ],
+      "outline": [
+        {
+          "level": 2,
+          "text": "Beyond Static Renders: Real Estate Rendering in Dubai Moves Upmarket"
+        },
+        {
+          "level": 3,
+          "text": "Immersive 360 VR Tours for International Off-Plan Investors"
+        },
+        {
+          "level": 2,
+          "text": "Cinematic Animation as a Standard for Dubai Off-Plan Launches"
+        },
+        {
+          "level": 2,
+          "text": "Real Estate Rendering in Dubai for Ambient Lighting and Modern Interiors"
+        },
+        {
+          "level": 3,
+          "text": "Balancing Daylight Studies with Nighttime High-Rise Illumination"
+        },
+        {
+          "level": 2,
+          "text": "What the Dubai Market Expects from Luxury Visuals"
+        }
+      ],
+      "ctaPath": "/3d-visualization-services-uae",
+      "geo": "Dubai, UAE",
+      "category": "3d-visualization",
+      "seoTitle": "Real Estate Rendering in Dubai: Top Trends in Luxury",
+      "description": "Real estate rendering in Dubai has moved past static stills: 360 VR tours, cinematic launch films and lighting that sells ultra-modern luxury homes.",
+      "ar": {
+        "keyword": "التصور المعماري الفاخر في دبي",
+        "seoTitle": "أبرز اتجاهات التصور المعماري الفاخر في دبي",
+        "description": "التصور المعماري الفاخر في دبي تجاوز الصور الثابتة: جولات 360 بالواقع الافتراضي، وأفلام إطلاق سينمائية، وإضاءة تبرز التصاميم الداخلية العصرية."
+      },
+      "notes": "This article is about visual trends; the Dubai off-plan sales process belongs to a separate article. Our Dubai projects (Aark Residences, Amer Al Ghurair, Divine Golf, Divine Residencia, H&S, Karma Trinity) may be named only as work we delivered.",
+      "visual": "Hero: dusk render of a luxury waterfront residence from our own Dubai work (Karma Trinity or Aark Residences). The abbassajwani.com villa is someone else's property: mood reference only."
+    },
+    {
+      "ref": "D6-B3",
+      "source": "Deliverable 6, Blog 3 (Saudi Arabia)",
+      "title": "How Mega Project Visualization Is Shaping Development in Saudi Arabia",
+      "keyword": "mega project visualization saudi arabia",
+      "secondaryKeywords": [
+        "mega project 3d renders ksa",
+        "masterplan rendering saudi arabia"
+      ],
+      "outline": [
+        {
+          "level": 2,
+          "text": "Visualizing Saudi Arabia's Architectural Expansion"
+        },
+        {
+          "level": 3,
+          "text": "Communicating Scale for Mixed-Use Developments in Riyadh"
+        },
+        {
+          "level": 2,
+          "text": "Mega Project Visualization in Saudi Arabia, from Masterplan to Street Level"
+        },
+        {
+          "level": 2,
+          "text": "Interactive Tools for Investor Roadshows in Riyadh"
+        },
+        {
+          "level": 3,
+          "text": "Using Interactive Floorplans to Drive Pre-Sales Engagement"
+        },
+        {
+          "level": 2,
+          "text": "Choosing Mega Project Visualization in Saudi Arabia: Market Considerations"
+        }
+      ],
+      "ctaPath": "/3d-visualization-services-saudi-arabia",
+      "geo": "Riyadh, Saudi Arabia",
+      "category": "3d-visualization",
+      "seoTitle": "Mega Project Visualization in Saudi Arabia: A Guide",
+      "description": "Mega project visualization in Saudi Arabia: how masterplan renders, scale studies and interactive tools help Riyadh developers brief investors and buyers.",
+      "ar": {
+        "keyword": "تصور المشاريع الكبرى في السعودية",
+        "seoTitle": "تصور المشاريع الكبرى في السعودية: دليل عملي",
+        "description": "كيف يساعد تصور المشاريع الكبرى في السعودية مطوري الرياض على عرض المخططات العامة وحجم المشروع والأدوات التفاعلية للمستثمرين والمشترين."
+      },
+      "notes": "Wafi and REGA rules are covered in the Riyadh Vision 2030 article, not here. Never imply a law or authority requires renders. Name public giga-projects only as market context the research supports, never as our clients. Our Saudi example is NANA 222 in Riyadh, and we have a Jeddah office.",
+      "visual": "Hero: aerial masterplan render (no real landmarks); NANA 222 renders where they fit. Diagram: Blueprint -> CAD model -> final render, made by our designer. nicholas.design is another studio: reference only."
+    },
+    {
+      "ref": "D6-B4",
+      "source": "Deliverable 6, Blog 4 (Pakistan)",
+      "title": "Why Every Home Builder in Pakistan Needs 3D Walkthrough Animation",
+      "keyword": "3d walkthrough animation pakistan",
+      "secondaryKeywords": [
+        "architectural rendering services islamabad",
+        "3d home design visualization pakistan"
+      ],
+      "outline": [
+        {
+          "level": 2,
+          "text": "How Residential Marketing in Pakistan Has Changed"
+        },
+        {
+          "level": 3,
+          "text": "Overcoming Buyer Hesitation with Walkthrough Animations"
+        },
+        {
+          "level": 2,
+          "text": "3D Walkthrough Animation in Pakistan: Avoiding Costly On-Site Changes"
+        },
+        {
+          "level": 3,
+          "text": "Material Selection and Lighting Accuracy Before Construction"
+        },
+        {
+          "level": 2,
+          "text": "3D Walkthrough Animation in Pakistan for Housing Societies and Builders"
+        },
+        {
+          "level": 2,
+          "text": "Islamabad Builders: Local Market Considerations"
+        }
+      ],
+      "ctaPath": "/3d-visualization-services-pakistan",
+      "geo": "Islamabad, Pakistan",
+      "category": "3d-visualization",
+      "seoTitle": "3D Walkthrough Animation in Pakistan for Home Builders",
+      "description": "3D walkthrough animation in Pakistan helps home builders win over hesitant buyers, settle materials and lighting early, and avoid costly on-site changes.",
+      "ar": {
+        "keyword": "جولة ثلاثية الأبعاد في باكستان",
+        "seoTitle": "جولة ثلاثية الأبعاد في باكستان لبناة المنازل",
+        "description": "تساعد الجولة ثلاثية الأبعاد في باكستان بناة المنازل على كسب ثقة المشترين، وحسم المواد والإضاءة مبكراً، وتجنب التعديلات المكلفة في الموقع."
+      },
+      "notes": "Homes and villas for builders; commercial plazas belong to the Islamabad plaza article. Prices in PKR only if a source states them. Pakistani projects may be named only as listed in the verified facts.",
+      "visual": "Hero: villa interior render from our Faisal Hills or Faisal Town II work. Comparison: our own 2D floor plan next to a walkthrough still (two images). RebusFarm link: reference only."
+    },
+    {
+      "ref": "D6-B5",
+      "source": "Deliverable 6, Blog 5 (AI vs human)",
+      "title": "AI in Architectural Visualization: Why Visual Judgment Still Matters",
+      "keyword": "ai in architectural visualization",
+      "secondaryKeywords": [
+        "future of 3d rendering",
+        "human expertise in 3d archviz"
+      ],
+      "outline": [
+        {
+          "level": 2,
+          "text": "The Hype vs Reality of AI in Architectural Visualization"
+        },
+        {
+          "level": 3,
+          "text": "Where AI Tools Excel: Conceptual Speed and Texturing Ideas"
+        },
+        {
+          "level": 2,
+          "text": "The Limits: Dimensional Accuracy, Building Standards and Brand Consistency"
+        },
+        {
+          "level": 2,
+          "text": "Why Visual Judgment and Interior Design Psychology Matter"
+        },
+        {
+          "level": 3,
+          "text": "The 3D Visualizer as a Digital Director"
+        },
+        {
+          "level": 2,
+          "text": "Using AI in Architectural Visualization Responsibly"
+        }
+      ],
+      "ctaPath": "/services/3d-visualization",
+      "category": "3d-visualization",
+      "links": [
+        "/blog/ai-architecture-rendering"
+      ],
+      "seoTitle": "AI in Architectural Visualization: Why Judgment Matters",
+      "description": "AI in architectural visualization speeds up early concepts, but accuracy, brand consistency and visual judgment still need a skilled 3D artist.",
+      "ar": {
+        "keyword": "الذكاء الاصطناعي في التصور المعماري",
+        "seoTitle": "الذكاء الاصطناعي في التصور المعماري ودور الخبرة",
+        "description": "يسرّع الذكاء الاصطناعي في التصور المعماري مرحلة الأفكار الأولى، لكن الدقة وثبات الهوية والحس البصري ما زالت تحتاج إلى فنان ثلاثي الأبعاد متمرس."
+      },
+      "notes": "Link our older guide /blog/ai-architecture-rendering where it helps rather than repeating it. Give the AI-tools vs studio comparison as a bulleted list (the blog has no tables). Don't rank or disparage named AI tools; no made-up speed or cost numbers.",
+      "visual": "Hero: cinematic render with complex lighting from our portfolio. Infographic 'AI tools vs studio output': designer-made image, or leave it as the bulleted list."
+    },
+    {
+      "ref": "D6-B6",
+      "source": "Deliverable 6, Blog 6 (design quality)",
+      "title": "Photorealistic Architectural Rendering Is Not the Ultimate Goal: What Moves Buyers",
+      "keyword": "photorealistic architectural rendering",
+      "secondaryKeywords": [
+        "interior design psychology in rendering",
+        "architectural storytelling"
+      ],
+      "outline": [
+        {
+          "level": 2,
+          "text": "Beyond Raw Pixels: Storytelling Through Spatial Visualization"
+        },
+        {
+          "level": 3,
+          "text": "Using Interior Design Psychology to Evoke Buyer Emotion"
+        },
+        {
+          "level": 2,
+          "text": "Composition, Mood and Atmosphere in Photorealistic Architectural Rendering"
+        },
+        {
+          "level": 3,
+          "text": "Natural vs Artificial Lighting in Architectural Renders"
+        },
+        {
+          "level": 2,
+          "text": "When Photorealistic Architectural Rendering Is Not Enough"
+        },
+        {
+          "level": 2,
+          "text": "Delivering Functional Visual Assets for Real Estate Marketing"
+        }
+      ],
+      "ctaPath": "/services/3d-visualization",
+      "category": "3d-visualization",
+      "links": [
+        "/3d-visualization/how-to-create-realistic-architectural-rendering"
+      ],
+      "seoTitle": "Photorealistic Architectural Rendering: Beyond Realism",
+      "description": "Photorealistic architectural rendering is only the start. See how mood, composition and storytelling turn renders into assets that move buyers.",
+      "ar": {
+        "keyword": "الرندر المعماري الواقعي",
+        "seoTitle": "الرندر المعماري الواقعي ليس الهدف الأخير",
+        "description": "الرندر المعماري الواقعي مجرد بداية: تعرّف كيف تحوّل الأجواء والتكوين والسرد البصري الصور إلى أدوات تقنع المشترين."
+      },
+      "notes": "An opinion piece with practical advice. Our older how-to on realistic rendering covers technique: link it instead of repeating it. No conversion-rate figures unless the research cites a source.",
+      "visual": "Hero: mood-led render (lighting, textures, atmosphere) from our portfolio. Diagram 'Framing, Tone, Warmth': designer-made. BluentCAD link: reference only."
+    },
+    {
+      "ref": "D6-B7",
+      "source": "Deliverable 6, Blog 7 (interactive / 360)",
+      "title": "360 Virtual Tours vs Static Renders: Which Engages Real Estate Buyers More?",
+      "keyword": "360 virtual tours vs static renders",
+      "secondaryKeywords": [
+        "interactive 3d visualization",
+        "360 virtual tours real estate",
+        "interactive architectural services"
+      ],
+      "outline": [
+        {
+          "level": 2,
+          "text": "The Rise of Interactive Buyer Experiences in Off-Plan Marketing"
+        },
+        {
+          "level": 3,
+          "text": "What Engagement Data Says About Interactive Pages"
+        },
+        {
+          "level": 2,
+          "text": "360 Virtual Tours vs Static Renders: What Each Does Best"
+        },
+        {
+          "level": 2,
+          "text": "Technical Execution of Web-Based 360 VR Experiences"
+        },
+        {
+          "level": 3,
+          "text": "Multi-Platform Compatibility: Mobile, Desktop and VR Headsets"
+        },
+        {
+          "level": 2,
+          "text": "Integrating Interactive Features into Real Estate Websites"
+        },
+        {
+          "level": 2,
+          "text": "360 Virtual Tours vs Static Renders: How to Choose"
+        }
+      ],
+      "ctaPath": "/services/interactive-services/vr-360-tours",
+      "category": "vr-real-estate",
+      "links": [
+        "/services/interactive-services/web-tours",
+        "/blog/vr-real-estate/benefits-of-virtual-tours-for-real-estate"
+      ],
+      "seoTitle": "360 Virtual Tours vs Static Renders for Real Estate",
+      "description": "360 virtual tours vs static renders: when interactive tours keep off-plan buyers engaged, how they run on web, mobile and VR, and when stills do the job.",
+      "ar": {
+        "keyword": "جولات 360 الافتراضية مقابل الصور الثابتة",
+        "seoTitle": "جولات 360 الافتراضية مقابل الصور الثابتة في العقار",
+        "description": "جولات 360 الافتراضية مقابل الصور الثابتة: متى تبقي الجولات التفاعلية مشتري المشاريع على الخارطة مهتمين، ومتى تكفي الصور الثابتة."
+      },
+      "notes": "Do not state '3x longer' or any engagement figure unless the research cites a source; otherwise describe engagement qualitatively. Link our VR & 360 tours and web tours pages.",
+      "visual": "Hero: hotspot UI overlay on one of our apartment renders (designer mock-up). The engagement chart needs real data: skip it unless we have our own analytics. Cylind link: reference only."
+    },
+    {
+      "ref": "D6-B8",
+      "source": "Deliverable 6, Blog 8 (heritage)",
+      "title": "Heritage Meets Modernism: Contemporary Architectural Design Visualization",
+      "keyword": "contemporary architectural design visualization",
+      "secondaryKeywords": [
+        "3d rendering architectural styles",
+        "historic vs contemporary archviz"
+      ],
+      "outline": [
+        {
+          "level": 2,
+          "text": "The Resurgence of Heritage-Inspired Architecture in the UAE and Saudi Arabia"
+        },
+        {
+          "level": 3,
+          "text": "Combining Historical Aesthetics with Modern Interiors"
+        },
+        {
+          "level": 2,
+          "text": "Contemporary Architectural Design Visualization for Complex Facades"
+        },
+        {
+          "level": 2,
+          "text": "How Contemporary Architectural Design Visualization Wins Competition Briefs"
+        },
+        {
+          "level": 3,
+          "text": "Translating Client Vision into Winning Visual Presentations"
+        },
+        {
+          "level": 2,
+          "text": "Gulf Market Considerations in the UAE and Saudi Arabia"
+        }
+      ],
+      "ctaPath": "/3d-visualization-services-saudi-arabia",
+      "geo": "UAE, Saudi Arabia",
+      "category": "architecture",
+      "links": [
+        "/services/architectural-design"
+      ],
+      "seoTitle": "Contemporary Architectural Design Visualization Guide",
+      "description": "Contemporary architectural design visualization for heritage-inspired projects in the UAE and Saudi Arabia: facades, materials and winning pitches.",
+      "ar": {
+        "keyword": "تصور التصميم المعماري المعاصر",
+        "seoTitle": "التراث والحداثة في تصور التصميم المعماري المعاصر",
+        "description": "تصور التصميم المعماري المعاصر للمشاريع المستوحاة من التراث في الإمارات والسعودية: الواجهات والمواد والعروض التي تفوز بالمسابقات."
+      },
+      "notes": "No case study: we have no verified heritage project to cite. Mention public heritage-led schemes only as context the research supports. The plan's CTA (/3d-visualization-middle-east) is a thin old page, so link the Saudi and UAE pages instead.",
+      "visual": "Hero: render blending a heritage facade with a glass extension (new image; no real landmark). Graphic: material mood board from our pipeline. BlenderArtists link: reference only."
+    },
+    {
+      "ref": "D6-A1",
+      "source": "Deliverable 6, Regional Article 1 (New York)",
+      "title": "High-Rise Real Estate Rendering in New York: Board Approvals and Investor Pitches",
+      "keyword": "real estate rendering new york",
+      "secondaryKeywords": [
+        "ny architectural rendering studio",
+        "manhattan luxury property renders"
+      ],
+      "outline": [
+        {
+          "level": 2,
+          "text": "The High-Stakes World of Manhattan and Brooklyn Developments"
+        },
+        {
+          "level": 3,
+          "text": "Accurate Renders for New York Landmarks and Zoning Reviews"
+        },
+        {
+          "level": 2,
+          "text": "Real Estate Rendering in New York for Investor Pitch Decks"
+        },
+        {
+          "level": 2,
+          "text": "Highlighting Luxury Amenities: Rooftops, Penthouses and Skyline Views"
+        },
+        {
+          "level": 3,
+          "text": "Nighttime vs Sunset Renderings for High-End Condos"
+        },
+        {
+          "level": 2,
+          "text": "Real Estate Rendering in New York: Local Market Considerations"
+        }
+      ],
+      "ctaPath": "/3d-visualization-usa",
+      "geo": "New York, USA",
+      "category": "3d-visualization",
+      "seoTitle": "Real Estate Rendering in New York for High-Rise Projects",
+      "description": "Real estate rendering in New York for high-rise developers: visuals for landmarks and zoning reviews, investor decks and luxury amenity marketing.",
+      "ar": {
+        "keyword": "الرندر العقاري في نيويورك",
+        "seoTitle": "الرندر العقاري في نيويورك لمشاريع الأبراج",
+        "description": "الرندر العقاري في نيويورك لمطوري الأبراج: صور لمراجعات لجنة المعالم والتخطيط، وعروض المستثمرين، وتسويق المرافق الفاخرة."
+      },
+      "notes": "Fact-check how the Landmarks Preservation Commission and community boards use visuals; never say renders guarantee approval. Keep Wall Street framing as general context. We have no New York project to cite.",
+      "visual": "Hero: dusk render of a glass tower without real New York landmarks, plus a wireframe still beside it (two images; no slider)."
+    },
+    {
+      "ref": "D6-A2",
+      "source": "Deliverable 6, Regional Article 2 (Dallas & San Francisco)",
+      "title": "Commercial Architectural Rendering for Dallas and San Francisco Developments",
+      "keyword": "commercial architectural rendering",
+      "secondaryKeywords": [
+        "commercial rendering dallas",
+        "architectural visualization san francisco"
+      ],
+      "outline": [
+        {
+          "level": 2,
+          "text": "The Commercial Boom in Texas and California Real Estate"
+        },
+        {
+          "level": 3,
+          "text": "Visualizing Large-Scale Mixed-Use and Suburban Masterplans"
+        },
+        {
+          "level": 2,
+          "text": "Commercial Architectural Rendering from Imperial Drawings"
+        },
+        {
+          "level": 2,
+          "text": "Site Plan 3D Models for Permit Reviews in Dallas and San Francisco"
+        },
+        {
+          "level": 2,
+          "text": "Commercial Architectural Rendering in Dallas: Local Market Considerations"
+        }
+      ],
+      "ctaPath": "/3d-visualization-usa",
+      "geo": "Dallas, San Francisco, USA",
+      "category": "3d-visualization",
+      "seoTitle": "Commercial Architectural Rendering in Dallas & San Francisco",
+      "description": "Commercial architectural rendering for Dallas and San Francisco developers: mixed-use masterplans, imperial-unit accuracy and site plans for permits.",
+      "ar": {
+        "keyword": "الرندر المعماري التجاري",
+        "seoTitle": "الرندر المعماري التجاري في دالاس وسان فرانسيسكو",
+        "description": "الرندر المعماري التجاري لمطوري دالاس وسان فرانسيسكو: مخططات متعددة الاستخدامات، ودقة بالوحدات الإمبراطورية، ومخططات موقع لطلبات التراخيص."
+      },
+      "notes": "We work from imperial drawings for US clients (a verified fact). Don't claim we fast-track permits, and make no time-zone or turnaround promises beyond the verified 5-7 working days for a still.",
+      "visual": "Hero: wide exterior render of a commercial campus (new image, no real landmarks)."
+    },
+    {
+      "ref": "D6-A3",
+      "source": "Deliverable 6, Regional Article 3 (Dubai off-plan)",
+      "title": "How Dubai Off-Plan Real Estate Rendering Drives Pre-Construction Sales",
+      "keyword": "dubai off-plan real estate rendering",
+      "secondaryKeywords": [
+        "uae architectural rendering studios",
+        "dubai launch animation"
+      ],
+      "outline": [
+        {
+          "level": 2,
+          "text": "The Speed of Dubai's Off-Plan Property Market"
+        },
+        {
+          "level": 3,
+          "text": "Selling Apartments Before Groundbreaking"
+        },
+        {
+          "level": 2,
+          "text": "Dubai Off-Plan Real Estate Rendering for Launch Events"
+        },
+        {
+          "level": 3,
+          "text": "The Role of 4K Cinematic Animation"
+        },
+        {
+          "level": 2,
+          "text": "Capturing Gulf Sunlight and Coastal Material Finishes"
+        },
+        {
+          "level": 2,
+          "text": "Dubai Off-Plan Real Estate Rendering for International Buyers"
+        },
+        {
+          "level": 3,
+          "text": "Interior Design Psychology for High-Net-Worth Buyers"
+        }
+      ],
+      "ctaPath": "/3d-visualization-services-uae",
+      "geo": "Dubai, UAE",
+      "category": "3d-visualization",
+      "seoTitle": "Dubai Off-Plan Real Estate Rendering: A Launch Guide",
+      "description": "Dubai off-plan real estate rendering for launches: cinematic films, Gulf daylight and coastal finishes, and interiors aimed at international buyers.",
+      "ar": {
+        "keyword": "رندر المشاريع على الخارطة في دبي",
+        "seoTitle": "رندر المشاريع على الخارطة في دبي: دليل الإطلاق",
+        "description": "رندر المشاريع على الخارطة في دبي لحملات الإطلاق: أفلام سينمائية، وضوء الخليج وتشطيبات ساحلية، وتصاميم داخلية تخاطب المشترين الدوليين."
+      },
+      "notes": "Quote off-plan sales shares or timelines only from the research's sources (for example Dubai Land Department data); the plan's '18 months before groundbreaking' has no source. This article is about launches and sales; visual trends belong to the Dubai trends article.",
+      "visual": "Hero: luxury waterfront apartment interior from our Dubai work (no Dubai Marina landmark shots)."
+    },
+    {
+      "ref": "D6-A4",
+      "source": "Deliverable 6, Regional Article 4 (Abu Dhabi)",
+      "title": "Luxury 3D Rendering in the UAE: Villa and Waterfront Trends in Abu Dhabi",
+      "keyword": "luxury 3d rendering uae",
+      "secondaryKeywords": [
+        "abu dhabi villa 3d visualizer",
+        "interior and exterior rendering"
+      ],
+      "outline": [
+        {
+          "level": 2,
+          "text": "Tailoring Visuals for Abu Dhabi's Prestige Developments"
+        },
+        {
+          "level": 3,
+          "text": "Highlighting Landscape Architecture, Pools and Private Courtyards"
+        },
+        {
+          "level": 2,
+          "text": "Luxury 3D Rendering in the UAE: Marble, Custom Joinery and Glass"
+        },
+        {
+          "level": 2,
+          "text": "Virtual Reality Walkthroughs for Abu Dhabi VIP Sales Centres"
+        },
+        {
+          "level": 3,
+          "text": "Creating Immersive Interactive Showrooms for Luxury Buyers"
+        },
+        {
+          "level": 2,
+          "text": "Choosing Luxury 3D Rendering in the UAE"
+        }
+      ],
+      "ctaPath": "/3d-visualization-services-uae",
+      "geo": "Abu Dhabi, UAE",
+      "category": "3d-visualization",
+      "seoTitle": "Luxury 3D Rendering in the UAE: Abu Dhabi Villa Trends",
+      "description": "Luxury 3D rendering in the UAE for Abu Dhabi villas: landscapes, pools and courtyards, true-to-life marble and joinery, and VR for VIP sales centres.",
+      "ar": {
+        "keyword": "رندر داخلي وخارجي فاخر في الإمارات",
+        "seoTitle": "رندر داخلي وخارجي فاخر في الإمارات: فلل أبوظبي",
+        "description": "رندر داخلي وخارجي فاخر في الإمارات لفلل أبوظبي: الحدائق والمسابح والأفنية، والرخام والنجارة بدقة واقعية، والواقع الافتراضي لمراكز المبيعات."
+      },
+      "notes": "Our verified UAE projects are in Dubai: don't claim Abu Dhabi projects.",
+      "visual": "Hero: daylight render of a modern villa with an infinity pool (new image or our own villa work; no real Abu Dhabi landmarks)."
+    },
+    {
+      "ref": "D6-A5",
+      "source": "Deliverable 6, Regional Article 5 (Riyadh & Vision 2030)",
+      "title": "Vision 2030 Architectural Visualization for Riyadh Real Estate Launches",
+      "keyword": "vision 2030 architectural visualization",
+      "secondaryKeywords": [
+        "riyadh architectural renders",
+        "vision 2030 3d rendering ksa",
+        "najdi architecture 3d"
+      ],
+      "outline": [
+        {
+          "level": 2,
+          "text": "Supporting Saudi Arabia's Vision 2030 Transformation"
+        },
+        {
+          "level": 3,
+          "text": "Visualizing Gated Communities and Commercial Avenues in Riyadh"
+        },
+        {
+          "level": 2,
+          "text": "Wafi and REGA Rules for Off-Plan Marketing in Saudi Arabia"
+        },
+        {
+          "level": 2,
+          "text": "Najdi Style Meets Modernism in Vision 2030 Architectural Visualization"
+        },
+        {
+          "level": 3,
+          "text": "High-Resolution Renders for Billboards and Expos"
+        },
+        {
+          "level": 2,
+          "text": "Vision 2030 Architectural Visualization: Riyadh Market Considerations"
+        }
+      ],
+      "ctaPath": "/3d-visualization-services-saudi-arabia",
+      "geo": "Riyadh, Saudi Arabia",
+      "category": "3d-visualization",
+      "seoTitle": "Vision 2030 Architectural Visualization for Riyadh",
+      "description": "Vision 2030 architectural visualization for Riyadh launches: gated communities, Wafi and REGA marketing rules, Najdi style in 3D and expo-ready renders.",
+      "ar": {
+        "keyword": "التصور المعماري ورؤية 2030",
+        "seoTitle": "التصور المعماري ورؤية 2030 لإطلاق مشاريع الرياض",
+        "description": "التصور المعماري ورؤية 2030 لإطلاق مشاريع الرياض: المجمعات السكنية، وضوابط وافي والهيئة العامة للعقار، والطراز النجدي بتقنية ثلاثية الأبعاد."
+      },
+      "notes": "Describe what Wafi (the off-plan sales programme) and REGA say about marketing materials only as the sources state it; never invent a requirement. Our Saudi example is NANA 222 in Riyadh, and we have a Jeddah office. The plan's keyword '3d visualization companies in Saudia' was a misspelling and clashed with our Saudi page.",
+      "visual": "Hero: mixed-use commercial centre render (NANA 222 or a new image; no real landmarks)."
+    },
+    {
+      "ref": "D6-A6",
+      "source": "Deliverable 6, Regional Article 6 (Jeddah & Red Sea)",
+      "title": "Coastal and Resort Architectural Visualization in Jeddah and the Red Sea",
+      "keyword": "architectural visualization jeddah",
+      "secondaryKeywords": [
+        "red sea resort 3d rendering",
+        "coastal masterplan rendering"
+      ],
+      "outline": [
+        {
+          "level": 2,
+          "text": "The Rise of Coastal Hospitality and Resorts in Saudi Arabia"
+        },
+        {
+          "level": 3,
+          "text": "Masterplan Rendering for Island Resorts and Beachfronts"
+        },
+        {
+          "level": 2,
+          "text": "Water Simulation and Environmental Lighting in Red Sea Visuals"
+        },
+        {
+          "level": 2,
+          "text": "Architectural Visualization in Jeddah for Foreign Investors"
+        },
+        {
+          "level": 3,
+          "text": "Interactive 3D Floorplans for International Investor Presentations"
+        },
+        {
+          "level": 2,
+          "text": "Architectural Visualization in Jeddah: Local Market Considerations"
+        }
+      ],
+      "ctaPath": "/3d-visualization-services-saudi-arabia",
+      "geo": "Jeddah, Saudi Arabia",
+      "category": "3d-visualization",
+      "seoTitle": "Architectural Visualization in Jeddah and the Red Sea",
+      "description": "Architectural visualization in Jeddah and the Red Sea: island masterplans, water and light simulation, and cinematic walkthroughs for foreign investors.",
+      "ar": {
+        "keyword": "التصور المعماري في جدة",
+        "seoTitle": "التصور المعماري في جدة ومنتجعات البحر الأحمر",
+        "description": "التصور المعماري في جدة والبحر الأحمر: مخططات الجزر والمنتجعات، ومحاكاة المياه والإضاءة، وجولات سينمائية للمستثمرين الأجانب."
+      },
+      "notes": "We have a Jeddah office (verified). Never present Red Sea Global or other giga-projects as our clients. Investment (FDI) claims only as the research sources them.",
+      "visual": "Hero: drone-view render of a coastal resort (new image; no real landmarks)."
+    },
+    {
+      "ref": "D6-A7",
+      "source": "Deliverable 6, Regional Article 7 (Islamabad plazas)",
+      "title": "Commercial Plaza 3D Rendering in Islamabad: Modern Trends for Developers",
+      "keyword": "commercial plaza 3d rendering islamabad",
+      "secondaryKeywords": [
+        "architectural renders rawalpindi",
+        "pakistan commercial 3d visualization"
+      ],
+      "outline": [
+        {
+          "level": 2,
+          "text": "The Growth of High-Rise Plazas in Islamabad and Rawalpindi"
+        },
+        {
+          "level": 3,
+          "text": "Turning 2D Map Layouts into 3D Building Models"
+        },
+        {
+          "level": 2,
+          "text": "Commercial Plaza 3D Rendering in Islamabad for Pre-Launch Marketing"
+        },
+        {
+          "level": 2,
+          "text": "Interior Renders for Shops, Offices and Apartments"
+        },
+        {
+          "level": 2,
+          "text": "Commercial Plaza 3D Rendering in Islamabad: Local Market Considerations"
+        }
+      ],
+      "ctaPath": "/3d-visualization-services-pakistan",
+      "geo": "Islamabad, Pakistan",
+      "category": "3d-visualization",
+      "seoTitle": "Commercial Plaza 3D Rendering in Islamabad: Trends",
+      "description": "Commercial plaza 3D rendering in Islamabad and Rawalpindi: from 2D maps to high-rise models, pre-launch animation and interiors that help sell units.",
+      "ar": {
+        "keyword": "رندر المراكز التجارية في إسلام آباد",
+        "seoTitle": "رندر المراكز التجارية في إسلام آباد: أحدث الاتجاهات",
+        "description": "رندر المراكز التجارية في إسلام آباد وراولبندي: من المخططات إلى نماذج الأبراج، وأفلام ما قبل الإطلاق، وتصاميم داخلية تساعد على البيع."
+      },
+      "notes": "On-site design changes are covered in the home builders article; keep this one on commercial plazas. Our Islamabad projects (Faisal Town II, Faisal Hills) are residential: don't call them plazas.",
+      "visual": "Hero: exterior render of a modern commercial plaza (new image or our own commercial work)."
+    },
+    {
+      "ref": "D6-A8",
+      "source": "Deliverable 6, Regional Article 8 (GCC)",
+      "title": "Cross-Border Real Estate Marketing: Unifying Architectural Visualization in the GCC",
+      "keyword": "architectural visualization gcc",
+      "secondaryKeywords": [
+        "3d rendering companies middle east",
+        "dual-language property marketing"
+      ],
+      "outline": [
+        {
+          "level": 2,
+          "text": "The Connected GCC Market: UAE, Saudi Arabia, Qatar and Oman"
+        },
+        {
+          "level": 3,
+          "text": "Standardizing Visual Quality Across Multi-Country Portfolios"
+        },
+        {
+          "level": 2,
+          "text": "Dual-Language Marketing for the UAE and Saudi Arabia"
+        },
+        {
+          "level": 2,
+          "text": "Architectural Visualization in the GCC: From Stills to VR for Expo Stands"
+        },
+        {
+          "level": 3,
+          "text": "Choosing a Regional Partner for Architectural Visualization in the GCC"
+        },
+        {
+          "level": 2,
+          "text": "Architectural Visualization in the GCC: Market Considerations"
+        }
+      ],
+      "ctaPath": "/3d-visualization-services-saudi-arabia",
+      "geo": "UAE, Saudi Arabia",
+      "category": "3d-visualization",
+      "seoTitle": "Architectural Visualization in the GCC: One Strategy",
+      "description": "Architectural visualization in the GCC for developers selling in the UAE and Saudi Arabia: consistent quality, Arabic-English assets and expo-ready VR.",
+      "ar": {
+        "keyword": "التصور المعماري في الخليج",
+        "seoTitle": "التصور المعماري في الخليج: استراتيجية موحدة",
+        "description": "التصور المعماري في الخليج للمطورين في الإمارات والسعودية: جودة موحدة، ومواد تسويقية بالعربية والإنجليزية، وتجارب واقع افتراضي للمعارض."
+      },
+      "notes": "We have offices in Dubai and Jeddah (verified). Mention Qatar and Oman only as market context. The plan's CTA (/3d-visualization-middle-east) is a thin old page, so link the Saudi and UAE pages instead.",
+      "visual": "Hero: conceptual masterplan render (new image; no real landmarks)."
+    }
+  ]
+}

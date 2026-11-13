@@ -42,7 +42,16 @@ const LETTERS = /[\p{L}]/gu;
 
 type Source = TranslatableFields;
 
-function promptFor(source: Source, textBlocks: ContentBlock[], feedback: string[], metaOnly: boolean): string {
+/** An SEO brief's own Arabic targeting (blog-brief.ts): the keyword to aim for, and meta text to use exactly. */
+export type ArabicTarget = { keyword?: string; seoTitle?: string; description?: string };
+
+function targetLines(target: ArabicTarget | undefined): string {
+  if (!target?.keyword) return "";
+  return `
+Arabic primary keyword: "${target.keyword}". Use this exact phrase naturally in the Arabic title, seoTitle and description and in the first block, and put it first in keywords. Keep the translation faithful otherwise.`;
+}
+
+function promptFor(source: Source, textBlocks: ContentBlock[], feedback: string[], metaOnly: boolean, target?: ArabicTarget): string {
   const payload = {
     title: source.title,
     seoTitle: source.seoTitle,
@@ -58,7 +67,7 @@ function promptFor(source: Source, textBlocks: ContentBlock[], feedback: string[
 
 <article>
 ${JSON.stringify(payload)}
-</article>
+</article>${targetLines(target)}
 ${feedback.length ? `\nYour previous translation was rejected - fix every point:\n${feedback.map((line) => `- ${line}`).join("\n")}` : ""}`;
 }
 
@@ -105,7 +114,7 @@ export async function translateToArabic(
   provider: AiProvider,
   usage: Usage,
   previous?: PostAr,
-  options: { metaOnly?: boolean } = {},
+  options: { metaOnly?: boolean; target?: ArabicTarget } = {},
 ): Promise<PostAr> {
   // Only the search-result text changed: translate that again and keep the Arabic body as it is.
   const metaOnly = Boolean(options.metaOnly && previous);
@@ -114,7 +123,7 @@ export async function translateToArabic(
   let out: Translation | undefined;
 
   for (let attempt = 1; attempt <= 2; attempt++) {
-    const raw = await provider.translate({ system: SYSTEM, prompt: promptFor(source, textBlocks, feedback, metaOnly) }, usage);
+    const raw = await provider.translate({ system: SYSTEM, prompt: promptFor(source, textBlocks, feedback, metaOnly, options.target) }, usage);
     const parsed = translationSchema.safeParse(raw);
     if (!parsed.success) {
       feedback = ["Return every field in the required JSON format."];
@@ -129,7 +138,11 @@ export async function translateToArabic(
   if (!out) throw new Error(`The Arabic version did not pass its checks: ${feedback.slice(0, 3).join(" ")}`);
 
   const hashes = translationHashes(source);
-  const keywords = [...new Set(out.keywords.map((keyword) => keyword.trim()).filter(Boolean))].slice(0, 12);
+  // A brief's Arabic SEO title and description are used exactly; its Arabic keyword leads the keywords.
+  const target = options.target;
+  if (target?.seoTitle) out.seoTitle = target.seoTitle;
+  if (target?.description) out.description = target.description;
+  const keywords = [...new Set([target?.keyword ?? "", ...out.keywords].map((keyword) => keyword.trim()).filter(Boolean))].slice(0, 12);
   if (metaOnly && previous) {
     return {
       ...previous,
@@ -207,7 +220,7 @@ export async function ensureArabic(postId: string, options: { force?: boolean } 
 
   const usage: Usage = { inputTokens: 0, outputTokens: 0, searches: 0 };
   const metaOnly = !options.force && post.ar?.bodyHash === hashes.body;
-  const ar = await translateToArabic(source, getProvider(), usage, post.ar, { metaOnly });
+  const ar = await translateToArabic(source, getProvider(), usage, post.ar, { metaOnly, target: post.generation?.brief?.ar });
   await adminDb().collection(POSTS_COLLECTION).doc(postId).update({ ar: JSON.parse(JSON.stringify(ar)) });
   return { status: "translated" };
 }
