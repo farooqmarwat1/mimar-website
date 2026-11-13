@@ -222,6 +222,13 @@ const nextConfig: NextConfig = {
         destination: "https://mim.archi/:path*",
         permanent: true,
       },
+      // Project renders moved from JPG to WebP (same names, 13 Nov 2026). Old .jpg links that
+      // search engines or other sites picked up go to the WebP file. A file, so no trailing slash.
+      {
+        source: "/projects/catalog/:slug/:name.jpg",
+        destination: "/projects/catalog/:slug/:name.webp",
+        permanent: true,
+      },
       // Each legacy rule twice, with and without the trailing slash, both straight to the final
       // URL (with its slash): one hop either way.
       ...legacyRedirects.flatMap((rule) => {

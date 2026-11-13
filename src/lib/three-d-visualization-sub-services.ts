@@ -178,9 +178,9 @@ export const threeDVisualizationSubServices: Record<string, ThreeDVisualizationS
     // catalog. Google's own Drive thumbnail is not used - see the note on
     // DriveVideo's `poster` prop.
     media: [
-      { type: "drive", src: "https://drive.google.com/file/d/1D-9jWxV8BQjlg_J0-NOIy38OFhBsnAb-/preview", title: "01 - Amer Al Ghurair", poster: "/projects/catalog/amer-al-ghurair/image-1.jpg" },
+      { type: "drive", src: "https://drive.google.com/file/d/1D-9jWxV8BQjlg_J0-NOIy38OFhBsnAb-/preview", title: "01 - Amer Al Ghurair", poster: "/projects/catalog/amer-al-ghurair/image-1.webp" },
       { type: "drive", src: "https://drive.google.com/file/d/1wfkXqTLNs-kI-BpG4uP5GQLIbEpN7YUA/preview", title: "02 - Zvërnec", poster: "/services/3d-visualization/cinematics/hero.webp" },
-      { type: "drive", src: "https://drive.google.com/file/d/1wiPGLLVUSZcwSJIkU78Wr5QibLL-iYDn/preview", title: "03 - Faisal Town", poster: "/projects/catalog/faisal-town-ii/image-1.jpg" },
+      { type: "drive", src: "https://drive.google.com/file/d/1wiPGLLVUSZcwSJIkU78Wr5QibLL-iYDn/preview", title: "03 - Faisal Town", poster: "/projects/catalog/faisal-town-ii/image-1.webp" },
       { type: "drive", src: "https://drive.google.com/file/d/1TeozVJJjuAibo6Yg4cKhhZ3v2jPCD44P/preview", title: "04 - Barari Hills", poster: "/services/3d-visualization/cinematics/hero.webp" },
     ],
     benefits: [

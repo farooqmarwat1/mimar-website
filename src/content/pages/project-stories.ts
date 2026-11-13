@@ -53,18 +53,18 @@ export type ProjectStory = {
  * tests/project-stories.test.cjs reads the real files and fails if a ratio here is wrong or missing.
  */
 const galleryRatios: Record<string, string> = {
-  "/projects/catalog/h-and-s/image-1.jpg": "1500 / 2000",
-  "/projects/catalog/h-and-s/image-4.jpg": "1412 / 2000",
-  "/projects/catalog/karma-trinity/image-7.jpg": "2000 / 988",
-  "/projects/catalog/nana-222/image-2.jpg": "2000 / 1680",
-  "/projects/catalog/nana-222/image-3.jpg": "2000 / 1682",
-  "/projects/catalog/nana-222/image-5.jpg": "1536 / 1086",
-  "/projects/catalog/nana-222/image-8.jpg": "1536 / 1141",
-  "/projects/catalog/360-residences/image-2.jpg": "1600 / 2000",
-  "/projects/catalog/aurum-one/image-3.jpg": "2000 / 785",
-  "/projects/catalog/cafe-interior/image-3.jpg": "2048 / 1365",
-  "/projects/catalog/dha-multan-highrise/image-2.jpg": "2000 / 1143",
-  "/projects/catalog/dha-multan-highrise/image-3.jpg": "2000 / 1143",
+  "/projects/catalog/h-and-s/image-1.webp": "1500 / 2000",
+  "/projects/catalog/h-and-s/image-4.webp": "1412 / 2000",
+  "/projects/catalog/karma-trinity/image-7.webp": "2000 / 988",
+  "/projects/catalog/nana-222/image-2.webp": "2000 / 1680",
+  "/projects/catalog/nana-222/image-3.webp": "2000 / 1682",
+  "/projects/catalog/nana-222/image-5.webp": "1536 / 1086",
+  "/projects/catalog/nana-222/image-8.webp": "1536 / 1141",
+  "/projects/catalog/360-residences/image-2.webp": "1600 / 2000",
+  "/projects/catalog/aurum-one/image-3.webp": "2000 / 785",
+  "/projects/catalog/cafe-interior/image-3.webp": "2048 / 1365",
+  "/projects/catalog/dha-multan-highrise/image-2.webp": "2000 / 1143",
+  "/projects/catalog/dha-multan-highrise/image-3.webp": "2000 / 1143",
 };
 
 /** CSS aspect-ratio of a gallery render ("16 / 9" unless listed above). */
@@ -82,33 +82,70 @@ export function galleryRatioValue(image: string): number {
   return ratioOf(image);
 }
 
+/** Narrower than this is a tall (portrait) render: never full width, and paired with another tall one. */
+const TALL = 1.2;
+/** Wider than this is a panorama: always a full row, since half the page width would make it a thin strip. */
+const PANORAMA = 2.2;
+/** In a row, a render may lose up to this share of its height to fit the row's box; past that it is extended. */
+const MAX_CROP = 0.2;
+
 /**
- * Rows of a captioned gallery, in the images' own order: one full-width render, then a pair, then a
- * full-width render, and so on. A tall render (narrower than 1.2:1) is never full width; it joins a
- * pair. No render is left alone at the end: a lone last render joins the row before it (a full row
- * becomes a pair, a pair becomes a row of three). The page gives every render in a row the same height.
+ * Rows of a captioned gallery: one full-width render, then a pair, then a full-width render, and so
+ * on, in the images' own order, except that a tall render is moved up next to the following tall one
+ * so portraits pair with portraits. A tall render is never full width; a panorama always is. No render
+ * is left alone at the end: a lone last render joins the row before it (a full row becomes a pair, a
+ * pair becomes a row of three). The page splits a row into equal widths (see galleryRowLayout).
  */
 export function planGalleryRows(images: string[]): string[][] {
+  const ordered = [...images];
+  for (let i = 0; i < ordered.length - 1; i += 1) {
+    if (ratioOf(ordered[i]) >= TALL) continue;
+    if (ratioOf(ordered[i + 1]) >= TALL) {
+      const j = ordered.findIndex((image, k) => k > i + 1 && ratioOf(image) < TALL);
+      if (j > 0) ordered.splice(i + 1, 0, ...ordered.splice(j, 1));
+    }
+    i += 1; // the partner is placed; carry on after the pair
+  }
+
   const rows: string[][] = [];
   let wantFull = true;
-  for (let i = 0; i < images.length; ) {
-    const left = images.length - i;
-    const fullFits = wantFull && ratioOf(images[i]) >= 1.2;
+  for (let i = 0; i < ordered.length; ) {
+    const left = ordered.length - i;
+    const panorama = ratioOf(ordered[i]) >= PANORAMA;
+    const fullFits = panorama || (wantFull && ratioOf(ordered[i]) >= TALL);
     if (left === 1 && !fullFits && rows.length > 0) {
-      rows[rows.length - 1].push(images[i]);
+      rows[rows.length - 1].push(ordered[i]);
       break;
     }
-    if (fullFits || left === 1) {
-      rows.push([images[i]]);
+    // A pair never takes a panorama as its second render; the panorama gets the next row to itself.
+    if (fullFits || left === 1 || ratioOf(ordered[i + 1]) >= PANORAMA) {
+      rows.push([ordered[i]]);
       i += 1;
       wantFull = false;
     } else {
-      rows.push(images.slice(i, i + 2));
+      rows.push(ordered.slice(i, i + 2));
       i += 2;
       wantFull = true;
     }
   }
   return rows;
+}
+
+export type GalleryFit = "cover" | "extend";
+
+/**
+ * How a row is drawn on wide screens: every render gets the same width (50 / 50 in a pair, thirds in
+ * a row of three) and one box shape, the widest render's, so wide renders such as moodboards keep
+ * their edges. A narrower render fills the box and loses a little top and bottom ("cover") when that
+ * is at most MAX_CROP of its height; otherwise it is shown whole on a blurred copy of itself ("extend"),
+ * which is how a portrait sits next to a landscape. On phones each render keeps its own shape.
+ */
+export function galleryRowLayout(row: string[]): { ratio: number; items: { image: string; fit: GalleryFit }[] } {
+  const ratio = Math.max(...row.map(ratioOf));
+  return {
+    ratio,
+    items: row.map((image) => ({ image, fit: 1 - ratioOf(image) / ratio <= MAX_CROP ? "cover" : "extend" })),
+  };
 }
 
 type StoryLabels = { related: string; showcase: (title: string) => string; faqs: (title: string) => string };

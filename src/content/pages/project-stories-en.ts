@@ -5,7 +5,7 @@ import type { ProjectStory } from "./project-stories";
  * sentence about a project was written from its renders and its project data only.
  */
 
-const img = (slug: string, n: number) => `/projects/catalog/${slug}/image-${n}.jpg`;
+const img = (slug: string, n: number) => `/projects/catalog/${slug}/image-${n}.webp`;
 
 const service = {
   visualization: { path: "/services/3d-visualization", label: "3D visualization services" },

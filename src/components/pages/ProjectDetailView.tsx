@@ -10,7 +10,7 @@ import { projectDetailContent, projectsContent } from "@/content/pages/projects"
 import { getDictionary } from "@/i18n/dictionaries";
 import { localeHref, type Locale } from "@/i18n/config";
 import { projectCoverAlt, projectGalleryAlt } from "@/lib/project-alt";
-import { galleryRatio, galleryRatioValue, getProjectStory, planGalleryRows, projectStoryLabels } from "@/content/pages/project-stories";
+import { galleryRatioValue, galleryRowLayout, getProjectStory, planGalleryRows, projectStoryLabels } from "@/content/pages/project-stories";
 import { regionList } from "@/lib/regions";
 import { localizeRegion } from "@/lib/ar/regions.ar";
 import { splitInlineLinks } from "@/lib/content-blocks";
@@ -56,6 +56,9 @@ export default function ProjectDetailView({
   const narrative = c.narrative(project.location);
   // A written story (overview, what the renders show, FAQs) when the project has one; see project-stories.ts.
   const story = getProjectStory(source.slug, lang);
+  // Gallery rows for a story page, and the renders in the order they are shown (the lightbox follows it).
+  const galleryRows = story ? planGalleryRows(gallery) : [];
+  const galleryOrder = galleryRows.flat();
   const storyLabels = projectStoryLabels[lang];
   const sourceRegion = regionList.find((region) => region.projectSlugs.includes(source.slug));
   const region = sourceRegion ? localizeRegion(sourceRegion, lang) : undefined;
@@ -134,46 +137,56 @@ export default function ProjectDetailView({
             )}
           </Reveal>
           {story ? (
-            // Full-width render, then a pair, then full width... (planGalleryRows). In a row every render has the
-            // same height: each takes a share of the width equal to its width/height ratio, so captions line up.
-            // A click on a render opens it large in GalleryLightbox, with previous/next through the whole set.
+            // Full-width render, then a pair, then full width... (planGalleryRows). Every render in a row has the
+            // same width and box (galleryRowLayout), so a pair is 50 / 50 and the captions line up. A click on a
+            // render opens it large in GalleryLightbox, with previous/next through the set in the order shown.
             <GalleryLightbox
               lang={lang}
               label={mediaUi[lang].imageViewer(project.title)}
-              items={gallery.map((image) => {
+              items={galleryOrder.map((image) => {
                 const view = story.views.find((item) => item.image === image);
                 return { src: image, alt: view?.alt ?? projectGalleryAlt(project, lang, gallery.indexOf(image) + 1), title: view?.title, text: view?.text };
               })}
             >
             <div className="flex flex-col gap-12 md:gap-16">
-              {planGalleryRows(gallery).map((row) => (
+              {galleryRows.map((row) => (
                 <div key={row[0]} className="flex flex-col gap-12 md:flex-row md:gap-8">
-                  {row.map((image, index) => {
+                  {galleryRowLayout(row).items.map(({ image, fit }, index, items) => {
                     const view = story.views.find((item) => item.image === image);
-                    const ratio = galleryRatio(image);
+                    const alt = view?.alt ?? projectGalleryAlt(project, lang, gallery.indexOf(image) + 1);
+                    const sizes = items.length === 1 ? "100vw" : `(max-width: 768px) 100vw, ${Math.round(100 / items.length)}vw`;
                     return (
-                      <Reveal
-                        key={image}
-                        delay={index * 0.05}
-                        className="min-w-0 md:[flex:var(--ratio)_1_0%]"
-                        style={{ "--ratio": galleryRatioValue(image) } as CSSProperties}
-                      >
+                      <Reveal key={image} delay={index * 0.05} className="min-w-0 md:flex-1">
                         <figure>
-                          {/* A box of the render's own shape: no letterbox, and the caption sits right under the picture. */}
+                          {/* Phones: the render's own shape. Wider screens: the row's shared box (galleryRowLayout). */}
                           <button
                             type="button"
-                            data-lightbox-index={gallery.indexOf(image)}
+                            data-lightbox-index={galleryOrder.indexOf(image)}
                             aria-label={mediaUi[lang].openImage(view?.title ?? project.title)}
-                            className="motion-media relative block w-full cursor-zoom-in"
-                            style={{ aspectRatio: ratio }}
+                            className="motion-media relative block w-full cursor-zoom-in [aspect-ratio:var(--own)] md:[aspect-ratio:var(--row)]"
+                            style={{ "--own": galleryRatioValue(image), "--row": galleryRowLayout(row).ratio } as CSSProperties}
                           >
+                            {fit === "extend" && (
+                              // The same file blurred behind the render fills the box, so a portrait beside a landscape
+                              // is shown whole. Inline filter: the hover rule on .motion-media img must not un-blur it.
+                              <Image
+                                src={image}
+                                alt=""
+                                aria-hidden="true"
+                                fill
+                                unoptimized
+                                sizes={sizes}
+                                className="hidden scale-125 object-cover md:block"
+                                style={{ filter: "blur(40px) brightness(0.9)" }}
+                              />
+                            )}
                             <Image
                               src={image}
-                              alt={view?.alt ?? projectGalleryAlt(project, lang, gallery.indexOf(image) + 1)}
+                              alt={alt}
                               fill
                               unoptimized
-                              sizes={row.length === 1 ? "100vw" : `(max-width: 768px) 100vw, ${Math.round(100 / row.length)}vw`}
-                              className="object-cover"
+                              sizes={sizes}
+                              className={fit === "extend" ? "object-cover md:object-contain" : "object-cover"}
                             />
                           </button>
                           {view && (
