@@ -160,18 +160,26 @@ test('every captioned render gets a box of its real shape (no letterbox around i
 
 test('the gallery alternates full-width renders and pairs, with no render left alone', () => {
   const { planGalleryRows, galleryRatioValue } = load('src/content/pages/project-stories.ts');
+  const panorama = image => galleryRatioValue(image) >= 2.2;
   for (const project of projects) {
     const images = (project.gallery ?? []).filter(image => image !== project.cover);
     const rows = Array.from(planGalleryRows(images), row => Array.from(row));
-    assert.deepEqual(rows.flat(), Array.from(images), `${project.slug}: every render once, in order`);
+    assert.deepEqual([...rows.flat()].sort(), [...images].sort(), `${project.slug}: every render exactly once`);
     for (const [index, row] of rows.entries()) {
       assert.ok(row.length >= 1 && row.length <= 3, `${project.slug}: row ${index + 1} has ${row.length} renders`);
       if (row.length === 1 && images.length > 1) {
         assert.ok(galleryRatioValue(row[0]) >= 1.2, `${project.slug}: a tall render (${row[0]}) is not full width`);
-        assert.ok(!rows[index - 1] || rows[index - 1].length > 1, `${project.slug}: two full-width rows in a row`);
+        const before = rows[index - 1];
+        assert.ok(!before || before.length > 1 || panorama(row[0]) || panorama(before[0]), `${project.slug}: two full-width rows in a row`);
       }
+      if (row.length > 1) assert.ok(!row.some(panorama), `${project.slug}: a panorama (${row.find(panorama)}) is squeezed into a pair`);
     }
   }
+  // Portraits pair with each other (H&S: two portraits and one landscape, not three renders in a row).
+  const hs = projects.find(project => project.slug === 'h-and-s');
+  const hsRows = Array.from(planGalleryRows(hs.gallery.filter(image => image !== hs.cover)), row => Array.from(row));
+  assert.deepEqual(hsRows.map(row => row.length), [2, 1]);
+  assert.ok(hsRows[0].every(image => galleryRatioValue(image) < 1.2), 'the H&S pair is the two portraits');
   // The rhythm on plain 16:9 sets of different sizes.
   const wide = n => Array.from({ length: n }, (_, i) => `/projects/catalog/x/image-${i + 1}.jpg`);
   const shape = n => Array.from(planGalleryRows(wide(n)), row => row.length).join(',');
@@ -182,6 +190,28 @@ test('the gallery alternates full-width renders and pairs, with no render left a
   assert.equal(shape(5), '1,2,2');
   assert.equal(shape(6), '1,2,1,2');
   assert.equal(shape(8), '1,2,1,2,2');
+});
+
+test('every render in a gallery row has the same width and box, and nothing is cropped by more than 20%', () => {
+  const { planGalleryRows, galleryRowLayout, galleryRatioValue } = load('src/content/pages/project-stories.ts');
+  for (const project of projects) {
+    const images = (project.gallery ?? []).filter(image => image !== project.cover);
+    for (const row of Array.from(planGalleryRows(images), r => Array.from(r))) {
+      const layout = galleryRowLayout(row);
+      assert.equal(layout.ratio, Math.max(...row.map(galleryRatioValue)), `${project.slug}: the box is the widest render's shape`);
+      for (const { image, fit } of Array.from(layout.items)) {
+        const crop = 1 - galleryRatioValue(image) / layout.ratio;
+        assert.equal(fit, crop <= 0.2 ? 'cover' : 'extend', `${project.slug}: ${image} loses ${Math.round(crop * 100)}%`);
+      }
+    }
+  }
+  // The pair from the Café Interior page: the moodboard keeps its edges, the photo loses a little top and bottom.
+  const cafe = galleryRowLayout(['/projects/catalog/cafe-interior/image-3.jpg', '/projects/catalog/cafe-interior/image-4.jpg']);
+  assert.deepEqual(Array.from(cafe.items, item => item.fit), ['cover', 'cover']);
+  assert.ok(Math.abs(cafe.ratio - 16 / 9) < 0.001);
+  // A portrait beside a landscape is extended, not cropped (360 Residences).
+  const r360 = galleryRowLayout(['/projects/catalog/360-residences/image-2.jpg', '/projects/catalog/360-residences/image-3.jpg']);
+  assert.deepEqual(Array.from(r360.items, item => item.fit), ['extend', 'cover']);
 });
 
 test('a project without a story (a new CMS project) gets no story, so the page keeps the old layout', () => {
