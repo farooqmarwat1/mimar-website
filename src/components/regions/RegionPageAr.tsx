@@ -46,7 +46,8 @@ export default function RegionPageAr({ regionKey }: { regionKey: keyof typeof re
             url: siteUrl(pagePath),
             // Cities we work in, including those with no profile of their own.
             areaServed: [
-              { "@type": "Country", name: country },
+              // One country for a country page; several for the Middle East hub.
+              ...(Array.isArray(country) ? country : [country]).map((name) => ({ "@type": "Country", name })),
               ...cities.map((name) => ({ "@type": "City", name })),
             ],
           },

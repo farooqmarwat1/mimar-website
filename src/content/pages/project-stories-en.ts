@@ -154,7 +154,7 @@ export const enStories: Record<string, ProjectStory> = {
     typology: "Retail and leisure destination",
     heading: "Amerat Park architectural design in Muscat",
     paragraphs: [
-      "Amerat Park is a public retail and leisure destination in Muscat, Oman, shown through Mimar Studios' [architectural design](/services/architectural-design) renders. The set moves from the whole site to the scale of a visitor: aerial views of the master plan, a palm-lined promenade with shops and cafés along a water channel, and the main plaza in the evening.",
+      "Amerat Park is a public retail and leisure destination in [Muscat, Oman](/3d-visualization-middle-east), shown through Mimar Studios' [architectural design](/services/architectural-design) renders. The set moves from the whole site to the scale of a visitor: aerial views of the master plan, a palm-lined promenade with shops and cafés along a water channel, and the main plaza in the evening.",
       "The architecture draws on the region. A clock tower with crenellated parapets and arched colonnades, forms that recall the area's historic forts, frames the main plaza, while the shopfronts behind use timber screens and warm light. Around the buildings, the aerial shows parking, a children's play area, sports courts and an open green, so the plan reads as a place for a family day out, not only for shopping.",
     ],
     views: [
