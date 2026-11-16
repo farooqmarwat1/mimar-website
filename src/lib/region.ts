@@ -36,7 +36,7 @@ export function isRegionCode(value: string | null | undefined): value is RegionC
 
 /**
  * Browser-tab title per region, for the home page only. A region with no entry (and every
- * bot / unmapped country) keeps the page's default title, which is the SEO-exact old one.
+ * bot / unmapped country) keeps the page's default title (siteConfig.title, SEO_MIGRATION.md point 28).
  * The Arabic default title already leads with Saudi Arabia and the Gulf; the Arabic entries
  * only localise it for the visitor's region.
  */

@@ -11,9 +11,11 @@ export const siteConfig = {
   name: "Mimar Studios",
   legalName: "Mimar Studios (SMC-Pvt) Ltd.",
   url: "https://mim.archi",
-  title: "Mimar: 3D Architecture Firm in Pakistan",
+  // Home page title and description (also the fallback for pages without their own). SEO scope item 8,
+  // sheet D8, owner-approved 16 Nov 2026; replaced "Mimar: 3D Architecture Firm in Pakistan".
+  title: "3D Architecture Firm & Rendering Studio | Mimar Studios",
   description:
-    "Transforming visions into breathtaking realities, Mimar Studios is a leading 3D architecture firm dedicated to designing innovative and sustainable structures.",
+    "Transforming architectural visions into breathtaking realities. Mimar Studios delivers 3D visualization, cinematic tours & rendering services. Get a quote!",
   foundingDate: "2019",
   foundingLocation: "National Incubation Center, Islamabad, Pakistan",
   ogImage: "/og/mimar-studios-og.jpg",
