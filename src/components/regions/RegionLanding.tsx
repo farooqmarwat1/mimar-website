@@ -58,12 +58,17 @@ export default function RegionLanding({ region: englishRegion, lang = "en" }: { 
   // to change with it. Left at a flat 33vw, the two-card US grid and the
   // single Saudi card were being given a source a third of the width they
   // actually render at, which is what made those thumbnails look soft.
+  //
+  // The cards are 4:3 but the covers are mostly 16:9, so object-cover scales a
+  // cover up by 4/3 to fill the card height (plus 5% on hover). The hint is the
+  // card width x 1.35: at 33vw a 1920px screen got the 640w file for a card that
+  // needs about 790px, which is what made the cards look blurred (16 Nov 2026).
   const projectSizes =
     projects.length === 1
-      ? "(max-width: 640px) 100vw, 36rem"
+      ? "(max-width: 640px) 135vw, 48rem"
       : projects.length === 2
-        ? "(max-width: 640px) 100vw, 50vw"
-        : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw";
+        ? "(max-width: 640px) 135vw, 68vw"
+        : "(max-width: 640px) 135vw, (max-width: 1024px) 68vw, 45vw";
 
   // Same reasoning for the quotes: the UAE has three, the US one. A lone
   // quote stretched to a readable measure reads as a pull quote; squeezed
