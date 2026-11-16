@@ -42,15 +42,15 @@ export function isRegionCode(value: string | null | undefined): value is RegionC
  */
 export const regionalTitles: Record<"en" | "ar", Partial<Record<RegionCode, string>>> = {
   en: {
-    sa: "Mimar: 3D Architecture & Rendering Firm in Saudi Arabia",
-    ae: "Mimar: 3D Architecture & Rendering Firm in the UAE",
-    gulf: "Mimar: 3D Architecture & Rendering Firm in the Gulf",
-    pk: "Mimar: 3D Architecture & Rendering Firm in Pakistan",
-    us: "Mimar: 3D Architecture & Rendering Firm for US Developers",
+    sa: "Mimar Studios | 3D Architecture & Rendering in Saudi Arabia",
+    ae: "Mimar Studios | 3D Architecture & Rendering in the UAE",
+    gulf: "Mimar Studios | 3D Architecture & Rendering in the Gulf",
+    pk: "Mimar Studios | 3D Architecture & Rendering in Pakistan",
+    us: "Mimar Studios | 3D Architecture & Rendering for US Developers",
   },
   ar: {
-    sa: "استوديوهات معمار: شركة عمارة وتصيير ثلاثي الأبعاد في السعودية",
-    gulf: "استوديوهات معمار: شركة عمارة وتصيير ثلاثي الأبعاد في الخليج",
-    arab: "استوديوهات معمار: شركة عمارة وتصيير ثلاثي الأبعاد في الوطن العربي",
+    sa: "استوديوهات معمار | عمارة وتصور ثلاثي الأبعاد في السعودية",
+    gulf: "استوديوهات معمار | عمارة وتصور ثلاثي الأبعاد في الخليج",
+    arab: "استوديوهات معمار | عمارة وتصور ثلاثي الأبعاد في الوطن العربي",
   },
 };

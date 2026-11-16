@@ -39,7 +39,7 @@ English data files (`site-config.ts`, `service-details.ts`, `*-sub-services.ts`,
 Home page only (`/` and `/ar`), browser-tab title only: the hero and every visible element are unchanged. Titles are in `src/lib/region.ts`; edit them there.
 - **Server output never depends on country.** `<title>`, meta, canonical, hreflang, Open Graph, JSON-LD and the H1 alt are identical for every visitor and bot.
 - `src/proxy.ts` writes a `mimar_region` cookie (`sa`, `ae`, `gulf`, `pk`, `us`, `arab`) from Vercel's `x-vercel-ip-country`, for human requests only (never bots, so Googlebot keeps the default), and rewrites it on every request so it cannot be spoofed in production. In development, with no country header, a hand-set cookie is left alone: run `document.cookie = "mimar_region=ae; path=/"` in the browser console, then reload.
-- `RegionalTitle` (client, renders nothing) sets `document.title` after hydration, in the format "Mimar: 3D Architecture & Rendering Firm in <region>". Inner pages keep their SEO-exact titles.
+- `RegionalTitle` (client, renders nothing) sets `document.title` after hydration, in the format "Mimar Studios | 3D Architecture & Rendering in <region>" (Arabic "استوديوهات معمار | عمارة وتصور ثلاثي الأبعاد في <region>"; brand first since 16 Nov 2026, SEO_MIGRATION.md point 29). Inner pages keep their SEO-exact titles.
 
 ## Studio name in Arabic (owner decision, 3 Nov 2026)
 
