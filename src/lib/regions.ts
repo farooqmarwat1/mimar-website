@@ -86,7 +86,7 @@ export const regions: Record<string, Region> = {
     path: "/3d-visualization-services-uae",
     name: "UAE",
     city: "Dubai",
-    seoTitle: "3D Rendering & Architectural Visualization Services in Dubai & UAE | Mimar",
+    seoTitle: "3D Rendering Services in Dubai & UAE | Mimar Studios",
     description:
       "3D rendering and architectural visualization services for developers and architects in Dubai, Abu Dhabi and across the UAE. Photorealistic stills, animation, VR and 360 tours.",
     keywords: [
@@ -256,7 +256,7 @@ export const regions: Record<string, Region> = {
     path: "/3d-visualization-usa",
     name: "USA",
     city: "Miami",
-    seoTitle: "3D Rendering & Architectural Visualization Services USA | Mimar",
+    seoTitle: "3D Rendering & Visualization Services USA | Mimar Studios",
     description:
       "3D rendering and architectural visualization for developers and architects in New York, Los Angeles, San Francisco, Dallas, Houston and Miami. Photorealistic stills, animation and virtual tours.",
     // These are queries the site already ranks 1-2 for in the US while earning
@@ -462,7 +462,7 @@ export const regions: Record<string, Region> = {
     path: "/3d-visualization-services-saudi-arabia",
     name: "Saudi Arabia",
     city: "Riyadh",
-    seoTitle: "3D Rendering & Architectural Visualization Services in Saudi Arabia | Mimar",
+    seoTitle: "3D Rendering Services in Saudi Arabia | Mimar Studios",
     description:
       "3D rendering and architectural visualization for developers and architects in Riyadh, Jeddah and across Saudi Arabia. Photorealistic stills, animation, VR and 360 tours, from our Jeddah office.",
     // Unlike the UAE and US pages, these are not queries the site already
@@ -608,7 +608,7 @@ export const regions: Record<string, Region> = {
     path: "/3d-visualization-services-pakistan",
     name: "Pakistan",
     city: "Islamabad",
-    seoTitle: "3D Rendering & Architectural Visualization Services in Pakistan | Mimar",
+    seoTitle: "3D Architecture & Rendering Firm in Pakistan | Mimar Studios",
     description:
       "Architectural visualization, 3D rendering and branding for developers and architects in Islamabad, Lahore, Karachi and Multan. The studio was founded in Islamabad in 2019.",
     // Pakistan is the opposite problem to the US. Brand terms do well -
