@@ -18,6 +18,7 @@ import {
   type SiteArticle,
 } from "@/lib/posts";
 import type { Locale } from "@/i18n/config";
+import { regionList } from "@/lib/regions";
 
 /**
  * What the public site reads. Everything comes from Firestore (see posts.ts),
@@ -134,14 +135,21 @@ const cachedIndex = unstable_cache(
 
 type Loaded = { entries: BlogEntry[]; imported: boolean; live: boolean };
 
+// Old WordPress articles that became country or hub landing pages (/3d-visualization-middle-east since
+// 16 Nov 2026). Their copies imported into Firestore on 26 Oct are skipped, so the region route file is the
+// only page at the URL and the sitemap, archive and blog lists never show the old article.
+const regionPaths = new Set(regionList.map((region) => region.path));
+const notRegion = (entry: BlogEntry) => !regionPaths.has(entry.path);
+
 const load = cache(async (): Promise<Loaded> => {
-  if (!isFirebaseConfigured) return { entries: staticEntries(), imported: false, live: false };
+  if (!isFirebaseConfigured) return { entries: staticEntries().filter(notRegion), imported: false, live: false };
   try {
     const { imported, entries } = await cachedIndex();
-    return { imported, live: true, entries: imported ? entries : [...entries.filter((entry) => !entry.legacy), ...staticEntries()] };
+    const all = imported ? entries : [...entries.filter((entry) => !entry.legacy), ...staticEntries()];
+    return { imported, live: true, entries: all.filter(notRegion) };
   } catch (err) {
     console.error("[blog] could not load the article index; serving the built-in articles:", err instanceof Error ? err.message : err);
-    return { entries: staticEntries(), imported: false, live: false };
+    return { entries: staticEntries().filter(notRegion), imported: false, live: false };
   }
 });
 
@@ -245,6 +253,7 @@ function staticArticle(path: string, lang: Locale): SiteArticle | null {
 /** The published article at an English path, in one language; null when it does not exist (a real 404). */
 export async function getBlogArticle(path: string, lang: Locale = "en"): Promise<SiteArticle | null> {
   const clean = normalizePath(path);
+  if (regionPaths.has(clean)) return null;
   const { imported, live } = await load();
   if (live) {
     try {

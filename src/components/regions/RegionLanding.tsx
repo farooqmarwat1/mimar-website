@@ -6,7 +6,7 @@ import FaqSection from "@/components/sections/FaqSection";
 import ServicesPreview from "@/components/sections/ServicesPreview";
 import AnimatedStatValue from "@/components/ui/AnimatedStatValue";
 import Reveal from "@/components/ui/Reveal";
-import { regionProjects, type Region } from "@/lib/regions";
+import { regionProjects, regions, type Region } from "@/lib/regions";
 import { stats } from "@/lib/site-config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { comma, localeHref, localizeDigits, type Locale } from "@/i18n/config";
@@ -36,6 +36,10 @@ export default function RegionLanding({ region: englishRegion, lang = "en" }: { 
   const dict = getDictionary(lang);
   const href = (path: string) => localeHref(lang, path);
   const projects = regionProjects(englishRegion).map((project) => localizeProject(project, lang));
+  const relatedRegions = (englishRegion.relatedRegions ?? [])
+    .map((key) => regions[key])
+    .filter(Boolean)
+    .map((related) => localizeRegion(related, lang));
   const hero = projects[0];
   const localizedStatList = localizedStats(lang);
   const regionStats = regionStatIndexes.map((index) => localizedStatList[index]);
@@ -136,6 +140,16 @@ export default function RegionLanding({ region: englishRegion, lang = "en" }: { 
         <Reveal delay={0.05}>
           <p className="section-body max-w-4xl text-xl leading-snug md:text-2xl">{region.marketCopy}</p>
         </Reveal>
+        {/* A hub page (the Middle East) links down to the country pages it covers. */}
+        {relatedRegions.length > 0 && (
+          <Reveal delay={0.1}>
+            <div className="mt-10 flex flex-wrap gap-3">
+              {relatedRegions.map((related) => (
+                <Link key={related.path} href={href(related.path)} className="button-pill text-ink">{related.h1}</Link>
+              ))}
+            </div>
+          </Reveal>
+        )}
       </section>
 
       {/* Projects - the section that actually sells */}

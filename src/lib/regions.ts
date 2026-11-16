@@ -1,7 +1,7 @@
 import { projects, type Project } from "./site-config";
 
 /**
- * Region landing pages (UAE, USA, KSA, Pakistan).
+ * Region landing pages (UAE, USA, KSA, Pakistan) and the Middle East hub.
  *
  * These URLs were the old WordPress country pages and carry years of search
  * signals - /3d-visualization-services-uae alone holds ~108k impressions in
@@ -79,6 +79,8 @@ export type Region = {
   faqs: { question: string; answer: string }[];
   /** Self-contained, citable facts for AI answer engines. */
   keyFacts: string[];
+  /** Keys of the country pages a hub page links down to (the Middle East links the UAE and Saudi pages). */
+  relatedRegions?: string[];
 };
 
 export const regions: Record<string, Region> = {
@@ -769,6 +771,194 @@ export const regions: Record<string, Region> = {
       "A single still render is typically delivered within 5-7 working days of approved inputs.",
       "Services include photorealistic stills, cinematic animation, VR experiences, 360 web tours, interactive property tools and branding.",
       "The studio has completed 270+ projects across 14 countries since 2019, with a team of 40+ based in Islamabad.",
+    ],
+  },
+  middleEast: {
+    // The old WordPress "3D Visualization - Middle East" page, served by the
+    // [...legacy] article route until 16 Nov 2026 (SEO_MIGRATION.md point 30).
+    // Path unchanged. It had 34 impressions and no clicks in the three months
+    // to 4 Nov, so its title could change. This is the hub for the Gulf: it
+    // lists every UAE, Saudi and Oman project and links down to the UAE and
+    // Saudi pages. Keep it last in this object: a project's country page is the
+    // first region that lists it, so UAE and Saudi projects keep their own.
+    path: "/3d-visualization-middle-east",
+    name: "Middle East",
+    city: "Dubai & Jeddah",
+    seoTitle: "3D Visualization Services in the Middle East | Mimar Studios",
+    description:
+      "3D visualization services across the Middle East: architectural rendering, animation and VR tours for GCC developers, from offices in Dubai and Jeddah.",
+    // Sheet D5 (Mimar.xlsx, "Middle East (Regional Hub)").
+    keywords: [
+      "3d visualization services middle east",
+      "3d rendering companies in middle east",
+      "architectural visualization gcc",
+      "architectural rendering middle east",
+      "3d rendering gcc",
+    ],
+    h1: "3D Visualization Services Middle East",
+    // Sheet D5: "Link to UAE and KSA sub-pages".
+    relatedRegions: ["uae", "saudiArabia"],
+    intro:
+      "Photorealistic rendering, animation and virtual tours for developers across the UAE, Saudi Arabia, Oman and the wider Gulf.",
+    projectSlugs: [
+      "karma-trinity",
+      "nana-222",
+      "amerat-park",
+      "aark-residences",
+      "amer-al-ghurair",
+      "divine-golf",
+      "divine-residencia",
+      "h-and-s",
+    ],
+    marketCopy:
+      "Across the Gulf, developments are sold, approved and funded from imagery long before they are built. Mimar Studios began as a 3D architectural visualization studio in Pakistan and now works with developers, architects and real estate teams in the UAE, Saudi Arabia and Oman from locations in Dubai and Jeddah, producing renderings, cinematics, VR tours, property explorers and 3D on plan in-house.",
+    // The six services the old page listed, one real sentence each.
+    services: [
+      {
+        title: "Renders",
+        body: "Photorealistic interior and exterior stills of a development, from the hero view for a launch to the full set for brochures and portals.",
+      },
+      {
+        title: "Cinematics",
+        body: "Walkthrough and fly-through films that show an off-plan project in motion, with its setting, amenities and homes.",
+      },
+      {
+        title: "Property Explorer",
+        body: "An interactive tool that lets buyers browse a development, its buildings and its available units on screen.",
+      },
+      {
+        title: "3D on Construction Site",
+        body: "The finished building shown on its real site, so a project under construction can be marketed as it will look.",
+      },
+      {
+        title: "VR 360 Tours",
+        body: "Virtual tours that let buyers and investors walk through a unit or an amenity before it is built, on site or from abroad.",
+      },
+      {
+        title: "3D on Plan",
+        body: "Floor plans turned into furnished 3D views, so buyers can read a layout at a glance.",
+      },
+    ],
+    // From the old page's "Why choose us" and "Our benefits", without the claims
+    // nobody can check (a guaranteed result, a reply within an hour).
+    reasons: [
+      {
+        title: "Advanced technology",
+        body: "We work with the latest 3D tools and VR/AR technology. Advanced software and innovative technology are the key to our 3D visualization and rendering services.",
+      },
+      {
+        title: "Extraordinary results",
+        body: "Whether it is rendering, cinematics, 3D on plan or VR tours, our team of 3D visual artists works to deliver the finest results for your real estate project.",
+      },
+      {
+        title: "Prompt response",
+        body: "We know how valuable your time is. Contact our team any time for a free quote and we will get back to you quickly with the information you need.",
+      },
+      {
+        title: "Professionalism",
+        body: "Let the 3D specialists at Mimar Studios handle your architectural and real estate projects with professionalism and expertise.",
+      },
+      {
+        title: "Commitment",
+        body: "We make your project stand out in a competitive market by being fully committed to it and sharing progress with honesty and integrity.",
+      },
+      {
+        title: "Affordability",
+        body: "High-quality 3D visualization at rates that make sense for developers across the Gulf, quoted per project in AED or SAR.",
+      },
+    ],
+    office: {
+      city: "Dubai",
+      country: "United Arab Emirates",
+      address: "Dubai, United Arab Emirates",
+      phone: "+971 54 146 5887",
+      geo: { latitude: 25.2048, longitude: 55.2708 },
+    },
+    // The same verified locations as the UAE and Saudi pages.
+    locations: [
+      {
+        city: "Dubai",
+        streetAddress: "WeWork, One Central, 8th & 9th Floor, The Offices 4, Dubai World Trade Centre",
+        countryCode: "AE",
+        phone: "+971 58 536 1858",
+        geo: { latitude: 25.2246, longitude: 55.2874 },
+        gbpUrl: "https://share.google/zExBKdwTHeYWP6xBc",
+      },
+      {
+        city: "Jeddah",
+        streetAddress: "Prince Sultan Branch Rd, Al-Mohammadiyah",
+        postalCode: "23625",
+        countryCode: "SA",
+        phone: "+966 59 743 9044",
+        geo: { latitude: 21.581, longitude: 39.157 },
+      },
+    ],
+    currency: "AED or SAR",
+    compliance: [
+      "Gulf working hours, with overlap into European and Asian schedules",
+      "Quotes in AED or SAR, per project",
+      "NDAs signed for unreleased developments as standard",
+    ],
+    // The Gulf clients' quotes from the old WordPress UAE page (sheet D5 asked
+    // for regional testimonials here).
+    testimonials: [
+      {
+        quote:
+          "Very satisfied with their work. mimAR has proved itself to be a reliable partner for architectural visualization services. We have worked with different companies from Dubai but none of them did the job quite as good as team mimAR did.",
+        name: "Ghiță Eder",
+        city: "Dubai",
+      },
+      {
+        quote:
+          "If you want the finest quality 3D renderings, go with mimAR because these guys really know their stuff. The deliverables were up to the mark and I was impressed with their timely response. Would strongly recommend.",
+        name: "Mehmet Demir",
+        city: "Sharjah",
+      },
+      {
+        quote:
+          "I hired mimAR for the 3D animation of our real estate project and what a splendid job they did. They were always available for any revisions and responded quickly with a better option. I can't forget to mention how reasonable their rates are. Keep up the good work guys.",
+        name: "Maya Andreson",
+        city: "Dubai",
+      },
+    ],
+    faqs: [
+      {
+        question: "Which Middle East countries do you work in?",
+        answer:
+          "Our delivered projects in the region are in the UAE (Aark Residences, Amer Al Ghurair, Divine Golf, Divine Residencia, H&S and Karma Trinity in Dubai), Saudi Arabia (NANA 222 in Riyadh) and Oman (Amerat Park in Muscat). We work with developers and architects across the GCC.",
+      },
+      {
+        question: "Do you have offices in the Middle East?",
+        answer:
+          "Yes. We have a location in Dubai at One Central, Dubai World Trade Centre, and an office in Jeddah, Saudi Arabia, alongside the studio in Islamabad.",
+      },
+      {
+        question: "How much do 3D visualization services cost in the GCC?",
+        answer:
+          "Cost depends on the number of views, the level of detail, the scale of the development and the turnaround. Pricing is quoted per project in AED or SAR. Send us your drawings and a short brief and we will return an itemised quote.",
+      },
+      {
+        question: "Which 3D visualization services do you offer in the Middle East?",
+        answer:
+          "Photorealistic renders, cinematic walkthroughs, property explorers, 3D on construction site, VR 360 tours and 3D on plan, all produced in-house for developers, architects and real estate teams in the region.",
+      },
+      {
+        question: "How quickly can you deliver a render?",
+        answer:
+          "A single still render is typically produced within 5-7 working days from approved inputs. Rush work can often be delivered in two to three working days once the greyscale stage is signed off.",
+      },
+      {
+        question: "What do you need from me to start?",
+        answer:
+          "Plans, elevations, a material direction and any useful references. If drawings are incomplete we can work from sketches and develop the detail with you during the greyscale stage.",
+      },
+    ],
+    keyFacts: [
+      "Mimar Studios provides 3D architectural visualization, rendering, animation and virtual tours to developers and architects across the Middle East.",
+      "Middle East projects delivered include six developments in Dubai, NANA 222 in Riyadh and Amerat Park in Muscat.",
+      "The studio has locations in Dubai and Jeddah, and its main studio in Islamabad, Pakistan.",
+      "A single still render is typically delivered within 5-7 working days of approved inputs.",
+      "The studio has completed 270+ projects across 14 countries since 2019.",
     ],
   },
 };
