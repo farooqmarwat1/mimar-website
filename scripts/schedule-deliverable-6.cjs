@@ -6,6 +6,9 @@
 //   node --env-file=.env.local scripts/schedule-deliverable-6.cjs            dry run: checks and prints the schedule
 //   node --env-file=.env.local scripts/schedule-deliverable-6.cjs --write    saves to Firestore (BLOG_POSTS_COLLECTION, default sitePosts)
 //
+//   node --env-file=.env.local scripts/schedule-deliverable-6.cjs --publish-due
+//                                         catch-up: publishes every scheduled article whose date has passed
+//
 // Re-running updates the same posts (matched by brief ref) and never publishes a second one the same day.
 // Every post goes through the same publish checks as the editor's Publish button.
 const fs = require('node:fs');
@@ -86,6 +89,7 @@ async function main() {
   const collection = adminDb().collection(posts.POSTS_COLLECTION);
   const now = new Date();
   const today = karachiDay(now);
+  if (process.argv.includes('--publish-due')) return publishDue({ posts, checkPost, collection, now, today });
   const dates = weekdayDates(today, ORDER.length);
   console.log(`Collection ${posts.POSTS_COLLECTION}, Pakistan date ${today}${write ? '' : ' (dry run)'}`);
 
@@ -178,6 +182,33 @@ async function main() {
   }
   console.log(write ? 'Saved.' : 'Dry run only; add --write to save.');
 }
+
+/** Catch-up for days the weekday job missed: every Deliverable 6 draft scheduled for today or earlier goes live now. */
+async function publishDue({ posts, checkPost, collection, now, today }) {
+  const due = (await posts.listScheduledDrafts()).filter((post) => post.generation?.brief?.ref?.startsWith('D6-') && post.scheduledFor <= today);
+  if (due.length === 0) return console.log('Nothing is due.');
+  const { ensureArabic } = src('lib/ai/translate-post.ts');
+  for (const post of due) {
+    const check = await checkPost({ ...post, geo: post.generation?.geo });
+    if (Object.keys(check.errors).length) {
+      console.log(`${post.generation.brief.ref} NOT published, failed checks: ${JSON.stringify(check.errors)}`);
+      continue;
+    }
+    const { id, scheduledFor, ...rest } = post;
+    await posts.savePost(id, { ...rest, status: 'published', publishedAt: now.toISOString(), updatedAt: now.toISOString(), updatedBy: `catch-up for ${scheduledFor}` });
+    let arabic;
+    try {
+      arabic = (await ensureArabic(id)).status;
+    } catch (err) {
+      arabic = `failed (${err instanceof Error ? err.message : err}); retried when the post is saved`;
+    }
+    console.log(`${post.generation.brief.ref} published (was due ${scheduledFor})  ${post.path}  Arabic: ${arabic}`);
+  }
+  // Today's slot is used, so the weekday job starts again tomorrow instead of adding a fourth post today.
+  await adminDbOf(collection).doc('siteBlogPlanner/publishing').set({ publishedDay: today, leaseUntil: 0, lastResult: { ok: true, catchUp: due.length } }, { merge: true });
+}
+
+const adminDbOf = (collection) => collection.firestore;
 
 main().then(
   () => process.exit(0),
