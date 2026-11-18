@@ -118,7 +118,7 @@ export async function POST(req: Request) {
   // TURNSTILE-DISABLED: the bot check below is switched off until the studio has
   // Cloudflare access. To switch it back on, uncomment this block, the import at
   // the top, the turnstileToken schema field, and the pieces in ContactForm.tsx,
-  // next.config.ts (CSP) and .env.example. It fails closed: no secret in
+  // next.config.mjs (CSP) and .env.example. It fails closed: no secret in
   // production, or Cloudflare unreachable, refuses the submission.
   // Bot check. Fails closed in production: with no secret configured, or with
   // Cloudflare unreachable, we refuse rather than let unchecked traffic through.

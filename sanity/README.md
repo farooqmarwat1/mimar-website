@@ -56,5 +56,5 @@ To preserve the current site's SEO equity, when migrating each page/post:
 1. Copy the existing meta title & description verbatim into `seo.metaTitle`
    / `seo.metaDescription` — don't rewrite them, they're already ranking.
 2. Set up 301 redirects from old WordPress URLs to new Next.js routes
-   (`next.config.ts` → `redirects()`) for any path that changes.
+   (`next.config.mjs` → `redirects()`) for any path that changes.
 3. Re-upload the same images with the same `alt` text where possible.
