@@ -11,9 +11,9 @@
 
 job="$1"
 case "$job" in
-  collect-ideas | generate-blog | blog-report | blog-results) ;;
+  collect-ideas | generate-blog | blog-report | blog-results | publish-scheduled) ;;
   *)
-    echo "usage: run-cron.sh collect-ideas | generate-blog | blog-report | blog-results" >&2
+    echo "usage: run-cron.sh collect-ideas | generate-blog | blog-report | blog-results | publish-scheduled" >&2
     exit 64
     ;;
 esac

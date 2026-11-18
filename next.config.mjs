@@ -119,6 +119,11 @@ const nextConfig = {
   // CSRF attempt ("Invalid Server Actions request"). Production keeps the strict
   // same-origin check, so no extra origins are trusted there.
   ...(isDev ? { allowedDevOrigins: ["**.devtunnels.ms"] } : {}),
+  // Self-hosting (Hostinger): copy the cron runner into the standalone build, where Hostinger's
+  // "Node.js" cron mode runs it with the app's env file (scripts/cron.mjs, docs/SELF_HOSTING.md).
+  outputFileTracingIncludes: {
+    "/api/cron/*": ["./scripts/cron.mjs"],
+  },
   experimental: {
     // Two root layouts (English in app/(site), Arabic in app/ar) leave no single layout to compose a
     // 404 for URLs that match no route, so src/app/global-not-found.tsx renders it (ARABIC.md).

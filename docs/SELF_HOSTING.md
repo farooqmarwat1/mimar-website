@@ -45,20 +45,29 @@ records (ARABIC.md). Without a country header nothing is redirected.
 
 ## Scheduled jobs
 
-Vercel Cron does not exist elsewhere. The four routes under `/api/cron/*` only need a request with
-`Authorization: Bearer $CRON_SECRET`; `scripts/run-cron.sh <job>` sends it. Put `CRON_SECRET` (and optionally
-`SITE_URL`) in `~/.mimar-cron.env` on the server (chmod 600), then add Hostinger cron jobs, times in UTC as in
-`vercel.json`:
+Vercel Cron does not exist elsewhere. The routes under `/api/cron/*` only need a request with
+`Authorization: Bearer $CRON_SECRET`.
 
-| Schedule | Command |
+**On Hostinger** (hPanel -> mim.archi -> Advanced -> Cron Jobs) use the **Node.js** mode. It runs
+`node --env-file=<app env file> hbuilds/current/nodejs/<path>`, so the app's own `CRON_SECRET` is loaded
+and never written in the cron command. `scripts/cron.mjs` is copied into the standalone build by
+`outputFileTracingIncludes` in `next.config.mjs`; enter `scripts/cron.mjs <job>` as the path. Custom-mode
+commands are capped at 255 characters (after escaping) and cron has no `node` on its PATH, which is why
+the runner is a file. Times are UTC, as in `vercel.json` (keep both in step;
+`tests/cron-script.test.cjs` checks the job list):
+
+| Schedule | Path in Node.js mode |
 |---|---|
-| `0 4 * * 0` | `sh /path/to/scripts/run-cron.sh collect-ideas` |
-| `0 5 * * 1,4` | `sh /path/to/scripts/run-cron.sh generate-blog` |
-| `0 6 1 * *` | `sh /path/to/scripts/run-cron.sh blog-report` |
-| `0 7 * * *` | `sh /path/to/scripts/run-cron.sh blog-results` |
+| `0 4 * * 0` (Sunday) | `scripts/cron.mjs collect-ideas` |
+| `0 5 * * 1,4` (Mon, Thu; two Hostinger jobs if the form takes one weekday) | `scripts/cron.mjs generate-blog` |
+| `0 5 * * 1-5` (Mon-Fri) | `scripts/cron.mjs publish-scheduled` |
+| `0 6 1 * *` | `scripts/cron.mjs blog-report` |
+| `0 7 * * *` | `scripts/cron.mjs blog-results` |
 
-The jobs can run up to 300 s; the script waits 330 s. The server's own proxy timeout may cut the response
-earlier, which does not stop the job.
+Each run prints one line (job, HTTP status, start of the JSON) to the job's "View Output". The jobs can
+run up to 300 s; the runner waits 330 s.
+
+Elsewhere, `scripts/run-cron.sh <job>` does the same with curl and a `~/.mimar-cron.env` file.
 
 ## Test URL
 
