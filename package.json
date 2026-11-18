@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:selfhost": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "test": "node --test tests/"

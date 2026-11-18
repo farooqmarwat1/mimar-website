@@ -21,7 +21,7 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: "Google-Extended", allow: "/", disallow: ["/admin"] },
       { userAgent: "CCBot", allow: "/", disallow: ["/admin"] },
     ],
-    // The CRM portal (a separate app proxied under /portal, see next.config.ts)
+    // The CRM portal (a separate app proxied under /portal, see next.config.mjs)
     // publishes its own sitemap; list it here so crawlers can find it.
     sitemap: [`${siteConfig.url}/sitemap.xml`, `${siteConfig.url}/portal/sitemap.xml`],
     host: siteConfig.url,

@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { AR_PREFIX, LANG_COOKIE } from "@/i18n/config";
 import { arabicLandingCountries } from "@/i18n/geo";
 import { BOT_PATTERN } from "@/lib/bots";
+import { requestCountry } from "@/lib/geo-headers";
 import { REGION_COOKIE, regionFromCountry } from "@/lib/region";
 import { withTrailingSlash, withoutTrailingSlash } from "@/lib/trailing-slash";
 
@@ -16,7 +17,7 @@ function arabicHomeRedirect(request: NextRequest) {
   if (request.cookies.has(LANG_COOKIE)) return null;
   if (BOT_PATTERN.test(request.headers.get("user-agent") ?? "")) return null;
 
-  const country = request.headers.get("x-vercel-ip-country")?.toUpperCase();
+  const country = requestCountry(request.headers);
   if (!country || !arabicLandingCountries.has(country)) return null;
 
   const referer = request.headers.get("referer");
@@ -42,7 +43,7 @@ function arabicHomeRedirect(request: NextRequest) {
  */
 function withRegionCookie(request: NextRequest, response: NextResponse) {
   const human = !BOT_PATTERN.test(request.headers.get("user-agent") ?? "");
-  const country = request.headers.get("x-vercel-ip-country");
+  const country = requestCountry(request.headers);
   if (!country && process.env.NODE_ENV !== "production") return response;
 
   const region = human ? regionFromCountry(country) : null;
@@ -74,7 +75,7 @@ function junkHomeQuery(url: URL) {
 /**
  * Jobs: (0) 410 for the junk home-page queries above, (1) the trailing slash: every page URL ends
  * in "/", like the old WordPress site, so a page path without it gets one 308 (SEO_MIGRATION.md §0.23; legacy URLs were already sent straight to
- * their final slash URL by next.config.ts redirects(), which run first), (2) the geo landing
+ * their final slash URL by next.config.mjs redirects(), which run first), (2) the geo landing
  * redirect above, (3) the region cookie, and (4) the optimistic gate for the staff portal:
  * no session cookie -> sign-in page. The portal gate is a UX redirect only. The cookie is not
  * verified here; every admin page and Server Action re-verifies it with Firebase (src/lib/admin/auth.ts).

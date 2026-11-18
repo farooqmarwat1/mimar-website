@@ -1,5 +1,20 @@
-import type { NextConfig } from "next";
-import { withTrailingSlash } from "./src/lib/trailing-slash";
+// This file is plain JavaScript on purpose. Some hosts (Hostinger shared hosting) run an operating
+// system too old for Next's native compiler, so Next falls back to its WebAssembly compiler, which
+// cannot load a TypeScript config. Build there with `npm run build:selfhost` (webpack); see
+// docs/SELF_HOSTING.md.
+
+// Copy of withTrailingSlash() from src/lib/trailing-slash.ts: a .mjs config cannot import a .ts file.
+// tests/next-config.test.cjs fails if the redirects built here ever disagree with the original.
+const NO_SLASH_PREFIX = /^\/(?:api|_next|portal|__|admin|\.well-known)(?:\/|$)/;
+function withTrailingSlash(href) {
+  if (!href.startsWith("/") || href.startsWith("//")) return href;
+  const cut = href.search(/[?#]/);
+  const path = cut === -1 ? href : href.slice(0, cut);
+  const rest = cut === -1 ? "" : href.slice(cut);
+  if (path.endsWith("/") || NO_SLASH_PREFIX.test(path)) return href;
+  if (path.slice(path.lastIndexOf("/") + 1).includes(".")) return href;
+  return `${path}/${rest}`;
+}
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -12,7 +27,7 @@ const isNonProductionDeployment = process.env.VERCEL === "1" && process.env.VERC
 // Google Tag Manager / GA4 (src/components/Analytics.tsx). The origins are only allowed when
 // an ID is set, so a build without analytics keeps the stricter policy.
 const hasGoogleTags = Boolean(process.env.NEXT_PUBLIC_GTM_ID || process.env.NEXT_PUBLIC_GA_ID);
-const googleTags = (...origins: string[]) => (hasGoogleTags ? ` ${origins.join(" ")}` : "");
+const googleTags = (...origins) => (hasGoogleTags ? ` ${origins.join(" ")}` : "");
 
 // Sanity's CDN + Studio API need explicit allowances; keep this list tight
 // and update it if new third-party origins (analytics, fonts, etc.) are added.
@@ -67,7 +82,7 @@ const legacyTours = [
   ["/ud-courtyard-type-d", "ud-courtyard/type-d"],
   ["/gardenialivings-onebed", "gardenialivings/onebed"],
   ["/gardenialivings-twobed", "gardenialivings/twobed"],
-] as const;
+];
 // Tour folders the /tours/* catch-all redirect must leave alone so their files still load.
 const servedTourFolders = [`hmr/(?:${hmrTourUnits})`, ...legacyTours.map(([, folder]) => folder)].join("|");
 
@@ -78,12 +93,13 @@ const servedTourFolders = [`hmr/(?:${hmrTourUnits})`, ...legacyTours.map(([, fol
 // down, so the routing now lives here instead - Vercel to Vercel, no Cloudflare
 // hop. Keep these paths reserved: nothing on the main site may use them.
 const portalOrigin = "https://mimar-crm-portal.vercel.app";
-const portalPathPrefixes = ["portal", "api/v1", "__/auth"] as const;
+const portalPathPrefixes = ["portal", "api/v1", "__/auth"];
 // Negative lookahead so the main site's security headers skip the portal paths.
 // `.*` can match the empty string, so "/" itself still matches this rule.
 const nonPortalPaths = `/:path((?!${portalPathPrefixes.join("|")}).*)`;
 
-const nextConfig: NextConfig = {
+/** @type {import("next").NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   // Page URLs end in a slash, exactly like the old WordPress site (/about-us/), so every URL
@@ -140,7 +156,14 @@ const nextConfig: NextConfig = {
         has: [{ type: "host", value: ".*\\.vercel\\.app" }],
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
-      // The host rule above only covers *.vercel.app. This covers the same
+      // Hostinger's free test domain (self-hosting trial before the DNS switch). A host rule, not an
+      // env flag, so nothing has to be switched off at cutover: mim.archi itself never matches.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: ".*\\.hostingersite\\.com" }],
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+      // The host rules above only cover *.vercel.app and *.hostingersite.com. This covers the same
       // deployments by environment instead, so a preview served from any other
       // hostname (a staging custom domain, a branch alias) is still noindexed.
       // Production builds are untouched, so mim.archi stays indexable.

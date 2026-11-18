@@ -101,7 +101,7 @@ sanity/                 portable schema for the headless CMS (see sanity/README.
 
 ## Security
 
-- `next.config.ts` sets CSP, `X-Frame-Options`, `X-Content-Type-Options`,
+- `next.config.mjs` sets CSP, `X-Frame-Options`, `X-Content-Type-Options`,
   `Referrer-Policy`, `Permissions-Policy`, and HSTS on every response.
 - Contact form: server-side Zod validation, honeypot field, basic in-memory
   rate limiting (swap for Upstash Redis in production — see comment in

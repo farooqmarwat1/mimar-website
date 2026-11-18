@@ -40,7 +40,7 @@ A Firebase account without a `role` claim cannot sign in to `/admin`, even if it
 
 ## Reserved paths
 
-`/portal`, `/api/v1` and `/__/auth` belong to the CRM portal (see `next.config.ts`). Nothing in this portal uses them.
+`/portal`, `/api/v1` and `/__/auth` belong to the CRM portal (see `next.config.mjs`). Nothing in this portal uses them.
 
 ## Jobs
 

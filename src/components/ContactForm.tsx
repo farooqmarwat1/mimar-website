@@ -9,7 +9,7 @@ import type { Dictionary } from "@/i18n/dictionaries";
 
 // TURNSTILE-DISABLED (no Cloudflare access yet). To switch the "I'm human" checkbox back on,
 // uncomment every line marked TURNSTILE-DISABLED in this file, plus the matching
-// code in src/app/api/contact/route.ts, next.config.ts and .env.example.
+// code in src/app/api/contact/route.ts, next.config.mjs and .env.example.
 // Public key of the Cloudflare Turnstile widget (inlined at build time). When
 // it is unset - e.g. local development without keys - the checkbox is skipped.
 // const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || null;
