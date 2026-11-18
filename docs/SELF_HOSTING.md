@@ -13,9 +13,11 @@ cannot load a TypeScript config. The first deploy failed with `ERR_MODULE_NOT_FO
 - The config is plain JavaScript. It keeps its own copy of `withTrailingSlash()`
   (`src/lib/trailing-slash.ts` is the original). `tests/next-config.test.cjs` checks every redirect built by the
   config against the original, so the two cannot drift.
-- Vercel is unaffected: `npm run build` is still `next build` (Turbopack).
-- On Hostinger set the build command to `npm run build:selfhost` (`next build --webpack`). The WebAssembly
-  compiler does not support Turbopack.
+- The WebAssembly compiler does not support Turbopack, so those servers need `next build --webpack`. Hostinger's
+  Web App only offers "npm run build" as the build command, so `npm run build` is `node scripts/build.mjs`: it reads
+  the glibc version and adds `--webpack` below 2.29, and runs plain `next build` everywhere else (Vercel, macOS,
+  Windows). `NEXT_BUILD_WEBPACK=1` / `=0` forces it either way; `node scripts/build.mjs --print` shows the
+  command. `npm run build:selfhost` always uses webpack.
 
 If Hostinger's build still fails, the options are building elsewhere and uploading the output, a VPS (modern
 OS), or Vercel Pro.
@@ -23,7 +25,7 @@ OS), or Vercel Pro.
 ## Settings in the Hostinger Web App
 
 - Framework Next.js, Node 22.x, branch `main` (or the branch under test), root `./`, npm.
-- Build command `npm run build:selfhost`, output directory `.next`, start `npm start`.
+- Build command `npm run build` (the only choice; it picks webpack by itself), output directory `.next`.
 - Environment variables are set in the Hostinger panel, never in git. Names are in `.env.example`; the ones
   Vercel has in production are: `GSC_SITE_URL`, `NEXT_PUBLIC_GTM_ID`, `VISITOR_HASH_SECRET`,
   `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`,

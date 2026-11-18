@@ -54,8 +54,17 @@ test('trailing-slash settings and the noindex rule for the Hostinger test domain
   }
 });
 
-test('the self-hosting build script uses webpack', () => {
+test('npm run build picks webpack only where Next\'s native compiler cannot run', async () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+  assert.equal(pkg.scripts.build, 'node scripts/build.mjs', 'Hostinger only offers "npm run build"');
   assert.equal(pkg.scripts['build:selfhost'], 'next build --webpack');
-  assert.equal(pkg.scripts.build, 'next build', 'the Vercel build stays on the default bundler');
+  const { needsWebpack } = await import(pathToFileURL(path.join(root, 'scripts', 'build.mjs')).href);
+  assert.equal(needsWebpack({}, '2.28'), true, 'Hostinger (glibc 2.28)');
+  assert.equal(needsWebpack({}, '2.17'), true);
+  assert.equal(needsWebpack({}, '2.29'), false);
+  assert.equal(needsWebpack({}, '2.35'), false, 'Vercel and current Linux');
+  assert.equal(needsWebpack({}, '3.0'), false);
+  assert.equal(needsWebpack({}, null), false, 'macOS, Windows, musl');
+  assert.equal(needsWebpack({ NEXT_BUILD_WEBPACK: '1' }, '2.35'), true);
+  assert.equal(needsWebpack({ NEXT_BUILD_WEBPACK: '0' }, '2.17'), false);
 });
