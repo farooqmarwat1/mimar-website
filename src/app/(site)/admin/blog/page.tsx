@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { categorizeLegacyAction, deletePostAction, importLegacyAction, setPostStatusAction } from "@/app/(site)/admin/blog/actions";
+import { categorizeLegacyAction, deletePostAction, importLegacyAction, setPostStatusAction, unschedulePostAction } from "@/app/(site)/admin/blog/actions";
 import ConfirmButton from "@/components/admin/ConfirmButton";
 import { fieldClass, primaryButtonClass, secondaryButtonClass, statusBadgeClass } from "@/components/admin/styles";
 import { requireRole } from "@/lib/admin/auth";
@@ -56,8 +56,21 @@ function Row({ post }: { post: PostRow }) {
       >
         {post.arState === "none" ? "No AR" : "AR"}
       </span>
+      {post.status === "draft" && post.scheduledFor && (
+        <span title="Publishes itself on this weekday (Pakistan time), or the next weekday the job runs. Unschedule to stop it." className="rounded-full bg-teal-50 px-3 py-1 text-xs font-medium text-teal-800">
+          Scheduled {post.scheduledFor}
+        </span>
+      )}
       <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusBadgeClass[post.status] ?? ""}`}>{post.status}</span>
       <div className="flex flex-wrap items-center gap-5">
+        {post.status === "draft" && post.scheduledFor && (
+          <form action={unschedulePostAction}>
+            <input type="hidden" name="id" value={post.id} />
+            <button type="submit" className="text-xs uppercase tracking-[0.14em] text-muted hover:text-accent">
+              Unschedule
+            </button>
+          </form>
+        )}
         <Link href={`/admin/blog/${post.id}`} className="text-xs uppercase tracking-[0.14em] hover:text-accent">
           {post.status === "draft" ? "Review" : "Edit"}
         </Link>

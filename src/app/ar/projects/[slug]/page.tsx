@@ -23,6 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: story?.seo.description ?? project.summary,
     path: `/projects/${project.slug}`,
     locale: "ar",
+    keywords: story?.seo.keywords,
     ogImage: project.cover,
   });
 }

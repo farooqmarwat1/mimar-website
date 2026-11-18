@@ -1,4 +1,4 @@
-import { DESCRIPTION_LENGTH, mentionsKeyword } from "@/lib/ai/seo-checks";
+import { DESCRIPTION_LENGTH, mentionsPlace } from "@/lib/ai/seo-checks";
 import { titleSimilarity } from "@/lib/ai/similarity";
 
 /**
@@ -104,15 +104,16 @@ export function briefProblems(brief: BlogBrief, categories: string[]): string[] 
   const { keyword } = brief;
   if (brief.title.length < 12 || brief.title.length > 120) problems.push("The title needs 12-120 characters.");
   if (wordCount(keyword) < 2 || wordCount(keyword) > 6) problems.push("The primary keyword needs 2-6 words.");
-  else if (!mentionsKeyword(brief.title, keyword)) problems.push(`The title must contain the primary keyword "${keyword}".`);
+  // The article gates want the keyword word for word (editorial-policy.ts), so "in Dubai" must be in it if the title says so.
+  else if (!mentionsPlace(brief.title, keyword)) problems.push(`The title must contain the primary keyword "${keyword}" word for word.`);
   if (brief.seoTitle) {
     if (brief.seoTitle.length < 50 || brief.seoTitle.length > 60) problems.push(`The SEO title is ${brief.seoTitle.length} characters; it needs 50-60.`);
-    if (keyword && !mentionsKeyword(brief.seoTitle, keyword)) problems.push("The SEO title must contain the primary keyword.");
+    if (keyword && !mentionsPlace(brief.seoTitle, keyword)) problems.push("The SEO title must contain the primary keyword word for word.");
   }
   if (brief.description) {
     const length = brief.description.length;
     if (length < DESCRIPTION_LENGTH.min || length > DESCRIPTION_LENGTH.max) problems.push(`The meta description is ${length} characters; it needs ${DESCRIPTION_LENGTH.min}-${DESCRIPTION_LENGTH.max}.`);
-    if (keyword && !mentionsKeyword(brief.description, keyword)) problems.push("The meta description must contain the primary keyword.");
+    if (keyword && !mentionsPlace(brief.description, keyword)) problems.push("The meta description must contain the primary keyword word for word.");
   }
   if (brief.outline.filter((heading) => heading.level === 2).length < 3) problems.push("The outline needs at least 3 sections (H2).");
   if (!brief.ctaPath.startsWith("/") || brief.ctaPath.startsWith("//") || /\s/.test(brief.ctaPath)) problems.push("The call-to-action link must be a path on our site, such as /3d-visualization-usa.");
