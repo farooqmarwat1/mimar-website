@@ -7,6 +7,7 @@ import { titleSimilarity } from "@/lib/ai/similarity";
 import { getBlogEntries } from "@/lib/blog-store";
 import { addPriorityTopic, listTopics } from "@/lib/generation";
 import { blogCategories } from "@/lib/legacy-seo";
+import { briefRefsWithPosts } from "@/lib/posts";
 
 /**
  * Queues SEO briefs (blog-brief.ts) ahead of the automatic topics. Each becomes a priority topic
@@ -24,7 +25,7 @@ export type QueueResult = { queued: string[]; skipped: { title: string; reason: 
 
 export async function queueBriefs(input: Record<string, unknown>[]): Promise<QueueResult> {
   const categories = blogCategories.map((category) => category.slug);
-  const [topics, articles] = await Promise.all([listTopics(), getBlogEntries()]);
+  const [topics, articles, written] = await Promise.all([listTopics(), getBlogEntries(), briefRefsWithPosts()]);
   const live = topics.filter((topic) => topic.status !== "failed");
   const result: QueueResult = { queued: [], skipped: [] };
 
@@ -34,6 +35,10 @@ export async function queueBriefs(input: Record<string, unknown>[]): Promise<Que
     const problems = briefProblems(brief, categories);
     if (problems.length) {
       result.skipped.push({ title: label, reason: problems.join(" ") });
+      continue;
+    }
+    if (brief.ref && written.has(brief.ref)) {
+      result.skipped.push({ title: label, reason: "Already has a post (a draft, scheduled or published)." });
       continue;
     }
     if (live.some((topic) => (brief.ref && topic.brief?.ref === brief.ref) || topic.topic.toLowerCase() === brief.title.toLowerCase())) {
