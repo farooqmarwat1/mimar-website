@@ -100,6 +100,22 @@ test('search-result text keeps to the lengths Google shows, and names the projec
   }
 });
 
+test('every story has its own meta keywords, in the page language, without claims', () => {
+  for (const project of projects) {
+    for (const lang of langs) {
+      const { keywords } = getProjectStory(project.slug, lang).seo;
+      const where = `${project.slug} (${lang})`;
+      assert.ok(keywords.length >= 3 && keywords.length <= 6, `${where} has ${keywords.length} keywords`);
+      assert.equal(new Set(keywords).size, keywords.length, `${where} keywords are not repeated`);
+      for (const keyword of keywords) {
+        assert.equal(keyword, keyword.trim(), `${where} "${keyword}" has no stray spaces`);
+        assert.ok(lang === 'ar' ? arabic.test(keyword) : !arabic.test(keyword), `${where} "${keyword}" is in the page language`);
+        assert.ok(!/\b(best|award-winning|leading)\b|أفضل/i.test(keyword), `${where} "${keyword}" is not a claim`);
+      }
+    }
+  }
+});
+
 test('the copy makes no unprovable claims', () => {
   for (const project of projects) {
     const en = getProjectStory(project.slug, 'en');
