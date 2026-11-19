@@ -17,7 +17,7 @@ import { localeHref } from "@/i18n/config";
 // Open careers pages and blog articles come from Firestore; admin edits refresh this immediately, hourly is the safety net.
 export const revalidate = 3600;
 
-// Other restored Pano2VR tours (see legacyTours in next.config.ts).
+// Other restored Pano2VR tours (see legacyTours in next.config.mjs).
 const legacyTourPaths = [
   "/tours/aurumone/2-bed-apartment",
   "/tours/aurumone/3-bed-apartment",
@@ -51,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: siteUrl("/meta/app/edtech"), changeFrequency: "yearly", priority: 0.4 },
     { url: siteUrl("/visualization-proposal"), changeFrequency: "yearly", priority: 0.4 },
     { url: siteUrl("/my-bookings"), changeFrequency: "yearly", priority: 0.3 },
-    // HMR 360 tours served from public/tours/hmr (see rewrites in next.config.ts).
+    // HMR 360 tours served from public/tours/hmr (see rewrites in next.config.mjs).
     ...["one-bedroom", "two-bedroom", "three-bedroom", "four-bedroom", "penthouse", "townhouse"].map((unit) => ({
       url: siteUrl(`/tours/hmr/${unit}`),
       changeFrequency: "yearly" as const,

@@ -4,6 +4,7 @@ import { isIP } from "node:net";
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb, isFirebaseConfigured } from "@/lib/firebase/admin";
 import { isNonVisitor } from "@/lib/bots";
+import { cloudflareClientIp, requestCountry } from "@/lib/geo-headers";
 import { CHANNEL_LABELS, type Channel } from "@/lib/lead-constants";
 
 /**
@@ -113,6 +114,7 @@ export function visitorHash(ip: string, userAgent: string, day: string, secret: 
 export function clientIp(headers: Headers): string | null {
   const candidates = [
     headers.get("x-vercel-forwarded-for"),
+    cloudflareClientIp(headers),
     headers.get("x-real-ip"),
     headers.get("x-forwarded-for")?.split(",")[0],
   ];
@@ -170,12 +172,12 @@ export function parseUserAgent(ua: string): { browser: string; os: string; devic
 /** Everything the server learns from a request itself: address, edge geography, language, device. */
 export function describeRequest(headers: Headers): RequestInfo {
   const userAgent = clean(headers.get("user-agent"), 200) ?? "";
-  const country = headers.get("x-vercel-ip-country")?.trim().toUpperCase();
+  const country = requestCountry(headers);
   return {
     ip: clientIp(headers),
     userAgent,
     lang: headers.get("accept-language")?.match(/^[a-z]{2,3}(-[a-z0-9]{2,8})?/i)?.[0]?.toLowerCase(),
-    country: country && /^[A-Z]{2}$/.test(country) ? country : undefined,
+    country: country ?? undefined,
     region: clean(headers.get("x-vercel-ip-country-region"), 10),
     city: decodeHeader(headers.get("x-vercel-ip-city")),
     ...parseUserAgent(userAgent),

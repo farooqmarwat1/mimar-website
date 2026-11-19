@@ -7,7 +7,7 @@ import { getLeadBadgeCounts } from "@/lib/leads";
 // Per-user pages: always rendered per request, never prerendered at build.
 export const dynamic = "force-dynamic";
 
-// The staff portal must never be indexed or cached. next.config.ts also sends
+// The staff portal must never be indexed or cached. next.config.mjs also sends
 // X-Robots-Tag + no-store for /admin/*; this is the in-document backstop.
 export const metadata: Metadata = {
   title: "Staff portal | Mimar Studios",

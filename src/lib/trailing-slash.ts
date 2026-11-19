@@ -1,7 +1,7 @@
 /**
  * Page URLs end in a slash, like the old WordPress site (/about-us/), so every URL Google
  * already knows keeps working as-is (SEO_MIGRATION.md §0.23). This file has no imports so
- * next.config.ts, the proxy and client components can all use it.
+ * next.config.mjs, the proxy and client components can all use it.
  */
 
 /**

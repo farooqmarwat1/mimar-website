@@ -7,7 +7,7 @@ import { legacyCategories, legacyCategoryPath } from "@/lib/legacy-categories";
 import { breadcrumbJsonLd, buildMetadata, itemListJsonLd, jsonLdScript } from "@/lib/seo";
 
 // Old WordPress category archives (/category/metaverse, /category/vr-real-estate)
-// kept at their own URLs. Other /category/* URLs are redirects in next.config.ts.
+// kept at their own URLs. Other /category/* URLs are redirects in next.config.mjs.
 export const dynamicParams = false;
 
 // Follows the article store: an article unpublished or deleted in /admin drops out of the list.

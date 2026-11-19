@@ -137,7 +137,7 @@ export const architecturalSubServices: Record<string, ArchitecturalSubService> =
     // Reuses the same old-site renders already downloaded for the Urban Planning page.
     hero: "/services/architectural-design/urban-planning/street.webp",
     // Not nested under smart-topography-survey/ - that path is shadowed by
-    // next.config.ts's redirect for the not-yet-restored sample-spatial-data page.
+    // next.config.mjs's redirect for the not-yet-restored sample-spatial-data page.
     introImage: "/services/architectural-design/topography-survey/intro.webp",
     process: [
       { step: "Site Reconnaissance", items: "Defining project boundaries and establishing high-precision ground control points (GCPs) to ensure absolute geodetic accuracy across the entire site." },
