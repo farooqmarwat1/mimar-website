@@ -195,8 +195,10 @@ export const siteJsonLd = {
       // Social profiles, then the verified Google Business Profiles. Every link
       // below was opened and confirmed to reach the right listing on 21 Oct
       // 2026 - share.google answers 200 for a dead link too, serving an error
-      // page, so a status code proves nothing on its own. Dallas is absent
-      // deliberately: no working link for it has been supplied yet.
+      // page, so a status code proves nothing on its own. These are the nine
+      // profiles in the owner's "GMB Profiles" table (19 Oct 2026), rechecked on
+      // 18 Nov 2026. Dallas uses the maps CID of its listing (its short link,
+      // share.google/jSDGno9nMBsVlILqY, reaches the same profile).
       sameAs: [
         "https://www.linkedin.com/company/mimar-studios",
         "https://www.behance.net/mimARstudios",
@@ -211,7 +213,7 @@ export const siteJsonLd = {
         "https://maps.app.goo.gl/rQE1yMo767ZwhQLK8", // Austin
         "https://share.google/52xpHYZjQEjnqvTFh", // Istanbul
       ],
-      areaServed: ["Saudi Arabia", "United Arab Emirates", "Pakistan", "United States", "Worldwide"],
+      areaServed: ["Saudi Arabia", "United Arab Emirates", "Pakistan", "United States", "Turkey", "Worldwide"],
       contactPoint: [
         { "@type": "ContactPoint", telephone: "+966-59-743-9044", contactType: "customer service", areaServed: "SA" },
         { "@type": "ContactPoint", telephone: "+971-54-146-5887", contactType: "customer service", areaServed: "AE" },
@@ -253,12 +255,39 @@ export const siteJsonLd = {
       url: "https://mim.archi/",
       telephone: "+923005112990",
       priceRange: "$$$",
+      hasMap: "https://share.google/9UmptDgeq3JNUfBZW",
+      sameAs: ["https://share.google/9UmptDgeq3JNUfBZW"],
       address: {
         "@type": "PostalAddress",
-        streetAddress: "mimAR Studio, (NSTP) NUST, H-12",
+        // As on the verified Business Profile and the Pakistan page (src/lib/regions.ts), so the
+        // name, address and phone match everywhere Google reads them.
+        streetAddress: "1403, National Science & Technology Park (NSTP), NUST, H-12",
         addressLocality: "Islamabad",
         postalCode: "44000",
         addressCountry: "PK",
+      },
+      parentOrganization: { "@id": "https://mim.archi/#organization" },
+    },
+    // Verified Business Profile in Istanbul (owner's GMB table, 19 Oct 2026). Address as shown on the
+    // profile on 19 Nov 2026; the profile has no phone number, so none is marked up (never invent one).
+    // Dubai and the US profiles are marked up with their full addresses on their region pages
+    // (src/lib/regions.ts).
+    {
+      "@type": "LocalBusiness",
+      "@id": "https://mim.archi/#localbusiness-istanbul",
+      name: "Mimar Studios - Istanbul",
+      image: "https://mim.archi/logo.png",
+      url: "https://mim.archi/",
+      priceRange: "$$$",
+      hasMap: "https://share.google/52xpHYZjQEjnqvTFh",
+      sameAs: ["https://share.google/52xpHYZjQEjnqvTFh"],
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "Levent, Büyükdere Cd. No:193",
+        addressLocality: "Beşiktaş",
+        addressRegion: "İstanbul",
+        postalCode: "34394",
+        addressCountry: "TR",
       },
       parentOrganization: { "@id": "https://mim.archi/#organization" },
     },
