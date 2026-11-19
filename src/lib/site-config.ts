@@ -15,7 +15,7 @@ export const siteConfig = {
   // (USA + Home CTR plan, 19 Nov 2026): leads with the non-branded queries the home page shows for but
   // gets no clicks on ("3d architectural rendering outsource", "3d rendering services", "architectural
   // visualization services") and ends on a quote CTA. Replaced the D8 title "3D Architecture Firm &
-  // Rendering Studio | Mimar Studios" (SEO_MIGRATION.md points 28 and 31).
+  // Rendering Studio | Mimar Studios" (SEO_MIGRATION.md points 28 and 32).
   title: "3D Architectural Rendering & Visualization | Mimar Studios",
   description:
     "Outsource photorealistic 3D architectural rendering, exterior & interior visualization, and VR tours. Trusted by global developers. Request a quote today!",

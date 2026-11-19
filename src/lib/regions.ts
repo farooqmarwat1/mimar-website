@@ -269,7 +269,7 @@ export const regions: Record<string, Region> = {
     name: "USA",
     city: "Miami",
     // Title, description and H1 from Deliverable 4 (19 Nov 2026, SEO_MIGRATION.md
-    // point 31): the page sat at position 52.7 with 0 clicks in 12 months while
+    // point 32): the page sat at position 52.7 with 0 clicks in 12 months while
     // US city queries landed on the home page instead.
     seoTitle: "3D Architectural Rendering Services USA | Mimar Studios",
     description:

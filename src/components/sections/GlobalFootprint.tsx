@@ -7,7 +7,7 @@ import { regions } from "@/lib/regions";
  * Home page "Global footprint": crawlable, descriptive links from the home page
  * (the site's strongest page) down to the market pages.
  *
- * Added for Deliverable 4 (19 Nov 2026, SEO_MIGRATION.md point 31): US city and
+ * Added for Deliverable 4 (19 Nov 2026, SEO_MIGRATION.md point 32): US city and
  * outsourcing queries were landing on the home page while the USA page sat at
  * position 52.7 with almost no internal links. The two US anchors are the
  * consultant's ("3D architectural rendering services in the USA", "Outsource 3D

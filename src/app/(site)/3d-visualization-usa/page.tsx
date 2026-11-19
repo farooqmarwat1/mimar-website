@@ -22,7 +22,7 @@ const region = regions.usa;
  *
  * Deliverable 4 (19 Nov 2026): new title, description and H1, a city hub
  * section (San Francisco, Dallas, New York, Miami, Los Angeles, Houston) and an
- * outsourcing FAQ; the home page now links here (SEO_MIGRATION.md point 31).
+ * outsourcing FAQ; the home page now links here (SEO_MIGRATION.md point 32).
  */
 export const metadata: Metadata = buildMetadata({
   title: region.seoTitle,

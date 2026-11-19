@@ -80,7 +80,7 @@ export default function Hero({ lang = "en" }: { lang?: Locale }) {
         {/* The H1 must carry real text, not only an image alt (SEO review 4 Nov 2026: crawlers and audit tools
             read it as empty). The "MIMAR STUDIOS" wordmark image is decorative here: in English the studio name
             it shows is repeated as screen-reader text, in Arabic it is the visible line under it. The English
-            tagline line is the H1 from Deliverable 4 (19 Nov 2026, SEO_MIGRATION.md point 31); it replaced the
+            tagline line is the H1 from Deliverable 4 (19 Nov 2026, SEO_MIGRATION.md point 32); it replaced the
             old site's "3d Architecture Firm". Same text for every visitor and bot. */}
         <h1 className={lang === "ar" ? "flex w-full flex-col items-center gap-4 md:gap-5" : "flex w-full flex-col items-center gap-3 md:gap-4"}>
           <Image
