@@ -192,7 +192,11 @@ export const siteJsonLd = {
       email: "info@mim.archi",
       description:
         "Mimar Studios is an international architecture and 3D visualization studio offering 3D rendering, animation, VR tours, and digital property experiences.",
-      // Social profiles, then the verified Google Business Profiles. Every link
+      // Social profiles (the same ones the footer links to, `social` in site-config -
+      // tests/region-entity-schema.test.cjs keeps the two in step;
+      // checked 19 Nov 2026; the old linkedin.com/company/mimar-studios had no
+      // trace on Google and pinterest.com/mimarstudios ended on Pinterest's error
+      // page, so both were dropped), then the verified Google Business Profiles. Every link
       // below was opened and confirmed to reach the right listing on 21 Oct
       // 2026 - share.google answers 200 for a dead link too, serving an error
       // page, so a status code proves nothing on its own. These are the nine
@@ -200,9 +204,13 @@ export const siteJsonLd = {
       // 18 Nov 2026. Dallas uses the maps CID of its listing (its short link,
       // share.google/jSDGno9nMBsVlILqY, reaches the same profile).
       sameAs: [
-        "https://www.linkedin.com/company/mimar-studios",
-        "https://www.behance.net/mimARstudios",
-        "https://www.pinterest.com/mimarstudios",
+        "https://www.linkedin.com/company/360mimar",
+        "https://www.instagram.com/360mimar/",
+        "https://www.facebook.com/360mimar",
+        "https://www.youtube.com/@360mimar",
+        "https://www.pinterest.com/360mimar/",
+        "https://www.behance.net/mimarchi",
+        "https://www.behance.net/mimARstudios", // the studio's second Behance account
         "https://share.google/9UmptDgeq3JNUfBZW", // Islamabad
         "https://share.google/zExBKdwTHeYWP6xBc", // Dubai
         "https://share.google/1moaNAdc6IN5roHSm", // New York
@@ -215,10 +223,16 @@ export const siteJsonLd = {
       ],
       areaServed: ["Saudi Arabia", "United Arab Emirates", "Pakistan", "United States", "Turkey", "Worldwide"],
       contactPoint: [
-        { "@type": "ContactPoint", telephone: "+966-59-743-9044", contactType: "customer service", areaServed: "SA" },
-        { "@type": "ContactPoint", telephone: "+971-54-146-5887", contactType: "customer service", areaServed: "AE" },
-        { "@type": "ContactPoint", telephone: "+92-300-511-2990", contactType: "customer service", areaServed: "PK" },
-        { "@type": "ContactPoint", telephone: "+1-786-761-9866", contactType: "customer service", areaServed: "US" },
+        { "@type": "ContactPoint", telephone: "+966-59-743-9044", contactType: "customer service", areaServed: "SA", availableLanguage: ["Arabic", "English"] },
+        { "@type": "ContactPoint", telephone: "+971-54-146-5887", contactType: "customer service", areaServed: "AE", availableLanguage: ["English", "Arabic"] },
+        { "@type": "ContactPoint", telephone: "+92-300-511-2990", contactType: "customer service", areaServed: "PK", availableLanguage: ["English", "Urdu"] },
+        { "@type": "ContactPoint", telephone: "+1-786-761-9866", contactType: "customer service", areaServed: "US", availableLanguage: ["English"] },
+      ],
+      // The three branches marked up below, so the offices hang off the brand.
+      department: [
+        { "@id": "https://mim.archi/#localbusiness-islamabad" },
+        { "@id": "https://mim.archi/#localbusiness-jeddah" },
+        { "@id": "https://mim.archi/#localbusiness-istanbul" },
       ],
     },
     {
@@ -259,9 +273,9 @@ export const siteJsonLd = {
       sameAs: ["https://share.google/9UmptDgeq3JNUfBZW"],
       address: {
         "@type": "PostalAddress",
-        // As on the verified Business Profile and the Pakistan page (src/lib/regions.ts), so the
-        // name, address and phone match everywhere Google reads them.
-        streetAddress: "1403, National Science & Technology Park (NSTP), NUST, H-12",
+        // Suite 3407 (owner confirmed 19 Nov 2026), as in site-config and on the Pakistan page
+        // (src/lib/regions.ts). The Business Profile said 1403 that day; it is being corrected.
+        streetAddress: "3407, National Science & Technology Park (NSTP), NUST, H-12",
         addressLocality: "Islamabad",
         postalCode: "44000",
         addressCountry: "PK",
