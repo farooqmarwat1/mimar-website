@@ -11,7 +11,8 @@ import { listPostRows, type PostRow } from "@/lib/posts";
 
 const FILTERS = [
   { key: "all", label: "All" },
-  { key: "draft", label: "Drafts" },
+  { key: "draft", label: "Waiting for approval" },
+  { key: "scheduled", label: "Publishes automatically" },
   { key: "published", label: "Published" },
   { key: "imported", label: "Imported from WordPress" },
   { key: "ai", label: "Written by AI" },
@@ -19,14 +20,19 @@ const FILTERS = [
 type FilterKey = (typeof FILTERS)[number]["key"];
 
 function matches(post: PostRow, filter: FilterKey) {
-  if (filter === "draft") return post.status === "draft";
+  if (filter === "draft") return post.status === "draft" && !post.scheduledFor;
+  if (filter === "scheduled") return post.status === "draft" && Boolean(post.scheduledFor);
   if (filter === "published") return post.status === "published";
   if (filter === "imported") return Boolean(post.legacy);
   if (filter === "ai") return post.origin === "ai";
   return true;
 }
 
+/** "Fri 20 Nov": the weekday matters, since the job only runs Monday to Friday. */
+const scheduleDay = (date: string) => new Date(`${date}T12:00:00Z`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+
 function Row({ post }: { post: PostRow }) {
+  const scheduled = post.status === "draft" && Boolean(post.scheduledFor);
   const unpublishNote = `Unpublish "${post.title}"? ${post.path} will stop working (404) and it disappears from the blog, the sitemap and search results until you publish it again.`;
   return (
     <li className="flex flex-wrap items-center gap-x-5 gap-y-3 p-5">
@@ -39,7 +45,9 @@ function Row({ post }: { post: PostRow }) {
         </p>
       </div>
       {post.legacy && <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800">WordPress</span>}
-      {post.origin === "ai" && <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-800">AI draft</span>}
+      {post.origin === "ai" && (
+        <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-800">{post.status === "draft" && !scheduled ? "AI draft" : "Written by AI"}</span>
+      )}
       {post.origin === "ai" && approachInfo(post.approach) && (
         <span title={`Approach: ${approachInfo(post.approach)!.description}`} className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-800">
           {approachInfo(post.approach)!.label}
@@ -56,14 +64,15 @@ function Row({ post }: { post: PostRow }) {
       >
         {post.arState === "none" ? "No AR" : "AR"}
       </span>
-      {post.status === "draft" && post.scheduledFor && (
-        <span title="Publishes itself on this weekday (Pakistan time), or the next weekday the job runs. Unschedule to stop it." className="rounded-full bg-teal-50 px-3 py-1 text-xs font-medium text-teal-800">
-          Scheduled {post.scheduledFor}
+      {scheduled ? (
+        <span title="No approval needed: it goes live by itself at 10 AM Pakistan time on this weekday, with its Arabic version. Unschedule to stop it." className="rounded-full bg-teal-50 px-3 py-1 text-xs font-medium text-teal-800">
+          Publishes automatically {scheduleDay(post.scheduledFor!)}
         </span>
+      ) : (
+        <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusBadgeClass[post.status] ?? ""}`}>{post.status}</span>
       )}
-      <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusBadgeClass[post.status] ?? ""}`}>{post.status}</span>
       <div className="flex flex-wrap items-center gap-5">
-        {post.status === "draft" && post.scheduledFor && (
+        {scheduled && (
           <form action={unschedulePostAction}>
             <input type="hidden" name="id" value={post.id} />
             <button type="submit" className="text-xs uppercase tracking-[0.14em] text-muted hover:text-accent">
@@ -72,7 +81,7 @@ function Row({ post }: { post: PostRow }) {
           </form>
         )}
         <Link href={`/admin/blog/${post.id}`} className="text-xs uppercase tracking-[0.14em] hover:text-accent">
-          {post.status === "draft" ? "Review" : "Edit"}
+          {post.status === "draft" && !scheduled ? "Review" : "Edit"}
         </Link>
         <form action={setPostStatusAction}>
           <input type="hidden" name="id" value={post.id} />
@@ -83,7 +92,7 @@ function Row({ post }: { post: PostRow }) {
             </ConfirmButton>
           ) : (
             <button type="submit" className="text-xs uppercase tracking-[0.14em] text-accent hover:underline">
-              Publish
+              {scheduled ? "Publish now" : "Publish"}
             </button>
           )}
         </form>
@@ -119,7 +128,8 @@ export default async function AdminBlogPage({ searchParams }: { searchParams: Pr
   const visible = posts.filter(
     (post) => matches(post, filter) && (!approach || (post.origin === "ai" && post.approach === approach)) && (!needle || `${post.title} ${post.path}`.toLowerCase().includes(needle)),
   );
-  const drafts = visible.filter((post) => post.status === "draft");
+  const scheduled = visible.filter((post) => post.status === "draft" && post.scheduledFor).sort((a, b) => a.scheduledFor!.localeCompare(b.scheduledFor!));
+  const drafts = visible.filter((post) => post.status === "draft" && !post.scheduledFor);
   const published = visible.filter((post) => post.status === "published");
   const count = (key: FilterKey) => posts.filter((post) => matches(post, key)).length;
 
@@ -236,9 +246,20 @@ export default async function AdminBlogPage({ searchParams }: { searchParams: Pr
         </p>
       )}
 
+      {scheduled.length > 0 && (
+        <>
+          <h2 className="eyebrow mb-1 mt-10 text-muted">Publishes automatically ({scheduled.length})</h2>
+          <p className="mb-3 text-xs text-muted">No approval needed. One goes live each weekday at 10 AM Pakistan time, with its Arabic version, and the blog team is emailed the link.</p>
+          <ul className="divide-y divide-line rounded-2xl border border-line bg-white">
+            {scheduled.map((post) => (
+              <Row key={post.id} post={post} />
+            ))}
+          </ul>
+        </>
+      )}
       {drafts.length > 0 && (
         <>
-          <h2 className="eyebrow mb-3 mt-10 text-muted">Drafts waiting ({drafts.length})</h2>
+          <h2 className="eyebrow mb-3 mt-10 text-muted">Waiting for approval ({drafts.length})</h2>
           <ul className="divide-y divide-line rounded-2xl border border-line bg-white">
             {drafts.map((post) => (
               <Row key={post.id} post={post} />

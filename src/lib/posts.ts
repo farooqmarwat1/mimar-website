@@ -249,9 +249,16 @@ export async function listScheduledDrafts(): Promise<Post[]> {
     .sort((a, b) => a.scheduledFor!.localeCompare(b.scheduledFor!) || a.updatedAt.localeCompare(b.updatedAt));
 }
 
+/** Drafts waiting for a person to approve them. Scheduled drafts publish themselves, so they are not counted. */
 export async function countDrafts(): Promise<number> {
-  const snap = await adminDb().collection(POSTS_COLLECTION).where("status", "==", "draft").select("status").get();
-  return snap.size;
+  const snap = await adminDb().collection(POSTS_COLLECTION).where("status", "==", "draft").select("scheduledFor").get();
+  return snap.docs.filter((doc) => !doc.get("scheduledFor")).length;
+}
+
+/** Drafts that will publish themselves on their weekday. */
+export async function countScheduled(): Promise<number> {
+  const snap = await adminDb().collection(POSTS_COLLECTION).where("status", "==", "draft").select("scheduledFor").get();
+  return snap.docs.filter((doc) => doc.get("scheduledFor")).length;
 }
 
 export async function savePost(id: string | null, data: Omit<Post, "id"> & { id?: string }): Promise<string> {

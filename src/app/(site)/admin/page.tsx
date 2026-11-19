@@ -4,14 +4,14 @@ import { canAccess, requireRole } from "@/lib/admin/auth";
 import { isFirebaseConfigured } from "@/lib/firebase/admin";
 import { getLeadBadgeCounts } from "@/lib/leads";
 import { countNewApplications } from "@/lib/applications";
-import { countDrafts } from "@/lib/posts";
+import { countDrafts, countScheduled } from "@/lib/posts";
 
 export default async function AdminDashboardPage({ searchParams }: { searchParams: Promise<{ forbidden?: string }> }) {
   const session = await requireRole();
   const { forbidden } = await searchParams;
   // Drafts (AI-written or by hand) that nobody has approved yet.
-  const waiting =
-    canAccess(session.role, "blog") && isFirebaseConfigured ? await countDrafts() : 0;
+  const [waiting, scheduled] =
+    canAccess(session.role, "blog") && isFirebaseConfigured ? await Promise.all([countDrafts(), countScheduled()]) : [0, 0];
   const leadBadges = canAccess(session.role, "leads") ? await getLeadBadgeCounts() : null;
   const newApplications = canAccess(session.role, "jobs") ? await countNewApplications() : 0;
 
@@ -53,6 +53,11 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
             {waiting > 0 && (
               <p className="mt-4 inline-block rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-900">
                 {waiting} {waiting === 1 ? "draft is" : "drafts are"} waiting for your approval
+              </p>
+            )}
+            {scheduled > 0 && (
+              <p className="mt-2 block w-fit rounded-full bg-teal-50 px-3 py-1 text-xs font-medium text-teal-800">
+                {scheduled} {scheduled === 1 ? "article publishes" : "articles publish"} automatically, one each weekday
               </p>
             )}
           </Link>

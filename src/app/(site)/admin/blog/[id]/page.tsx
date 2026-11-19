@@ -50,7 +50,7 @@ export default async function EditPostPage({
         <div>
           <h1 className="text-3xl font-medium tracking-tight">{post.title || "Untitled"}</h1>
           <p className="mt-1 text-sm text-muted">
-            {post.status}
+            {post.status === "draft" && post.scheduledFor ? `publishes automatically on ${post.scheduledFor}` : post.status}
             {post.origin === "ai" ? " · written by AI" : ""}
             {post.legacy ? " · imported from WordPress" : ""} · last edited by {post.updatedBy}
             {post.status === "published" && (

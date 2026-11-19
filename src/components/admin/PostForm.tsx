@@ -28,6 +28,8 @@ export type PostFormInitial = {
   coverAlt: string;
   status: string;
   origin: string;
+  /** A draft the weekday job publishes by itself on this date (YYYY-MM-DD). */
+  scheduledFor?: string;
   notes: string[];
 };
 
@@ -148,7 +150,12 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
           {state.error}
         </p>
       )}
-      {initial.origin === "ai" && initial.status === "draft" && (
+      {initial.status === "draft" && initial.scheduledFor && (
+        <p className="rounded-lg bg-teal-50 p-3 text-sm text-teal-900">
+          No approval needed: this article publishes itself on {initial.scheduledFor} at 10 AM Pakistan time, with its Arabic version. Edits you save here are kept and go live with it. To stop it, use Unschedule in the article list.
+        </p>
+      )}
+      {initial.origin === "ai" && initial.status === "draft" && !initial.scheduledFor && (
         <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
           AI draft - check every fact, figure and claim against the listed sources before publishing. The automatic cover comes from Mimar’s service library; review its relevance and alt text, or generate a cover for this article with AI.
         </p>

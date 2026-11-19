@@ -8,6 +8,7 @@ export function postToFormValues(post: Post): PostFormInitial {
   const cover = post.coverImage ?? (post.origin === "ai" ? selectBlogCover({ title: post.title, category: post.categories[0] }) : undefined);
   return {
     id: post.id,
+    scheduledFor: post.scheduledFor,
     title: post.title,
     slug: post.slug,
     path: post.path,
