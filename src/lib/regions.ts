@@ -81,6 +81,16 @@ export type Region = {
   keyFacts: string[];
   /** Keys of the country pages a hub page links down to (the Middle East links the UAE and Saudi pages). */
   relatedRegions?: string[];
+  /**
+   * City hub: an H2 with a short paragraph, then one H3 per city the market is
+   * searched by, so a city query ("3d rendering san francisco") lands on this
+   * page and not the home page. Only the USA has one (Deliverable 4).
+   */
+  cityHub?: {
+    heading: string;
+    body: string;
+    cities: { city: string; heading: string; body: string }[];
+  };
 };
 
 export const regions: Record<string, Region> = {
@@ -258,27 +268,72 @@ export const regions: Record<string, Region> = {
     path: "/3d-visualization-usa",
     name: "USA",
     city: "Miami",
-    seoTitle: "3D Rendering & Visualization Services USA | Mimar Studios",
+    // Title, description and H1 from Deliverable 4 (19 Nov 2026, SEO_MIGRATION.md
+    // point 31): the page sat at position 52.7 with 0 clicks in 12 months while
+    // US city queries landed on the home page instead.
+    seoTitle: "3D Architectural Rendering Services USA | Mimar Studios",
     description:
-      "3D rendering and architectural visualization for developers and architects in New York, Los Angeles, San Francisco, Dallas, Houston and Miami. Photorealistic stills, animation and virtual tours.",
+      "Premier 3D architectural rendering & visualization services across San Francisco, Dallas, NY, Miami & LA. Imperial CAD precision & NDA security. Get a quote!",
     // These are queries the site already ranks 1-2 for in the US while earning
     // almost no clicks - 33,251 impressions and 7 clicks in the 28 days to
     // 17 Oct 2026. The page names the cities explicitly so the listing matches
-    // what was actually searched.
+    // what was actually searched. The San Francisco and outsourcing queries
+    // were added from Deliverable 4 (768 + 734 impressions on the home page).
     keywords: [
+      "3d architectural rendering services usa",
       "3d rendering services usa",
       "architectural visualization studio usa",
+      "outsource 3d rendering usa",
+      "3d rendering san francisco",
+      "architectural rendering san francisco",
       "3d rendering services new york",
       "3d rendering services los angeles",
-      "architectural rendering san francisco",
       "3d rendering services dallas",
     ],
-    h1: "3D Visualization Services USA",
+    h1: "Photorealistic 3D Architectural Rendering & Visualization Services in the USA",
     intro:
       "Photorealistic rendering, animation and virtual tours for developers and architects in New York, Los Angeles, San Francisco, Dallas, Houston and Miami.",
     projectSlugs: ["nomi-downtown", "the-garden-residences"],
     marketCopy:
       "American developers sell on renderings long before a foundation is poured - to lenders, to planning boards, and to buyers deciding off a brochure. Mimar Studios produces that imagery in-house for teams in New York, Los Angeles, San Francisco, Dallas, Houston and Miami: photorealistic stills, cinematic animation, 360 tours and interactive tools, delivered to US drawing standards and on US schedules.",
+    // Deliverable 4, step 2: the cities US searchers name, each with its own
+    // subheading. The opening paragraph is the consultant's copy.
+    cityHub: {
+      heading: "Outsource 3D Architectural Rendering for US Developers & Architects",
+      body: "Whether you are securing municipal zoning approvals in San Francisco, pitching investors in New York, or launching pre-construction sales in Dallas and Miami, Mimar Studios integrates seamlessly into your US workflow. Our team reads AutoCAD and Revit files natively in imperial units (feet and inches), works with EST/PST business hour overlap, and protects every unreleased development under strict NDA agreements.",
+      cities: [
+        {
+          city: "San Francisco",
+          heading: "3D Architectural Rendering in San Francisco",
+          body: "Photorealistic exterior and street-level renders for Bay Area planning submissions, community meetings and design review, with a Mission Street location in the city.",
+        },
+        {
+          city: "Dallas",
+          heading: "3D Rendering Services in Dallas",
+          body: "Pre-construction sales imagery, amenity renders and fly-throughs for Dallas-Fort Worth developers, from our location on Elm Street downtown.",
+        },
+        {
+          city: "New York",
+          heading: "3D Rendering for New York Developers",
+          body: "Investor-deck and lender-package visuals for New York residential and mixed-use towers, coordinated from our location at 25 Broadway.",
+        },
+        {
+          city: "Miami",
+          heading: "3D Rendering for Miami Pre-Construction Sales",
+          body: "Off-plan marketing renders, cinematics and 360 tours for South Florida launches - the work behind Nomi Downtown, a mixed-use development in Miami.",
+        },
+        {
+          city: "Los Angeles",
+          heading: "Architectural Visualization in Los Angeles",
+          body: "Exterior, interior and aerial renders for Los Angeles residential and hospitality projects, with a location on East 2nd Street.",
+        },
+        {
+          city: "Houston",
+          heading: "3D Rendering Services in Houston",
+          body: "Photorealistic renders and animation for Houston residential, commercial and mixed-use developments, from our Main Street location.",
+        },
+      ],
+    },
     services: [
       {
         title: "3D Rendering",
@@ -422,6 +477,11 @@ export const regions: Record<string, Region> = {
         question: "Do you work with developers in the United States?",
         answer:
           "Yes. We work with developers, architects and real estate marketing teams across the US, including New York, Los Angeles, San Francisco, Dallas, Houston and Miami. Delivered US projects include Nomi Downtown in Miami and The Garden Residences.",
+      },
+      {
+        question: "How do US architects outsource 3D rendering to Mimar Studios?",
+        answer:
+          "Send your AutoCAD or Revit files, plans and elevations in feet and inches with a short brief, and we sign an NDA before work starts. We return an itemised quote in USD, share a greyscale model for comment, then deliver the final renders. Our hours overlap the US East Coast afternoon and West Coast morning, so feedback is usually actioned overnight.",
       },
       {
         question: "How much do 3D rendering services cost in the USA?",

@@ -102,7 +102,13 @@ export default function RegionLanding({ region: englishRegion, lang = "en" }: { 
             <p className="eyebrow mb-8 text-paper/65">/ {region.city}{comma(lang)}{region.name}</p>
           </Reveal>
           <Reveal delay={0.05}>
-            <h1 className={`max-w-5xl break-words ${ar ? "text-[clamp(2.5rem,9vw,6rem)]" : "text-[clamp(3rem,13vw,8rem)]"} font-medium uppercase ${ar ? "leading-[1.2]" : "leading-[.82] tracking-[-.065em]"}`}>
+            {/* A long, keyword-led H1 (the USA page's, Deliverable 4) gets a smaller size so it stays a few
+                lines tall instead of filling the whole hero. */}
+            <h1 className={`max-w-5xl break-words ${
+              region.h1.length > 45
+                ? ar ? "text-[clamp(2rem,6vw,4rem)]" : "text-[clamp(2.1rem,6.5vw,5rem)]"
+                : ar ? "text-[clamp(2.5rem,9vw,6rem)]" : "text-[clamp(3rem,13vw,8rem)]"
+            } font-medium uppercase ${ar ? "leading-[1.2]" : region.h1.length > 45 ? "leading-[.9] tracking-[-.05em]" : "leading-[.82] tracking-[-.065em]"}`}>
               {region.h1}
             </h1>
           </Reveal>
@@ -156,6 +162,34 @@ export default function RegionLanding({ region: englishRegion, lang = "en" }: { 
           </Reveal>
         )}
       </section>
+
+      {/* City hub (USA): one subheading per city US searchers name, so a city
+          query matches this page rather than the home page. */}
+      {region.cityHub && (
+        <section className="container-page pb-16 md:pb-28" aria-labelledby="region-city-hub-heading">
+          <Reveal>
+            <h2 id="region-city-hub-heading" className="max-w-4xl text-2xl leading-tight tracking-[-.03em] md:text-4xl">
+              {region.cityHub.heading}
+            </h2>
+          </Reveal>
+          <Reveal delay={0.05}>
+            <p className="section-body mt-6 max-w-3xl">{region.cityHub.body}</p>
+          </Reveal>
+          <div className="mt-12 grid gap-x-10 gap-y-9 md:grid-cols-2 lg:grid-cols-3">
+            {region.cityHub.cities.map((city, index) => (
+              <Reveal key={city.city} delay={(index % 3) * 0.05}>
+                <div className="border-t border-line pt-5">
+                  <h3 className="text-lg">{city.heading}</h3>
+                  <p className="section-body mt-2 text-sm">{city.body}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+          <Reveal delay={0.1}>
+            <Link href={href("/contact")} className="button-pill mt-12 text-ink">{dict.common.requestQuote}</Link>
+          </Reveal>
+        </section>
+      )}
 
       {/* Projects - the section that actually sells */}
       {projects.length > 0 && (
