@@ -41,17 +41,27 @@ type AboutCopy = {
   closeQuote: string;
   whatWeDoHeading: string;
   services: Row[];
+  /** "Where we work": one line per market, linking its region page (key in src/lib/regions.ts). */
+  whereHeading: string;
+  where: { region: string; label: string; body: string }[];
+  /** Visible FAQs, also written to FAQPage JSON-LD (sheet D9: "Frequently asked questions about our studio"). */
+  faqEyebrow: string;
+  faqHeading: string;
+  faqs: { question: string; answer: string }[];
 };
 
 export const aboutContent: Record<Locale, AboutCopy> = {
   en: {
-    title: "Life at Mimar - About Us",
-    description: "Experience the vibrant culture and dynamic environment at mimAR. Learn about our team of young professionals and our journey.",
-    keywords: ["About Us", "life at Mimar", "Mimar team", "architecture studio Islamabad"],
+    // Sheets D8/D9 (brand corrected to "Mimar Studios"), owner-approved 17 Nov 2026. Was the old
+    // WordPress "Life at Mimar - About Us" (SEO_MIGRATION.md point 34).
+    title: "About Mimar Studios | Our Vision & Architectural Team",
+    description: "Mimar Studios is an architecture and 3D visualization studio founded in Islamabad in 2019, working with developers across Pakistan, the Gulf and the USA.",
+    // Sheet D1: primary "about mimar studios", secondary the studio's markets.
+    keywords: ["about mimar studios", "mimar studios islamabad", "mimar studios uae", "mimar studios saudi arabia", "mimar studios usa"],
     breadcrumbHome: "Home",
     breadcrumbName: "About",
-    heroEyebrow: "About Mimar Studios",
-    heroTitle: "About Us",
+    heroEyebrow: "Architecture and 3D visualization since 2019",
+    heroTitle: "About Mimar Studios",
     heroSubtitle: "An architecture and visualization studio turning unbuilt ideas into clear, compelling experiences.",
     heroAriaLabel: "Animated aerial visualization introducing Mimar Studios",
     aboutEyebrow: "/ About us",
@@ -122,15 +132,70 @@ export const aboutContent: Record<Locale, AboutCopy> = {
       ["Branding", "Strategic brand identities and visual systems that make projects recognizable across every touchpoint."],
       ["Marketing", "Integrated digital marketing and web development to amplify a project's reach."],
     ],
+    whereHeading: "/ Where we work",
+    where: [
+      {
+        region: "pakistan",
+        label: "Pakistan",
+        body: "Mimar Studios was founded in Islamabad in 2019. Its Pakistan work includes the Faisal Hills and Faisal Town II master plans in Islamabad, HMR in Karachi and Lake City in Lahore.",
+      },
+      {
+        region: "uae",
+        label: "UAE",
+        body: "Six developments in Dubai, among them Karma Trinity, Aark Residences and Amer Al Ghurair.",
+      },
+      {
+        region: "saudiArabia",
+        label: "Saudi Arabia",
+        body: "Mimar Studios works with developers in Riyadh and Jeddah; NANA 222 in Riyadh is one of its towers.",
+      },
+      {
+        region: "usa",
+        label: "USA",
+        body: "Visualization for US developers, including Nomi Downtown in Miami and The Garden Residences interiors.",
+      },
+      {
+        region: "middleEast",
+        label: "Middle East",
+        body: "Every project in the UAE, Saudi Arabia and Oman in one place, including Amerat Park in Muscat.",
+      },
+    ],
+    faqEyebrow: "/ FAQ",
+    faqHeading: "Questions about Mimar Studios",
+    faqs: [
+      {
+        question: "What is Mimar Studios?",
+        answer:
+          "Mimar Studios is an architecture and 3D visualization studio. A multidisciplinary team of architects, visualizers and designers works on residential, hospitality, corporate and public projects, from architectural design to photorealistic renders, cinematics, virtual tours and branding.",
+      },
+      {
+        question: "When and where was Mimar Studios founded?",
+        answer: "Mimar Studios was founded in the summer of 2019 at the National Incubation Center (NIC) in Islamabad, Pakistan, and opened its first corporate office at the National Science & Technology Park in 2020.",
+      },
+      {
+        question: "Who founded Mimar Studios?",
+        answer: "Naqi Ejaz, an architect by training, founded Mimar Studios around one idea: a client should be able to walk a building, switch its finishes and see its lighting long before construction starts.",
+      },
+      {
+        question: "Where does Mimar Studios work?",
+        answer:
+          "The studio is based in Islamabad and has delivered projects in Pakistan, the UAE, Saudi Arabia, Oman, Nigeria and the USA, for developers, architects and real estate teams.",
+      },
+      {
+        question: "How do I start a project with Mimar Studios?",
+        answer: "Send your drawings, a short brief and your timeline through the contact page or book a meeting. The team replies with questions and an itemised quote.",
+      },
+    ],
   },
   ar: {
-    title: "الحياة في معمار - من نحن",
-    description: "اكتشف الثقافة النابضة بالحياة والبيئة الديناميكية في معمار. تعرّف على فريقنا من المحترفين الشباب وعلى مسيرتنا.",
-    keywords: ["من نحن", "الحياة في معمار", "فريق معمار", "استوديو عمارة في إسلام آباد"],
+    title: "عن استوديوهات معمار | رؤيتنا وفريقنا المعماري",
+    description: "استوديوهات معمار استوديو للعمارة والتصور ثلاثي الأبعاد تأسس في إسلام آباد عام 2019، ويعمل مع المطورين في باكستان والخليج والولايات المتحدة.",
+    // Sheet D1 (Arabic row), with the studio's Arabic name.
+    keywords: ["عن استوديوهات معمار", "استوديوهات معمار إسلام آباد", "استوديوهات معمار الإمارات", "استوديوهات معمار السعودية"],
     breadcrumbHome: "الرئيسية",
     breadcrumbName: "من نحن",
-    heroEyebrow: "عن استوديوهات معمار",
-    heroTitle: "من نحن",
+    heroEyebrow: "عمارة وتصور ثلاثي الأبعاد منذ 2019",
+    heroTitle: "عن استوديوهات معمار",
     heroSubtitle: "استوديو للعمارة والتصور البصري يحوّل الأفكار غير المُنجزة إلى تجارب واضحة وجذابة.",
     heroAriaLabel: "عرض جوي متحرك يقدّم استوديوهات معمار",
     aboutEyebrow: "/ من نحن",
@@ -200,6 +265,59 @@ export const aboutContent: Record<Locale, AboutCopy> = {
       ["المنزل الذكي الافتراضي", "تجارب تفاعلية لعرض ميزات المنزل الذكي وأنماط الحياة المتصلة."],
       ["الهوية التجارية", "هويات تجارية استراتيجية وأنظمة بصرية تجعل المشاريع مميزة ومعروفة عبر كل نقاط التواصل."],
       ["التسويق", "تسويق رقمي متكامل وتطوير مواقع إلكترونية لتوسيع نطاق وصول المشروع."],
+    ],
+    whereHeading: "/ أين نعمل",
+    where: [
+      {
+        region: "pakistan",
+        label: "باكستان",
+        body: "تأسست استوديوهات معمار في إسلام آباد عام 2019. ومن أعمالها في باكستان المخططان العامان لتلال فيصل وفيصل تاون 2 في إسلام آباد، وإتش إم آر في كراتشي، وليك سيتي في لاهور.",
+      },
+      {
+        region: "uae",
+        label: "الإمارات",
+        body: "ستة مشاريع في دبي، منها كارما ترينيتي وآرك ريزيدنسز وعامر الغرير.",
+      },
+      {
+        region: "saudiArabia",
+        label: "السعودية",
+        body: "تعمل استوديوهات معمار مع المطورين في الرياض وجدة، ومن أبراجها نانا 222 في الرياض.",
+      },
+      {
+        region: "usa",
+        label: "الولايات المتحدة",
+        body: "تصور بصري للمطورين في الولايات المتحدة، منه نومي داون تاون في ميامي والتصاميم الداخلية لمساكن الحديقة.",
+      },
+      {
+        region: "middleEast",
+        label: "الشرق الأوسط",
+        body: "كل مشاريعنا في الإمارات والسعودية وعُمان في مكان واحد، ومنها حديقة العامرات في مسقط.",
+      },
+    ],
+    faqEyebrow: "/ أسئلة شائعة",
+    faqHeading: "أسئلة عن استوديوهات معمار",
+    faqs: [
+      {
+        question: "ما هي استوديوهات معمار؟",
+        answer:
+          "استوديوهات معمار استوديو للعمارة والتصور ثلاثي الأبعاد. يعمل فريق متعدد التخصصات من المعماريين وفناني التصور والمصممين على مشاريع سكنية وضيافية وتجارية وعامة، من التصميم المعماري إلى الرندرات الواقعية والأفلام السينمائية والجولات الافتراضية والهوية التجارية.",
+      },
+      {
+        question: "متى وأين تأسست استوديوهات معمار؟",
+        answer: "تأسست استوديوهات معمار في صيف 2019 في المركز الوطني للحاضنات (NIC) في إسلام آباد بباكستان، وافتتحت أول مكتب مؤسسي لها في المجمع الوطني للعلوم والتكنولوجيا عام 2020.",
+      },
+      {
+        question: "من أسّس استوديوهات معمار؟",
+        answer: "أسّسها نقي إجاز، وهو معماري بالتدريب، حول فكرة واحدة: أن يتمكن العميل من التجول داخل المبنى وتبديل تشطيباته ورؤية إضاءته قبل بدء البناء بوقت طويل.",
+      },
+      {
+        question: "أين تعمل استوديوهات معمار؟",
+        answer: "مقر الاستوديو في إسلام آباد، وقد أنجز مشاريع في باكستان والإمارات والسعودية وعُمان ونيجيريا والولايات المتحدة، للمطورين والمعماريين وفرق العقارات.",
+      },
+      {
+        question: "كيف أبدأ مشروعاً مع استوديوهات معمار؟",
+        answer: "أرسل مخططاتك وموجزاً مختصراً وجدولك الزمني عبر صفحة التواصل أو احجز اجتماعاً، وسيعود إليك الفريق بأسئلته وبعرض سعر مفصل بالبنود.",
+      },
     ],
   },
 };
