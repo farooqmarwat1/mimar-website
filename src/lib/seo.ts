@@ -259,16 +259,19 @@ export const siteJsonLd = {
       sameAs: ["https://share.google/9UmptDgeq3JNUfBZW"],
       address: {
         "@type": "PostalAddress",
-        streetAddress: "mimAR Studio, (NSTP) NUST, H-12",
+        // As on the verified Business Profile and the Pakistan page (src/lib/regions.ts), so the
+        // name, address and phone match everywhere Google reads them.
+        streetAddress: "1403, National Science & Technology Park (NSTP), NUST, H-12",
         addressLocality: "Islamabad",
         postalCode: "44000",
         addressCountry: "PK",
       },
       parentOrganization: { "@id": "https://mim.archi/#organization" },
     },
-    // Verified Business Profile in Istanbul (owner's GMB table, 19 Oct 2026). The profile gives the city
-    // only, so no street address or phone is marked up; never invent them. Dubai and the US profiles
-    // are marked up with their full addresses on their region pages (src/lib/regions.ts).
+    // Verified Business Profile in Istanbul (owner's GMB table, 19 Oct 2026). Address as shown on the
+    // profile on 19 Nov 2026; the profile has no phone number, so none is marked up (never invent one).
+    // Dubai and the US profiles are marked up with their full addresses on their region pages
+    // (src/lib/regions.ts).
     {
       "@type": "LocalBusiness",
       "@id": "https://mim.archi/#localbusiness-istanbul",
@@ -280,7 +283,10 @@ export const siteJsonLd = {
       sameAs: ["https://share.google/52xpHYZjQEjnqvTFh"],
       address: {
         "@type": "PostalAddress",
-        addressLocality: "Istanbul",
+        streetAddress: "Levent, Büyükdere Cd. No:193",
+        addressLocality: "Beşiktaş",
+        addressRegion: "İstanbul",
+        postalCode: "34394",
         addressCountry: "TR",
       },
       parentOrganization: { "@id": "https://mim.archi/#organization" },

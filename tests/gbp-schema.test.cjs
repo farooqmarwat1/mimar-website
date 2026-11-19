@@ -31,7 +31,7 @@ test('the Organization links every verified Business Profile, in English and Ara
   }
 });
 
-test('Islamabad and Istanbul branches point at their profiles; Istanbul invents no address or phone', () => {
+test('Islamabad and Istanbul branches point at their profiles with the address shown on the profile', () => {
   const islamabad = node(siteJsonLd, 'localbusiness-islamabad');
   assert.equal(islamabad.hasMap, VERIFIED_PROFILES.Islamabad);
   assert.equal(JSON.stringify(islamabad.sameAs), JSON.stringify([VERIFIED_PROFILES.Islamabad]));
@@ -39,8 +39,9 @@ test('Islamabad and Istanbul branches point at their profiles; Istanbul invents 
   const istanbul = node(siteJsonLd, 'localbusiness-istanbul');
   assert.ok(istanbul, 'Istanbul LocalBusiness missing');
   assert.equal(istanbul.hasMap, VERIFIED_PROFILES.Istanbul);
-  assert.equal(JSON.stringify(istanbul.address), JSON.stringify({ '@type': 'PostalAddress', addressLocality: 'Istanbul', addressCountry: 'TR' }));
-  assert.equal(istanbul.telephone, undefined);
+  assert.equal(JSON.stringify(istanbul.address), JSON.stringify({ '@type': 'PostalAddress', streetAddress: 'Levent, Büyükdere Cd. No:193', addressLocality: 'Beşiktaş', addressRegion: 'İstanbul', postalCode: '34394', addressCountry: 'TR' }));
+  assert.equal(istanbul.telephone, undefined, 'the Istanbul profile lists no phone');
+  assert.equal(islamabad.address.streetAddress, '1403, National Science & Technology Park (NSTP), NUST, H-12');
   assert.ok(node(siteJsonLdAr, 'localbusiness-istanbul'), 'Istanbul missing from the Arabic graph');
   assert.ok(node(siteJsonLd, 'organization').areaServed.includes('Turkey'));
 });
