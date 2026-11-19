@@ -15,10 +15,15 @@ export default function FaqSection({
   items,
   lang = "en",
   dict = getDictionary(lang),
+  eyebrow = dict.faqSection.eyebrow,
+  heading = dict.faqSection.heading,
 }: {
   items: readonly { question: string; answer: string }[];
   lang?: Locale;
   dict?: Dictionary;
+  /** Page-specific eyebrow and heading (the About page names the studio); defaults to the shared ones. */
+  eyebrow?: string;
+  heading?: string;
 }) {
   return (
     <section className="section-py">
@@ -29,10 +34,10 @@ export default function FaqSection({
       <div className="container-page mx-auto max-w-3xl">
         <div className="text-center">
           <Reveal>
-            <p className="eyebrow text-muted">{dict.faqSection.eyebrow}</p>
+            <p className="eyebrow text-muted">{eyebrow}</p>
           </Reveal>
           <Reveal delay={0.05}>
-            <h2 className="section-heading mx-auto mt-6 mb-12">{dict.faqSection.heading}</h2>
+            <h2 className="section-heading mx-auto mt-6 mb-12">{heading}</h2>
           </Reveal>
         </div>
         <div className="border-t border-line">
