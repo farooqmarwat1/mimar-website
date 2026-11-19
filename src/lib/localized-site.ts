@@ -92,7 +92,17 @@ export function localizedSiteMeta(lang: Locale) {
   return {
     title: siteConfig.title as string,
     description: siteConfig.description as string,
-    keywords: ["architecture firm", "3D rendering", "3D rendering services", "architectural visualization", "real estate marketing"],
+    keywords: [
+      "architecture firm",
+      "3D rendering",
+      "3D rendering services",
+      "architectural visualization",
+      "3d architectural rendering outsource",
+      "3d architectural visualization services",
+      "3d interior visualization services",
+      "3d exterior visualization services",
+      "real estate marketing",
+    ],
   };
 }
 

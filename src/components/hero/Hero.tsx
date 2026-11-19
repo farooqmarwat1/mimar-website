@@ -79,8 +79,9 @@ export default function Hero({ lang = "en" }: { lang?: Locale }) {
       <div className={lang === "ar" ? "container-page relative z-10 flex h-full flex-col items-center justify-end gap-4 pb-14 text-center md:gap-5 md:pb-14" : "container-page relative z-10 flex h-full items-end justify-center pb-14 text-center md:pb-14"}>
         {/* The H1 must carry real text, not only an image alt (SEO review 4 Nov 2026: crawlers and audit tools
             read it as empty). The "MIMAR STUDIOS" wordmark image is decorative here: in English the studio name
-            it shows is repeated as screen-reader text, in Arabic it is the visible line under it. The tagline
-            line keeps the old site's H1 wording ("3d Architecture Firm"). Same text for every visitor and bot. */}
+            it shows is repeated as screen-reader text, in Arabic it is the visible line under it. The English
+            tagline line is the H1 from Deliverable 4 (19 Nov 2026, SEO_MIGRATION.md point 32); it replaced the
+            old site's "3d Architecture Firm". Same text for every visitor and bot. */}
         <h1 className={lang === "ar" ? "flex w-full flex-col items-center gap-4 md:gap-5" : "flex w-full flex-col items-center gap-3 md:gap-4"}>
           <Image
             src="/hero/hero-text.webp"
@@ -100,8 +101,8 @@ export default function Hero({ lang = "en" }: { lang?: Locale }) {
           ) : (
             <>
               <span className="sr-only">Mimar Studios: </span>
-              <span className="block text-[clamp(.75rem,1.6vw,1rem)] font-normal uppercase tracking-[.35em] text-paper/80">
-                3D Architecture Firm
+              <span className="block max-w-4xl text-[clamp(.75rem,1.6vw,1rem)] font-normal uppercase leading-relaxed tracking-[.25em] text-paper/80">
+                Photorealistic 3D Architectural Rendering &amp; Visualization Studio
               </span>
             </>
           )}

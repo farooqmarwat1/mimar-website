@@ -4,6 +4,7 @@ import StudioIntro from "@/components/sections/StudioIntro";
 import ServicesPreview from "@/components/sections/ServicesPreview";
 import PortfolioGrid from "@/components/sections/PortfolioGrid";
 import TeamStats from "@/components/sections/TeamStats";
+import GlobalFootprint from "@/components/sections/GlobalFootprint";
 import FaqSection from "@/components/sections/FaqSection";
 import ContactCta from "@/components/sections/ContactCta";
 import RegionalTitle from "@/components/RegionalTitle";
@@ -34,6 +35,7 @@ export default async function ArabicHome() {
       <ServicesPreview lang="ar" dict={dict} />
       <PortfolioGrid projects={projects} lang="ar" dict={dict} />
       <TeamStats lang="ar" dict={dict} />
+      <GlobalFootprint lang="ar" />
       <FaqSection items={localizedFaqs("ar")} lang="ar" dict={dict} />
       <ContactCta lang="ar" dict={dict} />
     </>
