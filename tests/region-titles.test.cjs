@@ -42,6 +42,31 @@ test('the Middle East hub lists the Gulf projects, links its markets, and keeps 
   assert.ok(ar.faqs.length >= 5 && ar.services.length === me.services.length && ar.reasons.length === me.reasons.length);
 });
 
+// Deliverable 4 (19 Nov 2026): US city queries landed on the home page; the USA page now has one
+// subheading per city, in both languages.
+test('the USA page names each searched city in its own subheading', () => {
+  const { regions } = load('src/lib/regions.ts');
+  const usa = regions.usa;
+  const cities = ['San Francisco', 'Dallas', 'New York', 'Miami', 'Los Angeles', 'Houston'];
+  assert.equal(JSON.stringify(usa.cityHub.cities.map(c => c.city)), JSON.stringify(cities));
+  for (const c of usa.cityHub.cities) assert.ok(c.heading.includes(c.city), c.heading);
+  const ar = localizeRegion(usa, 'ar');
+  assert.equal(ar.cityHub.cities.length, cities.length, 'Arabic has every city');
+  assert.equal(ar.faqs.length, usa.faqs.length, 'Arabic has every FAQ');
+  assert.ok(usa.description.length <= 160 && ar.description.length <= 160);
+  assert.ok(usa.faqs.some(f => /outsource/i.test(f.question)));
+});
+
+test('the home title and description fit a search result and end on a call to action', () => {
+  const { siteConfig, faqs } = load('src/lib/site-config.ts');
+  const { siteConfigAr } = load('src/lib/ar/site-config.ar.ts');
+  assert.ok(siteConfig.title.length <= 60, siteConfig.title);
+  assert.match(siteConfig.title, /\| Mimar Studios$/);
+  assert.ok(siteConfig.description.length <= 160, siteConfig.description);
+  assert.match(siteConfig.description, /quote/i);
+  assert.equal(siteConfigAr.faqs.length, faqs.length, 'Arabic home has every FAQ');
+});
+
 test('the old Middle East article is gone from the legacy content', () => {
   for (const file of ['../src/content/legacy-seo.json', '../src/content/legacy-seo.ar.json']) {
     const pages = require(file);

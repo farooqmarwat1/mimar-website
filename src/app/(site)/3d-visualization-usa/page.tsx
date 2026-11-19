@@ -19,6 +19,10 @@ const region = regions.usa;
  * 28 days to 17 Oct 2026, with city queries like "3d rendering services new
  * york" and "3d rendering services dallas" already sitting at position 1-2.
  * The copy names those cities so the listing matches the query.
+ *
+ * Deliverable 4 (19 Nov 2026): new title, description and H1, a city hub
+ * section (San Francisco, Dallas, New York, Miami, Los Angeles, Houston) and an
+ * outsourcing FAQ; the home page now links here (SEO_MIGRATION.md point 32).
  */
 export const metadata: Metadata = buildMetadata({
   title: region.seoTitle,
@@ -38,11 +42,12 @@ export default function UsaRegionPage() {
           breadcrumbJsonLd([
             { name: "Home", path: "/" },
             { name: "Services", path: "/services" },
-            { name: region.h1, path: region.path },
+            // Shorter than the H1, which is a full keyword sentence since Deliverable 4.
+            { name: "3D Architectural Rendering Services USA", path: region.path },
           ]),
           {
             ...serviceJsonLd({
-              title: `3D Visualization Services ${region.name}`,
+              title: "3D Architectural Rendering & Visualization Services USA",
               slug: "3d-visualization",
               intro: region.description,
               outputs: region.services.map((s) => s.title),

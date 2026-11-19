@@ -11,11 +11,14 @@ export const siteConfig = {
   name: "Mimar Studios",
   legalName: "Mimar Studios (SMC-Pvt) Ltd.",
   url: "https://mim.archi",
-  // Home page title and description (also the fallback for pages without their own). SEO scope item 8,
-  // sheet D8, owner-approved 16 Nov 2026; replaced "Mimar: 3D Architecture Firm in Pakistan".
-  title: "3D Architecture Firm & Rendering Studio | Mimar Studios",
+  // Home page title and description (also the fallback for pages without their own). Deliverable 4
+  // (USA + Home CTR plan, 19 Nov 2026): leads with the non-branded queries the home page shows for but
+  // gets no clicks on ("3d architectural rendering outsource", "3d rendering services", "architectural
+  // visualization services") and ends on a quote CTA. Replaced the D8 title "3D Architecture Firm &
+  // Rendering Studio | Mimar Studios" (SEO_MIGRATION.md points 28 and 32).
+  title: "3D Architectural Rendering & Visualization | Mimar Studios",
   description:
-    "Transforming architectural visions into breathtaking realities. Mimar Studios delivers 3D visualization, cinematic tours & rendering services. Get a quote!",
+    "Outsource photorealistic 3D architectural rendering, exterior & interior visualization, and VR tours. Trusted by global developers. Request a quote today!",
   foundingDate: "2019",
   foundingLocation: "National Incubation Center, Islamabad, Pakistan",
   ogImage: "/og/mimar-studios-og.jpg",
@@ -406,6 +409,13 @@ export const faqs = [
     question: "Where is Mimar Studios based?",
     answer:
       "Mimar Studios is headquartered at the National Science & Technology Park (NSTP), NUST, H-12, Islamabad, Pakistan, with clients served across 14+ countries.",
+  },
+  // Deliverable 4 (19 Nov 2026): "3d architectural rendering outsource" is the home page's largest
+  // non-branded query (9,385 impressions, 0 clicks in three months).
+  {
+    question: "Can I outsource 3D architectural rendering to Mimar Studios?",
+    answer:
+      "Yes. Developers and architects in the USA, the UAE, Saudi Arabia, Pakistan and other countries send us plans, elevations or CAD files with a short brief. We sign an NDA for unreleased projects, return an itemised quote, and deliver photorealistic exterior and interior renders, animation and VR tours.",
   },
 ] as const;
 
