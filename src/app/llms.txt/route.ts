@@ -7,6 +7,9 @@ import { servicePath } from "@/lib/service-details";
 import { getOpenJobs } from "@/lib/jobs";
 import { localizeServices, localizeProjects, localizedFaqs } from "@/lib/localized-site";
 import { localeHref } from "@/i18n/config";
+import { regionList } from "@/lib/regions";
+import { profileLocations } from "@/lib/profile-locations";
+import { localizeRegion } from "@/lib/ar/regions.ar";
 
 /**
  * llms.txt - an emerging convention (llmstxt.org) that gives AI assistants
@@ -33,8 +36,16 @@ export async function GET() {
     ...offices.map((office) => `- ${office.city} office: ${office.lines.join(", ")}`),
     `- Website: ${siteUrl("/")}`,
     "",
+    "## Business Profile locations",
+    "Verified Google Business Profiles besides the two offices:",
+    ...profileLocations().map((l) => `- ${l.city}: ${l.address}${l.phone ? ` (${l.phone})` : ""}${l.gbpUrl ? ` - ${l.gbpUrl}` : ""}`),
+    "",
     "## Services",
     ...services.map((s) => `- [${s.title}](${siteUrl(servicePath(s.slug))}): ${s.short}`),
+    "",
+    "## Regional pages",
+    "Market pages with local projects, office or Business Profile details, and FAQs:",
+    ...regionList.map((r) => `- [${r.h1}](${siteUrl(r.path)}): ${r.description}`),
     "",
     "## Selected projects",
     ...projects.map((p) => `- [${p.title}](${siteUrl(`/projects/${p.slug}`)}): ${p.summary}`),
@@ -58,6 +69,10 @@ export async function GET() {
     ...localizeServices([...services], "ar").map(
       (s) => `- [${s.title}](${siteUrl(localeHref("ar", servicePath(s.slug)))}): ${s.short}`,
     ),
+    ...regionList.map((r) => {
+      const ar = localizeRegion(r, "ar");
+      return `- [${ar.h1}](${siteUrl(localeHref("ar", r.path))}): ${ar.description}`;
+    }),
     ...localizeProjects(projects, "ar").map(
       (p) => `- [${p.title}](${siteUrl(localeHref("ar", `/projects/${p.slug}`))}): ${p.summary}`,
     ),

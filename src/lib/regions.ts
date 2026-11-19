@@ -755,17 +755,17 @@ export const regions: Record<string, Region> = {
     office: {
       city: "Islamabad",
       country: "Pakistan",
-      address: "1403, National Science & Technology Park (NSTP), NUST, H-12, Islamabad 44000, Pakistan",
+      address: "3407, National Science & Technology Park (NSTP), NUST, H-12, Islamabad 44000, Pakistan",
       phone: "+92 300 511 2990",
       geo: { latitude: 33.6461, longitude: 72.9932 },
     },
-    // Address and phone taken from the verified Business Profile, which says
-    // suite 1403 - site-config still says 3407. The profile is what Google
-    // compares against, so it wins here until the two are reconciled.
+    // Suite 3407, as in site-config: the owner confirmed 3407 on 19 Nov 2026.
+    // The Business Profile still said 1403 that day and has to be corrected
+    // there so the name, address and phone match everywhere Google reads them.
     locations: [
       {
         city: "Islamabad",
-        streetAddress: "1403, National Science & Technology Park (NSTP), NUST, H-12",
+        streetAddress: "3407, National Science & Technology Park (NSTP), NUST, H-12",
         postalCode: "44000",
         countryCode: "PK",
         phone: "+92 300 511 2990",
@@ -1024,6 +1024,9 @@ export const regions: Record<string, Region> = {
 };
 
 /** Projects in site-config that belong to a region, in listed order. */
+/** Currency each market is quoted in (the region FAQs say "quoted per project in AED/SAR/PKR/USD"). */
+export const localCurrency: Record<string, string> = { AE: "AED", SA: "SAR", PK: "PKR", US: "USD" };
+
 export function regionProjects(region: Region): Project[] {
   return region.projectSlugs
     .map((slug) => projects.find((p) => p.slug === slug))
