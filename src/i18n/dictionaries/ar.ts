@@ -104,6 +104,7 @@ const ar: Dictionary = {
   },
   servicesPreview: {
     eyebrowPrefix: "/ الخدمات",
+    heading: "خدمات العمارة والتصور ثلاثي الأبعاد والتجارب التفاعلية",
     ofSeparator: "من",
     previous: "الخدمات السابقة",
     next: "الخدمات التالية",

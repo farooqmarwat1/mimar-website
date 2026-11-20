@@ -88,3 +88,35 @@ test('the old Middle East article is gone from the legacy content', () => {
     assert.ok(!pages.some(page => page.path === '/3d-visualization-middle-east'), file);
   }
 });
+
+// Earlier Deliverable 4 and 5 drafts (20 Nov 2026, SEO_MIGRATION.md point 36).
+test('every region page links the core 3D Visualization page in its first 300 words', () => {
+  for (const region of regionList) {
+    for (const r of [region, localizeRegion(region, 'ar')]) {
+      const lead = [r.h1, r.intro, r.marketHeading, r.marketCopy].join(' ');
+      const link = lead.indexOf('](/services/3d-visualization)');
+      assert.ok(link > 0, `${r.name} market copy links /services/3d-visualization`);
+      assert.ok(lead.slice(0, link).split(/\s+/).length <= 300, `${r.name} link is within the first 300 words`);
+    }
+  }
+});
+
+test('the UAE and Saudi pages link up to the Middle East hub, and the USA has its own section headings', () => {
+  const { regions } = load('src/lib/regions.ts');
+  for (const key of ['uae', 'saudiArabia']) assert.ok(regions[key].relatedRegions.includes('middleEast'), key);
+  const usa = regions.usa;
+  assert.equal(usa.headings.projects, 'Featured US Architectural Developments');
+  assert.equal(usa.headings.why, 'Built for US Real Estate Workflows');
+  assert.ok(localizeRegion(usa, 'ar').headings.faq, 'Arabic USA FAQ heading');
+  assert.match(usa.description, /48 hrs/);
+  assert.ok(usa.faqs.some(f => /files do you deliver/.test(f.question)));
+  assert.equal(localizeRegion(usa, 'ar').faqs.length, usa.faqs.length, 'Arabic USA FAQs match');
+});
+
+test('the services showcase puts all 11 service links in the server HTML', () => {
+  const source = require('node:fs').readFileSync(require('node:path').join(__dirname, '../src/components/sections/ServicesPreview.tsx'), 'utf8');
+  const items = source.slice(source.indexOf('export const items = ['), source.indexOf('];', source.indexOf('export const items = [')));
+  assert.equal((items.match(/href: "\/services\//g) || []).length, 11);
+  assert.match(source, /\{groups\.map\(\(group, groupIndex\) =>/, 'every group is rendered, not only the active one');
+  assert.doesNotMatch(source, /groups\[activeGroup\]\.map/);
+});

@@ -14,6 +14,7 @@ import { withTrailingSlash } from "@/lib/trailing-slash";
 import { isRtl, localeHref, localizeDigits, pick, type Locale } from "@/i18n/config";
 import { projectCoverAlt } from "@/lib/project-alt";
 import Num from "@/i18n/Num";
+import RegionLinks from "@/components/regions/RegionLinks";
 
 /**
  * Shared layout for /services/{slug} and /services/interactive-services/{slug},
@@ -273,6 +274,9 @@ export default function ServiceDetailView({ detail: englishDetail, lang = "en" }
           ))}
         </div>
       </section>}
+
+      {/* Core service page -> region pages (Deliverable 5); only on 3D Visualization. */}
+      {englishDetail.slug === "3d-visualization" && <RegionLinks lang={lang} />}
 
       <section className="container-page py-16 md:py-28">
         <Reveal><p className="eyebrow mb-10 text-muted">{`/ ${dict.common.questions}`}</p></Reveal>

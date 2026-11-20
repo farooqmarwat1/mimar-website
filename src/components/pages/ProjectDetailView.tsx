@@ -13,30 +13,10 @@ import { projectCoverAlt, projectGalleryAlt } from "@/lib/project-alt";
 import { galleryRatioValue, galleryRowLayout, getProjectStory, planGalleryRows, projectStoryLabels } from "@/content/pages/project-stories";
 import { regionList } from "@/lib/regions";
 import { localizeRegion } from "@/lib/ar/regions.ar";
-import { splitInlineLinks } from "@/lib/content-blocks";
 import ContactCta from "@/components/sections/ContactCta";
 import GalleryLightbox from "@/components/ui/GalleryLightbox";
+import { linkedText } from "@/components/ui/LinkedText";
 import { mediaUi } from "@/lib/ar/media-ui";
-
-/** Story text with `[words](/path)` turned into internal links in the page language, and `**words**` in bold. */
-function linkedText(text: string, lang: Locale) {
-  return splitInlineLinks(text).map((part, index) => {
-    const node = part.href ? (
-      <Link key={index} href={localeHref(lang, part.href)} className="text-ink underline underline-offset-4 transition-colors hover:text-accent">
-        {part.text}
-      </Link>
-    ) : (
-      part.text
-    );
-    return part.bold ? (
-      <strong key={index} className="font-semibold text-ink">
-        {node}
-      </strong>
-    ) : (
-      node
-    );
-  });
-}
 
 /** Shared body of /projects/[slug] and /ar/projects/[slug]. Receives the English project data. */
 export default function ProjectDetailView({
