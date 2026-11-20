@@ -17,7 +17,7 @@ export default function TeamStats({ lang = "en", dict = getDictionary(lang) }: {
         </Reveal>
         <Reveal delay={0.05}>
           <h2 className="section-heading mx-auto mt-6">
-            {c.heading1}
+            {c.heading1}{" "}
             <span className="block text-accent">{c.heading2}</span>
           </h2>
         </Reveal>

@@ -87,6 +87,8 @@ export type Region = {
   keyFacts: string[];
   /** Keys of the country pages a hub page links down to (the Middle East links the UAE and Saudi pages). */
   relatedRegions?: string[];
+  /** Section H2s that replace the RegionUi templates (the USA uses Deliverable 4's exact wording). */
+  headings?: { projects?: string; why?: string; faq?: string };
   /**
    * City hub: an H2 with a short paragraph, then one H3 per city the market is
    * searched by, so a city query ("3d rendering san francisco") lands on this
@@ -118,6 +120,8 @@ export const regions: Record<string, Region> = {
     ],
     h1: "Top 3D Visualizer & Architectural Rendering Services in the UAE",
     label: "3D Visualization Services UAE",
+    // Up-link to the Middle East hub, which links back down here (Deliverable 5).
+    relatedRegions: ["middleEast"],
     // Keep this to roughly two lines - the hero uses max-w-xl, matching the
     // short, punchy subheads on the service pages.
     intro:
@@ -131,7 +135,7 @@ export const regions: Record<string, Region> = {
       "karma-trinity",
     ],
     marketCopy:
-      "Making a mark in Dubai's skyline is not an easy feat. Mimar Studios works with developers, architects and real estate teams across Dubai, Abu Dhabi, Sharjah and the wider UAE - producing renderings, cinematics, VR tours and 3D on plan in-house. Architectural visualization makes a development more appealing and interactive for buyers, and helps it sell faster, which matters in a market where most units are sold off-plan.",
+      "Making a mark in Dubai's skyline is not an easy feat. Mimar Studios works with developers, architects and real estate teams across Dubai, Abu Dhabi, Sharjah and the wider UAE - producing renderings, cinematics, VR tours and 3D on plan in-house. Architectural visualization makes a development more appealing and interactive for buyers, and helps it sell faster, which matters in a market where most units are sold off-plan. Explore our [core 3D visualization services](/services/3d-visualization) for the full scope of work.",
     // Deliverable 5 asked for "Glass-Facade Sunlight Simulation"; "studies" describes what a render
     // actually shows (light at a chosen time of day) without implying an engineering analysis.
     marketHeading: "Off-Plan Real Estate Marketing & Glass-Facade Sunlight Studies",
@@ -289,7 +293,7 @@ export const regions: Record<string, Region> = {
     // US city queries landed on the home page instead.
     seoTitle: "3D Architectural Rendering Services USA | Mimar Studios",
     description:
-      "Premier 3D architectural rendering & visualization services across San Francisco, Dallas, NY, Miami & LA. Imperial CAD precision & NDA security. Get a quote!",
+      "3D architectural rendering for US developers in SF, Dallas, NY, Miami & LA. Imperial CAD precision & NDA security. Rush renders in 48 hrs. Get a quote!",
     // These are queries the site already ranks 1-2 for in the US while earning
     // almost no clicks - 33,251 impressions and 7 clicks in the 28 days to
     // 17 Oct 2026. The page names the cities explicitly so the listing matches
@@ -312,11 +316,17 @@ export const regions: Record<string, Region> = {
     // Deliverable 4 H1 stays because it carries "rendering" too. Its H2/H3 are used below.
     h1: "Photorealistic 3D Architectural Rendering & Visualization Services in the USA",
     label: "3D Architectural Rendering Services USA",
+    // Section H2s from Deliverable 4's content plan.
+    headings: {
+      projects: "Featured US Architectural Developments",
+      why: "Built for US Real Estate Workflows",
+      faq: "USA 3D Rendering FAQs",
+    },
     intro:
       "Photorealistic rendering, animation and virtual tours for developers and architects in New York, Los Angeles, San Francisco, Dallas, Houston and Miami.",
     projectSlugs: ["nomi-downtown", "the-garden-residences"],
     marketCopy:
-      "American developers sell on renderings long before a foundation is poured - to lenders, to planning boards, and to buyers deciding off a brochure. Mimar Studios produces that imagery in-house for teams in New York, Los Angeles, San Francisco, Dallas, Houston and Miami: photorealistic stills, cinematic animation, 360 tours and interactive tools, delivered to US drawing standards and on US schedules.",
+      "American developers sell on renderings long before a foundation is poured - to lenders, equity partners, planning boards and pre-construction buyers deciding off a brochure. Mimar Studios produces that imagery in-house for teams in New York, Los Angeles, San Francisco, Dallas, Houston and Miami from our [main architectural rendering offerings](/services/3d-visualization): photorealistic stills, cinematic animation, 360 tours and interactive tools, delivered to US drawing standards and on US schedules. Whether you are securing city permits in California or need luxury real estate rendering for a New York launch, the imagery is built to close the deal.",
     marketHeading: "Accelerating US Pre-Sales, Lender Decks & Municipal Zoning Approvals",
     localHeading: {
       heading: "Imperial CAD Precision & EST/PST Overlap Across NY, Miami, Dallas, LA & SF",
@@ -525,6 +535,11 @@ export const regions: Record<string, Region> = {
           "Yes. We model directly from imperial drawings, so you do not need to convert anything before sending plans and elevations.",
       },
       {
+        question: "What files do you deliver?",
+        answer:
+          "Stills come as high-resolution images sized for print and web, films as MP4 video, and 360 tours as a link that opens in any browser. Tell us where the visuals will be used - a brochure, a listing site, a lender deck - and we size them for it.",
+      },
+      {
         question: "What do you need from me to start?",
         answer:
           "Plans, elevations, a material direction and any useful references. If the drawings are incomplete we can work from sketches and develop the detail with you during the greyscale stage.",
@@ -571,11 +586,12 @@ export const regions: Record<string, Region> = {
     ],
     h1: "3D Visualization & Architectural Rendering Services in Saudi Arabia",
     label: "3D Visualization Services Saudi Arabia",
+    relatedRegions: ["middleEast"],
     intro:
       "Photorealistic rendering, animation and virtual tours for developers building in Riyadh, Jeddah and across the Kingdom.",
     projectSlugs: ["nana-222"],
     marketCopy:
-      "Saudi Arabia is building faster than anywhere else in the region, and most of it is sold, approved and funded from imagery long before the site is cleared. Mimar Studios works with developers and architects in Riyadh and Jeddah from an office in Jeddah, producing renderings, cinematics, VR tours and 3D on plan in-house - in Gulf working hours, and quoted in riyals.",
+      "Saudi Arabia is building faster than anywhere else in the region, and most of it is sold, approved and funded from imagery long before the site is cleared. Mimar Studios works with developers and architects in Riyadh and Jeddah from an office in Jeddah, producing renderings, cinematics, VR tours and 3D on plan in-house - in Gulf working hours, and quoted in riyals. See our [main architectural rendering offerings](/services/3d-visualization) for everything we produce.",
     // Deliverable 5 asked for "Wafi & REGA Compliant Visual Assets"; compliance is the developer's
     // licence, not something a render can have, so the copy says what we make for those submissions.
     // It also listed NEOM, where we have no project, so the H3 names the cities we work in.
@@ -748,7 +764,7 @@ export const regions: Record<string, Region> = {
       "cafe-interior",
     ],
     marketCopy:
-      "Mimar Studios was founded in Islamabad in 2019 and still builds everything here - the studio at the National Science & Technology Park produces the renderings, animation, VR and branding that go out to clients in fourteen countries. Closer to home that means master-planned communities, high-rise residential and hospitality work across Islamabad, Lahore, Karachi and Multan, handled by the same team that delivers abroad.",
+      "Mimar Studios was founded in Islamabad in 2019 and still builds everything here - the studio at the National Science & Technology Park produces the renderings, animation, VR and branding that go out to clients in fourteen countries. Closer to home that means master-planned communities, high-rise residential and hospitality work across Islamabad, Lahore, Karachi and Multan, handled by the same team that delivers abroad. Explore our [core 3D visualization services](/services/3d-visualization) for the full scope of work.",
     marketHeading: "Precision Architectural Rendering for Residential & Commercial Developments",
     localHeading: {
       heading: "Local Islamabad Studio Expertise & PKR Project Consultation",
@@ -928,7 +944,7 @@ export const regions: Record<string, Region> = {
       "h-and-s",
     ],
     marketCopy:
-      "Across the Gulf, developments are sold, approved and funded from imagery long before they are built. Mimar Studios began as a 3D architectural visualization studio in Pakistan and now works with developers, architects and real estate teams in the UAE, Saudi Arabia and Oman from locations in Dubai and Jeddah, producing renderings, cinematics, VR tours, property explorers and 3D on plan in-house.",
+      "Across the Gulf, developments are sold, approved and funded from imagery long before they are built. Mimar Studios began as a 3D architectural visualization studio in Pakistan and now works with developers, architects and real estate teams in the UAE, Saudi Arabia and Oman from locations in Dubai and Jeddah, producing renderings, cinematics, VR tours, property explorers and 3D on plan in-house. See our [main architectural rendering offerings](/services/3d-visualization) for everything we produce.",
     // Deliverable 5's H3 named Qatar, Bahrain and Kuwait, where we have no projects; it names the
     // countries we have delivered in instead.
     marketHeading: "Cross-Border GCC Visualization Solutions for Regional Developers",

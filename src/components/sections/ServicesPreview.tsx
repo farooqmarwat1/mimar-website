@@ -14,7 +14,8 @@ import { siteConfigAr } from "@/lib/ar/site-config.ar";
 // (which is the service slug); English keeps the copy written in `items`.
 const arServices = siteConfigAr.services as Record<string, { title: string; description: string }>;
 
-const items = [
+// Exported for tests: every service tile, in order (11 links).
+export const items = [
   { label: "Architectural Design", href: "/services/architectural-design", media: "/services/architectural-design/hero.jpg", type: "image" as const, desc: "Full architectural design services spanning interior and exterior spaces, from concept through construction documentation." },
   { label: "3D Visualization", href: "/services/3d-visualization", media: "/services/3D_rendering.webp", type: "image" as const, desc: "Photorealistic visualization for architecture, interiors, and real estate." },
   { label: "Cinematics", href: "/services/3d-visualization/cinematics", media: "/services/animations.mp4", type: "video" as const, desc: "Cinematic walkthroughs, fly-throughs, and design animations that bring spaces to life." },
@@ -41,7 +42,16 @@ const groups = Array.from({ length: Math.ceil(items.length / GROUP_SIZE) }, (_, 
  * scroll past it, so there's no "stuck"/glitchy feeling. Hovering a row
  * still jumps straight to it.
  */
-export default function ServicesPreview({ lang = "en", dict }: { lang?: Locale; dict: Dictionary }) {
+export default function ServicesPreview({
+  lang = "en",
+  dict,
+  heading = dict.servicesPreview.heading,
+}: {
+  lang?: Locale;
+  dict: Dictionary;
+  /** Section H2; region pages pass Deliverable 4's "End-to-End Architectural Visualization Solutions". */
+  heading?: string;
+}) {
   const [activeGroup, setActiveGroup] = useState(0);
   const [activeItem, setActiveItem] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
@@ -162,13 +172,17 @@ export default function ServicesPreview({ lang = "en", dict }: { lang?: Locale; 
         <div className="relative z-10 flex h-full flex-col justify-center">
           <div className="container-page">
             <Reveal>
+              <h2 className="eyebrow mb-2 text-paper/85">{heading}</h2>
+            </Reveal>
+            <Reveal>
               <p className="eyebrow mb-5 text-paper/60 sm:mb-8">
                 {dict.servicesPreview.eyebrowPrefix} · <Num value={activeGroup + 1} locale={lang} /> {dict.servicesPreview.ofSeparator} <Num value={groups.length} locale={lang} />
               </p>
             </Reveal>
-            <ul className="border-t border-line-inverse">
-              {groups[activeGroup].map((item, i) => {
-                const globalIndex = activeGroup * GROUP_SIZE + i;
+            {groups.map((group, groupIndex) => (
+            <ul key={groupIndex} className={`border-t border-line-inverse ${groupIndex === activeGroup ? "" : "hidden"}`}>
+              {group.map((item, i) => {
+                const globalIndex = groupIndex * GROUP_SIZE + i;
                 return (
                   <li
                     key={item.href}
@@ -192,6 +206,7 @@ export default function ServicesPreview({ lang = "en", dict }: { lang?: Locale; 
                 );
               })}
             </ul>
+            ))}
             <div className="mt-5 flex justify-end gap-2">
               <button type="button" onClick={() => goToGroup(activeGroup - 1)} disabled={activeGroup === 0} aria-label={dict.servicesPreview.previous} className="button-pill flex h-12 w-12 items-center justify-center px-0 text-paper disabled:cursor-not-allowed disabled:opacity-35">{rtl ? "→" : "←"}</button>
               <button type="button" onClick={() => goToGroup(activeGroup + 1)} disabled={activeGroup === groups.length - 1} aria-label={dict.servicesPreview.next} className="button-pill flex h-12 w-12 items-center justify-center px-0 text-paper disabled:cursor-not-allowed disabled:opacity-35">{rtl ? "←" : "→"}</button>

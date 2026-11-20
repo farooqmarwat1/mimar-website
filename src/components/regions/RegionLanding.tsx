@@ -13,6 +13,7 @@ import { comma, localeHref, localizeDigits, type Locale } from "@/i18n/config";
 import { localizeProject, localizedStats } from "@/lib/localized-site";
 import { developmentsAr, deliveredAr, localizeRegion, officesAr, regionUi } from "@/lib/ar/regions.ar";
 import { projectCoverAlt } from "@/lib/project-alt";
+import { linkedText } from "@/components/ui/LinkedText";
 
 /**
  * "Global offices" is dropped here: it is a company-wide figure that says
@@ -155,7 +156,9 @@ export default function RegionLanding({ region: englishRegion, lang = "en" }: { 
           </Reveal>
         )}
         <Reveal delay={0.05}>
-          <p className="section-body max-w-4xl text-xl leading-snug md:text-2xl">{region.marketCopy}</p>
+          {/* The market copy carries a `[words](/services/3d-visualization)` link to the core service
+              page within the page's first 300 words (Deliverable 5, tier 1 interlinking). */}
+          <p className="section-body max-w-4xl text-xl leading-snug md:text-2xl">{linkedText(region.marketCopy, lang)}</p>
         </Reveal>
         {region.localHeading && (
           <Reveal delay={0.1}>
@@ -209,7 +212,9 @@ export default function RegionLanding({ region: englishRegion, lang = "en" }: { 
       {projects.length > 0 && (
         <section className="container-page pb-16 md:pb-28" aria-labelledby="region-projects-heading">
           <div className="mb-8 flex flex-col gap-2 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
-            <h2 id="region-projects-heading" className="eyebrow text-muted">{ui.projectsHeading[0]}{region.name}{ui.projectsHeading[1]}</h2>
+            <h2 id="region-projects-heading" className="eyebrow text-muted">
+              {region.headings?.projects ? `/ ${region.headings.projects}` : <>{ui.projectsHeading[0]}{region.name}{ui.projectsHeading[1]}</>}
+            </h2>
             <p className="eyebrow text-accent">
               {ar ? developmentsAr(projects.length) : <>{projects.length} {projects.length === 1 ? "development" : "developments"}</>}
             </p>
@@ -241,7 +246,7 @@ export default function RegionLanding({ region: englishRegion, lang = "en" }: { 
       {/* Services - the same scroll-driven numbered showcase the homepage
           uses, so the region pages read as part of the same site. It renders
           its own heading and links straight into each service page. */}
-      <ServicesPreview lang={lang} dict={dict} />
+      <ServicesPreview lang={lang} dict={dict} heading={ui.servicesHeading} />
 
       {/* Stats - same treatment as the studio block on the homepage:
           accent-coloured, count-up values with the label beneath. */}
@@ -265,7 +270,9 @@ export default function RegionLanding({ region: englishRegion, lang = "en" }: { 
       {/* Why clients here choose us */}
       <section className="container-page py-16 md:py-28" aria-labelledby="region-why-heading">
         <Reveal>
-          <h2 id="region-why-heading" className="eyebrow mb-10 text-muted">{ui.whyHeading[0]}{region.name}{ui.whyHeading[1]}</h2>
+          <h2 id="region-why-heading" className="eyebrow mb-10 text-muted">
+            {region.headings?.why ? `/ ${region.headings.why}` : <>{ui.whyHeading[0]}{region.name}{ui.whyHeading[1]}</>}
+          </h2>
         </Reveal>
         <div className="grid gap-x-10 gap-y-9 md:grid-cols-2 lg:grid-cols-3">
           {region.reasons.map((reason, index) => (
@@ -347,7 +354,7 @@ export default function RegionLanding({ region: englishRegion, lang = "en" }: { 
           </div>
           <div className="grid gap-x-10 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
             {region.locations.map((location, index) => (
-              <Reveal key={location.gbpUrl} delay={(index % 3) * 0.05}>
+              <Reveal key={`${location.city}-${location.streetAddress}`} delay={(index % 3) * 0.05}>
                 <div className="border-t border-line pt-5">
                   <h3 className="text-lg">
                     {location.city}
@@ -370,7 +377,12 @@ export default function RegionLanding({ region: englishRegion, lang = "en" }: { 
         </section>
       )}
 
-      <FaqSection items={region.faqs} lang={lang} dict={dict} />
+      <FaqSection
+        items={region.faqs}
+        lang={lang}
+        dict={dict}
+        heading={region.headings?.faq ?? `${ui.faqHeading[0]}${region.name}${ui.faqHeading[1]}`}
+      />
 
       {/* The site's standard closing CTA - same component every other page uses */}
       <ContactCta lang={lang} dict={dict} />

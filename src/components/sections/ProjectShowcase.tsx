@@ -186,7 +186,7 @@ export default function ProjectShowcase({
       >
         <p className="eyebrow text-ink/50">{dict.projectShowcase.eyebrow}</p>
         <h2 className="section-heading mx-auto mt-6">
-          <span className="block text-ink">{dict.projectShowcase.heading1}</span>
+          <span className="block text-ink">{dict.projectShowcase.heading1}</span>{" "}
           <span className="block text-accent">{dict.projectShowcase.heading2}</span>
         </h2>
         <p className="section-body mx-auto mt-6 max-w-xl">{intro}</p>

@@ -111,6 +111,7 @@ const en = {
   },
   servicesPreview: {
     eyebrowPrefix: "/ Services",
+    heading: "Architecture, 3D Visualization & Interactive Services",
     ofSeparator: "of",
     previous: "Previous services",
     next: "Next services",
