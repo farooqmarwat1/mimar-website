@@ -9,7 +9,7 @@ import { localizeRegion } from "@/lib/ar/regions.ar";
  * pages, with each page's short label as the anchor. Deliverable 5 asks for
  * link equity to flow between the core 3D Visualization page and the regional
  * pages in both directions; the region pages already link up in their market
- * copy (SEO_MIGRATION.md point 36).
+ * copy (SEO_MIGRATION.md point 38).
  */
 export default function RegionLinks({ lang = "en" }: { lang?: Locale }) {
   const arrow = isRtl(lang) ? "←" : "→";
