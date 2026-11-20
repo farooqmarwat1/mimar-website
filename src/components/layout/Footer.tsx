@@ -27,7 +27,39 @@ const indexLinks = [
   { key: "expos", href: "/expos" },
 ] as const;
 
+/**
+ * Cross-regional links on every page (Deliverable 5, section 4, SEO_MIGRATION.md point 35), so no
+ * region page is orphaned and each gets a sitewide link with a descriptive anchor. The anchors are the
+ * consultant's. The Middle East hub is included: Deliverable 5 marks it "to confirm", but the owner
+ * asked for the page on 16 Nov and it is live.
+ */
+const regionalHubs = {
+  en: {
+    heading: "Global & Regional 3D Visualization Hubs",
+    links: [
+      { href: "/services/3d-visualization", label: "Main 3D Visualization Services" },
+      { href: "/3d-visualization-usa", label: "3D Visualization Services USA" },
+      { href: "/3d-visualization-services-uae", label: "3D Visualization Services UAE (Dubai)" },
+      { href: "/3d-visualization-services-saudi-arabia", label: "3D Visualization Services Saudi Arabia" },
+      { href: "/3d-visualization-services-pakistan", label: "3D Visualization Services Pakistan" },
+      { href: "/3d-visualization-middle-east", label: "3D Visualization Services Middle East (GCC Hub)" },
+    ],
+  },
+  ar: {
+    heading: "مراكز التصور ثلاثي الأبعاد العالمية والإقليمية",
+    links: [
+      { href: "/services/3d-visualization", label: "خدمات التصور ثلاثي الأبعاد الرئيسية" },
+      { href: "/3d-visualization-usa", label: "خدمات التصور ثلاثي الأبعاد في الولايات المتحدة" },
+      { href: "/3d-visualization-services-uae", label: "خدمات التصور ثلاثي الأبعاد في الإمارات (دبي)" },
+      { href: "/3d-visualization-services-saudi-arabia", label: "خدمات التصور ثلاثي الأبعاد في السعودية" },
+      { href: "/3d-visualization-services-pakistan", label: "خدمات التصور ثلاثي الأبعاد في باكستان" },
+      { href: "/3d-visualization-middle-east", label: "خدمات التصور ثلاثي الأبعاد في الشرق الأوسط (مركز الخليج)" },
+    ],
+  },
+} as const;
+
 export default function Footer({ lang = "en", dict = getDictionary(lang) }: { lang?: Locale; dict?: Dictionary }) {
+  const hubs = regionalHubs[lang === "ar" ? "ar" : "en"];
   const columns = [
     {
       heading: dict.footer.officesHeading,
@@ -115,6 +147,21 @@ export default function Footer({ lang = "en", dict = getDictionary(lang) }: { la
             </ul>
           </div>
         </div>
+        <nav aria-labelledby="footer-regional-hubs" className="border-b border-line-inverse py-6">
+          <p id="footer-regional-hubs" className="eyebrow mb-3 text-muted-inverse">{hubs.heading}</p>
+          <ul className="grid grid-cols-1 gap-x-8 min-[460px]:grid-cols-2 lg:grid-cols-3">
+            {hubs.links.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={localeHref(lang, link.href)}
+                  className="inline-flex min-h-11 max-w-full items-center break-words text-sm leading-snug transition-colors hover:text-accent md:min-h-8"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 pt-4">
           <p className="eyebrow text-muted-inverse">
             {dict.footer.rightsReserved} {localizeDigits(new Date().getFullYear(), lang)}

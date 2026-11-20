@@ -244,7 +244,7 @@ export default function ProjectDetailView({
             <Reveal delay={0.05}>
               <div className="flex flex-wrap gap-3">
                 <Link href={localeHref(lang, story.service.path)} className="button-pill text-ink">{story.service.label}</Link>
-                {region && <Link href={localeHref(lang, region.path)} className="button-pill text-ink">{region.h1}</Link>}
+                {region && <Link href={localeHref(lang, region.path)} className="button-pill text-ink">{region.label}</Link>}
               </div>
             </Reveal>
           </section>

@@ -67,6 +67,21 @@ test('the home title and description fit a search result and end on a call to ac
   assert.equal(siteConfigAr.faqs.length, faqs.length, 'Arabic home has every FAQ');
 });
 
+// Deliverable 5 (19 Nov 2026): every region page has the H1/H2/H3 plan and a description that fits a
+// search result, in both languages, and a short label for breadcrumbs and buttons.
+test('every region page has its heading plan, a short label and a description that fits', () => {
+  for (const region of regionList) {
+    for (const r of [region, localizeRegion(region, 'ar')]) {
+      assert.ok(r.marketHeading && r.localHeading && r.localHeading.heading && r.localHeading.body, `${r.name} heading plan`);
+      assert.ok(r.label && r.label.length <= 60, `${r.name} label: ${r.label}`);
+      assert.ok(r.description.length >= 110 && r.description.length <= 160, `${r.name} description is ${r.description.length}: ${r.description}`);
+    }
+  }
+  const { regions } = load('src/lib/regions.ts');
+  assert.ok(regions.saudiArabia.faqs.some(f => /Wafi/.test(f.question)), 'Saudi Wafi FAQ');
+  assert.equal(localizeRegion(regions.saudiArabia, 'ar').faqs.length, regions.saudiArabia.faqs.length, 'Arabic Saudi FAQs match');
+});
+
 test('the old Middle East article is gone from the legacy content', () => {
   for (const file of ['../src/content/legacy-seo.json', '../src/content/legacy-seo.ar.json']) {
     const pages = require(file);
