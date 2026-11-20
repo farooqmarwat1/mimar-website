@@ -43,7 +43,7 @@ export default function UsaRegionPage() {
             { name: "Home", path: "/" },
             { name: "Services", path: "/services" },
             // Shorter than the H1, which is a full keyword sentence since Deliverable 4.
-            { name: "3D Architectural Rendering Services USA", path: region.path },
+            { name: region.label, path: region.path },
           ]),
           {
             ...serviceJsonLd({

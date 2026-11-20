@@ -38,7 +38,7 @@ export default function SaudiArabiaRegionPage() {
           breadcrumbJsonLd([
             { name: "Home", path: "/" },
             { name: "Services", path: "/services" },
-            { name: region.h1, path: region.path },
+            { name: region.label, path: region.path },
           ]),
           {
             ...serviceJsonLd({

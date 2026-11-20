@@ -30,12 +30,12 @@ export default function RegionPageAr({ regionKey }: { regionKey: keyof typeof re
           breadcrumbJsonLd([
             { name: dict.common.home, path: localeHref("ar", "/") },
             { name: dict.nav.services, path: localeHref("ar", "/services") },
-            { name: region.h1, path: pagePath },
+            { name: region.label, path: pagePath },
           ]),
           {
             ...serviceJsonLd(
               {
-                title: region.h1,
+                title: region.label,
                 slug: "3d-visualization",
                 intro: region.description,
                 outputs: region.services.map((s) => s.title),

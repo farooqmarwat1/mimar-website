@@ -148,15 +148,29 @@ export default function RegionLanding({ region: englishRegion, lang = "en" }: { 
       {/* Market positioning */}
       <section className="container-page py-16 md:py-28">
         <Reveal><p className="eyebrow mb-10 text-muted">{ui.marketHeading[0]}{region.name}{ui.marketHeading[1]}</p></Reveal>
+        {/* H2 / H3 from Deliverable 5's heading plan; a region without them keeps the plain copy. */}
+        {region.marketHeading && (
+          <Reveal delay={0.05}>
+            <h2 className="mb-8 max-w-4xl text-2xl leading-tight tracking-[-.03em] md:text-4xl">{region.marketHeading}</h2>
+          </Reveal>
+        )}
         <Reveal delay={0.05}>
           <p className="section-body max-w-4xl text-xl leading-snug md:text-2xl">{region.marketCopy}</p>
         </Reveal>
+        {region.localHeading && (
+          <Reveal delay={0.1}>
+            <div className="mt-10 max-w-3xl border-t border-line pt-6">
+              <h3 className="text-lg md:text-xl">{region.localHeading.heading}</h3>
+              <p className="section-body mt-3">{region.localHeading.body}</p>
+            </div>
+          </Reveal>
+        )}
         {/* A hub page (the Middle East) links down to the country pages it covers. */}
         {relatedRegions.length > 0 && (
           <Reveal delay={0.1}>
             <div className="mt-10 flex flex-wrap gap-3">
               {relatedRegions.map((related) => (
-                <Link key={related.path} href={href(related.path)} className="button-pill text-ink">{related.h1}</Link>
+                <Link key={related.path} href={href(related.path)} className="button-pill text-ink">{related.label}</Link>
               ))}
             </div>
           </Reveal>

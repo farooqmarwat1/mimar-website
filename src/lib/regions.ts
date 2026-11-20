@@ -59,7 +59,13 @@ export type Region = {
   description: string;
   keywords: string[];
   h1: string;
+  /** Short page name for breadcrumbs, buttons and the Service schema - the H1 is a full keyword phrase. */
+  label: string;
   intro: string;
+  /** H2 over the market copy, from Deliverable 5's heading plan. */
+  marketHeading?: string;
+  /** H3 with one supporting paragraph under the market copy, from Deliverable 5's heading plan. */
+  localHeading?: { heading: string; body: string };
   /** Slugs from site-config projects that belong to this market. */
   projectSlugs: string[];
   /** Short market-specific positioning paragraph. */
@@ -99,16 +105,19 @@ export const regions: Record<string, Region> = {
     name: "UAE",
     city: "Dubai",
     seoTitle: "3D Rendering Services in Dubai & UAE | Mimar Studios",
+    // Description, H1, H2 and H3 from Deliverable 5 (19 Nov 2026, SEO_MIGRATION.md point 33).
     description:
-      "3D rendering and architectural visualization services for developers and architects in Dubai, Abu Dhabi and across the UAE. Photorealistic stills, animation, VR and 360 tours.",
+      "Looking for top-rated 3D visualization companies in Dubai? Mimar Studios delivers photorealistic 3D rendering, animations & VR tours for UAE developers.",
     keywords: [
+      "3d visualizer",
       "3d rendering dubai",
       "3d visualization companies in dubai",
       "architectural visualization services uae",
       "3d rendering services dubai",
       "3d architectural visualization dubai",
     ],
-    h1: "3D Visualization Services UAE",
+    h1: "Top 3D Visualizer & Architectural Rendering Services in the UAE",
+    label: "3D Visualization Services UAE",
     // Keep this to roughly two lines - the hero uses max-w-xl, matching the
     // short, punchy subheads on the service pages.
     intro:
@@ -123,6 +132,13 @@ export const regions: Record<string, Region> = {
     ],
     marketCopy:
       "Making a mark in Dubai's skyline is not an easy feat. Mimar Studios works with developers, architects and real estate teams across Dubai, Abu Dhabi, Sharjah and the wider UAE - producing renderings, cinematics, VR tours and 3D on plan in-house. Architectural visualization makes a development more appealing and interactive for buyers, and helps it sell faster, which matters in a market where most units are sold off-plan.",
+    // Deliverable 5 asked for "Glass-Facade Sunlight Simulation"; "studies" describes what a render
+    // actually shows (light at a chosen time of day) without implying an engineering analysis.
+    marketHeading: "Off-Plan Real Estate Marketing & Glass-Facade Sunlight Studies",
+    localHeading: {
+      heading: "Serving Luxury Developers Across Dubai, Abu Dhabi & Sharjah",
+      body: "Aark Residences, Amer Al Ghurair, Divine Golf, Divine Residencia, H&S and Karma Trinity are all Dubai developments we visualized. Facades are rendered at the times of day buyers will see them, so glazing, reflections and shade read as they will on site.",
+    },
     services: [
       {
         title: "3D Rendering",
@@ -281,6 +297,8 @@ export const regions: Record<string, Region> = {
     // were added from Deliverable 4 (768 + 734 impressions on the home page).
     keywords: [
       "3d architectural rendering services usa",
+      "3d visualization services usa",
+      "real estate rendering new york",
       "3d rendering services usa",
       "architectural visualization studio usa",
       "outsource 3d rendering usa",
@@ -290,12 +308,20 @@ export const regions: Record<string, Region> = {
       "3d rendering services los angeles",
       "3d rendering services dallas",
     ],
+    // Deliverable 5 proposed "High-End 3D Architectural Visualization Services in the USA"; the
+    // Deliverable 4 H1 stays because it carries "rendering" too. Its H2/H3 are used below.
     h1: "Photorealistic 3D Architectural Rendering & Visualization Services in the USA",
+    label: "3D Architectural Rendering Services USA",
     intro:
       "Photorealistic rendering, animation and virtual tours for developers and architects in New York, Los Angeles, San Francisco, Dallas, Houston and Miami.",
     projectSlugs: ["nomi-downtown", "the-garden-residences"],
     marketCopy:
       "American developers sell on renderings long before a foundation is poured - to lenders, to planning boards, and to buyers deciding off a brochure. Mimar Studios produces that imagery in-house for teams in New York, Los Angeles, San Francisco, Dallas, Houston and Miami: photorealistic stills, cinematic animation, 360 tours and interactive tools, delivered to US drawing standards and on US schedules.",
+    marketHeading: "Accelerating US Pre-Sales, Lender Decks & Municipal Zoning Approvals",
+    localHeading: {
+      heading: "Imperial CAD Precision & EST/PST Overlap Across NY, Miami, Dallas, LA & SF",
+      body: "We model straight from AutoCAD and Revit drawings in feet and inches, answer inside your working day on both coasts, and sign an NDA before an unreleased project leaves your office.",
+    },
     // Deliverable 4, step 2: the cities US searchers name, each with its own
     // subheading. The opening paragraph is the consultant's copy.
     cityHub: {
@@ -525,26 +551,39 @@ export const regions: Record<string, Region> = {
     name: "Saudi Arabia",
     city: "Riyadh",
     seoTitle: "3D Rendering Services in Saudi Arabia | Mimar Studios",
+    // Description, H1, H2 and H3 from Deliverable 5 (SEO_MIGRATION.md point 33).
     description:
-      "3D rendering and architectural visualization for developers and architects in Riyadh, Jeddah and across Saudi Arabia. Photorealistic stills, animation, VR and 360 tours, from our Jeddah office.",
+      "Mimar Studios delivers top 3D visualization services for real estate developers in Riyadh, Jeddah & KSA mega-projects. Request a quote today.",
     // Unlike the UAE and US pages, these are not queries the site already
     // ranks for. Saudi search currently reaches the site almost entirely on
     // brand terms - of 276 Saudi queries in the six months to 17 Oct 2026,
     // exactly one named a Saudi city. This page is building demand, not
     // capturing it, and should be judged on that.
     keywords: [
+      "3d visualization saudi arabia",
       "3d rendering services saudi arabia",
+      "architectural rendering riyadh",
+      "wafi off-plan renders",
       "architectural visualization riyadh",
       "3d rendering company jeddah",
       "architectural rendering saudi arabia",
       "3d visualization riyadh",
     ],
-    h1: "3D Visualization Services Saudi Arabia",
+    h1: "3D Visualization & Architectural Rendering Services in Saudi Arabia",
+    label: "3D Visualization Services Saudi Arabia",
     intro:
       "Photorealistic rendering, animation and virtual tours for developers building in Riyadh, Jeddah and across the Kingdom.",
     projectSlugs: ["nana-222"],
     marketCopy:
       "Saudi Arabia is building faster than anywhere else in the region, and most of it is sold, approved and funded from imagery long before the site is cleared. Mimar Studios works with developers and architects in Riyadh and Jeddah from an office in Jeddah, producing renderings, cinematics, VR tours and 3D on plan in-house - in Gulf working hours, and quoted in riyals.",
+    // Deliverable 5 asked for "Wafi & REGA Compliant Visual Assets"; compliance is the developer's
+    // licence, not something a render can have, so the copy says what we make for those submissions.
+    // It also listed NEOM, where we have no project, so the H3 names the cities we work in.
+    marketHeading: "Visual Assets for Wafi Off-Plan Sales & Vision 2030 Developments",
+    localHeading: {
+      heading: "Masterplan & Commercial Rendering Across Riyadh & Jeddah",
+      body: "Off-plan projects in the Kingdom are sold through Wafi, the off-plan sales programme of the Real Estate General Authority (REGA). We produce the renders, films and tours developers market them with - NANA 222 in Riyadh among them - from our office in Jeddah, to the brief and formats your Wafi or REGA submission asks for.",
+    },
     services: [
       {
         title: "3D Rendering",
@@ -647,6 +686,11 @@ export const regions: Record<string, Region> = {
           "Yes. Our week runs Sunday to Thursday in Arabia Standard Time, so reviews and approvals happen on your schedule rather than a day behind it.",
       },
       {
+        question: "Can you produce renders for Wafi off-plan sales?",
+        answer:
+          "Yes. Developers selling off-plan through Wafi, the programme of the Real Estate General Authority (REGA), market their projects with renders, cinematics and 360 tours. We produce them to the brief and formats your Wafi or REGA submission asks for; the licence and approval stay with the developer.",
+      },
+      {
         question: "Can you produce material for off-plan sales?",
         answer:
           "That is most of what we do. Stills, cinematic animation, 360 tours and interactive tools are all produced in-house, so a development looks consistent across a sales centre, a brochure and a listing page.",
@@ -671,21 +715,26 @@ export const regions: Record<string, Region> = {
     name: "Pakistan",
     city: "Islamabad",
     seoTitle: "3D Architecture & Rendering Firm in Pakistan | Mimar Studios",
+    // Description, H1, H2 and H3 from Deliverable 5 (SEO_MIGRATION.md point 33), the description
+    // shortened to fit 160 characters. The title stays: it already carries "Pakistan".
     description:
-      "Architectural visualization, 3D rendering and branding for developers and architects in Islamabad, Lahore, Karachi and Multan. The studio was founded in Islamabad in 2019.",
+      "Professional 3D visualization services in Pakistan. Mimar Studios offers architectural rendering for residential & commercial projects from Islamabad.",
     // Pakistan is the opposite problem to the US. Brand terms do well -
     // "mimar" alone is 140 clicks at 33% CTR - but the non-brand local
     // queries below sit on page 2 to 6, so they need rankings, not a better
     // title. Note what actually earns impressions here: "architecture firm"
     // and "branding", more than "3d rendering".
     keywords: [
+      "3d visualization services pakistan",
+      "3d visualization services islamabad",
       "architecture firms in pakistan",
       "architectural design firm in pakistan",
       "3d rendering services pakistan",
       "branding companies in pakistan",
       "architectural visualization islamabad",
     ],
-    h1: "3D Visualization Services Pakistan",
+    h1: "3D Visualization Services in Pakistan",
+    label: "3D Visualization Services Pakistan",
     intro:
       "Architectural visualization, rendering and branding for developers and architects in Islamabad, Lahore, Karachi and Multan.",
     projectSlugs: [
@@ -700,6 +749,11 @@ export const regions: Record<string, Region> = {
     ],
     marketCopy:
       "Mimar Studios was founded in Islamabad in 2019 and still builds everything here - the studio at the National Science & Technology Park produces the renderings, animation, VR and branding that go out to clients in fourteen countries. Closer to home that means master-planned communities, high-rise residential and hospitality work across Islamabad, Lahore, Karachi and Multan, handled by the same team that delivers abroad.",
+    marketHeading: "Precision Architectural Rendering for Residential & Commercial Developments",
+    localHeading: {
+      heading: "Local Islamabad Studio Expertise & PKR Project Consultation",
+      body: "Meet the team at the studio in the National Science & Technology Park, NUST, H-12, talk the project through in person, and get an itemised quote in rupees.",
+    },
     services: [
       {
         title: "3D Rendering",
@@ -845,8 +899,10 @@ export const regions: Record<string, Region> = {
     name: "Middle East",
     city: "Dubai & Jeddah",
     seoTitle: "3D Visualization Services in the Middle East | Mimar Studios",
+    // Description, H1, H2 and H3 from Deliverable 5 (SEO_MIGRATION.md point 33). Deliverable 5 marks
+    // this hub "to confirm"; the owner asked for it on 16 Nov (point 30), so it stays live.
     description:
-      "3D visualization services across the Middle East: architectural rendering, animation and VR tours for GCC developers, from offices in Dubai and Jeddah.",
+      "Discover premier 3D visualization services across the Middle East. Mimar Studios provides architectural rendering for GCC commercial & residential projects.",
     // Sheet D5 (Mimar.xlsx, "Middle East (Regional Hub)").
     keywords: [
       "3d visualization services middle east",
@@ -855,7 +911,8 @@ export const regions: Record<string, Region> = {
       "architectural rendering middle east",
       "3d rendering gcc",
     ],
-    h1: "3D Visualization Services Middle East",
+    h1: "3D Visualization & Architectural Rendering Services Across the Middle East",
+    label: "3D Visualization Services Middle East",
     // Sheet D5: "Link to UAE and KSA sub-pages".
     relatedRegions: ["uae", "saudiArabia"],
     intro:
@@ -872,6 +929,13 @@ export const regions: Record<string, Region> = {
     ],
     marketCopy:
       "Across the Gulf, developments are sold, approved and funded from imagery long before they are built. Mimar Studios began as a 3D architectural visualization studio in Pakistan and now works with developers, architects and real estate teams in the UAE, Saudi Arabia and Oman from locations in Dubai and Jeddah, producing renderings, cinematics, VR tours, property explorers and 3D on plan in-house.",
+    // Deliverable 5's H3 named Qatar, Bahrain and Kuwait, where we have no projects; it names the
+    // countries we have delivered in instead.
+    marketHeading: "Cross-Border GCC Visualization Solutions for Regional Developers",
+    localHeading: {
+      heading: "Unified Delivery Across the UAE, Saudi Arabia, Oman & the Wider GCC",
+      body: "One team across Dubai, Jeddah and Islamabad handles every market, so a developer with projects in more than one Gulf country gets the same pipeline, the same look and one point of contact. The UAE and Saudi Arabia have their own pages, linked below.",
+    },
     // The six services the old page listed, one real sentence each.
     services: [
       {

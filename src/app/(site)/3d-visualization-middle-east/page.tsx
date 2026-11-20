@@ -36,11 +36,11 @@ export default function MiddleEastRegionPage() {
           breadcrumbJsonLd([
             { name: "Home", path: "/" },
             { name: "Services", path: "/services" },
-            { name: region.h1, path: region.path },
+            { name: region.label, path: region.path },
           ]),
           {
             ...serviceJsonLd({
-              title: region.h1,
+              title: region.label,
               slug: "3d-visualization",
               intro: region.description,
               outputs: region.services.map((s) => s.title),
