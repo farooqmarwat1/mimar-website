@@ -89,7 +89,7 @@ test('the old Middle East article is gone from the legacy content', () => {
   }
 });
 
-// Earlier Deliverable 4 and 5 drafts (20 Nov 2026, SEO_MIGRATION.md point 36).
+// Earlier Deliverable 4 and 5 drafts (20 Nov 2026, SEO_MIGRATION.md point 38).
 test('every region page links the core 3D Visualization page in its first 300 words', () => {
   for (const region of regionList) {
     for (const r of [region, localizeRegion(region, 'ar')]) {
