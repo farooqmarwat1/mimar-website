@@ -225,6 +225,14 @@ const nextConfig = {
       { source: "/services/vr-and-360", destination: "/services/interactive-services/vr-360-tours", permanent: true },
       { source: "/services/web-360", destination: "/services/interactive-services/web-tours", permanent: true },
       { source: "/services/dual-screen", destination: "/services/interactive-services/dual-screen-navigator", permanent: true },
+      // Old internal links in the migrated WordPress articles (src/content/legacy-seo.json) that
+      // returned 404 on 20 Nov 2026 (SEO scope item 2, SEO_MIGRATION.md point 37). The tours are
+      // the 360 Residences Pano2VR tours restored under public/tours.
+      { source: "/vr-360-tours", destination: "/services/interactive-services/vr-360-tours", permanent: true },
+      { source: "/services/3d-visualization/renders", destination: "/services/3d-visualization/3d-views", permanent: true },
+      { source: "/1bed", destination: "/tours/the360residences/one-bed", permanent: true },
+      { source: "/360-2bed", destination: "/tours/the360residences/two-bed", permanent: true },
+      { source: "/profile", destination: "/about-us", permanent: true },
       { source: "/magnetic-field-of-solenoid", destination: "/services/interactive-services/vr-360-tours", permanent: true },
       { source: "/galvanic-cell", destination: "/services/interactive-services/vr-360-tours", permanent: true },
       // Restored 360 tours are served from public/tours/* (see rewrites below);
