@@ -36,7 +36,8 @@ function Row({ post }: { post: PostRow }) {
   const unpublishNote = `Unpublish "${post.title}"? ${post.path} will stop working (404) and it disappears from the blog, the sitemap and search results until you publish it again.`;
   return (
     <li className="flex flex-wrap items-center gap-x-5 gap-y-3 p-5">
-      <div className="min-w-0 flex-1">
+      {/* A basis of 22rem (not 0): when the badges and actions do not fit beside the title, they wrap below it instead of squeezing it to one word per line. */}
+      <div className="min-w-0 flex-[1_1_22rem]">
         <Link href={`/admin/blog/${post.id}`} className="font-medium hover:text-accent">
           {post.title || "Untitled"}
         </Link>
@@ -44,6 +45,7 @@ function Row({ post }: { post: PostRow }) {
           {post.path} · edited {post.updatedAt.slice(0, 10)} by {post.updatedBy}
         </p>
       </div>
+      <div className="flex flex-wrap items-center gap-2">
       {post.legacy && <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800">WordPress</span>}
       {post.origin === "ai" && (
         <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-800">{post.status === "draft" && !scheduled ? "AI draft" : "Written by AI"}</span>
@@ -71,7 +73,8 @@ function Row({ post }: { post: PostRow }) {
       ) : (
         <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusBadgeClass[post.status] ?? ""}`}>{post.status}</span>
       )}
-      <div className="flex flex-wrap items-center gap-5">
+      </div>
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
         {scheduled && (
           <form action={unschedulePostAction}>
             <input type="hidden" name="id" value={post.id} />
