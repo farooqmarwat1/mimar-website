@@ -89,7 +89,7 @@ export default function ServiceDetailView({ detail: englishDetail, lang = "en" }
         <div className="container-page relative w-full pb-14 pt-32 md:pb-16">
           <Reveal><p className="eyebrow mb-8 text-paper/65">{detail.eyebrow}</p></Reveal>
           <Reveal delay={0.05}>
-            <h1 className={`max-w-5xl break-words text-[clamp(3rem,13vw,8rem)] font-medium uppercase leading-[.82] tracking-[-.065em]${arClass(lang, "rtl:leading-[1.2]")}`}>{detail.title}</h1>
+            <h1 className={`max-w-5xl break-words text-[clamp(3rem,13vw,8rem)] font-medium uppercase leading-[.82] tracking-[-.065em]${arClass(lang, "rtl:leading-[1.2]")}`}>{detail.heading ?? detail.title}</h1>
           </Reveal>
           <Reveal delay={0.1}>
             <p className="mt-10 max-w-xl text-lg leading-snug text-paper/90 md:text-xl">{detail.intro}</p>
