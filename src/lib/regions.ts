@@ -105,7 +105,7 @@ export const regions: Record<string, Region> = {
     name: "UAE",
     city: "Dubai",
     seoTitle: "3D Rendering Services in Dubai & UAE | Mimar Studios",
-    // Description, H1, H2 and H3 from Deliverable 5 (19 Nov 2026, SEO_MIGRATION.md point 33).
+    // Description, H1, H2 and H3 from Deliverable 5 (19 Nov 2026, SEO_MIGRATION.md point 35).
     description:
       "Looking for top-rated 3D visualization companies in Dubai? Mimar Studios delivers photorealistic 3D rendering, animations & VR tours for UAE developers.",
     keywords: [
@@ -551,7 +551,7 @@ export const regions: Record<string, Region> = {
     name: "Saudi Arabia",
     city: "Riyadh",
     seoTitle: "3D Rendering Services in Saudi Arabia | Mimar Studios",
-    // Description, H1, H2 and H3 from Deliverable 5 (SEO_MIGRATION.md point 33).
+    // Description, H1, H2 and H3 from Deliverable 5 (SEO_MIGRATION.md point 35).
     description:
       "Mimar Studios delivers top 3D visualization services for real estate developers in Riyadh, Jeddah & KSA mega-projects. Request a quote today.",
     // Unlike the UAE and US pages, these are not queries the site already
@@ -715,7 +715,7 @@ export const regions: Record<string, Region> = {
     name: "Pakistan",
     city: "Islamabad",
     seoTitle: "3D Architecture & Rendering Firm in Pakistan | Mimar Studios",
-    // Description, H1, H2 and H3 from Deliverable 5 (SEO_MIGRATION.md point 33), the description
+    // Description, H1, H2 and H3 from Deliverable 5 (SEO_MIGRATION.md point 35), the description
     // shortened to fit 160 characters. The title stays: it already carries "Pakistan".
     description:
       "Professional 3D visualization services in Pakistan. Mimar Studios offers architectural rendering for residential & commercial projects from Islamabad.",
@@ -809,17 +809,17 @@ export const regions: Record<string, Region> = {
     office: {
       city: "Islamabad",
       country: "Pakistan",
-      address: "1403, National Science & Technology Park (NSTP), NUST, H-12, Islamabad 44000, Pakistan",
+      address: "3407, National Science & Technology Park (NSTP), NUST, H-12, Islamabad 44000, Pakistan",
       phone: "+92 300 511 2990",
       geo: { latitude: 33.6461, longitude: 72.9932 },
     },
-    // Address and phone taken from the verified Business Profile, which says
-    // suite 1403 - site-config still says 3407. The profile is what Google
-    // compares against, so it wins here until the two are reconciled.
+    // Suite 3407, as in site-config: the owner confirmed 3407 on 19 Nov 2026.
+    // The Business Profile still said 1403 that day and has to be corrected
+    // there so the name, address and phone match everywhere Google reads them.
     locations: [
       {
         city: "Islamabad",
-        streetAddress: "1403, National Science & Technology Park (NSTP), NUST, H-12",
+        streetAddress: "3407, National Science & Technology Park (NSTP), NUST, H-12",
         postalCode: "44000",
         countryCode: "PK",
         phone: "+92 300 511 2990",
@@ -899,7 +899,7 @@ export const regions: Record<string, Region> = {
     name: "Middle East",
     city: "Dubai & Jeddah",
     seoTitle: "3D Visualization Services in the Middle East | Mimar Studios",
-    // Description, H1, H2 and H3 from Deliverable 5 (SEO_MIGRATION.md point 33). Deliverable 5 marks
+    // Description, H1, H2 and H3 from Deliverable 5 (SEO_MIGRATION.md point 35). Deliverable 5 marks
     // this hub "to confirm"; the owner asked for it on 16 Nov (point 30), so it stays live.
     description:
       "Discover premier 3D visualization services across the Middle East. Mimar Studios provides architectural rendering for GCC commercial & residential projects.",
@@ -1088,6 +1088,9 @@ export const regions: Record<string, Region> = {
 };
 
 /** Projects in site-config that belong to a region, in listed order. */
+/** Currency each market is quoted in (the region FAQs say "quoted per project in AED/SAR/PKR/USD"). */
+export const localCurrency: Record<string, string> = { AE: "AED", SA: "SAR", PK: "PKR", US: "USD" };
+
 export function regionProjects(region: Region): Project[] {
   return region.projectSlugs
     .map((slug) => projects.find((p) => p.slug === slug))

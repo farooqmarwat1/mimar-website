@@ -1,6 +1,6 @@
 import { siteUrl } from "@/lib/site-url";
 import RegionLanding from "@/components/regions/RegionLanding";
-import { regionProjects, regions } from "@/lib/regions";
+import { regionProjects, regions, localCurrency } from "@/lib/regions";
 import { breadcrumbJsonLd, jsonLdScript, serviceJsonLd } from "@/lib/seo";
 import { contact, siteConfig } from "@/lib/site-config";
 import { localeHref } from "@/i18n/config";
@@ -43,6 +43,8 @@ export default function RegionPageAr({ regionKey }: { regionKey: keyof typeof re
               "ar",
             ),
             inLanguage: "ar",
+            // This page's own Service node: the services page owns the shared @id.
+            "@id": `${siteUrl(pagePath)}#service`,
             url: siteUrl(pagePath),
             // Cities we work in, including those with no profile of their own.
             areaServed: [
@@ -76,6 +78,7 @@ export default function RegionPageAr({ regionKey }: { regionKey: keyof typeof re
                 longitude: location.geo.longitude,
               },
               telephone: location.phone.replace(/[^\d+]/g, ""),
+              ...(localCurrency[location.countryCode] ? { currenciesAccepted: localCurrency[location.countryCode] } : {}),
               email: contact.email,
               parentOrganization: { "@id": `${siteConfig.url}/#organization` },
               ...(location.gbpUrl ? { sameAs: [location.gbpUrl] } : {}),

@@ -28,7 +28,7 @@ const indexLinks = [
 ] as const;
 
 /**
- * Cross-regional links on every page (Deliverable 5, section 4, SEO_MIGRATION.md point 33), so no
+ * Cross-regional links on every page (Deliverable 5, section 4, SEO_MIGRATION.md point 35), so no
  * region page is orphaned and each gets a sitewide link with a descriptive anchor. The anchors are the
  * consultant's. The Middle East hub is included: Deliverable 5 marks it "to confirm", but the owner
  * asked for the page on 16 Nov and it is live.

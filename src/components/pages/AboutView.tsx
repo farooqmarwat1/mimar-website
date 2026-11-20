@@ -3,8 +3,13 @@ import Link from "@/components/ui/Link";
 import Reveal from "@/components/ui/Reveal";
 import AnimatedStatValue from "@/components/ui/AnimatedStatValue";
 import ContactCta from "@/components/sections/ContactCta";
+import FaqSection from "@/components/sections/FaqSection";
 import { jsonLdScript } from "@/lib/seo";
 import { localizedStats } from "@/lib/localized-site";
+import { regions } from "@/lib/regions";
+import { localizeRegion } from "@/lib/ar/regions.ar";
+import { siteConfig } from "@/lib/site-config";
+import { siteUrl } from "@/lib/site-url";
 import { arClass, localizedBreadcrumb } from "@/lib/page-helpers";
 import { aboutContent } from "@/content/pages/about-us";
 import { getDictionary } from "@/i18n/dictionaries";
@@ -17,9 +22,37 @@ export default function AboutView({ lang = "en" }: { lang?: Locale }) {
   const dict = getDictionary(lang);
   const stats = localizedStats(lang);
   const rtl = isRtl(lang);
+  // Section labels are H2s styled as eyebrows; the "/ " prefix is decoration, not part of the heading.
+  const label = (text: string) => <><span aria-hidden="true">/ </span>{text.replace(/^\/\s*/, "")}</>;
+  const markets = c.where.flatMap((row) => (regions[row.region] ? [{ ...row, page: localizeRegion(regions[row.region], lang) }] : []));
+  const pageUrl = siteUrl(localeHref(lang, "/about-us"));
 
   return <div>
-    <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(localizedBreadcrumb(lang, [{ name: c.breadcrumbHome, path: "/" }, { name: c.breadcrumbName, path: "/about-us" }]))} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript([
+      localizedBreadcrumb(lang, [{ name: c.breadcrumbHome, path: "/" }, { name: c.breadcrumbName, path: "/about-us" }]),
+      // AboutPage about the site-wide Organization (same @id), adding the founding facts the page states.
+      // The site-wide Organization block itself is the SEO team's and stays untouched (src/lib/seo.ts).
+      {
+        "@context": "https://schema.org",
+        "@type": "AboutPage",
+        "@id": `${pageUrl}#about`,
+        url: pageUrl,
+        // Metadata keeps Western digits (ARABIC.md), so the raw copy, not the digit-localized `c`.
+        name: aboutContent[lang].title,
+        description: aboutContent[lang].description,
+        inLanguage: lang,
+        isPartOf: { "@id": `${siteConfig.url}/#website` },
+        mainEntity: {
+          "@type": "Organization",
+          "@id": `${siteConfig.url}/#organization`,
+          name: siteConfig.name,
+          legalName: siteConfig.legalName,
+          foundingDate: siteConfig.foundingDate,
+          foundingLocation: { "@type": "Place", name: siteConfig.foundingLocation },
+          founder: { "@type": "Person", name: "Naqi Ejaz", jobTitle: "Founder" },
+        },
+      },
+    ])} />
 
     <section className="relative h-[100svh] min-h-[32rem] overflow-hidden bg-ink text-paper md:h-screen md:min-h-[38rem]">
       <video autoPlay muted loop playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover" aria-label={c.heroAriaLabel}>
@@ -45,7 +78,8 @@ export default function AboutView({ lang = "en" }: { lang?: Locale }) {
         <Reveal><p className="eyebrow text-muted">{c.aboutEyebrow}</p></Reveal>
         <Reveal delay={0.05}>
           <h2 className="section-heading mx-auto mt-6">
-            <span className="block">{c.aboutHeading1}</span>
+            {/* The space keeps the two lines apart in the heading text ("And Visualization", not "AndVisualization"). */}
+            <span className="block">{c.aboutHeading1}</span>{" "}
             <span className="block text-accent">{c.aboutHeading2}</span>
           </h2>
         </Reveal>
@@ -87,20 +121,38 @@ export default function AboutView({ lang = "en" }: { lang?: Locale }) {
     </section>
 
     <section className="container-page grid gap-12 py-16 md:grid-cols-12 md:gap-14 md:py-32">
-      <Reveal><p className="eyebrow text-muted md:col-span-2">{c.studioHeading}</p></Reveal>
+      <Reveal><h2 className="eyebrow text-muted md:col-span-2">{label(c.studioHeading)}</h2></Reveal>
       <div className="md:col-span-9 md:col-start-4">{c.studioNotes.map(([label, body], index) => <Reveal key={label} delay={index * 0.05}><div className="motion-row grid gap-5 border-t border-line py-9 md:grid-cols-[10rem_1fr]"><p className="eyebrow">{label}</p><p className="max-w-3xl text-xl leading-[1.25] tracking-[-.02em] md:text-2xl">{body}</p></div></Reveal>)}<Link href={localeHref(lang, "/about-us/studio")} className="button-pill mt-8 text-ink">{c.exploreStudio}</Link></div>
     </section>
 
-    <section className="container-page grid gap-14 py-16 md:grid-cols-2 md:gap-16 md:py-32">{[[c.awardsHeading, c.awards], [c.participationsHeading, c.participations]].map(([heading, items]) => <div key={heading as string}><Reveal><p className="eyebrow mb-10 text-muted">{heading as string}</p></Reveal><div className="border-t border-line">{(items as string[]).map((item, index) => <Reveal key={item} delay={index * 0.04}><p className="motion-row border-b border-line py-5 text-sm">{item}</p></Reveal>)}</div></div>)}</section>
+    {/* Where we work: one line per market, linking its region page (sheet D1: the studio's markets in the body copy). */}
+    <section className="container-page py-16 md:py-32">
+      <Reveal><h2 className="eyebrow mb-12 text-muted">{label(c.whereHeading)}</h2></Reveal>
+      <div className="border-t border-line">
+        {markets.map((market, index) => (
+          <Reveal key={market.region} delay={Math.min(index * 0.04, 0.16)}>
+            <div className="motion-row grid gap-4 border-b border-line py-7 md:grid-cols-[12rem_1fr_auto] md:items-center md:gap-8">
+              <p className="eyebrow">{market.label}</p>
+              <p className="section-body max-w-2xl">{market.body}</p>
+              <Link href={localeHref(lang, market.page.path)} className="button-pill text-ink">{market.page.h1}</Link>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </section>
 
-    <section className="container-page py-16 md:py-32"><Reveal><p className="eyebrow mb-10 text-muted">{c.timelineHeading}</p></Reveal><div className="border-t border-line">{c.timeline.map(([date, event], index) => <Reveal key={`${date}-${event}`} delay={index * 0.04}><div className="motion-row grid gap-4 border-b border-line py-6 md:grid-cols-[14rem_1fr]"><p className="eyebrow text-muted">{date}</p><p>{event}</p></div></Reveal>)}</div></section>
+    <section className="container-page grid gap-14 py-16 md:grid-cols-2 md:gap-16 md:py-32">{[[c.awardsHeading, c.awards], [c.participationsHeading, c.participations]].map(([heading, items]) => <div key={heading as string}><Reveal><h2 className="eyebrow mb-10 text-muted">{label(heading as string)}</h2></Reveal><div className="border-t border-line">{(items as string[]).map((item, index) => <Reveal key={item} delay={index * 0.04}><p className="motion-row border-b border-line py-5 text-sm">{item}</p></Reveal>)}</div></div>)}</section>
 
-    <section className="container-page py-16 md:py-32"><Reveal><p className="eyebrow mb-12 text-muted">{c.testimonialsHeading}</p></Reveal><div className="grid gap-x-10 md:grid-cols-2">{c.testimonials.map(([quote, person], index) => <Reveal key={person} delay={index * 0.05}><blockquote className="border-t border-line py-9"><p className="text-xl leading-tight tracking-[-.02em] md:text-2xl">{c.openQuote}{quote}{c.closeQuote}</p><footer className="eyebrow mt-8 text-muted">{person}</footer></blockquote></Reveal>)}</div></section>
+    <section className="container-page py-16 md:py-32"><Reveal><h2 className="eyebrow mb-10 text-muted">{label(c.timelineHeading)}</h2></Reveal><div className="border-t border-line">{c.timeline.map(([date, event], index) => <Reveal key={`${date}-${event}`} delay={index * 0.04}><div className="motion-row grid gap-4 border-b border-line py-6 md:grid-cols-[14rem_1fr]"><p className="eyebrow text-muted">{date}</p><p>{event}</p></div></Reveal>)}</div></section>
+
+    <section className="container-page py-16 md:py-32"><Reveal><h2 className="eyebrow mb-12 text-muted">{label(c.testimonialsHeading)}</h2></Reveal><div className="grid gap-x-10 md:grid-cols-2">{c.testimonials.map(([quote, person], index) => <Reveal key={person} delay={index * 0.05}><blockquote className="border-t border-line py-9"><p className="text-xl leading-tight tracking-[-.02em] md:text-2xl">{c.openQuote}{quote}{c.closeQuote}</p><footer className="eyebrow mt-8 text-muted">{person}</footer></blockquote></Reveal>)}</div></section>
 
     <section className="container-page py-16 md:py-32">
-      <Reveal><p className="eyebrow mb-12 text-muted">{c.whatWeDoHeading}</p></Reveal>
-      <div className="border-t border-line">{c.services.map(([title, body], index) => <Reveal key={title} delay={Math.min(index * 0.03, 0.15)}><div className="motion-row grid gap-5 border-b border-line py-8 md:grid-cols-[3rem_5fr_6fr] md:items-start"><p className="eyebrow text-muted">{rtl ? <Num value={String(index + 1).padStart(2, "0")} locale={lang} /> : String(index + 1).padStart(2, "0")}</p><h2 className="text-2xl font-medium tracking-[-.035em] md:text-4xl">{title}</h2><p className="section-body max-w-2xl">{body}</p></div></Reveal>)}</div>
+      <Reveal><h2 className="eyebrow mb-12 text-muted">{label(c.whatWeDoHeading)}</h2></Reveal>
+      <div className="border-t border-line">{c.services.map(([title, body], index) => <Reveal key={title} delay={Math.min(index * 0.03, 0.15)}><div className="motion-row grid gap-5 border-b border-line py-8 md:grid-cols-[3rem_5fr_6fr] md:items-start"><p className="eyebrow text-muted">{rtl ? <Num value={String(index + 1).padStart(2, "0")} locale={lang} /> : String(index + 1).padStart(2, "0")}</p><h3 className="text-2xl font-medium tracking-[-.035em] md:text-4xl">{title}</h3><p className="section-body max-w-2xl">{body}</p></div></Reveal>)}</div>
     </section>
+
+    <FaqSection items={c.faqs} lang={lang} dict={dict} eyebrow={c.faqEyebrow} heading={c.faqHeading} />
 
     <ContactCta lang={lang} dict={dict} />
   </div>;

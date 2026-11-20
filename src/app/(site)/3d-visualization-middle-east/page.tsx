@@ -2,7 +2,7 @@ import { siteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 
 import RegionLanding from "@/components/regions/RegionLanding";
-import { regionProjects, regions } from "@/lib/regions";
+import { regionProjects, regions, localCurrency } from "@/lib/regions";
 import { regionAreaServed } from "@/lib/ar/regions.ar";
 import { breadcrumbJsonLd, buildMetadata, jsonLdScript, serviceJsonLd } from "@/lib/seo";
 import { contact, siteConfig } from "@/lib/site-config";
@@ -45,6 +45,9 @@ export default function MiddleEastRegionPage() {
               intro: region.description,
               outputs: region.services.map((s) => s.title),
             }),
+            // This page's own Service node: the /services/3d-visualization/ page owns that @id.
+            "@id": `${siteUrl(region.path)}#service`,
+            url: siteUrl(region.path),
             areaServed: [
               ...(Array.isArray(countries) ? countries : [countries]).map((name) => ({ "@type": "Country", name })),
               ...cities.map((name) => ({ "@type": "City", name })),
@@ -72,6 +75,7 @@ export default function MiddleEastRegionPage() {
               longitude: location.geo.longitude,
             },
             telephone: location.phone.replace(/[^\d+]/g, ""),
+            ...(localCurrency[location.countryCode] ? { currenciesAccepted: localCurrency[location.countryCode] } : {}),
             email: contact.email,
             parentOrganization: { "@id": `${siteConfig.url}/#organization` },
             ...(location.gbpUrl ? { sameAs: [location.gbpUrl] } : {}),
