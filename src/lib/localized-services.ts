@@ -51,6 +51,7 @@ export function localizeServiceDetail(detail: ServiceDetail, lang: Locale): Serv
   return {
     ...detail,
     title: d(ar.title, lang),
+    heading: ar.heading ? d(ar.heading, lang) : detail.heading,
     eyebrow: d(ar.eyebrow, lang),
     intro: d(ar.intro, lang),
     outputs: (outputs ?? detail.outputs).map((item) => d(item, lang)),
