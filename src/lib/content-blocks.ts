@@ -129,7 +129,7 @@ export function blocksToText(blocks: ArticleBlock[]): string {
 const escapeHtml = (value: string) =>
   value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-/** Minimal HTML for JSON-LD `description` fields (JobPosting expects HTML). Links are flattened to their label. */
+/** Minimal HTML for JSON-LD `description` fields (JobPosting expects HTML). Links are flattened to their label and bold markers removed. */
 export function blocksToHtml(blocks: ArticleBlock[]): string {
   const parts: string[] = [];
   let inList = false;
@@ -164,19 +164,17 @@ export function countWords(blocks: ArticleBlock[]): number {
 
 const LINK_PATTERN = /\[([^\]\n]{1,120})\]\((\/[^)\s\\]{0,200})\)/g;
 
+// `**bold**`: a short run with no asterisks inside and no space against the markers, so a stray "**" stays as text.
+const BOLD_PATTERN = /\*\*(?=\S)([^*\n]{1,300}?)(?<=\S)\*\*/g;
+
+/** Plain text: `**bold**` markers removed and `[label](/path)` links flattened to their label. */
 export function stripInlineLinks(text: string): string {
-  return text.replace(LINK_PATTERN, "$1");
+  return text.replace(BOLD_PATTERN, "$1").replace(LINK_PATTERN, "$1");
 }
 
-export type InlinePart = { text: string; href?: string };
+export type InlinePart = { text: string; href?: string; bold?: boolean };
 
-/**
- * Splits text into plain and linked parts. Only `[label](/site-relative-path)`
- * becomes a link: absolute URLs, `//host` and `javascript:` are left as text,
- * so editors (or an AI draft) can never inject an external or script link.
- * Legacy article text never matches, so rendering of the 39 migrated posts is unchanged.
- */
-export function splitInlineLinks(text: string): InlinePart[] {
+function splitLinks(text: string): InlinePart[] {
   const parts: InlinePart[] = [];
   let last = 0;
   for (const match of text.matchAll(LINK_PATTERN)) {
@@ -187,5 +185,23 @@ export function splitInlineLinks(text: string): InlinePart[] {
     last = match.index + whole.length;
   }
   if (last < text.length) parts.push({ text: text.slice(last) });
+  return parts.length ? parts : [{ text }];
+}
+
+/**
+ * Splits text into plain, bold and linked parts. `**bold**` becomes a bold part (it may contain a link).
+ * Only `[label](/site-relative-path)` becomes a link: absolute URLs, `//host` and `javascript:` are left
+ * as text, so editors (or an AI draft) can never inject an external or script link.
+ * Legacy article text has neither, so rendering of the migrated posts is unchanged.
+ */
+export function splitInlineLinks(text: string): InlinePart[] {
+  const parts: InlinePart[] = [];
+  let last = 0;
+  for (const match of text.matchAll(BOLD_PATTERN)) {
+    if (match.index > last) parts.push(...splitLinks(text.slice(last, match.index)));
+    parts.push(...splitLinks(match[1]).map((part) => ({ ...part, bold: true })));
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) parts.push(...splitLinks(text.slice(last)));
   return parts.length ? parts : [{ text }];
 }
