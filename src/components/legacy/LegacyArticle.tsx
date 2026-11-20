@@ -8,20 +8,27 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { blogUi, localizeBlogCategory } from "@/lib/ar/blog-ui";
 import { blogCategories } from "@/lib/legacy-seo";
 
-// Inline `[label](/path)` links exist only in posts written in /admin. Text with
-// none (every migrated article) is returned as the bare string, so its markup is unchanged.
+// Inline `[label](/path)` links and `**bold**` exist only in posts written in /admin. Text with
+// neither (every migrated article) is returned as the bare string, so its markup is unchanged.
 function renderInline(text: string, lang: Locale) {
   const parts = splitInlineLinks(text);
-  if (parts.length === 1 && !parts[0].href) return text;
-  return parts.map((part, index) =>
-    part.href ? (
+  if (parts.length === 1 && !parts[0].href && !parts[0].bold) return text;
+  return parts.map((part, index) => {
+    const node = part.href ? (
       <Link key={index} href={localeHref(lang, part.href)} className="text-accent underline underline-offset-4 hover:no-underline">
         {part.text}
       </Link>
     ) : (
       part.text
-    ),
-  );
+    );
+    return part.bold ? (
+      <strong key={index} className="font-semibold text-ink">
+        {node}
+      </strong>
+    ) : (
+      node
+    );
+  });
 }
 
 const ARABIC_LETTER = /[؀-ۿ]/;
