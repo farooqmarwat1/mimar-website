@@ -54,4 +54,4 @@ Every article, migrated or written in `/admin`, is a Firestore document with an 
 - The Pano2VR tour files under `/tours/*`.
 
 ## Review needed
-All Arabic here was written by Claude (ported from the finalised `mimarwebsitear` build where a page existed there). A native speaker should review it, in particular the privacy policy, FAQs and the 45 translated articles.
+All Arabic here was written by Claude (ported from the finalised `mimarwebsitear` build where a page existed there). The 10 core pages had a grammar, terminology and keyword review on 20 Nov 2026 (SEO_MIGRATION.md point 36): verbs that refer to استوديوهات معمار are feminine singular ("تقدّم استوديوهات معمار"), and off-plan is "على الخارطة". A native speaker should review it, in particular the privacy policy, FAQs and the 45 translated articles.

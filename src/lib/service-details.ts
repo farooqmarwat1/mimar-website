@@ -5,6 +5,8 @@ import { threeDVisualizationSubServicePath } from "./three-d-visualization-sub-s
 export type ServiceDetail = {
   slug: string;
   title: string;
+  /** Optional H1 when it should say more than `title` (set only by the Arabic overlay; English H1s stay the title). */
+  heading?: string;
   eyebrow: string;
   intro: string;
   hero: string;
