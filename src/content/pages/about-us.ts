@@ -55,7 +55,7 @@ export const aboutContent: Record<Locale, AboutCopy> = {
     // Sheets D8/D9 (brand corrected to "Mimar Studios"), owner-approved 17 Nov 2026. Was the old
     // WordPress "Life at Mimar - About Us" (SEO_MIGRATION.md point 34).
     title: "About Mimar Studios | Our Vision & Architectural Team",
-    description: "Mimar Studios is an architecture and 3D visualization studio founded in Islamabad in 2019, working with developers across Pakistan, the Gulf and the USA.",
+    description: "Discover Mimar Studios, our creative design philosophy, and our expert team delivering photorealistic architectural rendering and 3D visualization.",
     // Sheet D1: primary "about mimar studios", secondary the studio's markets.
     keywords: ["about mimar studios", "mimar studios islamabad", "mimar studios uae", "mimar studios saudi arabia", "mimar studios usa"],
     breadcrumbHome: "Home",
@@ -188,8 +188,8 @@ export const aboutContent: Record<Locale, AboutCopy> = {
     ],
   },
   ar: {
-    title: "عن استوديوهات معمار | رؤيتنا وفريقنا المعماري",
-    description: "استوديوهات معمار استوديو للعمارة والتصور ثلاثي الأبعاد تأسس في إسلام آباد عام 2019، ويعمل مع المطورين في باكستان والخليج والولايات المتحدة.",
+    title: "من نحن | رؤيتنا وفريق التصور المعماري في استوديوهات معمار",
+    description: "تعرف على استوديوهات معمار، فلسفتنا الإبداعية، وفريقنا المتخصص في تقديم خدمات التصميم المعماري والرندر ثلاثي الأبعاد الواقعي للمشاريع العقارية.",
     // Sheet D1 (Arabic row), with the studio's Arabic name.
     keywords: ["عن استوديوهات معمار", "استوديوهات معمار إسلام آباد", "استوديوهات معمار الإمارات", "استوديوهات معمار السعودية"],
     breadcrumbHome: "الرئيسية",
