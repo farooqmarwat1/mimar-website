@@ -7,10 +7,10 @@ const { localizeRegion } = load('src/lib/ar/regions.ar.ts');
 const { regionalTitles } = load('src/lib/region.ts');
 
 // Google shows about 60 characters of a title; the country pages used to run to 63-76 and were cut
-// off (SEO_MIGRATION.md point 29).
+// off (SEO_MIGRATION.md point 29). Deliverable 8 (point 37) set the current country titles.
 test('every country page title fits a search result and names its country', () => {
   const countryWord = { UAE: /UAE/, USA: /USA/, 'Saudi Arabia': /Saudi Arabia/, Pakistan: /Pakistan/, 'Middle East': /Middle East/ };
-  const arCountryWord = { UAE: /الإمارات/, USA: /الولايات المتحدة/, 'Saudi Arabia': /السعودية/, Pakistan: /باكستان/, 'Middle East': /الشرق الأوسط/ };
+  const arCountryWord = { UAE: /الإمارات/, USA: /الولايات المتحدة|أمريكا/, 'Saudi Arabia': /السعودية/, Pakistan: /باكستان/, 'Middle East': /الشرق الأوسط/ };
   for (const region of regionList) {
     const en = region.seoTitle;
     const ar = localizeRegion(region, 'ar').seoTitle;
@@ -57,13 +57,13 @@ test('the USA page names each searched city in its own subheading', () => {
   assert.ok(usa.faqs.some(f => /outsource/i.test(f.question)));
 });
 
-test('the home title and description fit a search result and end on a call to action', () => {
+test('the home title and description fit a search result', () => {
   const { siteConfig, faqs } = load('src/lib/site-config.ts');
   const { siteConfigAr } = load('src/lib/ar/site-config.ar.ts');
   assert.ok(siteConfig.title.length <= 60, siteConfig.title);
   assert.match(siteConfig.title, /\| Mimar Studios$/);
   assert.ok(siteConfig.description.length <= 160, siteConfig.description);
-  assert.match(siteConfig.description, /quote/i);
+  assert.match(siteConfig.title, /^3D Architecture Firm & Rendering Studio/, 'Deliverable 8 home title');
   assert.equal(siteConfigAr.faqs.length, faqs.length, 'Arabic home has every FAQ');
 });
 
@@ -108,7 +108,7 @@ test('the UAE and Saudi pages link up to the Middle East hub, and the USA has it
   assert.equal(usa.headings.projects, 'Featured US Architectural Developments');
   assert.equal(usa.headings.why, 'Built for US Real Estate Workflows');
   assert.ok(localizeRegion(usa, 'ar').headings.faq, 'Arabic USA FAQ heading');
-  assert.match(usa.description, /48 hrs/);
+  assert.match(usa.description, /Imperial units/);
   assert.ok(usa.faqs.some(f => /files do you deliver/.test(f.question)));
   assert.equal(localizeRegion(usa, 'ar').faqs.length, usa.faqs.length, 'Arabic USA FAQs match');
 });

@@ -106,10 +106,10 @@ export const regions: Record<string, Region> = {
     path: "/3d-visualization-services-uae",
     name: "UAE",
     city: "Dubai",
-    seoTitle: "3D Rendering Services in Dubai & UAE | Mimar Studios",
+    seoTitle: "Top Professional 3D Visualizer in UAE | Mimar Studios",
     // Description, H1, H2 and H3 from Deliverable 5 (19 Nov 2026, SEO_MIGRATION.md point 35).
     description:
-      "Looking for top-rated 3D visualization companies in Dubai? Mimar Studios delivers photorealistic 3D rendering, animations & VR tours for UAE developers.",
+      "Looking for an expert 3D visualizer in Dubai and Abu Dhabi? Mimar Studios delivers premium off-plan rendering and architectural visuals across UAE.",
     keywords: [
       "3d visualizer",
       "3d rendering dubai",
@@ -291,9 +291,9 @@ export const regions: Record<string, Region> = {
     // Title, description and H1 from Deliverable 4 (19 Nov 2026, SEO_MIGRATION.md
     // point 32): the page sat at position 52.7 with 0 clicks in 12 months while
     // US city queries landed on the home page instead.
-    seoTitle: "3D Architectural Rendering Services USA | Mimar Studios",
+    seoTitle: "Professional 3D Visualization Services USA | Mimar Studios",
     description:
-      "3D architectural rendering for US developers in SF, Dallas, NY, Miami & LA. Imperial CAD precision & NDA security. Rush renders in 48 hrs. Get a quote!",
+      "Accelerate US sales cycles with tailored 3D visualization services. Expert architectural renders in Imperial units for NY, LA, and Miami developers.",
     // These are queries the site already ranks 1-2 for in the US while earning
     // almost no clicks - 33,251 impressions and 7 clicks in the 28 days to
     // 17 Oct 2026. The page names the cities explicitly so the listing matches
@@ -565,10 +565,10 @@ export const regions: Record<string, Region> = {
     path: "/3d-visualization-services-saudi-arabia",
     name: "Saudi Arabia",
     city: "Riyadh",
-    seoTitle: "3D Rendering Services in Saudi Arabia | Mimar Studios",
+    seoTitle: "3D Visualization Services Saudi Arabia | Mimar Studios",
     // Description, H1, H2 and H3 from Deliverable 5 (SEO_MIGRATION.md point 35).
     description:
-      "Mimar Studios delivers top 3D visualization services for real estate developers in Riyadh, Jeddah & KSA mega-projects. Request a quote today.",
+      "Discover premier 3D visualization Saudi Arabia services. Supporting Riyadh and Jeddah real estate developments with Wafi-compliant 3D renders.",
     // Unlike the UAE and US pages, these are not queries the site already
     // ranks for. Saudi search currently reaches the site almost entirely on
     // brand terms - of 276 Saudi queries in the six months to 17 Oct 2026,
@@ -730,11 +730,11 @@ export const regions: Record<string, Region> = {
     path: "/3d-visualization-services-pakistan",
     name: "Pakistan",
     city: "Islamabad",
-    seoTitle: "3D Architecture & Rendering Firm in Pakistan | Mimar Studios",
+    seoTitle: "3D Visualization Services Pakistan | Mimar Studios",
     // Description, H1, H2 and H3 from Deliverable 5 (SEO_MIGRATION.md point 35), the description
     // shortened to fit 160 characters. The title stays: it already carries "Pakistan".
     description:
-      "Professional 3D visualization services in Pakistan. Mimar Studios offers architectural rendering for residential & commercial projects from Islamabad.",
+      "Get high-end 3D visualization services in Pakistan. We provide photorealistic architectural renders for Islamabad, Lahore, and nationwide projects.",
     // Pakistan is the opposite problem to the US. Brand terms do well -
     // "mimar" alone is 140 clicks at 33% CTR - but the non-brand local
     // queries below sit on page 2 to 6, so they need rankings, not a better

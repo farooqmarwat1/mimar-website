@@ -11,14 +11,13 @@ export const siteConfig = {
   name: "Mimar Studios",
   legalName: "Mimar Studios (SMC-Pvt) Ltd.",
   url: "https://mim.archi",
-  // Home page title and description (also the fallback for pages without their own). Deliverable 4
-  // (USA + Home CTR plan, 19 Nov 2026): leads with the non-branded queries the home page shows for but
-  // gets no clicks on ("3d architectural rendering outsource", "3d rendering services", "architectural
-  // visualization services") and ends on a quote CTA. Replaced the D8 title "3D Architecture Firm &
-  // Rendering Studio | Mimar Studios" (SEO_MIGRATION.md points 28 and 32).
-  title: "3D Architectural Rendering & Visualization | Mimar Studios",
+  // Home page title and description (also the fallback for pages without their own). Deliverable 8
+  // (core-pages meta sheet, 23 Nov 2026, SEO_MIGRATION.md point 37) with the brand written
+  // "Mimar Studios". It replaced the Deliverable 4 values ("3D Architectural Rendering & Visualization
+  // | Mimar Studios", points 28 and 32).
+  title: "3D Architecture Firm & Rendering Studio | Mimar Studios",
   description:
-    "Outsource photorealistic 3D architectural rendering, exterior & interior visualization, and VR tours. Trusted by global developers. Request a quote today!",
+    "Transform architectural visions into reality. Mimar Studios delivers photorealistic 3D visualization, cinematic tours, and expert rendering services.",
   foundingDate: "2019",
   foundingLocation: "National Incubation Center, Islamabad, Pakistan",
   ogImage: "/og/mimar-studios-og.jpg",

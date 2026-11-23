@@ -7,16 +7,23 @@ import { localizeServiceDetail } from "@/lib/localized-services";
 import { localizeService } from "@/lib/localized-site";
 import type { Locale } from "@/i18n/config";
 
+// Titles and descriptions of the three core service pages come from Deliverable 8 (23 Nov 2026,
+// SEO_MIGRATION.md point 37).
 const serviceSeo: Record<string, { title: string; description: string; keywords: string[] }> = {
+  "architectural-design": {
+    title: "Expert Architectural Design Services | Mimar Studios",
+    description: "Transform your concepts into reality with expert architectural design services. From initial sketches to complete construction documentation.",
+    keywords: ["architectural design services", "concept to construction design", "architectural design firm", "construction documentation"],
+  },
   "3d-visualization": {
-    title: "3D Visualization Services | Architectural Rendering | Mimar",
-    description: "Photorealistic 3D visualization and architectural rendering services for interiors, exteriors, real estate and design teams worldwide.",
+    title: "Best 3D Visualization & Rendering Services | Mimar Studios",
+    description: "Elevate your real estate projects with photorealistic 3D visualization, cinematic walkthroughs, and high-end architectural renders by Mimar Studios.",
     keywords: ["3D visualization services", "architectural visualization services", "3D rendering services", "interior rendering services", "architectural rendering"],
   },
-  // Old WordPress title and meta description, kept for SEO continuity.
+  // Replaced the old WordPress title ("Best Interactive Services in Pakistan | Mimar") with D8.
   "interactive-services": {
-    title: "Best Interactive Services in Pakistan | Mimar",
-    description: "Explore architecture like never before with our cutting-edge interactive services.",
+    title: "Top Interactive 3D Services for Real Estate | Mimar Studios",
+    description: "Engage buyers with advanced interactive services, 360 virtual tours, and web-based property walkthroughs designed for high real estate conversions.",
     keywords: ["interactive services", "VR tours", "web tours", "augmented reality real estate", "virtual reality architecture"],
   },
   "vr-360-tours": {
