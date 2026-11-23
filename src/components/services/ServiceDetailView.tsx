@@ -13,6 +13,7 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { withTrailingSlash } from "@/lib/trailing-slash";
 import { isRtl, localeHref, localizeDigits, pick, type Locale } from "@/i18n/config";
 import { projectCoverAlt } from "@/lib/project-alt";
+import { serviceImageAlt } from "@/lib/service-alt";
 import Num from "@/i18n/Num";
 import RegionLinks from "@/components/regions/RegionLinks";
 
@@ -76,7 +77,7 @@ export default function ServiceDetailView({ detail: englishDetail, lang = "en" }
         ) : (
           <Image
             src={detail.hero}
-            alt=""
+            alt={serviceImageAlt(detail.slug, detail.title, lang)}
             fill
             priority
             unoptimized
@@ -143,7 +144,7 @@ export default function ServiceDetailView({ detail: englishDetail, lang = "en" }
                 const tile = (
                   <>
                     {detail.outputImages[index] ? (
-                      <Image src={detail.outputImages[index]} alt="" fill unoptimized sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition-transform duration-700 hover:scale-105" />
+                      <Image src={detail.outputImages[index]} alt={serviceImageAlt(detail.slug, detail.title, lang, output)} fill unoptimized sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition-transform duration-700 hover:scale-105" />
                     ) : (
                       <div className="absolute inset-0 bg-ink" />
                     )}
@@ -206,7 +207,7 @@ export default function ServiceDetailView({ detail: englishDetail, lang = "en" }
 
       <section className={`container-page grid gap-10 pb-16 md:gap-12 md:pb-28 ${detail.featuredMedia ? "pt-8 md:pt-12" : "pt-16 md:pt-28"} ${detail.showProcessImage === false ? "" : "md:grid-cols-2"}`}>
         {detail.showProcessImage !== false && <Reveal>
-          <div className="relative aspect-[1.1] overflow-hidden bg-ink/5"><Image src={detail.processImage ?? detail.outputImages[1]} alt="" fill unoptimized sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" /></div>
+          <div className="relative aspect-[1.1] overflow-hidden bg-ink/5"><Image src={detail.processImage ?? detail.outputImages[1]} alt={serviceImageAlt(detail.slug, pick(lang, `${detail.title} process`, `عملية ${detail.title}`), lang)} fill unoptimized sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" /></div>
         </Reveal>}
         <div>
           {detail.process.map(([step, description], index) => (
@@ -221,7 +222,7 @@ export default function ServiceDetailView({ detail: englishDetail, lang = "en" }
       </section>
 
       <section className="relative overflow-hidden bg-ink py-16 text-paper md:py-20">
-        <Image src={detail.includedImage} alt="" fill unoptimized sizes="100vw" className="object-cover opacity-25" />
+        <Image src={detail.includedImage} alt={serviceImageAlt(detail.slug, pick(lang, `${detail.title} deliverables`, `مخرجات ${detail.title}`), lang)} fill unoptimized sizes="100vw" className="object-cover opacity-25" />
         <div className="container-page relative">
           <p className="eyebrow mb-10 text-paper/55">/ {detail.includedLabel ?? dict.common.alsoIncluded}</p>
           <div className="grid grid-cols-2 gap-x-8 gap-y-6 md:grid-cols-4">
@@ -297,7 +298,7 @@ export default function ServiceDetailView({ detail: englishDetail, lang = "en" }
               <source src={nextService.hero} type="video/mp4" />
             </video>
           ) : (
-            <Image src={nextService.hero} alt="" fill unoptimized sizes="100vw" className="object-cover opacity-30 transition-transform duration-700 group-hover:scale-[1.02]" />
+            <Image src={nextService.hero} alt={serviceImageAlt(nextService.slug, nextService.title, lang)} fill unoptimized sizes="100vw" className="object-cover opacity-30 transition-transform duration-700 group-hover:scale-[1.02]" />
           )}
           <div className="absolute inset-0 bg-black/30" />
           <div className="container-page relative flex min-h-[16rem] flex-col justify-center md:min-h-[20rem]"><p className="eyebrow mb-8 text-paper/55">{`/ ${dict.common.nextService}`}</p><h2 className="text-[clamp(2.5rem,5vw,5rem)] tracking-[-.05em]">{nextService.title}</h2></div>

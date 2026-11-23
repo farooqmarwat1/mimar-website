@@ -158,7 +158,7 @@ export default function GalleryLightbox({
           {many && (
             <div className="hidden" aria-hidden="true">
               {[items[(open + 1) % items.length], items[(open - 1 + items.length) % items.length]].map((neighbour) => (
-                <Image key={neighbour.src} src={neighbour.src} alt="" width={16} height={9} unoptimized loading="eager" />
+                <Image key={neighbour.src} src={neighbour.src} alt={neighbour.alt} width={16} height={9} unoptimized loading="eager" />
               ))}
             </div>
           )}

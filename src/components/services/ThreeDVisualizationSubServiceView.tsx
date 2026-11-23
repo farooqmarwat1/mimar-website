@@ -15,6 +15,7 @@ import Reveal from "@/components/ui/Reveal";
 import { isRtl, localeHref, type Locale } from "@/i18n/config";
 import { localizeThreeDSubService } from "@/lib/ar/localized-sub-services";
 import { getServiceUi } from "@/lib/ar/service-ui";
+import { serviceImageAlt } from "@/lib/service-alt";
 import { localizeProject } from "@/lib/localized-site";
 import { buildMetadata, jsonLdScript } from "@/lib/seo";
 import { projects } from "@/lib/site-config";
@@ -54,7 +55,7 @@ export default function ThreeDVisualizationSubServiceView({ service: baseService
         parentSlug={threeDVisualizationSlug}
         title={service.title}
         tagline={service.tagline}
-        media={<Image src={service.hero} alt="" fill priority unoptimized sizes="100vw" className="object-cover" />}
+        media={<Image src={service.hero} alt={serviceImageAlt(service.slug, service.title, lang)} fill priority unoptimized sizes="100vw" className="object-cover" />}
       />
 
       {service.sections.map((section, sectionIndex) => {
@@ -68,7 +69,7 @@ export default function ThreeDVisualizationSubServiceView({ service: baseService
             <div className={slides?.length ? "grid gap-10 md:grid-cols-2 md:items-center md:gap-16" : ""}>
               {slides && slides.length > 0 && (
                 <Reveal>
-                  <MediaSlider slides={slides} title={section.heading} lang={lang} />
+                  <MediaSlider slides={slides} title={section.heading} altBase={serviceImageAlt(service.slug, service.title, lang, section.heading)} lang={lang} />
                 </Reveal>
               )}
               <div>
@@ -122,7 +123,7 @@ export default function ThreeDVisualizationSubServiceView({ service: baseService
         </section>
       )}
 
-      <BenefitsSection lang={lang} benefits={service.benefits} image={service.benefitsImage} columns={4} />
+      <BenefitsSection lang={lang} benefits={service.benefits} image={service.benefitsImage} alt={serviceImageAlt(service.slug, lang === "ar" ? `فوائد ${service.title}` : `${service.title} benefits`, lang)} columns={4} />
 
       <ConsultationCta
         lang={lang}

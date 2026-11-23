@@ -12,7 +12,8 @@ import FaqSection from "@/components/sections/FaqSection";
 import Reveal from "@/components/ui/Reveal";
 import { localizeDigits, type Locale } from "@/i18n/config";
 import { localizeBrandingMarketingSubService } from "@/lib/ar/localized-sub-services";
-import { byMimar, getServiceUi } from "@/lib/ar/service-ui";
+import { getServiceUi } from "@/lib/ar/service-ui";
+import { serviceImageAlt } from "@/lib/service-alt";
 import {
   brandingMarketingSubServicePath,
   brandingMarketingSubServices,
@@ -52,13 +53,13 @@ export default function BrandingMarketingSubServiceView({ service: baseService, 
         parentSlug={service.parent}
         title={service.title}
         tagline={service.tagline}
-        media={<Image src={service.hero} alt="" fill priority unoptimized sizes="100vw" className="object-cover" />}
+        media={<Image src={service.hero} alt={serviceImageAlt(service.slug, service.title, lang)} fill priority unoptimized sizes="100vw" className="object-cover" />}
       />
 
       <section className="container-page grid gap-10 py-16 md:grid-cols-2 md:items-center md:gap-16 md:py-28">
         <Reveal>
           <div className="relative aspect-[1.1] overflow-hidden bg-ink/5">
-            <Image src={service.introImage} alt={byMimar(service.title, lang)} fill unoptimized sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+            <Image src={service.introImage} alt={serviceImageAlt(service.slug, service.title, lang)} fill unoptimized sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
           </div>
         </Reveal>
         <div>
@@ -108,7 +109,7 @@ export default function BrandingMarketingSubServiceView({ service: baseService, 
         </div>
       </section>
 
-      <BenefitsSection lang={lang} benefits={service.benefits} image={service.benefitsImage} columns={3} />
+      <BenefitsSection lang={lang} benefits={service.benefits} image={service.benefitsImage} alt={serviceImageAlt(service.slug, lang === "ar" ? `فوائد ${service.title}` : `${service.title} benefits`, lang)} columns={3} />
 
       <FaqSection items={service.faqs} lang={lang} />
 

@@ -21,7 +21,8 @@ export type MediaSlide = {
  * next at the end), their glyphs point the reading way, and the thumbnail
  * strip reads right to left, so slide 1 is at the right in Arabic.
  */
-export default function MediaSlider({ slides, title, lang = "en" }: { slides: MediaSlide[]; title: string; lang?: Locale }) {
+/** `altBase` is the keyword-bearing description of the set ("Exterior: 3D exterior rendering by Mimar Studios"); slides add their number. */
+export default function MediaSlider({ slides, title, altBase, lang = "en" }: { slides: MediaSlide[]; title: string; altBase?: string; lang?: Locale }) {
   const [active, setActive] = useState(0);
   const [playing, setPlaying] = useState(false);
   const current = slides[active];
@@ -32,6 +33,8 @@ export default function MediaSlider({ slides, title, lang = "en" }: { slides: Me
   const prevGlyph = rtl ? "›" : "‹";
   const nextGlyph = rtl ? "‹" : "›";
 
+  const slideAlt = (index: number) => `${altBase ?? title} - ${ui.slideOf(localizeDigits(index + 1, lang), localizeDigits(slides.length, lang))}`;
+
   function go(delta: number) {
     setActive((i) => (i + delta + slides.length) % slides.length);
     setPlaying(false);
@@ -40,7 +43,7 @@ export default function MediaSlider({ slides, title, lang = "en" }: { slides: Me
   return (
     <div>
       <div className="group relative aspect-video overflow-hidden bg-ink/5">
-        <Image src={current.image} alt="" fill unoptimized sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+        <Image src={current.image} alt={slideAlt(active)} fill unoptimized sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
         {current.video && (
           <button
             type="button"
@@ -89,7 +92,7 @@ export default function MediaSlider({ slides, title, lang = "en" }: { slides: Me
               aria-label={ui.showSlide(localizeDigits(index + 1, lang))}
               className={`relative aspect-video w-24 shrink-0 overflow-hidden bg-ink/5 md:w-28 ${index === active ? "ring-2 ring-accent" : "opacity-70 hover:opacity-100"}`}
             >
-              <Image src={slide.image} alt="" fill unoptimized sizes="120px" className="object-cover" />
+              <Image src={slide.image} alt={slideAlt(index)} fill unoptimized sizes="120px" className="object-cover" />
               {slide.video && <span className="absolute inset-0 flex items-center justify-center bg-black/20 text-xs text-paper">▶</span>}
             </button>
           ))}

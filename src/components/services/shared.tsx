@@ -7,6 +7,7 @@ import { localeHref, type Locale } from "@/i18n/config";
 import { getServiceUi, localizedServiceTitle } from "@/lib/ar/service-ui";
 import { breadcrumbJsonLd } from "@/lib/seo";
 import { serviceDetails, servicePath } from "@/lib/service-details";
+import { serviceImageAlt } from "@/lib/service-alt";
 import { siteConfig } from "@/lib/site-config";
 
 /**
@@ -127,17 +128,19 @@ export function BenefitsSection({
   lang,
   benefits,
   image,
+  alt,
   columns,
 }: {
   lang: Locale;
   benefits: readonly (readonly [string, string])[];
   image: string;
+  alt: string;
   columns: 3 | 4;
 }) {
   const ui = getServiceUi(lang);
   return (
     <section className="relative overflow-hidden bg-ink py-16 text-paper md:py-24" aria-labelledby="benefits-heading">
-      <Image src={image} alt="" fill unoptimized sizes="100vw" className="object-cover opacity-25" />
+      <Image src={image} alt={alt} fill unoptimized sizes="100vw" className="object-cover opacity-25" />
       <div className="container-page relative">
         <h2 id="benefits-heading" className="eyebrow mb-10 text-paper/55">{`/ ${ui.benefits}`}</h2>
         <div className={`grid gap-x-8 gap-y-10 sm:grid-cols-2 ${columns === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
@@ -203,7 +206,7 @@ export function BackToService({ lang, parentSlug, background }: { lang: Locale; 
   const parent = getParentService(parentSlug, lang);
   return (
     <Link href={localeHref(lang, servicePath(parent.slug))} className="group relative block min-h-[16rem] overflow-hidden bg-ink text-paper md:min-h-[20rem]">
-      {background ?? <Image src={parent.hero} alt="" fill unoptimized sizes="100vw" className="object-cover opacity-30 transition-transform duration-700 group-hover:scale-[1.02]" />}
+      {background ?? <Image src={parent.hero} alt={serviceImageAlt(parent.slug, parent.title, lang)} fill unoptimized sizes="100vw" className="object-cover opacity-30 transition-transform duration-700 group-hover:scale-[1.02]" />}
       <div className="absolute inset-0 bg-black/30" />
       <div className="container-page relative flex min-h-[16rem] flex-col justify-center md:min-h-[20rem]">
         <p className="eyebrow mb-8 text-paper/55">{`/ ${ui.backToService}`}</p>

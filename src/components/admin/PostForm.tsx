@@ -215,7 +215,7 @@ export default function PostForm({ initial, categories, saved }: { initial: Post
         <input type="hidden" name="coverUrl" value={coverUrl} />
         {coverUrl ? (
           <div className="relative aspect-[16/9] max-w-xl overflow-hidden rounded-xl bg-line">
-            <Image src={coverUrl} alt="" fill sizes="576px" className="object-cover" />
+            <Image src={coverUrl} alt="Cover image preview" fill sizes="576px" className="object-cover" />
           </div>
         ) : (
           <p className={hintClass}>No cover image. Choose a matching library image, upload your own or generate one with AI.</p>
