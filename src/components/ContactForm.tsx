@@ -4,6 +4,7 @@ import { useState, type FormEvent, type InvalidEvent } from "react";
 // TURNSTILE-DISABLED (no Cloudflare access yet): import TurnstileWidget from "@/components/TurnstileWidget";
 import PhoneField from "@/components/PhoneField";
 import { services } from "@/lib/site-config";
+import { trackLead } from "@/lib/track";
 import { isRtl, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 
@@ -86,6 +87,7 @@ export default function ContactForm({
         if (rtl && messages) throw new ArabicFormError(arabicErrorFor(res.status, messages));
         throw new Error((await res.json())?.error ?? "Something went wrong.");
       }
+      trackLead({ form: "contact", lang, service: String(data.service ?? ""), source: String(data.source ?? "") });
       setStatus("success");
       form.reset();
     } catch (err) {
