@@ -158,7 +158,7 @@ export default function ProjectDetailView({
                               // is shown whole. Inline filter: the hover rule on .motion-media img must not un-blur it.
                               <Image
                                 src={image}
-                                alt=""
+                                alt={alt}
                                 aria-hidden="true"
                                 fill
                                 unoptimized
@@ -243,7 +243,7 @@ export default function ProjectDetailView({
       {/* Next project as a full-width banner, like "Next service" on the service pages. The whole banner
           links to the next project (stretched link); "Back to all projects" sits above it as its own link. */}
       <section className="group relative min-h-[18rem] overflow-hidden bg-ink text-paper md:min-h-[24rem]">
-        <Image src={nextProject.cover} alt="" fill quality={75} sizes="100vw" className="object-cover opacity-35 transition-transform duration-700 group-hover:scale-[1.02]" />
+        <Image src={nextProject.cover} alt={projectCoverAlt(nextProject, lang)} fill quality={75} sizes="100vw" className="object-cover opacity-35 transition-transform duration-700 group-hover:scale-[1.02]" />
         <div className="absolute inset-0 bg-black/30" />
         <div className="container-page relative flex min-h-[18rem] flex-col justify-center gap-8 py-14 md:min-h-[24rem] md:flex-row md:items-end md:justify-between md:py-16">
           <div>

@@ -169,7 +169,7 @@ export function EdTechView({ lang = "en" }: { lang?: Locale }) {
                 >
                   <div className="flex items-start justify-between gap-6">
                     <p className="eyebrow text-accent">{c.experienceLabel}{localizeDigits(index + 1, lang)}</p>
-                    <Image src={experience.icon} alt="" width={96} height={104} unoptimized className="h-24 w-auto" />
+                    <Image src={experience.icon} alt={title} width={96} height={104} unoptimized className="h-24 w-auto" />
                   </div>
                   <h2 className="mt-12 text-3xl font-medium uppercase tracking-[-.035em] transition-colors group-hover:text-accent md:text-4xl">
                     {title}{` ${arrow}`}

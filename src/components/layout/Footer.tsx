@@ -91,7 +91,7 @@ export default function Footer({ lang = "en", dict = getDictionary(lang) }: { la
     <footer className="bg-ink text-paper">
       <div className="container-page py-10 md:py-12">
         <Link href={localeHref(lang, "/")} aria-label={dict.header.homeLabel} className="relative mb-8 block h-9 w-32 transition-opacity hover:opacity-75">
-          <Image src="/logos/white.png" alt="" fill sizes="144px" className="object-contain object-left rtl:object-right" />
+          <Image src="/logos/white.png" alt={lang === "ar" ? "شعار استوديوهات معمار" : "Mimar Studios logo"} fill sizes="144px" className="object-contain object-left rtl:object-right" />
         </Link>
         <div className="grid grid-cols-1 gap-x-8 gap-y-7 border-b border-line-inverse pb-8 min-[460px]:grid-cols-2 md:grid-cols-4">
           {columns.map((col) => (

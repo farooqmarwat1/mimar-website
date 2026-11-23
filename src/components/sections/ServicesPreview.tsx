@@ -9,6 +9,7 @@ import { isRtl, localeHref, localizeDigits, type Locale } from "@/i18n/config";
 import Num from "@/i18n/Num";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { siteConfigAr } from "@/lib/ar/site-config.ar";
+import { serviceImageAlt } from "@/lib/service-alt";
 
 // Arabic copy for each tile, keyed by the last segment of the tile's href
 // (which is the service slug); English keeps the copy written in `items`.
@@ -156,7 +157,7 @@ export default function ServicesPreview({
             ) : (
               <Image
                 src={activeMedia.media}
-                alt=""
+                alt={serviceImageAlt(activeMedia.href.split("/").pop() ?? "", copyFor(activeMedia).label, lang)}
                 fill
                 unoptimized
                 sizes="100vw"

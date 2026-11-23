@@ -13,6 +13,7 @@ import { localizeDigits, type Locale } from "@/i18n/config";
 import { localizeLegacyServicePage } from "@/lib/ar/localized-sub-services";
 import type { LegacyServiceImage, LegacyServicePage as LegacyServicePageData } from "@/lib/legacy-service-pages";
 import { buildMetadata, jsonLdScript } from "@/lib/seo";
+import { serviceImageAlt } from "@/lib/service-alt";
 
 export function legacyServiceMetadata(basePage: LegacyServicePageData, lang: Locale = "en"): Metadata {
   const page = localizeLegacyServicePage(basePage, lang);
@@ -70,7 +71,7 @@ export default function LegacyServicePage({ page: basePage, lang = "en" }: { pag
               <source src={page.hero.src} type={videoType(page.hero.src)} />
             </video>
           ) : (
-            <Image src={page.hero.src} alt="" fill priority unoptimized sizes="100vw" className="object-cover" />
+            <Image src={page.hero.src} alt={serviceImageAlt("", page.title, lang)} fill priority unoptimized sizes="100vw" className="object-cover" />
           )
         }
       />

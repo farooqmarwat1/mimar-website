@@ -29,7 +29,7 @@ export function BlogCategoryLinks({
           >
             <Image
               src={category.image}
-              alt=""
+              alt={lang === "ar" ? `مقالات ${category.label} من استوديوهات معمار` : `${category.label} articles by Mimar Studios`}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
               className="object-cover transition-transform duration-700 group-hover:scale-105"

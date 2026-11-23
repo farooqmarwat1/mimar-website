@@ -93,7 +93,7 @@ export default function Header({ lang = "en", dict }: { lang?: Locale; dict: Dic
               >
                 <Image
                   src="/logos/animation-transparent.gif"
-                  alt=""
+                  alt={lang === "ar" ? "شعار استوديوهات معمار" : "Mimar Studios logo"}
                   fill
                   priority
                   unoptimized
@@ -111,7 +111,7 @@ export default function Header({ lang = "en", dict }: { lang?: Locale; dict: Dic
               >
                 <Image
                   src="/logos/white.png"
-                  alt=""
+                  alt={lang === "ar" ? "شعار استوديوهات معمار" : "Mimar Studios logo"}
                   fill
                   priority={isHome}
                   sizes="144px"
@@ -119,7 +119,7 @@ export default function Header({ lang = "en", dict }: { lang?: Locale; dict: Dic
                 />
                 <Image
                   src="/logos/black.png"
-                  alt=""
+                  alt={lang === "ar" ? "شعار استوديوهات معمار" : "Mimar Studios logo"}
                   fill
                   sizes="144px"
                   className={`object-contain transition-opacity duration-500 ${dark ? "opacity-100" : "opacity-0"}`}

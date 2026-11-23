@@ -88,7 +88,7 @@ export default function RegionLanding({ region: englishRegion, lang = "en" }: { 
         {hero && (
           <Image
             src={hero.cover}
-            alt=""
+            alt={projectCoverAlt(hero, lang)}
             fill
             priority
             unoptimized
