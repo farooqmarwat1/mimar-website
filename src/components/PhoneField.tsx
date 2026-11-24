@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { isRtl, pick, type Locale } from "@/i18n/config";
+import { countryFromTimeZone } from "@/lib/phone-country";
 import { REGION_COOKIE } from "@/lib/region";
 
 /** ISO 3166-1 alpha-2 code -> international dialling code (digits only, no "+"). */
@@ -59,10 +60,25 @@ function readCookie(name: string): string | null {
   return match ? decodeURIComponent(match.slice(name.length + 1)) : null;
 }
 
-/** Best guess of the visitor's country: the geo cookie, then the browser's locale region, else the fallback. */
+function browserTimeZone(): string | null {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Best guess of the visitor's country: the geo cookie (only set where the host sends a country
+ * header), then the device's time zone (src/lib/phone-country.ts), then the browser's locale region,
+ * else the fallback. The time zone comes before the language because a visitor in Pakistan with an
+ * en-GB or en-US browser should get +92, not +44 or +1.
+ */
 function guessCountry(): string {
   const fromCookie = REGION_COUNTRY[readCookie(REGION_COOKIE) ?? ""];
   if (fromCookie) return fromCookie;
+  const fromTimeZone = countryFromTimeZone(browserTimeZone());
+  if (fromTimeZone && DIAL_CODES[fromTimeZone]) return fromTimeZone;
   for (const tag of navigator.languages ?? [navigator.language]) {
     const region = tag.split("-")[1]?.toUpperCase();
     if (region && DIAL_CODES[region]) return region;
@@ -73,16 +89,20 @@ function guessCountry(): string {
 /**
  * Phone input with a country-code dropdown. The visible controls have no `name`; a hidden
  * `phone` input carries the combined international number ("+92 3325983077"), so the forms'
- * existing FormData / API code is unchanged. Empty number -> empty `phone` (the field is optional).
+ * existing FormData / API code is unchanged. Empty number -> empty `phone` (optional unless `required`).
+ * `error` shows a message under the field; the contact form finds the visible input by `data-field="phone"`
+ * for its inline validation.
  */
 export default function PhoneField({
   lang = "en",
   label,
   required,
+  error,
 }: {
   lang?: Locale;
   label: string;
   required?: boolean;
+  error?: string | null;
 }) {
   const rtl = isRtl(lang);
   // Localized country names and the visitor's country are browser-side values, so the server
@@ -110,7 +130,7 @@ export default function PhoneField({
         {label}
       </label>
       <div dir="ltr" className="flex items-end gap-3">
-        <div className="relative shrink-0 border-b border-line transition-colors focus-within:border-ink">
+        <div className={`relative shrink-0 border-b transition-colors focus-within:border-ink ${error ? "border-red-600" : "border-line"}`}>
           <span aria-hidden className="flex min-h-11 items-center gap-1.5 py-2 pe-5 text-base">
             <span className="text-xs text-muted">{country}</span>
             <span>+{dial}</span>
@@ -141,10 +161,18 @@ export default function PhoneField({
           required={required}
           maxLength={30}
           value={number}
+          data-field="phone"
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? "phone-number-error" : undefined}
           onChange={(e) => setNumber(e.target.value)}
-          className={`min-h-11 w-full min-w-0 border-b border-line bg-transparent py-2 text-base outline-none transition-colors focus:border-ink${rtl ? " text-end" : ""}`}
+          className={`min-h-11 w-full min-w-0 border-b bg-transparent py-2 text-base outline-none transition-colors focus:border-ink ${error ? "border-red-600" : "border-line"}${rtl ? " text-end" : ""}`}
         />
       </div>
+      {error && (
+        <p id="phone-number-error" className="text-sm text-red-600">
+          {error}
+        </p>
+      )}
       <input type="hidden" name="phone" value={combined} />
     </div>
   );

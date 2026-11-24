@@ -23,6 +23,7 @@ type ContactCopy = {
   formMessages: {
     required: string;
     email: string;
+    phone: string;
     tooMany: string;
     invalid: string;
     delivery: (email: string) => string;
@@ -54,6 +55,7 @@ export const contactContent: Record<Locale, ContactCopy> = {
     formMessages: {
       required: "Please fill out this field.",
       email: "Please enter a valid email address.",
+      phone: "Please enter a valid phone number.",
       tooMany: "Too many requests. Please try again later.",
       invalid: "Invalid form data.",
       delivery: (email) => `We couldn't send your message right now. Please email us at ${email} instead.`,
@@ -83,6 +85,7 @@ export const contactContent: Record<Locale, ContactCopy> = {
     formMessages: {
       required: "يرجى تعبئة هذا الحقل.",
       email: "يرجى إدخال عنوان بريد إلكتروني صحيح.",
+      phone: "يرجى إدخال رقم هاتف صحيح.",
       tooMany: "عدد الطلبات كبير جداً. يرجى المحاولة مرة أخرى لاحقاً.",
       invalid: "بيانات النموذج غير صالحة. يرجى مراجعة الحقول والمحاولة مرة أخرى.",
       delivery: (email) => `تعذّر إرسال رسالتك الآن. يرجى مراسلتنا على ${email} بدلاً من ذلك.`,
