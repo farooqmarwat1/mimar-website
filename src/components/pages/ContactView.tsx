@@ -124,7 +124,7 @@ export default function ContactView({ lang = "en" }: { lang?: Locale }) {
               lang={lang}
               dict={dict.contactForm}
               serviceOptions={serviceOptions}
-              messages={rtl ? { ...c.formMessages, delivery: c.formMessages.delivery(contact.email) } : undefined}
+              messages={{ ...c.formMessages, delivery: c.formMessages.delivery(contact.email) }}
             />
           </div>
         </Reveal>

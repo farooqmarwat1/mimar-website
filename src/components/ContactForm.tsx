@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type FormEvent, type InvalidEvent } from "react";
+import { useState, type FormEvent } from "react";
 // TURNSTILE-DISABLED (no Cloudflare access yet): import TurnstileWidget from "@/components/TurnstileWidget";
 import PhoneField from "@/components/PhoneField";
 import { services } from "@/lib/site-config";
+import { isPlausiblePhone } from "@/lib/phone-country";
 import { trackLead } from "@/lib/track";
 import { isRtl, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -23,12 +24,14 @@ const SOURCE_VALUES = ["LinkedIn", "Instagram", "Facebook", "Google", "Other"];
 type Option = { value: string; label: string };
 
 /**
- * Visitor-facing messages for the Arabic form. The API answers in English, so
- * the Arabic form maps the response status to these instead. Unused for English.
+ * Visitor-facing messages. `required`, `email` and `phone` are the inline field errors (both
+ * languages). The API answers in English, so the Arabic form also maps the response status to
+ * the other messages; the English form shows the API's own text instead.
  */
 export type ContactFormMessages = {
   required: string;
   email: string;
+  phone: string;
   tooMany: string;
   invalid: string;
   delivery: string;
@@ -36,6 +39,34 @@ export type ContactFormMessages = {
 };
 
 class ArabicFormError extends Error {}
+
+/** Inline errors when no messages are passed (same text as the English page copy). */
+const DEFAULT_FIELD_MESSAGES = {
+  required: "Please fill out this field.",
+  email: "Please enter a valid email address.",
+  phone: "Please enter a valid phone number.",
+};
+
+type FieldMessages = typeof DEFAULT_FIELD_MESSAGES;
+type Validatable = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+
+function isValidatable(el: Element): el is Validatable {
+  return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement;
+}
+
+/** Error key of a control: its `name`, or `data-field` for the phone input (whose value posts through a hidden input). */
+function fieldKey(el: Validatable) {
+  return el.name || el.dataset.field || "";
+}
+
+/** The inline error for one control, or null when it is valid. A required field of only spaces counts as empty (the API trims it). */
+function fieldError(el: Validatable, messages: FieldMessages): string | null {
+  if (el.required && !el.value.trim()) return messages.required;
+  if (fieldKey(el) === "phone" && el.value.trim() && !isPlausiblePhone(el.value)) return messages.phone;
+  if (el.validity.valid) return null;
+  if (el.validity.typeMismatch) return messages.email;
+  return messages.required;
+}
 
 function arabicErrorFor(status: number, messages: ContactFormMessages) {
   if (status === 429) return messages.tooMany;
@@ -63,16 +94,39 @@ export default function ContactForm({
 
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const fieldMessages: FieldMessages = messages
+    ? { required: messages.required, email: messages.email, phone: messages.phone }
+    : DEFAULT_FIELD_MESSAGES;
   // TURNSTILE-DISABLED (no Cloudflare access yet):
   // const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   // const [turnstileReset, setTurnstileReset] = useState(0);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
+
+    // The form has noValidate, so the browser's one-field-at-a-time bubble never shows; every
+    // invalid field gets its own message under it instead, and the first one takes the focus.
+    const errors: Record<string, string> = {};
+    let firstInvalid: Validatable | null = null;
+    for (const el of Array.from(form.elements)) {
+      if (!isValidatable(el) || el.type === "hidden" || !el.willValidate) continue;
+      const message = fieldError(el, fieldMessages);
+      const key = fieldKey(el);
+      if (!message || !key) continue;
+      errors[key] = message;
+      firstInvalid ??= el;
+    }
+    setFieldErrors(errors);
+    if (firstInvalid) {
+      firstInvalid.focus();
+      return;
+    }
+
     setStatus("submitting");
     setErrorMsg(null);
 
-    const form = e.currentTarget;
     const data = Object.fromEntries(new FormData(form).entries());
 
     try {
@@ -104,16 +158,20 @@ export default function ContactForm({
     }
   }
 
-  // Arabic validation messages: the browser's own text follows the browser UI language, not the page.
-  function onInvalid(e: InvalidEvent<HTMLFormElement>) {
-    if (!rtl || !messages) return;
-    const field = e.target as HTMLInputElement;
-    field.setCustomValidity(field.validity.valueMissing ? messages.required : messages.email);
-  }
-
+  // Once a field shows an error, re-check it as the visitor types, so the message goes away
+  // (or changes, e.g. from "fill out" to "valid email") without another submit.
   function onInput(e: FormEvent<HTMLFormElement>) {
-    if (!rtl) return;
-    (e.target as HTMLInputElement).setCustomValidity("");
+    if (!isValidatable(e.target as Element)) return;
+    const el = e.target as Validatable;
+    const key = fieldKey(el);
+    if (!key || !(key in fieldErrors)) return;
+    const message = fieldError(el, fieldMessages);
+    setFieldErrors((current) => {
+      const next = { ...current };
+      if (message) next[key] = message;
+      else delete next[key];
+      return next;
+    });
   }
 
   if (status === "success") {
@@ -125,17 +183,17 @@ export default function ContactForm({
   }
 
   return (
-    <form onSubmit={onSubmit} onInvalidCapture={onInvalid} onInput={onInput} className="flex flex-col gap-6">
+    <form onSubmit={onSubmit} onInput={onInput} noValidate className="flex flex-col gap-6">
       {/* Honeypot - hidden from real users via CSS, visible to bots. */}
       <input type="text" name="company" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <Field label={dict.firstName} name="firstName" required />
-        <Field label={dict.lastName} name="lastName" required />
+        <Field label={dict.firstName} name="firstName" required error={fieldErrors.firstName} />
+        <Field label={dict.lastName} name="lastName" required error={fieldErrors.lastName} />
       </div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <Field label={dict.email} name="email" type="email" required ltr={rtl} />
-        <PhoneField lang={lang} label={dict.phone} />
+        <Field label={dict.email} name="email" type="email" required ltr={rtl} error={fieldErrors.email} />
+        <PhoneField lang={lang} label={dict.phone} required error={fieldErrors.phone} />
       </div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <SelectField label={dict.pickService} name="service" options={serviceChoices} placeholder={dict.select} />
@@ -147,8 +205,11 @@ export default function ContactForm({
           name="message"
           required
           rows={5}
-        className="min-h-32 w-full resize-none border-b border-line bg-transparent py-2 text-base outline-none transition-colors focus:border-ink"
+          aria-invalid={fieldErrors.message ? true : undefined}
+          aria-describedby={fieldErrors.message ? "message-error" : undefined}
+          className={`min-h-32 w-full resize-none border-b bg-transparent py-2 text-base outline-none transition-colors focus:border-ink ${fieldErrors.message ? "border-red-600" : "border-line"}`}
         />
+        <FieldError id="message-error" message={fieldErrors.message} />
       </label>
 
       {/* TURNSTILE-DISABLED (no Cloudflare access yet):
@@ -172,12 +233,22 @@ export default function ContactForm({
   );
 }
 
+function FieldError({ id, message }: { id: string; message?: string }) {
+  if (!message) return null;
+  return (
+    <span id={id} className="text-sm text-red-600">
+      {message}
+    </span>
+  );
+}
+
 function Field({
   label,
   name,
   type = "text",
   required,
   ltr,
+  error,
 }: {
   label: string;
   name: string;
@@ -185,7 +256,9 @@ function Field({
   required?: boolean;
   /** Email and phone are typed left-to-right even on the Arabic form. */
   ltr?: boolean;
+  error?: string;
 }) {
+  const errorId = `${name}-error`;
   return (
     <label className="flex flex-col gap-2">
       <span className="eyebrow text-muted">{label}</span>
@@ -194,8 +267,11 @@ function Field({
         name={name}
         required={required}
         dir={ltr ? "ltr" : undefined}
-        className={`min-h-11 w-full border-b border-line bg-transparent py-2 text-base outline-none transition-colors focus:border-ink${ltr ? " text-end" : ""}`}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
+        className={`min-h-11 w-full border-b bg-transparent py-2 text-base outline-none transition-colors focus:border-ink ${error ? "border-red-600" : "border-line"}${ltr ? " text-end" : ""}`}
       />
+      <FieldError id={errorId} message={error} />
     </label>
   );
 }
