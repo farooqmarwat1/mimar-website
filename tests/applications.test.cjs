@@ -44,6 +44,7 @@ const applicant = {
   role: 'Senior 3D Artist',
   portfolioUrl: 'https://www.behance.net/noor',
   message: 'Five years of archviz work.',
+  consent: true,
 };
 
 test('createApplication saves a new application and drops empty fields', async () => {
@@ -224,4 +225,35 @@ test('if neither saving nor email works the applicant is told, so nothing is sil
   const res = await post(applicant);
   assert.equal(res.status, 502);
   assert.match(res.body.error, /hr@mim\.archi/);
+});
+
+test('an application without the terms and privacy tick is rejected', async () => {
+  const { db, sent, post } = endpoint({ mailer: 'ok' });
+  const unticked = { ...applicant, consent: undefined };
+  assert.equal((await post(unticked)).status, 422);
+  assert.equal((await post({ ...applicant, consent: false })).status, 422);
+  assert.equal(savedApps(db).length, 0);
+  assert.equal(sent.length, 0);
+});
+
+test('the bot check: skipped in development without keys, fails closed in production, needs a token with keys', async () => {
+  const { checkHuman } = load('src/lib/recaptcha.ts');
+  const before = { secret: process.env.RECAPTCHA_SECRET_KEY, mode: process.env.NODE_ENV };
+  const check = () => checkHuman(undefined, '203.0.113.9', '[test]', 'hr@mim.archi');
+  try {
+    delete process.env.RECAPTCHA_SECRET_KEY;
+    process.env.NODE_ENV = 'development';
+    assert.equal((await check()).ok, true);
+    process.env.NODE_ENV = 'production';
+    const closed = await check();
+    assert.equal(closed.ok, false);
+    assert.equal(closed.status, 503);
+    process.env.RECAPTCHA_SECRET_KEY = 'secret';
+    assert.equal((await check()).status, 400);
+  } finally {
+    if (before.secret === undefined) delete process.env.RECAPTCHA_SECRET_KEY;
+    else process.env.RECAPTCHA_SECRET_KEY = before.secret;
+    if (before.mode === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = before.mode;
+  }
 });

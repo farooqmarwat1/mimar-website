@@ -117,17 +117,18 @@ export default function ContactView({ lang = "en" }: { lang?: Locale }) {
           </Reveal>
         </div>
 
-        <Reveal delay={0.1}>
-          <div id="form" className="scroll-mt-24">
-            <p className="eyebrow mb-10 text-accent">{c.enquiry}</p>
-            <ContactForm
-              lang={lang}
-              dict={dict.contactForm}
-              serviceOptions={serviceOptions}
-              messages={{ ...c.formMessages, delivery: c.formMessages.delivery(contact.email) }}
-            />
-          </div>
-        </Reveal>
+        {/* No Reveal here on purpose: the fade-in shipped the form at opacity 0 until the page's
+            JavaScript loaded and it scrolled into view, so on phones it appeared about two seconds
+            late. The form is now visible in the server HTML; the address column keeps its fade. */}
+        <div id="form" className="scroll-mt-24">
+          <p className="eyebrow mb-10 text-accent">{c.enquiry}</p>
+          <ContactForm
+            lang={lang}
+            dict={dict.contactForm}
+            serviceOptions={serviceOptions}
+            messages={{ ...c.formMessages, delivery: c.formMessages.delivery(contact.email) }}
+          />
+        </div>
       </section>
 
       <WorkStrips lang={lang} copy={c.work} />

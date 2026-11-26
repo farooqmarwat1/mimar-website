@@ -33,7 +33,8 @@ export default function ContactCta({
           <p className="section-body mx-auto mt-6 max-w-md">{c.body}</p>
         </Reveal>
         <Reveal delay={0.15}>
-          <Link href={localeHref(lang, "/contact")} className="button-pill mt-9 text-ink">
+          {/* Straight to the form on the contact page (the #form block in ContactView), not the video hero. */}
+          <Link href={`${localeHref(lang, "/contact")}#form`} className="button-pill mt-9 text-ink">
             {c.cta}
           </Link>
         </Reveal>

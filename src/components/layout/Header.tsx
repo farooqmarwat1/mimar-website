@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { localeHref, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { OPEN_QUOTE_EVENT } from "@/components/quote/open-quote";
 
 // Hrefs match `navigation` in site-config; labels come from the dictionary so
 // they follow the page language.
@@ -22,10 +23,11 @@ const navItems = [
 /**
  * Matches the Figma header: a slim 56px bar with a small centered wordmark
  * and a hamburger toggle that opens a full nav overlay - not an inline nav
- * row. The left slot is contextual: "Get a quote" on the home page (matches
- * node 16:3901), "Islamabad" on every inner page (matches projects.svg) -
- * a small local/GEO signal that also avoids repeating the CTA that's
- * already in the nav overlay.
+ * row. The start slot is "Get a quote" on every page and every screen size
+ * (it used to be hidden below 420px, so phones had no quote link; audit of
+ * 25 Nov 2026). It and the menu's quote button carry `data-quote`, so they
+ * open the quote pop-up (QuoteModalProvider) while keeping /contact/ as a
+ * plain link for crawlers and visitors without JavaScript.
  */
 export default function Header({ lang = "en", dict }: { lang?: Locale; dict: Dictionary }) {
   const pathname = usePathname();
@@ -61,6 +63,13 @@ export default function Header({ lang = "en", dict }: { lang?: Locale; dict: Dic
     return () => window.clearTimeout(timer);
   }, []);
 
+  // The quote pop-up opening (from the menu's button or anywhere else) closes the menu.
+  useEffect(() => {
+    const closeMenu = () => setOpen(false);
+    window.addEventListener(OPEN_QUOTE_EVENT, closeMenu);
+    return () => window.removeEventListener(OPEN_QUOTE_EVENT, closeMenu);
+  }, []);
+
   const dark = !hasFullScreenHero || scrolled || open;
 
   return (
@@ -69,7 +78,10 @@ export default function Header({ lang = "en", dict }: { lang?: Locale; dict: Dic
         <div className="flex items-center gap-4">
           <Link
             href={localeHref(lang, "/contact")}
-            className={`${labelClass} hidden min-[420px]:block ${dark ? "text-ink" : "text-paper"}`}
+            data-quote="header"
+            // Below 360px the label would touch the centred logo, so Arabic drops one size and English
+            // tightens its letter spacing there only (`!`: .eyebrow is outside Tailwind's layers).
+            className={`${labelClass} block ${isAr ? "max-[359px]:text-xs" : "max-[359px]:tracking-[.08em]!"} ${dark ? "text-ink" : "text-paper"}`}
           >
             {dict.header.getQuote}
           </Link>
@@ -178,6 +190,7 @@ export default function Header({ lang = "en", dict }: { lang?: Locale; dict: Dic
               ))}
               <Link
                 href={localeHref(lang, "/contact")}
+                data-quote="menu"
                 onClick={() => setOpen(false)}
                 className="button-pill mt-4 text-ink"
               >

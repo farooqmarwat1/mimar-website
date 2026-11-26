@@ -48,6 +48,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: siteUrl("/careers"), changeFrequency: "monthly", priority: 0.5 },
     { url: siteUrl("/expos"), changeFrequency: "monthly", priority: 0.5 },
     { url: siteUrl("/privacy-policy"), changeFrequency: "yearly", priority: 0.3 },
+    { url: siteUrl("/terms-of-use"), changeFrequency: "yearly", priority: 0.3 },
     { url: siteUrl("/meta/app/edtech"), changeFrequency: "yearly", priority: 0.4 },
     { url: siteUrl("/visualization-proposal"), changeFrequency: "yearly", priority: 0.4 },
     { url: siteUrl("/my-bookings"), changeFrequency: "yearly", priority: 0.3 },

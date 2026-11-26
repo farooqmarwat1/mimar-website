@@ -118,7 +118,7 @@ export function SubServiceHero({
         <Reveal delay={0.1}>
           <p className="mt-10 max-w-xl text-lg leading-snug text-paper/90 md:text-xl">{tagline}</p>
         </Reveal>
-        <Reveal delay={0.15}><Link href={localeHref(lang, "/contact")} className="button-pill mt-10 text-paper">{ui.requestQuote}</Link></Reveal>
+        <Reveal delay={0.15}><Link href={localeHref(lang, "/contact")} data-quote="sub-service-hero" className="button-pill mt-10 text-paper">{ui.requestQuote}</Link></Reveal>
       </div>
     </section>
   );

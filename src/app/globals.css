@@ -303,3 +303,9 @@ select:focus {
     scroll-behavior: auto !important;
   }
 }
+
+/* The reCAPTCHA badge (src/components/RecaptchaWidget.tsx). Google allows hiding it only because every
+   protected form shows <RecaptchaNotice>. visibility, not display: display none breaks the check. */
+.grecaptcha-badge {
+  visibility: hidden;
+}

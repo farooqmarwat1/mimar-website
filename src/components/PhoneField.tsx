@@ -98,13 +98,24 @@ export default function PhoneField({
   label,
   required,
   error,
+  placeholder,
+  id: idProp,
+  compact,
 }: {
   lang?: Locale;
   label: string;
   required?: boolean;
   error?: string | null;
+  /** Dim example number shown while the field is empty. */
+  placeholder?: string;
+  /** Needed when two forms can be on one page (the contact form plus the quote pop-up). */
+  id?: string;
+  /** Shorter field for the quote pop-up, which has to fit the screen without scrolling. */
+  compact?: boolean;
 }) {
   const rtl = isRtl(lang);
+  const id = idProp ?? "phone-number";
+  const height = compact ? "min-h-9 py-1" : "min-h-11 py-2";
   // Localized country names and the visitor's country are browser-side values, so the server
   // render (and hydration) uses the fallback and the real list appears right after mount.
   const mounted = useSyncExternalStore(subscribeNever, () => true, () => false);
@@ -125,13 +136,13 @@ export default function PhoneField({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <label htmlFor="phone-number" className="eyebrow text-muted">
+    <div className={`flex flex-col ${compact ? "gap-1" : "gap-2"}`}>
+      <label htmlFor={id} className="eyebrow text-muted">
         {label}
       </label>
       <div dir="ltr" className="flex items-end gap-3">
         <div className={`relative shrink-0 border-b transition-colors focus-within:border-ink ${error ? "border-red-600" : "border-line"}`}>
-          <span aria-hidden className="flex min-h-11 items-center gap-1.5 py-2 pe-5 text-base">
+          <span aria-hidden className={`flex ${height} items-center gap-1.5 pe-5 text-base`}>
             <span className="text-xs text-muted">{country}</span>
             <span>+{dial}</span>
             <svg className="absolute end-0 top-1/2 size-3 -translate-y-1/2 text-muted" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -154,7 +165,7 @@ export default function PhoneField({
           </select>
         </div>
         <input
-          id="phone-number"
+          id={id}
           type="tel"
           inputMode="tel"
           autoComplete="tel-national"
@@ -163,13 +174,14 @@ export default function PhoneField({
           value={number}
           data-field="phone"
           aria-invalid={error ? true : undefined}
-          aria-describedby={error ? "phone-number-error" : undefined}
+          aria-describedby={error ? `${id}-error` : undefined}
+          placeholder={placeholder}
           onChange={(e) => setNumber(e.target.value)}
-          className={`min-h-11 w-full min-w-0 border-b bg-transparent py-2 text-base outline-none transition-colors focus:border-ink ${error ? "border-red-600" : "border-line"}${rtl ? " text-end" : ""}`}
+          className={`${height} w-full min-w-0 border-b bg-transparent text-base outline-none transition-colors placeholder:text-muted/50 focus:border-ink ${error ? "border-red-600" : "border-line"}${rtl ? " text-end" : ""}`}
         />
       </div>
       {error && (
-        <p id="phone-number-error" className="text-sm text-red-600">
+        <p id={`${id}-error`} className="text-sm text-red-600">
           {error}
         </p>
       )}
