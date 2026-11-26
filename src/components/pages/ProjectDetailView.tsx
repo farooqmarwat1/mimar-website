@@ -47,6 +47,8 @@ export default function ProjectDetailView({
   const galleryRows = story ? planGalleryRows(gallery) : [];
   const galleryOrder = galleryRows.flat();
   const storyLabels = projectStoryLabels[lang];
+  // The line under the hero title: the project's own written description, else its one-line summary.
+  const heroText = story?.seo.description ?? intro;
   const sourceRegion = regionList.find((region) => region.projectSlugs.includes(source.slug));
   const region = sourceRegion ? localizeRegion(sourceRegion, lang) : undefined;
 
@@ -86,16 +88,19 @@ export default function ProjectDetailView({
         />
         <div className="absolute inset-0 bg-black/38" />
         <div className="container-page relative w-full pb-14 pt-32 md:pb-16">
-          <Reveal><p className="eyebrow mb-8 text-paper/70">/ {project.location}</p></Reveal>
+          <Reveal><p className="eyebrow mb-6 text-paper/70">/ {project.location}</p></Reveal>
           <Reveal delay={0.05}><h1 className={`max-w-6xl break-words text-[clamp(3rem,13vw,7.75rem)] font-medium uppercase leading-[.83] tracking-[-.065em]${arClass(lang, "rtl:leading-[1.2]")}`}>{project.title}</h1></Reveal>
+          <Reveal delay={0.1}><p className="mt-6 max-w-xl text-lg leading-snug text-paper/90 md:text-xl">{heroText}</p></Reveal>
+          <Reveal delay={0.15}><Link href={localeHref(lang, "/contact")} className="button-pill mt-6 text-paper">{dict.common.requestQuote}</Link></Reveal>
         </div>
       </section>
 
       <section className="container-page grid gap-12 py-16 md:grid-cols-[2fr_1fr] md:gap-16 md:py-32">
         <div>
-          <Reveal><p className="max-w-4xl text-[clamp(1.65rem,2.7vw,2.8rem)] leading-[1.12] tracking-[-.035em]">{intro}</p></Reveal>
+          {/* Without a story the summary is already in the hero, so it is not repeated here. */}
+          {story && <Reveal><p className="max-w-4xl text-[clamp(1.65rem,2.7vw,2.8rem)] leading-[1.12] tracking-[-.035em]">{intro}</p></Reveal>}
           {/* The generic paragraph is the same on every project; a project with its own story replaces it. */}
-          {!story && <Reveal delay={0.05}><p className="section-body mt-10 max-w-3xl">{narrative}</p></Reveal>}
+          {!story && <Reveal delay={0.05}><p className="section-body max-w-3xl">{narrative}</p></Reveal>}
         </div>
         <Reveal delay={0.08}>
           <div><p className="eyebrow mb-6 text-muted">/ {dict.common.keySpecs}</p>{specs.map(([label, value]) => <div key={label} className="grid grid-cols-[8rem_1fr] border-t border-line py-4"><p className="eyebrow text-muted">{label}</p><p className="text-sm">{value}</p></div>)}</div>
