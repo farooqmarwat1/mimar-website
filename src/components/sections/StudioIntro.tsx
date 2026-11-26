@@ -1,5 +1,6 @@
 import Link from "@/components/ui/Link";
 import Reveal from "@/components/ui/Reveal";
+import { linkedText } from "@/components/ui/LinkedText";
 import { localeHref, type Locale } from "@/i18n/config";
 import { getDictionary, type Dictionary } from "@/i18n/dictionaries";
 
@@ -18,7 +19,7 @@ export default function StudioIntro({ lang = "en", dict = getDictionary(lang) }:
           </h2>
         </Reveal>
         <Reveal delay={0.1}>
-          <p className="section-body mx-auto mt-7 max-w-xl">{c.body}</p>
+          <p className="section-body mx-auto mt-7 max-w-xl">{linkedText(c.body, lang)}</p>
         </Reveal>
         <Reveal delay={0.15}>
           <Link href={localeHref(lang, "/services")} className="button-pill mt-9 text-ink">

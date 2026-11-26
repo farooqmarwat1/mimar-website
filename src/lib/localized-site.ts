@@ -24,6 +24,13 @@ import { localizeDigits, type Locale } from "@/i18n/config";
 
 const d = (value: string, lang: Locale) => localizeDigits(value, lang);
 
+// Like `d`, but leaves the paths of `[words](/path)` links alone ("vr-360-tours" must stay Latin).
+const dKeepLinks = (value: string, lang: Locale) =>
+  value
+    .split(/(\]\(\/[^)\s]*\))/)
+    .map((part, index) => (index % 2 ? part : d(part, lang)))
+    .join("");
+
 export function localizeProjects(list: Project[], lang: Locale): Project[] {
   if (lang !== "ar") return list;
   return list.map((project) => {
@@ -60,7 +67,7 @@ export function localizeService(service: Service, lang: Locale): Service {
 
 export function localizedFaqs(lang: Locale): { question: string; answer: string }[] {
   if (lang !== "ar") return faqs.map((faq) => ({ ...faq }));
-  return siteConfigAr.faqs.map((faq) => ({ question: d(faq.question, lang), answer: d(faq.answer, lang) }));
+  return siteConfigAr.faqs.map((faq) => ({ question: d(faq.question, lang), answer: dKeepLinks(faq.answer, lang) }));
 }
 
 export function localizedStats(lang: Locale): { value: string; label: string }[] {

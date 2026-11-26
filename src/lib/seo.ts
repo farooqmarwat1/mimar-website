@@ -2,6 +2,7 @@ import { siteUrl } from "./site-url";
 import type { Metadata } from "next";
 import { siteConfig, faqs as defaultFaqs } from "./site-config";
 import { servicePath } from "./service-details";
+import { stripInlineLinks } from "./content-blocks";
 import { localeHref, ogLocales, type Locale } from "@/i18n/config";
 
 type BuildMetadataArgs = {
@@ -429,8 +430,9 @@ export function faqJsonLd(items: readonly { question: string; answer: string }[]
     "@type": "FAQPage",
     mainEntity: items.map((item) => ({
       "@type": "Question",
-      name: item.question,
-      acceptedAnswer: { "@type": "Answer", text: item.answer },
+      name: stripInlineLinks(item.question),
+      // Answers may carry `[words](/path)` links on the page; the schema gets the plain words.
+      acceptedAnswer: { "@type": "Answer", text: stripInlineLinks(item.answer) },
     })),
   };
 }

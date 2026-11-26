@@ -37,7 +37,11 @@ export default function TeamStats({ lang = "en", dict = getDictionary(lang) }: {
           <ViewportVideo
             src="/home/team-that-produces.mp4"
             poster="/home/team-that-produces-poster.jpg"
-            label="The Mimar Studios team collaborating on architectural visualization work"
+            label={
+              lang === "ar"
+                ? "فريق استوديوهات معمار يعمل معاً على مشاريع التصور المعماري"
+                : "The Mimar Studios team collaborating on architectural visualization work"
+            }
             className="absolute inset-0 h-full w-full object-cover"
           />
         </div>

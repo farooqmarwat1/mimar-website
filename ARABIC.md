@@ -45,6 +45,10 @@ Home page only (`/` and `/ar`), browser-tab title only: the hero and every visib
 
 The Arabic name of Mimar Studios is **استوديوهات معمار**. Use it everywhere the full name appears in Arabic (titles, meta, JSON-LD, footer, copy, the 45 legacy articles, and the AI translation prompt in `src/lib/ai/translate-post.ts`). The short form is **معمار** (titles, running text) and Mimar Digital is **معمار الرقمية**; the old transliteration "ميمار" ("ميمار ستوديوز", "ميمار ديجيتال") is retired. The Latin name stays "Mimar Studios" / "mimAR" in English text and in the `en` pages.
 
+## Home page copy (26 Nov 2026, SEO_MIGRATION.md point 42)
+
+The home page has Arabic twins for the two new sections (`homeProcess`, `homeWhy`) and the home closing call to action (`homeContactCta`) in `src/i18n/dictionaries/ar.ts`, for the footprint cards in `GlobalFootprint.tsx` and for the five FAQs in `src/lib/ar/site-config.ar.ts` (the English and Arabic FAQ counts must stay equal). Write in-copy links as `[words](/path)` with the English path: `linkedText` adds `/ar`, and `localizedFaqs` leaves the path's digits Latin. All of this Arabic still needs a native review.
+
 ## Not translated (by design)
 - Staff portal `/admin` (English only: no Arabic interface and no Arabic fields; the Arabic text of articles is written by the AI, see below), `/api/*`.
 - Firestore jobs: `/careers/<slug>` is English only (no hreflang). `/ar/careers` shows Arabic page copy and links open roles to the English role pages.

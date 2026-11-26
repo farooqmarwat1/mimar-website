@@ -40,7 +40,11 @@ function ProjectTile({ project, lang, className }: { project: Project; lang: Loc
       <ViewportVideo
         src={homeProjectVideos[project.slug]}
         poster={homeProjectPosters[project.slug]}
-        label={`${project.title} animated architectural visualization by Mimar Studios`}
+        label={
+          lang === "ar"
+            ? `${project.title} — تصور معماري متحرك من استوديوهات معمار`
+            : `${project.title} animated architectural visualization by Mimar Studios`
+        }
         className="absolute inset-0 h-full w-full object-cover"
       />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />

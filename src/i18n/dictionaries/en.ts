@@ -75,14 +75,50 @@ const en = {
     eyebrow: "/ Studio",
     heading1: "Design. Visualize.",
     heading2: "Experience.",
-    body: "Your one-stop architecture and design studio. Mimar Studios brings architects, visualizers, and designers together under one roof to deliver projects from concept to experience.",
+    body: "Mimar Studios is a 3D architecture firm and architectural rendering studio. Architects, visualizers and designers work under one roof, so developers can outsource 3D architectural rendering, animation and [interactive tours](/services/interactive-services) to one team, from concept to sales launch.",
     cta: "Go to services",
   },
+  // Home page only (SEO_MIGRATION.md point 42): the two new sections and the home closing call to
+  // action. `[words](/path)` becomes an internal link (linkedText), in the page language.
+  homeProcess: {
+    eyebrow: "/ Our process",
+    heading1: "How we work.",
+    heading2: "From drawings to delivery.",
+    lead: "",
+    intro: "When you bring your 3D architectural rendering or design project to Mimar Studios, here's how it progresses from the initial brief to final delivery.",
+    steps: [
+      ["Send the brief", "Share drawings (plans or CAD files), material references and your deadline through our contact form or a [booked call](/booking)."],
+      ["Scope and quotation", "We review your needs, define the scope and send a detailed quotation with deliverables and timeline."],
+      ["Review and refine", "You review an initial preview of the design or 3D model. We then refine materials and light into photorealistic 3D visualization."],
+      ["Final delivery", "Receive exterior and interior renders, 3D walkthroughs, virtual tours and project files, ready to market or build."],
+    ] as [string, string][],
+    imageAlt: "Photorealistic 3D render of a hotel lobby and reception desk by Mimar Studios",
+    cta: "Request a quote",
+  },
+  homeWhy: {
+    eyebrow: "/ Our strengths",
+    heading1: "Why Mimar?",
+    heading2: "Built for developers.",
+    intro: "Mimar Studios is a 3D architecture firm and architectural rendering studio with everything your project needs under one roof, from design and visualization to marketing.",
+    reasons: [
+      ["One studio, concept to launch", "Our architects, visualizers, animators and brand designers work together to keep your design, visuals, tours and marketing aligned from concept to launch."],
+      ["Starting with your vision", "From initial ideas and project briefs to existing drawings or CAD files, we adapt to your needs, and we work in imperial units for US projects."],
+      ["Handled with discretion", "Your drawings, designs and project information are handled confidentially, with NDAs available on request."],
+      ["Changes early, not late", "You review the camera angles and composition before final materials and lighting, making revisions easier and more cost-effective."],
+      ["Proven across markets", "We've worked on projects across Pakistan, the UAE, Saudi Arabia, Oman, Nigeria and the United States."],
+      ["Made for real estate", "3D rendering for real estate, interactive experiences and campaigns designed for [off-plan launches](/blog/dubai-off-plan-real-estate-rendering-drives-pre-construction-sales), sales galleries and property marketing."],
+    ] as [string, string][],
+  },
+  homeContactCta: {
+    heading1: "Tell us about the project.",
+    heading2: "We will take it from there.",
+    body: "Send your drawings and a short brief, and one of our architects will reply within one working day with questions and a quote. Working with a 3D architecture firm should be the easy part of your launch.",
+  },
   teamStats: {
-    eyebrow: "/ Studio",
+    eyebrow: "/ Team",
     heading1: "A Team That Produces",
     heading2: "Shared Creativity.",
-    body: "Taking care of what is in process and excited about what is to come.",
+    body: "Architects, 3D visualization artists, animators and interactive developers work as one team, so the design, the renders and the tours come from the same people.",
     cta: "Explore the studio",
   },
   faqSection: {
@@ -120,6 +156,8 @@ const en = {
     eyebrow: "/ Mimar insights",
     publishedBy: "Published by Mimar Studios",
     discussProject: "Discuss a project",
+    // One line above the button on every article: a keyword link back to the home page.
+    studioLine: "Mimar Studios is a [3D architecture firm](/) working with developers in the USA, the Gulf and Pakistan.",
   },
   contactForm: {
     firstName: "First name",

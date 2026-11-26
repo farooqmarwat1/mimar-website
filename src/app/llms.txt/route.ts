@@ -2,6 +2,7 @@ import { siteUrl } from "@/lib/site-url";
 import { NextResponse } from "next/server";
 import { siteConfig, contact, contactPhones, offices, faqs, services } from "@/lib/site-config";
 import { getProjects } from "@/lib/cms";
+import { stripInlineLinks } from "@/lib/content-blocks";
 import { getBlogEntries } from "@/lib/blog-store";
 import { servicePath } from "@/lib/service-details";
 import { getOpenJobs } from "@/lib/jobs";
@@ -61,7 +62,7 @@ export async function GET() {
         ]
       : []),
     "## Frequently asked questions",
-    ...faqs.map((f) => `Q: ${f.question}\nA: ${f.answer}\n`),
+    ...faqs.map((f) => `Q: ${f.question}\nA: ${stripInlineLinks(f.answer)}\n`),
     "",
     "## Arabic version (العربية)",
     `The whole site is also available in Arabic under ${siteUrl("/ar")} (same paths, right-to-left).`,
@@ -82,7 +83,7 @@ export async function GET() {
       page.titleAr ? [`- [${page.titleAr}](${siteUrl(localeHref("ar", page.path))}): ${page.descriptionAr ?? ""}`] : [],
     ),
     "",
-    ...localizedFaqs("ar").map((f) => `س: ${f.question}\nج: ${f.answer}\n`),
+    ...localizedFaqs("ar").map((f) => `س: ${f.question}\nج: ${stripInlineLinks(f.answer)}\n`),
   ];
 
   return new NextResponse(lines.join("\n"), {

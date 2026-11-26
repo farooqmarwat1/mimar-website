@@ -1,4 +1,5 @@
 import Reveal from "@/components/ui/Reveal";
+import { linkedText } from "@/components/ui/LinkedText";
 import { faqJsonLd, jsonLdScript } from "@/lib/seo";
 import { getDictionary, type Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
@@ -45,10 +46,11 @@ export default function FaqSection({
             <Reveal key={item.question} delay={Math.min(i * 0.05, 0.3)}>
               <details className="motion-row group border-b border-line py-6">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-lg tracking-tight">
-                  {item.question}
+                  {/* H3 like the region pages' FAQs; the summary keeps the look. */}
+                  <h3 className="text-lg font-normal tracking-tight">{item.question}</h3>
                   <span className="eyebrow text-muted shrink-0 transition-transform group-open:rotate-45">+</span>
                 </summary>
-                <p className="section-body mt-4">{item.answer}</p>
+                <p className="section-body mt-4">{linkedText(item.answer, lang)}</p>
               </details>
             </Reveal>
           ))}
