@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "@/components/ui/Link";
 import Reveal from "@/components/ui/Reveal";
 import { splitInlineLinks } from "@/lib/content-blocks";
+import { linkedText } from "@/components/ui/LinkedText";
 import type { SiteArticle } from "@/lib/posts";
 import { isRtl, localeHref, localizeDigits, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
@@ -194,7 +195,8 @@ export default function LegacyArticle({ page, lang = "en" }: { page: SiteArticle
               </ul>
             </section>
           )}
-          <Link href={localeHref(lang, "/contact")} className="button-pill mt-14 text-ink">{copy.discussProject}</Link>
+          <p className="section-body mt-14 max-w-2xl">{linkedText(copy.studioLine, lang)}</p>
+          <Link href={localeHref(lang, "/contact")} className="button-pill mt-8 text-ink">{copy.discussProject}</Link>
         </div>
       </div>
     </article>

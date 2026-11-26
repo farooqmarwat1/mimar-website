@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Hero from "@/components/hero/Hero";
 import StudioIntro from "@/components/sections/StudioIntro";
 import ServicesPreview from "@/components/sections/ServicesPreview";
+import HomeProcess from "@/components/sections/HomeProcess";
+import HomeWhy from "@/components/sections/HomeWhy";
 import PortfolioGrid from "@/components/sections/PortfolioGrid";
 import TeamStats from "@/components/sections/TeamStats";
 import GlobalFootprint from "@/components/sections/GlobalFootprint";
@@ -34,10 +36,12 @@ export default async function ArabicHome() {
       <StudioIntro lang="ar" dict={dict} />
       <ServicesPreview lang="ar" dict={dict} />
       <PortfolioGrid projects={projects} lang="ar" dict={dict} />
+      <HomeProcess lang="ar" dict={dict} />
+      <HomeWhy lang="ar" dict={dict} />
       <TeamStats lang="ar" dict={dict} />
       <GlobalFootprint lang="ar" />
       <FaqSection items={localizedFaqs("ar")} lang="ar" dict={dict} />
-      <ContactCta lang="ar" dict={dict} />
+      <ContactCta lang="ar" dict={dict} content={dict.homeContactCta} />
     </>
   );
 }

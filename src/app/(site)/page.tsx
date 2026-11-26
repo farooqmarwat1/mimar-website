@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Hero from "@/components/hero/Hero";
 import StudioIntro from "@/components/sections/StudioIntro";
 import ServicesPreview from "@/components/sections/ServicesPreview";
+import HomeProcess from "@/components/sections/HomeProcess";
+import HomeWhy from "@/components/sections/HomeWhy";
 import PortfolioGrid from "@/components/sections/PortfolioGrid";
 import TeamStats from "@/components/sections/TeamStats";
 import GlobalFootprint from "@/components/sections/GlobalFootprint";
@@ -29,7 +31,8 @@ export const metadata: Metadata = buildMetadata({
 // Projects, Numbers (stats), CTA - then the footer. Keep this sequence when
 // editing; don't reorder without checking against the reference again.
 // GlobalFootprint (links to the market pages) was added after the stats for
-// Deliverable 4, 19 Nov 2026.
+// Deliverable 4, 19 Nov 2026. "How we work" and "Why us" (both after the portfolio) were
+// added on 24 Nov 2026 (SEO_MIGRATION.md point 42).
 export default async function Home() {
   const projects = await getProjects();
   const dict = getDictionary("en");
@@ -41,10 +44,12 @@ export default async function Home() {
       <StudioIntro dict={dict} />
       <ServicesPreview dict={dict} />
       <PortfolioGrid projects={projects} dict={dict} />
+      <HomeProcess dict={dict} />
+      <HomeWhy dict={dict} />
       <TeamStats dict={dict} />
       <GlobalFootprint />
       <FaqSection items={faqs} dict={dict} />
-      <ContactCta dict={dict} />
+      <ContactCta dict={dict} content={dict.homeContactCta} />
     </>
   );
 }

@@ -116,7 +116,7 @@ export type Project = {
 };
 
 export const portfolioIntro =
-  "Explore residential, hospitality and corporate work with photorealistic renders, animation and interactive tours. Precision in light, material and detail - before a single wall is built.";
+  "Residential, hospitality and commercial work from our architectural visualization studio: photorealistic 3D renders, animation and interactive tours for real estate launches. Precision in light, material and detail, before a single wall is built.";
 
 export const projectsIntro =
   "A selection of residential, hospitality, corporate and public work - designed and visualized in-house.";
@@ -384,37 +384,33 @@ export const services: Service[] = [
 ];
 
 export const faqs = [
+  // Home page FAQ (SEO_MIGRATION.md point 42): the combined copy after the fact checker's review,
+  // 26 Nov 2026. Five questions. `[words](/path)` is an internal link on the page; the FAQPage
+  // JSON-LD and llms.txt get the plain words.
   {
-    question: "What industries does Mimar Studios cater to with its 3D rendering services?",
+    question: "What services does Mimar Studios offer?",
     answer:
-      "Mimar Studios' 3D rendering services primarily serve architecture, interior design, and real estate, along with product design and marketing use cases.",
+      "Mimar Studios is a 3D architecture firm and architectural visualization studio. We provide 3D animation and [architectural design](/services/architectural-design), 3D visualization, virtual tours and interactive experiences, along with branding and marketing for real estate projects.",
   },
   {
-    question: "What is photorealistic 3D rendering?",
+    question: "Can I outsource 3D architectural rendering and design work to Mimar Studios?",
     answer:
-      "Photorealistic 3D rendering is the process of creating computer-generated images that closely resemble photographs of real-life scenes, using advanced techniques to simulate lighting, materials, textures, and shadows accurately.",
+      "Yes. Developers, architects and businesses outsource 3D architectural rendering, architectural design and visualization to us. Share your drawings or brief and we'll recommend the right scope and send a quotation.",
   },
   {
-    question: "How does Mimar's architectural animation service differ from 3D rendering?",
+    question: "How much do your services cost?",
     answer:
-      "3D rendering produces static images, while architectural animation brings a design to life through movement - camera pans, fly-throughs, and object animation - so clients can experience a project as if it were already built.",
+      "Pricing depends on the type of service, project scope, complexity, deliverables and timeline, so every project is quoted individually. This covers our [3D rendering services](/services/3d-visualization), including 3D interior and exterior visualization for residential, commercial, hospitality and real estate developments, cinematic architectural walkthroughs, [360° virtual tours](/services/interactive-services/vr-360-tours), VR experiences and other interactive experiences. Share your brief or drawings for a tailored quotation.",
   },
   {
-    question: "What real estate marketing services does Mimar Studios offer?",
+    question: "What do I need to share to get started?",
     answer:
-      "Mimar Studios offers real estate marketing services including digital marketing, advertising, web development, and strategic planning tailored to each client's project.",
+      "You can share your architectural drawings, floor plans, CAD files, project brief or any material relevant to your 3D architectural rendering or design project. If you're at an early stage, we can discuss it and work out what information is needed to proceed.",
   },
   {
-    question: "Where is Mimar Studios based?",
+    question: "Do you sign NDAs and keep projects confidential?",
     answer:
-      "Mimar Studios is headquartered at the National Science & Technology Park (NSTP), NUST, H-12, Islamabad, Pakistan, with clients served across 14+ countries.",
-  },
-  // Deliverable 4 (19 Nov 2026): "3d architectural rendering outsource" is the home page's largest
-  // non-branded query (9,385 impressions, 0 clicks in three months).
-  {
-    question: "Can I outsource 3D architectural rendering to Mimar Studios?",
-    answer:
-      "Yes. Developers and architects in the USA, the UAE, Saudi Arabia, Pakistan and other countries send us plans, elevations or CAD files with a short brief. We sign an NDA for unreleased projects, return an itemised quote, and deliver photorealistic exterior and interior renders, animation and VR tours.",
+      "We handle all project information with confidentiality and discretion. If your project needs a formal Non-Disclosure Agreement (NDA), we're happy to sign one before you share confidential materials.",
   },
 ] as const;
 
