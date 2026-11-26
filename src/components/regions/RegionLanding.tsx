@@ -103,13 +103,10 @@ export default function RegionLanding({ region: englishRegion, lang = "en" }: { 
             <p className="eyebrow mb-8 text-paper/65">/ {region.city}{comma(lang)}{region.name}</p>
           </Reveal>
           <Reveal delay={0.05}>
-            {/* A long, keyword-led H1 (the USA page's, Deliverable 4) gets a smaller size so it stays a few
-                lines tall instead of filling the whole hero. */}
-            <h1 className={`max-w-5xl break-words ${
-              region.h1.length > 45
-                ? ar ? "text-[clamp(2rem,6vw,4rem)]" : "text-[clamp(2.1rem,6.5vw,5rem)]"
-                : ar ? "text-[clamp(2.5rem,9vw,6rem)]" : "text-[clamp(3rem,13vw,8rem)]"
-            } font-medium uppercase ${ar ? "leading-[1.2]" : region.h1.length > 45 ? "leading-[.9] tracking-[-.05em]" : "leading-[.82] tracking-[-.065em]"}`}>
+            {/* Every country page uses one heading size; the H1s are short enough for two lines on a desktop. */}
+            <h1 className={`max-w-6xl text-balance break-words font-medium uppercase ${
+              ar ? "text-[clamp(2rem,6vw,4rem)] leading-[1.2]" : "text-[clamp(2.1rem,6.5vw,5rem)] leading-[.9] tracking-[-.05em]"
+            }`}>
               {region.h1}
             </h1>
           </Reveal>

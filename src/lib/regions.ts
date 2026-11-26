@@ -118,7 +118,7 @@ export const regions: Record<string, Region> = {
       "3d rendering services dubai",
       "3d architectural visualization dubai",
     ],
-    h1: "Top 3D Visualizer & Architectural Rendering Services in the UAE",
+    h1: "3D Visualizer & Rendering Services in UAE",
     label: "3D Visualization Services UAE",
     // Up-link to the Middle East hub, which links back down here (Deliverable 5).
     relatedRegions: ["middleEast"],
@@ -207,7 +207,7 @@ export const regions: Record<string, Region> = {
         city: "Dubai",
         streetAddress: "WeWork, One Central, 8th & 9th Floor, The Offices 4, Dubai World Trade Centre",
         countryCode: "AE",
-        phone: "+971 58 536 1858",
+        phone: "+971 54 146 5887",
         geo: { latitude: 25.2246, longitude: 55.2874 },
         gbpUrl: "https://share.google/zExBKdwTHeYWP6xBc",
       },
@@ -313,8 +313,8 @@ export const regions: Record<string, Region> = {
       "3d rendering services dallas",
     ],
     // Deliverable 5 proposed "High-End 3D Architectural Visualization Services in the USA"; the
-    // Deliverable 4 H1 stays because it carries "rendering" too. Its H2/H3 are used below.
-    h1: "Photorealistic 3D Architectural Rendering & Visualization Services in the USA",
+    // Deliverable 4 H1 was shortened on 26 Nov 2026 (owner request, SEO_MIGRATION.md point 40). Its H2/H3 are used below.
+    h1: "3D Architectural Rendering Services in the USA",
     label: "3D Architectural Rendering Services USA",
     // Section H2s from Deliverable 4's content plan.
     headings: {
@@ -436,7 +436,7 @@ export const regions: Record<string, Region> = {
         streetAddress: "25 Broadway",
         postalCode: "10004",
         countryCode: "US",
-        phone: "+1 415-300-2005",
+        phone: "+1 786 761 9866",
         geo: { latitude: 40.7054, longitude: -74.0132 },
         gbpUrl: "https://share.google/1moaNAdc6IN5roHSm",
       },
@@ -446,7 +446,7 @@ export const regions: Record<string, Region> = {
         streetAddress: "1601 Elm St",
         postalCode: "75201",
         countryCode: "US",
-        phone: "+1 415-745-4287",
+        phone: "+1 786 761 9866",
         geo: { latitude: 32.7819435, longitude: -96.7983793 },
         // The share.google short link for this profile has never resolved, so
         // this is the canonical maps CID URL for the same listing.
@@ -458,7 +458,7 @@ export const regions: Record<string, Region> = {
         streetAddress: "535 Mission St",
         postalCode: "94105",
         countryCode: "US",
-        phone: "+1 415-300-2005",
+        phone: "+1 786 761 9866",
         geo: { latitude: 37.7881, longitude: -122.3972 },
         gbpUrl: "https://share.google/jF9Xy8mD5BPlUy1wY",
       },
@@ -468,7 +468,7 @@ export const regions: Record<string, Region> = {
         streetAddress: "360 E 2nd St, Suite 800",
         postalCode: "90012",
         countryCode: "US",
-        phone: "+1 415-300-2005",
+        phone: "+1 786 761 9866",
         geo: { latitude: 34.0486, longitude: -118.2389 },
         gbpUrl: "https://share.google/1DPWaFVsmxJDSZocn",
       },
@@ -478,7 +478,7 @@ export const regions: Record<string, Region> = {
         streetAddress: "609 Main St",
         postalCode: "77002",
         countryCode: "US",
-        phone: "+1 415-745-4287",
+        phone: "+1 786 761 9866",
         geo: { latitude: 29.7576, longitude: -95.3647 },
         gbpUrl: "https://share.google/H6hiSKKIuuuV59ZFt",
       },
@@ -488,7 +488,7 @@ export const regions: Record<string, Region> = {
         streetAddress: "600 S Congress Ave",
         postalCode: "78701",
         countryCode: "US",
-        phone: "+1 415-300-2005",
+        phone: "+1 786 761 9866",
         geo: { latitude: 30.2549, longitude: -97.7452 },
         gbpUrl: "https://maps.app.goo.gl/rQE1yMo767ZwhQLK8",
       },
@@ -584,7 +584,7 @@ export const regions: Record<string, Region> = {
       "architectural rendering saudi arabia",
       "3d visualization riyadh",
     ],
-    h1: "3D Visualization & Architectural Rendering Services in Saudi Arabia",
+    h1: "3D Visualization Services in Saudi Arabia",
     label: "3D Visualization Services Saudi Arabia",
     relatedRegions: ["middleEast"],
     intro:
@@ -927,7 +927,7 @@ export const regions: Record<string, Region> = {
       "architectural rendering middle east",
       "3d rendering gcc",
     ],
-    h1: "3D Visualization & Architectural Rendering Services Across the Middle East",
+    h1: "3D Visualization Services in the Middle East",
     label: "3D Visualization Services Middle East",
     // Sheet D5: "Link to UAE and KSA sub-pages".
     relatedRegions: ["uae", "saudiArabia"],
@@ -1020,7 +1020,7 @@ export const regions: Record<string, Region> = {
         city: "Dubai",
         streetAddress: "WeWork, One Central, 8th & 9th Floor, The Offices 4, Dubai World Trade Centre",
         countryCode: "AE",
-        phone: "+971 58 536 1858",
+        phone: "+971 54 146 5887",
         geo: { latitude: 25.2246, longitude: 55.2874 },
         gbpUrl: "https://share.google/zExBKdwTHeYWP6xBc",
       },
