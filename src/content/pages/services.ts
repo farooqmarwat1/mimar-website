@@ -17,7 +17,7 @@ type ServicesCopy = {
   workBody: string;
   closingHeading1: string;
   closingHeading2: string;
-  requestQuote: string;
+  closingBody: string;
   faqs: { question: string; answer: string }[];
 };
 
@@ -40,7 +40,7 @@ export const servicesContent: Record<Locale, ServicesCopy> = {
     workBody: "Every capability above is proven on delivered work. These are recent examples across architecture, visualization and interiors.",
     closingHeading1: "Need two or three of these at once?",
     closingHeading2: "That is the normal case.",
-    requestQuote: "Request a quote",
+    closingBody: "Design, visuals, tours and marketing can run as one coordinated scope. Tell us what your project needs.",
     faqs: [
       {
         question: "What does 3D architectural visualization cost in Saudi Arabia?",
@@ -82,7 +82,7 @@ export const servicesContent: Record<Locale, ServicesCopy> = {
     workBody: "كل خدمة من الخدمات أعلاه مُثبتة في أعمال مُنجزة فعلياً. هذه أمثلة حديثة تشمل العمارة والتصور البصري والتصميم الداخلي.",
     closingHeading1: "تحتاج اثنتين أو ثلاثاً من هذه الخدمات معاً؟",
     closingHeading2: "هذا هو المعتاد.",
-    requestQuote: "اطلب عرض سعر",
+    closingBody: "يمكن تنفيذ التصميم والتصور البصري والجولات والتسويق ضمن نطاق عمل واحد متكامل. أخبرنا بما يحتاجه مشروعك.",
     faqs: [
       {
         question: "كم تبلغ تكلفة التصور المعماري ثلاثي الأبعاد في المملكة العربية السعودية؟",
