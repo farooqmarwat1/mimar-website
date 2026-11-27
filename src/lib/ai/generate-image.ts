@@ -18,6 +18,9 @@ const KINDS: Record<string, { ext: string; contentType: string }> = {
 
 export const imageGenerationConfigured = () => Boolean(process.env.GEMINI_API_KEY?.trim());
 
+/** Images per day for the whole site, shared by the editor button and the covers made with each AI draft. */
+export const imageDailyLimit = () => Number(process.env.BLOG_IMAGE_DAILY_LIMIT) || 30;
+
 const imageModel = () => process.env.GEMINI_IMAGE_MODEL?.trim() || "gemini-3.1-flash-image";
 
 /**
