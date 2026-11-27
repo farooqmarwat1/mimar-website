@@ -2,8 +2,12 @@ import "server-only";
 import { articlePolicyErrors } from "./editorial-policy";
 import { briefWriterLines, missingSections, type BlogBrief } from "@/lib/ai/blog-brief";
 import { splitMarkdownBody } from "@/lib/ai/seo-checks";
-import { selectBlogCover } from "@/lib/blog-covers";
-import { libraryCoverAlt } from "@/lib/ai/image-prompt";
+import { selectBlogCover, type BlogCover } from "@/lib/blog-covers";
+import { libraryCoverAlt, type ImagePromptInput } from "@/lib/ai/image-prompt";
+import { generateCoverImage, describeImageError, imageDailyLimit, imageGenerationConfigured } from "@/lib/ai/generate-image";
+import { isFirebaseConfigured } from "@/lib/firebase/admin";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { saveCover } from "@/lib/storage";
 import { z } from "zod";
 import { categoryForText, strategyInfo } from "@/lib/ai/keyword-plan";
 import { aiConfigured, aiSetupHint, getProvider } from "@/lib/ai/provider";
@@ -288,7 +292,37 @@ async function runGates(article: Article, ctx: { job: GenerationJob; sources: Fe
 export type GenerationInput = Pick<GenerationJob, "topic" | "geo" | "category" | "seedUrls">;
 
 /** Runs the whole pipeline for an existing job document and returns the new draft's id. */
+/**
+ * A Gemini cover for a new draft, made from its title, keyword and place and saved to Firebase Storage
+ * like an upload. Counts towards the same site-wide daily image limit as the editor's button.
+ * BLOG_AUTO_COVER=false turns it off. Never throws: the reason is returned so the draft can say why.
+ *
+ * The image takes about 20-30 s and the Arabic version still follows (60-90 s), while a scheduled run is
+ * stopped at 300 s and loses the draft. A draft that has already taken longer than COVER_TIME_BUDGET_MS
+ * (a rewrite or slow research) keeps the library image instead.
+ */
+const COVER_TIME_BUDGET_MS = 170_000;
+
+async function draftCover(input: ImagePromptInput, createdBy: string, startedAt: number): Promise<{ cover: BlogCover; reason?: undefined } | { cover: null; reason: string }> {
+  if (process.env.BLOG_AUTO_COVER?.trim().toLowerCase() === "false") return { cover: null, reason: "automatic covers are switched off" };
+  if (Date.now() - startedAt > COVER_TIME_BUDGET_MS) return { cover: null, reason: "the draft took too long to leave time for an image" };
+  if (!imageGenerationConfigured()) return { cover: null, reason: "GEMINI_API_KEY is not set" };
+  if (!isFirebaseConfigured) return { cover: null, reason: "storage is not configured" };
+  try {
+    const limit = await checkRateLimit([{ key: "blog-image:day", limit: imageDailyLimit(), windowSec: 86400 }]);
+    if (!limit.allowed) return { cover: null, reason: "the daily image limit was reached" };
+    const image = await generateCoverImage(input);
+    const url = await saveCover(image.bytes, image.kind, { uploadedBy: `${createdBy} (AI draft)`, generatedBy: image.model }, input.title);
+    return { cover: { url, alt: image.alt } };
+  } catch (err) {
+    const message = describeImageError(err) ?? (err instanceof Error ? err.message : "image generation failed");
+    console.error("[blog-generator] cover image failed:", message);
+    return { cover: null, reason: message.replace(/[.\s]+$/, "") };
+  }
+}
+
 export async function runGeneration(jobId: string): Promise<string> {
+  const startedAt = Date.now();
   const job = await getJob(jobId);
   if (!job) throw new Error("Generation job not found.");
   const usage: Usage = { inputTokens: 0, outputTokens: 0, searches: 0 };
@@ -336,9 +370,14 @@ export async function runGeneration(jobId: string): Promise<string> {
     let slug = articleSlug(article.title);
     for (let n = 2; !slug || isReservedSlug(slug) || (await isPostSlugTaken(slug)); n++) slug = `${articleSlug(article.title)}-${n}`;
     const category = resolveCategory(job.category, gated.article);
+    // A cover made for this article from its title, keyword and place. If that is switched off, over the
+    // daily image limit or fails, the matching library photo is used, so a draft never waits on an image.
+    await updateJob(jobId, {}, "Creating a cover image from the title");
+    const generated = await draftCover({ title: article.title.trim(), keyword: job.keyword || article.keywords[0], geo: job.geo, category: category || undefined }, job.createdBy, startedAt);
     const library = selectBlogCover({ title: article.title, category: category || undefined });
     // The library photo's description, tied to the article's keyword and place (alt text is an SEO signal too).
-    const coverImage = { ...library, alt: libraryCoverAlt(library.alt, job.keyword || article.keywords[0], job.geo?.split(",")[0]) };
+    const coverImage: BlogCover = generated.cover ?? { ...library, alt: libraryCoverAlt(library.alt, job.keyword || article.keywords[0], job.geo?.split(",")[0]) };
+    await updateJob(jobId, {}, generated.cover ? "Cover image created" : `Using a library cover image (${generated.reason})`);
 
     // The Arabic version, written from the finished English text. A failure here does not lose the draft.
     let ar: PostAr | undefined;
@@ -392,6 +431,9 @@ export async function runGeneration(jobId: string): Promise<string> {
             ...(job.brief.visual ? [`Planned visuals: ${job.brief.visual} Use our own renders (Projects) or a new image; never another studio's work.`] : []),
           ]
         : []),
+      generated.cover
+        ? "The cover image was made by AI from the title: check it suits the article and edit its alt text if needed."
+        : `The cover is a library image (an AI cover could not be made: ${generated.reason}). Use "Generate a new image" in the editor for one made from the title.`,
       ...(job.ideaBrief ? [`Idea source: ${job.ideaBrief}${job.ideaUrl ? ` (${job.ideaUrl})` : ""}. Check the article answers it.`] : []),
       ...(gated.retryReasons.length ? [`Still needs attention before publishing: ${gated.retryReasons.join(" ")}`] : []),
       ...(ar ? [] : ["The Arabic version could not be written automatically. It is retried when you publish or save this post."]),

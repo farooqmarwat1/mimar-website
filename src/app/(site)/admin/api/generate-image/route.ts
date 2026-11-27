@@ -1,5 +1,5 @@
 import { AdminAuthError, assertAccess, assertSameOrigin } from "@/lib/admin/auth";
-import { describeImageError, generateCoverImage, imageGenerationConfigured } from "@/lib/ai/generate-image";
+import { describeImageError, generateCoverImage, imageDailyLimit, imageGenerationConfigured } from "@/lib/ai/generate-image";
 import { isFirebaseConfigured } from "@/lib/firebase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { saveCover } from "@/lib/storage";
@@ -12,8 +12,6 @@ import { saveCover } from "@/lib/storage";
  */
 
 export const maxDuration = 120;
-
-const DAILY_LIMIT = Number(process.env.BLOG_IMAGE_DAILY_LIMIT) || 30;
 
 const text = (value: unknown, max: number) => (typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, max) : "");
 
@@ -30,7 +28,7 @@ export async function POST(request: Request) {
 
     const limit = await checkRateLimit([
       { key: `blog-image:user:${session.uid}`, limit: 10, windowSec: 3600 },
-      { key: "blog-image:day", limit: DAILY_LIMIT, windowSec: 86400 },
+      { key: "blog-image:day", limit: imageDailyLimit(), windowSec: 86400 },
     ]);
     if (!limit.allowed) return Response.json({ error: `Image limit reached. Try again in about ${Math.ceil(limit.retryAfterSec / 60)} minute(s).` }, { status: 429 });
 

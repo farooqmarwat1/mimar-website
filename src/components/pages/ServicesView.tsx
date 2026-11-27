@@ -2,13 +2,14 @@ import Image from "next/image";
 import Link from "@/components/ui/Link";
 import FaqSection from "@/components/sections/FaqSection";
 import ServiceCards from "@/components/sections/ServiceCards";
+import { ConsultationCta } from "@/components/services/shared";
 import Reveal from "@/components/ui/Reveal";
 import { itemListJsonLd, jsonLdScript } from "@/lib/seo";
 import { mainServiceCards } from "@/lib/service-cards";
 import { projects } from "@/lib/site-config";
 import { localizeProjects } from "@/lib/localized-site";
 import { localizeServiceCards } from "@/lib/localized-services";
-import { arClass, localizedBreadcrumb } from "@/lib/page-helpers";
+import { localizedBreadcrumb } from "@/lib/page-helpers";
 import { servicesContent } from "@/content/pages/services";
 import { localeHref, localizeDigitsDeep, type Locale } from "@/i18n/config";
 import { projectCoverAlt } from "@/lib/project-alt";
@@ -90,18 +91,7 @@ export default function ServicesView({ lang = "en" }: { lang?: Locale }) {
 
       <FaqSection items={c.faqs} lang={lang} />
 
-      <section className="container-page min-h-[34rem] py-24 md:min-h-[40rem] md:py-32">
-        <Reveal>
-          <h2 className={`max-w-6xl text-[clamp(2.75rem,5.8vw,6rem)] font-medium leading-[.95] tracking-[-.055em]${arClass(lang, "rtl:leading-[1.25]")}`}>
-            {c.closingHeading1}
-            {" "}<br />
-            <span className="text-accent">{c.closingHeading2}</span>
-          </h2>
-        </Reveal>
-        <Reveal delay={0.08}>
-          <Link href={localeHref(lang, "/contact")} data-quote="services-index" className="button-pill mt-14 text-ink">{c.requestQuote}</Link>
-        </Reveal>
-      </section>
+      <ConsultationCta lang={lang} heading={[c.closingHeading1, c.closingHeading2]} body={c.closingBody} bordered={false} longHeading />
     </div>
   );
 }
