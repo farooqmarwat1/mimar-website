@@ -50,8 +50,11 @@ export default function Hero({ lang = "en" }: { lang?: Locale }) {
             className="h-full w-full object-cover"
             aria-label={lang === "ar" ? "رحلة معمارية عبر أحد مشاريع استوديوهات معمار" : "Architectural journey through a Mimar Studios development"}
           >
-            {/* WebM (VP9) first: same clip, about 18% smaller. The browser uses the first source it can play, so
-                browsers without WebM support fall back to the MP4. */}
+            {/* Portrait phones get the centre of the clip at full height (864x1440, the part `object-cover`
+                shows anyway) without the unused audio track: 1.4 MB instead of 6.4-7.8 MB (27 Nov 2026
+                re-audit). A browser too old to read `media` on <source> would play this portrait copy
+                everywhere. Other screens: WebM (VP9) first, about 18% smaller, with the MP4 as fallback. */}
+            <source src="/hero/hero-section-phone.mp4" type="video/mp4" media="(max-width: 767px) and (orientation: portrait)" />
             <source src="/hero/hero-section.webm" type="video/webm" />
             <source src="/hero/hero-section.mp4" type="video/mp4" />
           </video>

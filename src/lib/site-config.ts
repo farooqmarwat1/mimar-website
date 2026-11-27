@@ -119,7 +119,7 @@ export const portfolioIntro =
   "Residential, hospitality and commercial work from our architectural visualization studio: photorealistic 3D renders, animation and interactive tours for real estate launches. Precision in light, material and detail, before a single wall is built.";
 
 export const projectsIntro =
-  "A selection of residential, hospitality, corporate and public work - designed and visualized in-house.";
+  "A selection of residential, hospitality, corporate and public work - designed and visualized in-house. Browse photorealistic 3D renders, aerials and animations for developments in the UAE, Saudi Arabia, Oman, Pakistan, Nigeria and the USA.";
 
 const projectGallery = (slug: string, count: number) =>
   Array.from({ length: count }, (_, index) => `/projects/catalog/${slug}/image-${index + 1}.webp`);

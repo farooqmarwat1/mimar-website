@@ -110,10 +110,26 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     processImage: "/services/3d-rendering/process.webp",
     showFacts: false,
     facts: [["3 to 7 days per view", "Turnaround"], ["Up to 6000 px, 300 dpi", "Output"], ["Unlimited within scope", "Revisions"], ["JPG / TIFF / PNG", "Formats"]],
-    process: [["Inputs", "Drawings, references and a short brief."], ["Greyscale", "Composition and light are approved."], ["Draft", "Full materials and lighting for markup."], ["Final", "Production-ready high-resolution artwork."]],
+    // Process and FAQs expanded on 27 Nov 2026 (re-audit: the page had about 200 words). Facts only
+    // from elsewhere on the site; no prices or new turnaround promises.
+    process: [
+      ["Inputs", "Send plans and elevations as AutoCAD, Revit or PDF files, with material references and a short brief. We confirm the views, deliverables and schedule in an itemised quote."],
+      ["Greyscale", "We build the 3D model and set up every camera in greyscale, so composition, camera height and light direction are approved before any material work starts."],
+      ["Draft", "Materials, furniture, landscape and lighting are added for your markup. Comments are collected per view, which keeps changes quick and clear."],
+      ["Final", "Production-ready, high-resolution renders up to 6000 px, colour-graded and delivered as JPG, TIFF or PNG for brochures, websites, hoardings and sales offices."],
+    ],
     included: ["Interior stills", "Exterior stills", "Aerials", "Day / dusk sets"],
     projects: ["cafe-interior", "nana-222", "abuja"],
-    faqs: [["What do you need to start?", "Plans, elevations, a material direction and any useful references."], ["How fast can a rush job be done?", "A rush still can often be delivered in two to three working days after inputs are approved."], ["Do you charge per revision?", "Revisions within the agreed visual scope are included."],],
+    faqs: [
+      ["What is 3D visualization?", "3D visualization turns architectural drawings into photorealistic images, aerial views and animations, so developers, architects and buyers can judge a building's design, materials and light before it is built."],
+      ["What do you need to start?", "Plans, elevations, a material direction and any useful references."],
+      ["Which files can you work from?", "AutoCAD and Revit files, or PDF plans and elevations, together with a short brief and material references."],
+      ["How much does 3D rendering cost?", "Pricing depends on the project size, the number of views, the level of detail and the deadline, so every project gets an itemised quote. Use the Get a quote button and the team replies within one working day."],
+      ["How fast can a rush job be done?", "A rush still image can often be delivered in two to three working days after the inputs are approved."],
+      ["Do you charge per revision?", "Revisions within the agreed visual scope are included."],
+      ["What do you deliver?", "High-resolution interior and exterior renders, aerial and context views, day and dusk sets, and cinematic animations, ready for print, web and sales presentations."],
+      ["Do you work with clients outside Pakistan?", "Yes. Developers and architects in the UAE, Saudi Arabia, the USA and other countries send their drawings online, and we sign an NDA for unreleased projects."],
+    ],
     // Cinematics is now a real sub-page at /services/3d-visualization/cinematics
     // (src/lib/three-d-visualization-sub-services.ts), matching the old site's
     // nested URL - not a main-chain "next service" any more.
