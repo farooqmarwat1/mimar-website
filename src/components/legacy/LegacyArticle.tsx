@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "@/components/ui/Link";
 import Reveal from "@/components/ui/Reveal";
 import { splitInlineLinks } from "@/lib/content-blocks";
+import { finalInternalPath } from "@/lib/internal-redirects";
 import { linkedText } from "@/components/ui/LinkedText";
 import type { SiteArticle } from "@/lib/posts";
 import { isRtl, localeHref, localizeDigits, type Locale } from "@/i18n/config";
@@ -9,18 +10,21 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { blogUi, localizeBlogCategory } from "@/lib/ar/blog-ui";
 import { blogCategories } from "@/lib/legacy-seo";
 
-// Inline `[label](/path)` links and `**bold**` exist only in posts written in /admin. Text with
-// neither (every migrated article) is returned as the bare string, so its markup is unchanged.
+// Inline `[label](/path)` links and `**bold**`. Text with neither is returned as the bare string, so
+// its markup is unchanged. Arabic digits are applied to the visible text only, after the links are
+// split out: converting the whole string first turned "/vr-360-tours" into a 404 (27 Nov 2026).
+// Old link targets go straight to their final URL (src/lib/internal-redirects.ts).
 function renderInline(text: string, lang: Locale) {
+  const show = (value: string) => (lang === "ar" ? localizeDigits(value, lang) : value);
   const parts = splitInlineLinks(text);
-  if (parts.length === 1 && !parts[0].href && !parts[0].bold) return text;
+  if (parts.length === 1 && !parts[0].href && !parts[0].bold) return show(text);
   return parts.map((part, index) => {
     const node = part.href ? (
-      <Link key={index} href={localeHref(lang, part.href)} className="text-accent underline underline-offset-4 hover:no-underline">
-        {part.text}
+      <Link key={index} href={localeHref(lang, finalInternalPath(part.href))} className="text-accent underline underline-offset-4 hover:no-underline">
+        {show(part.text)}
       </Link>
     ) : (
-      part.text
+      show(part.text)
     );
     return part.bold ? (
       <strong key={index} className="font-semibold text-ink">
@@ -41,7 +45,7 @@ const ARABIC_LETTER = /[؀-ۿ]/;
  */
 function renderText(text: string, lang: Locale) {
   if (lang !== "ar") return renderInline(text, lang);
-  const content = renderInline(localizeDigits(text, lang), lang);
+  const content = renderInline(text, lang);
   return ARABIC_LETTER.test(text) ? content : <bdi dir="ltr">{content}</bdi>;
 }
 
@@ -172,7 +176,7 @@ export default function LegacyArticle({ page, lang = "en" }: { page: SiteArticle
               <ul className="border-t border-line">
                 {page.related.map((item) => (
                   <li key={item.path} className="border-b border-line">
-                    <Link href={localeHref(lang, item.path)} className="flex items-center justify-between gap-4 py-4 text-lg hover:text-accent">
+                    <Link href={localeHref(lang, finalInternalPath(item.path))} className="flex items-center justify-between gap-4 py-4 text-lg hover:text-accent">
                       {show(item.label)}
                       <span aria-hidden="true" className="text-accent">{rtl ? "↖" : "↗"}</span>
                     </Link>

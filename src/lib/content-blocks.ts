@@ -205,3 +205,25 @@ export function splitInlineLinks(text: string): InlinePart[] {
   if (last < text.length) parts.push(...splitLinks(text.slice(last)));
   return parts.length ? parts : [{ text }];
 }
+
+// Zero-width and BOM characters copied in from WordPress (27 Nov 2026 re-audit: four article titles
+// and H1s). They have no use in English or Arabic text; RLM, LRM and ZWNJ are left alone.
+const INVISIBLE = /[\u200B\u2060\uFEFF]/g;
+
+/** `text` without zero-width spaces, word joiners and byte-order marks. */
+export function stripInvisible(text: string): string {
+  return text.replace(INVISIBLE, "");
+}
+
+/** An article with invisible characters removed from its title, SEO title, description and headings. */
+export function cleanArticleText<T extends { title: string; seoTitle: string; description: string; blocks: ArticleBlock[] }>(article: T): T {
+  return {
+    ...article,
+    title: stripInvisible(article.title),
+    seoTitle: stripInvisible(article.seoTitle),
+    description: stripInvisible(article.description),
+    blocks: article.blocks.map((block) =>
+      block.type === "h2" || block.type === "h3" ? { ...block, text: stripInvisible(block.text) } : block,
+    ),
+  };
+}

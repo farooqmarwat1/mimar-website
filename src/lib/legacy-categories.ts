@@ -38,7 +38,8 @@ export const legacyCategories: LegacyCategory[] = [
   },
   {
     slug: "vr-real-estate",
-    seoTitle: "VR Real Estate - mimAR",
+    // Its own title, not the same as /blog/vr-real-estate/ (27 Nov 2026 re-audit).
+    seoTitle: "VR & AR Real Estate Articles | Mimar Studios",
     description:
       "mimAR's VR real estate articles: augmented reality FAQs, AR vs VR, virtual reality applications and how VR is transforming the real estate industry.",
     label: "VR Real Estate",
