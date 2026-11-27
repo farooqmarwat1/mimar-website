@@ -51,8 +51,9 @@ export const blogCategories: BlogCategory[] = [
   {
     slug: "3d-visualization",
     label: "3D Visualization",
-    headingLead: "3D",
-    headingAccent: "Visualization",
+    // H1 "3D Visualization Articles", not the service page's "3D Visualization" (27 Nov 2026 re-audit).
+    headingLead: "3D Visualization",
+    headingAccent: "Articles",
     seoTitle: "3d Visualization - mimAR",
     metaDescription: "Virtual reality and augmented reality have become highly influential across several industries. In our 3D Visualization blog section, we’ve discussed all",
     description: "Virtual reality and augmented reality have become highly influential across several industries. Explore our 3D visualization articles.",

@@ -130,8 +130,8 @@ type CategoryText = Pick<
 const blogCategoriesAr: Record<string, CategoryText> = {
   "3d-visualization": {
     label: "التصور ثلاثي الأبعاد",
-    headingLead: "التصور",
-    headingAccent: "ثلاثي الأبعاد",
+    headingLead: "مقالات",
+    headingAccent: "التصور ثلاثي الأبعاد",
     seoTitle: "التصور ثلاثي الأبعاد - معمار",
     metaDescription:
       "أصبح الواقع الافتراضي والواقع المعزز مؤثرين للغاية في العديد من القطاعات. في قسم التصور ثلاثي الأبعاد بمدونتنا ناقشنا كل ما تحتاج معرفته عن هذه التقنيات.",
@@ -195,7 +195,8 @@ const legacyCategoriesAr: Record<string, LegacyCategoryText> = {
     label: "الواقع الافتراضي في العقارات",
     headingLead: "الواقع الافتراضي",
     headingAccent: "في العقارات",
-    seoTitle: "الواقع الافتراضي في العقارات - معمار",
+    // Its own title, not the same as /ar/blog/vr-real-estate/ (27 Nov 2026 re-audit).
+    seoTitle: "مقالات الواقع الافتراضي والمعزز في العقارات | استوديوهات معمار",
     description:
       "مقالات معمار عن الواقع الافتراضي في العقارات: أسئلة شائعة عن الواقع المعزز، والفرق بين الواقع المعزز والافتراضي، وتطبيقات الواقع الافتراضي، وكيف يغيّر الواقع الافتراضي قطاع العقارات.",
     intro:

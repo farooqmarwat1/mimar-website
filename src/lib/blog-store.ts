@@ -5,6 +5,7 @@ import { adminDb, isFirebaseConfigured } from "@/lib/firebase/admin";
 import { legacyArchivePaths, blogPageSize } from "@/lib/blog-archive";
 import { legacyCategories } from "@/lib/legacy-categories";
 import { blogCategories, getLegacySeoPage, legacySeoPages } from "@/lib/legacy-seo";
+import { cleanArticleText, stripInvisible } from "@/lib/content-blocks";
 import { getLegacySeoPageAr, legacySeoPagesAr } from "@/lib/ar/blog-ar";
 import {
   IMPORT_MARKER,
@@ -175,7 +176,7 @@ function byRank(rank: (entry: BlogEntry) => number | undefined) {
 }
 
 const inLanguage = (entry: BlogEntry, lang: Locale) => lang === "en" || entry.titleAr !== undefined;
-const toItem = (entry: BlogEntry, lang: Locale): ListItem => ({ path: entry.path, title: lang === "ar" ? entry.titleAr! : entry.title });
+const toItem = (entry: BlogEntry, lang: Locale): ListItem => ({ path: entry.path, title: stripInvisible(lang === "ar" ? entry.titleAr! : entry.title) });
 
 export async function getArchive(lang: Locale = "en"): Promise<ListItem[]> {
   const { entries } = await load();
@@ -258,13 +259,17 @@ export async function getBlogArticle(path: string, lang: Locale = "en"): Promise
   if (live) {
     try {
       const post = await cachedPost(clean);
-      if (post && (imported || !post.legacy)) return articleFromPost(post, lang);
+      if (post && (imported || !post.legacy)) {
+        const article = articleFromPost(post, lang);
+        return article && cleanArticleText(article);
+      }
       if (imported) return null;
     } catch (err) {
       console.error("[blog] could not load an article; serving the built-in copy:", err instanceof Error ? err.message : err);
     }
   }
-  return staticArticle(clean, lang);
+  const article = staticArticle(clean, lang);
+  return article && cleanArticleText(article);
 }
 
 /** Paths of the built-in articles (never changes; used for static generation of non-/blog URLs). */

@@ -72,14 +72,23 @@ const EASTERN_ARABIC_DIGITS = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "
  * the Arabic locale; a no-op for English. Only swaps the glyphs; the Unicode
  * bidi algorithm already lays digit runs out left-to-right inside RTL text.
  * Digits touching a Latin letter are left alone ("4YFN", "H2O"): they are
- * brand names or codes, not quantities.
+ * brand names or codes, not quantities. So are inline link targets
+ * (`[label](/services/interactive-services/vr-360-tours)`): converting them
+ * broke the link (27 Nov 2026 re-audit).
  */
 export function localizeDigits(value: string | number, locale: Locale): string {
   const str = String(value);
   if (locale !== "ar") return str;
-  return str.replace(/(?<![A-Za-z])[0-9]+(?![A-Za-z])/g, (run) =>
-    run.replace(/[0-9]/g, (digit) => EASTERN_ARABIC_DIGITS[Number(digit)]),
-  );
+  return str
+    .split(/(\]\([^)\s]*\))/)
+    .map((piece, index) =>
+      index % 2 === 1
+        ? piece
+        : piece.replace(/(?<![A-Za-z])[0-9]+(?![A-Za-z])/g, (run) =>
+            run.replace(/[0-9]/g, (digit) => EASTERN_ARABIC_DIGITS[Number(digit)]),
+          ),
+    )
+    .join("");
 }
 
 /** `localizeDigits` applied to every string inside an object/array. */

@@ -30,7 +30,8 @@ export const architecturalSubServicesAr: Record<string, DeepPartial<Architectura
     seoTitle: "خدمات التصميم المعماري - معمار",
     seoDescription:
       "بصفتنا روّاداً في التصميم المعماري، نلتزم بابتكار مساحات ملهمة ومستدامة ومبتكرة، من المنازل السكنية إلى المجمّعات التجارية.",
-    title: "خدمات التصميم المعماري",
+    // Not the same H1 as the main Arabic Architectural Design page (27 Nov 2026 re-audit).
+    title: "خدمات التصميم المعماري للمشاريع السكنية والتجارية",
     tagline: "نحوّل المساحات ونرسم ملامح المستقبل",
     intro: [
       "بصفتنا روّاداً في التصميم المعماري، نلتزم بابتكار مساحات ملهمة ومستدامة ومبتكرة.",

@@ -1,6 +1,7 @@
 import Link from "@/components/ui/Link";
 import { localeHref, type Locale } from "@/i18n/config";
 import { splitInlineLinks } from "@/lib/content-blocks";
+import { finalInternalPath } from "@/lib/internal-redirects";
 
 /**
  * Text with `[words](/english-path)` turned into internal links in the page
@@ -15,7 +16,7 @@ export function linkedText(
 ) {
   return splitInlineLinks(text).map((part, index) => {
     const node = part.href ? (
-      <Link key={index} href={localeHref(lang, part.href)} className={className}>
+      <Link key={index} href={localeHref(lang, finalInternalPath(part.href))} className={className}>
         {part.text}
       </Link>
     ) : (
