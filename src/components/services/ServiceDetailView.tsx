@@ -95,7 +95,7 @@ export default function ServiceDetailView({ detail: englishDetail, lang = "en" }
           <Reveal delay={0.1}>
             <p className="mt-10 max-w-xl text-lg leading-snug text-paper/90 md:text-xl">{detail.intro}</p>
           </Reveal>
-          <Reveal delay={0.15}><Link href={localeHref(lang, "/contact")} className="button-pill mt-10 text-paper">{dict.common.requestQuote}</Link></Reveal>
+          <Reveal delay={0.15}><Link href={localeHref(lang, "/contact")} data-quote="service-hero" className="button-pill mt-10 text-paper">{dict.common.requestQuote}</Link></Reveal>
         </div>
       </section>
 

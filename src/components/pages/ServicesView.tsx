@@ -99,7 +99,7 @@ export default function ServicesView({ lang = "en" }: { lang?: Locale }) {
           </h2>
         </Reveal>
         <Reveal delay={0.08}>
-          <Link href={localeHref(lang, "/contact")} className="button-pill mt-14 text-ink">{c.requestQuote}</Link>
+          <Link href={localeHref(lang, "/contact")} data-quote="services-index" className="button-pill mt-14 text-ink">{c.requestQuote}</Link>
         </Reveal>
       </section>
     </div>

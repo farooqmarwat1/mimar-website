@@ -11,11 +11,15 @@ import Footer from "@/components/layout/Footer";
 import SiteChrome from "@/components/layout/SiteChrome";
 import Analytics from "@/components/Analytics";
 import VisitTracker from "@/components/VisitTracker";
+import QuoteModalProvider from "@/components/quote/QuoteModalProvider";
+import FloatingContact from "@/components/contact-fab/FloatingContact";
 import { buildMetadata, siteJsonLd, jsonLdScript } from "@/lib/seo";
-import { siteConfig } from "@/lib/site-config";
+import { services, siteConfig } from "@/lib/site-config";
 import { getDictionary } from "@/i18n/dictionaries";
 
 const dict = getDictionary("en");
+// The quote pop-up's services list: the English titles are both the value and the label here.
+const quoteServices = services.map((service) => ({ value: service.title, label: service.title }));
 
 export const metadata: Metadata = {
   ...buildMetadata({
@@ -50,6 +54,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SiteChrome><Header dict={dict} /></SiteChrome>
         <main className="flex-1 isolate">{children}</main>
         <SiteChrome><Footer dict={dict} /></SiteChrome>
+        <SiteChrome>
+          <QuoteModalProvider lang="en" dict={dict.quoteModal} services={quoteServices} />
+          <FloatingContact lang="en" dict={dict.contactFab} />
+        </SiteChrome>
       </body>
     </html>
   );

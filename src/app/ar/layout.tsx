@@ -14,13 +14,17 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Analytics from "@/components/Analytics";
 import VisitTracker from "@/components/VisitTracker";
+import QuoteModalProvider from "@/components/quote/QuoteModalProvider";
+import FloatingContact from "@/components/contact-fab/FloatingContact";
 import { buildMetadata, siteJsonLdAr, jsonLdScript } from "@/lib/seo";
-import { siteConfig } from "@/lib/site-config";
-import { localizedSiteMeta } from "@/lib/localized-site";
+import { services, siteConfig } from "@/lib/site-config";
+import { localizedSiteMeta, localizeServices } from "@/lib/localized-site";
 import { getDictionary } from "@/i18n/dictionaries";
 
 const dict = getDictionary("ar");
 const meta = localizedSiteMeta("ar");
+// The quote pop-up's services list: Arabic labels, English titles as values (what the studio inbox expects).
+const quoteServices = localizeServices(services, "ar").map((service, index) => ({ value: services[index].title, label: service.title }));
 
 export const metadata: Metadata = {
   ...buildMetadata({
@@ -51,6 +55,8 @@ export default function ArabicRootLayout({ children }: { children: React.ReactNo
         <Header lang="ar" dict={dict} />
         <main className="flex-1 isolate">{children}</main>
         <Footer lang="ar" dict={dict} />
+        <QuoteModalProvider lang="ar" dict={dict.quoteModal} services={quoteServices} />
+        <FloatingContact lang="ar" dict={dict.contactFab} />
       </body>
     </html>
   );

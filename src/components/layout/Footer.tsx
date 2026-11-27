@@ -166,9 +166,14 @@ export default function Footer({ lang = "en", dict = getDictionary(lang) }: { la
           <p className="eyebrow text-muted-inverse">
             {dict.footer.rightsReserved} {localizeDigits(new Date().getFullYear(), lang)}
           </p>
-          <Link href={localeHref(lang, "/privacy-policy")} className="eyebrow text-muted-inverse transition-colors hover:text-accent">
-            {dict.footer.privacyPolicy}
-          </Link>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <Link href={localeHref(lang, "/terms-of-use")} className="eyebrow text-muted-inverse transition-colors hover:text-accent">
+              {dict.footer.termsOfUse}
+            </Link>
+            <Link href={localeHref(lang, "/privacy-policy")} className="eyebrow text-muted-inverse transition-colors hover:text-accent">
+              {dict.footer.privacyPolicy}
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

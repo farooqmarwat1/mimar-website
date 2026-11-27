@@ -7,25 +7,22 @@ import type { MailStatus } from "@/lib/lead-constants";
 import { createLead, setMailStatus } from "@/lib/leads";
 import { getMailer } from "@/lib/mailer";
 import { describeRequest, findVisitForRequest } from "@/lib/visits";
+import { checkHuman } from "@/lib/recaptcha";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { contact } from "@/lib/site-config";
-// TURNSTILE-DISABLED (no Cloudflare access yet): import { verifyTurnstile } from "@/lib/turnstile";
+import { contact, services } from "@/lib/site-config";
 
 /**
- * Contact form submission endpoint.
+ * Enquiry endpoint for both website forms: the contact page form (formType "contact") and the
+ * "Get a quote" pop-up (formType "quote", src/components/quote/QuoteModal.tsx).
  *
  * Abuse protection, in the order a request meets it:
  * 1. Per-IP rate limits (src/lib/rate-limit.ts), before any parsing.
  * 2. Zod validates and caps every field server-side (never trust client input).
  * 3. A hidden honeypot field that real users never fill in.
- * 4. TURNSTILE-DISABLED: Cloudflare Turnstile "I'm human" checkbox. Switched
- *    off until the studio has Cloudflare access; the code is kept, commented
- *    out, below. Search the repo for TURNSTILE-DISABLED to find every place to
- *    switch it back on.
+ * 4. Invisible Google reCAPTCHA v2 (src/lib/recaptcha.ts). Fails
+ *    closed in production; skipped in development when no keys are set.
  * 5. A per-email-address limit, so one address can't be flooded with our
- *    confirmation emails. With the bot check off it counts every valid
- *    submission, so someone can use up a stranger's 3 per hour; with it on,
- *    only verified humans count.
+ *    confirmation emails. It runs after the bot check, so only verified humans count.
  *
  * Storage: each valid submission is first saved as a lead in Firestore (shown
  * in /admin/leads), so an email that lands in spam - or fails to send - never
@@ -45,7 +42,7 @@ import { contact } from "@/lib/site-config";
  *                         to site@mim.archi for Resend (a domain verified there).
  * - CONTACT_TO_EMAIL      (optional) overrides the recipient, e.g. to point a
  *                         staging deploy at a test inbox instead of the studio.
- * - TURNSTILE_SECRET_KEY  (TURNSTILE-DISABLED: not read while the bot check is off)
+ * - NEXT_PUBLIC_RECAPTCHA_SITE_KEY / RECAPTCHA_SECRET_KEY  the bot check (required in production).
  * - UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN (optional) shared counters
  *                         so the rate limits hold across serverless instances.
  */
@@ -53,23 +50,52 @@ import { contact } from "@/lib/site-config";
 // `||`, not `??`: a blank value copied from .env.example should count as unset.
 const TO = process.env.CONTACT_TO_EMAIL?.trim() || contact.email;
 
-const ContactSchema = z.object({
-  firstName: z.string().trim().min(1).max(80),
-  lastName: z.string().trim().min(1).max(80),
-  email: z.string().trim().email().max(200),
-  phone: z.string().trim().max(40).optional().or(z.literal("")),
-  service: z.string().trim().max(80).optional(),
-  source: z.string().trim().max(80).optional(),
-  message: z.string().trim().min(1).max(5000),
-  // The site language the form was filled in on (older cached pages don't send it).
-  lang: z.enum(["en", "ar"]).optional().catch(undefined),
-  // TURNSTILE-DISABLED: Cloudflare Turnstile token (max 2048 characters).
-  // turnstileToken: z.string().max(2048).optional(),
-  // Honeypot field - real users never fill this in. Deliberately accepted here
-  // (not rejected by the schema) so the handler can answer a bot with a quiet
-  // "ok" instead of an error that reveals which field gave it away.
-  company: z.string().max(500).optional(),
-});
+/** The English service titles, the only values the service fields accept. */
+const SERVICE_TITLES = new Set(services.map((service) => service.title));
+
+const ContactSchema = z
+  .object({
+    // Which form sent it. Older cached contact pages don't send it.
+    formType: z.enum(["contact", "quote"]).catch("contact"),
+    // The contact page sends first and last name; the quote pop-up sends one `name`.
+    firstName: z.string().trim().max(80).optional(),
+    lastName: z.string().trim().max(80).optional(),
+    name: z.string().trim().max(160).optional(),
+    email: z.string().trim().email().max(200),
+    phone: z.string().trim().max(40).optional().or(z.literal("")),
+    service: z.string().trim().max(80).optional(),
+    // Quote pop-up: every service ticked. Unknown values are dropped, not rejected.
+    services: z
+      .array(z.string().trim().max(80))
+      .max(20)
+      .optional()
+      .transform((list) => [...new Set((list ?? []).filter((title) => SERVICE_TITLES.has(title)))]),
+    // Quote pop-up: the visitor's company. Named `organisation` because `company` is the honeypot.
+    organisation: z.string().trim().max(120).optional(),
+    source: z.string().trim().max(80).optional(),
+    message: z.string().trim().min(1).max(5000),
+    // "I agree to the Terms of Use and Privacy Policy" must be ticked.
+    consent: z.literal(true),
+    // The site language the form was filled in on (older cached pages don't send it).
+    lang: z.enum(["en", "ar"]).optional().catch(undefined),
+    // Google reCAPTCHA v2 token.
+    recaptchaToken: z.string().max(4000).optional(),
+    // Honeypot field - real users never fill this in. Deliberately accepted here
+    // (not rejected by the schema) so the handler can answer a bot with a quiet
+    // "ok" instead of an error that reveals which field gave it away.
+    company: z.string().max(500).optional(),
+  })
+  .transform((data) => {
+    // One "name" field is split at the first space: "Sara Al Harbi" -> "Sara" + "Al Harbi".
+    if (data.name) {
+      const [first = "", ...rest] = data.name.split(/\s+/);
+      return { ...data, firstName: first, lastName: rest.join(" ") };
+    }
+    return { ...data, firstName: data.firstName ?? "", lastName: data.lastName ?? "" };
+  })
+  .refine((data) => data.firstName.length > 0, { path: ["firstName"], message: "Required" })
+  // The contact page form asks for both names; the quote pop-up has one name field.
+  .refine((data) => data.formType === "quote" || data.lastName.length > 0, { path: ["lastName"], message: "Required" });
 
 // A real visitor rarely submits twice; these only need to stop floods.
 const IP_BURST = { limit: 3, windowSec: 60 };
@@ -115,44 +141,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  // TURNSTILE-DISABLED: the bot check below is switched off until the studio has
-  // Cloudflare access. To switch it back on, uncomment this block, the import at
-  // the top, the turnstileToken schema field, and the pieces in ContactForm.tsx,
-  // next.config.mjs (CSP) and .env.example. It fails closed: no secret in
-  // production, or Cloudflare unreachable, refuses the submission.
   // Bot check. Fails closed in production: with no secret configured, or with
-  // Cloudflare unreachable, we refuse rather than let unchecked traffic through.
-  // const turnstileSecret = process.env.TURNSTILE_SECRET_KEY?.trim();
-  // if (!turnstileSecret) {
-  //   if (process.env.NODE_ENV === "production") {
-  //     console.error("[contact] TURNSTILE_SECRET_KEY is not set - refusing submissions without a bot check");
-  //     return NextResponse.json(DELIVERY_FAILED, { status: 503 });
-  //   }
-  //   // Local development without keys: don't block working on the form.
-  //   console.warn("[contact] TURNSTILE_SECRET_KEY is not set - skipping the bot check in development");
-  // } else {
-  //   const notHuman = { error: "Please confirm you're human and try again." };
-  //   if (!parsed.data.turnstileToken) return NextResponse.json(notHuman, { status: 400 });
-  //
-  //   const human = await verifyTurnstile(parsed.data.turnstileToken, turnstileSecret, ip);
-  //   if (!human.ok) {
-  //     if (human.reason === "unreachable") {
-  //       console.error("[contact] Could not reach Cloudflare Turnstile to verify a submission");
-  //       return NextResponse.json(
-  //         { error: `We couldn't verify that you're human right now. Please try again, or email us at ${contact.email}.` },
-  //         { status: 503 },
-  //       );
-  //     }
-  //     return NextResponse.json(notHuman, { status: 403 });
-  //   }
-  // }
+  // Google unreachable, we refuse rather than let unchecked traffic through.
+  const human = await checkHuman(parsed.data.recaptchaToken, ip, "[contact]", contact.email);
+  if (!human.ok) return NextResponse.json({ error: human.error }, { status: human.status });
 
   // Per-address quota (hashed: the key may live in Redis, and it needs no
-  // readable email in it). TURNSTILE-DISABLED: once the bot check is back on,
-  // this runs after it, so only verified humans count against an address.
+  // readable email in it). Runs after the bot check, so only verified humans
+  // count against an address.
   const emailHash = createHash("sha256").update(parsed.data.email.toLowerCase()).digest("hex");
   const emailLimit = await checkRateLimit([{ key: `contact:email:${emailHash}`, ...EMAIL_HOURLY }]);
   if (!emailLimit.allowed) return tooManyRequests(emailLimit.retryAfterSec);
+
+  // The quote pop-up can tick several services; `service` keeps them joined for the
+  // existing lead list, search and email subject.
+  const isQuote = parsed.data.formType === "quote";
+  const service = isQuote ? parsed.data.services.join(", ") || undefined : parsed.data.service;
+  const enquiry = { ...parsed.data, service };
 
   // Save the lead before anything can go wrong with the email. The admin portal
   // is then the source of truth; the studio email is just the notification.
@@ -160,14 +165,18 @@ export async function POST(req: Request) {
   if (isFirebaseConfigured) {
     try {
       leadId = await createLead({
-        firstName: parsed.data.firstName,
-        lastName: parsed.data.lastName,
-        email: parsed.data.email,
-        phone: parsed.data.phone,
-        service: parsed.data.service,
-        source: parsed.data.source,
-        message: parsed.data.message,
-        lang: parsed.data.lang,
+        firstName: enquiry.firstName,
+        lastName: enquiry.lastName,
+        email: enquiry.email,
+        phone: enquiry.phone,
+        service,
+        source: enquiry.source,
+        message: enquiry.message,
+        lang: enquiry.lang,
+        formType: enquiry.formType,
+        services: isQuote ? enquiry.services : undefined,
+        organisation: isQuote ? enquiry.organisation : undefined,
+        consent: enquiry.consent,
         // From the request itself (platform headers, never the body): address, geography, language, device.
         client: describeRequest(req.headers),
         // The visitor's journey today, matched by the daily hash. Null when tracking saw nothing
@@ -201,7 +210,7 @@ export async function POST(req: Request) {
   }
 
   const from = process.env.CONTACT_FROM_EMAIL?.trim() || mailer.defaultFrom;
-  const lead = buildLeadEmail(parsed.data);
+  const lead = buildLeadEmail(enquiry);
 
   // 1) The studio notification: if it fails and the lead is not saved either,
   //    the lead is lost, so tell the visitor. A saved lead is safe in /admin/leads.
@@ -226,7 +235,7 @@ export async function POST(req: Request) {
   // 2) Confirmation to the visitor. Sent only after the studio copy went out
   //    (never confirm something we didn't receive), and a failure here must not
   //    fail the form - the lead is already safely delivered, so just log it.
-  const confirmation = buildConfirmationEmail(parsed.data, TO);
+  const confirmation = buildConfirmationEmail(enquiry, TO);
   try {
     await mailer.send({
       from,
