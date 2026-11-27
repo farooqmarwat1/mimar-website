@@ -166,6 +166,7 @@ export function ConsultationCta({
   primaryLabel,
   primaryHref = "/booking",
   bordered,
+  longHeading,
 }: {
   lang: Locale;
   /** Defaults to "Get a free consultation". */
@@ -176,18 +177,23 @@ export function ConsultationCta({
   primaryHref?: string;
   /** The branding/marketing and legacy pages draw a top border; the architectural ones do not. */
   bordered: boolean;
+  /** A long, page-specific heading: it is the H2 (the eyebrow a plain line) in a wider column, so each half keeps to one line. */
+  longHeading?: boolean;
 }) {
   const ui = getServiceUi(lang);
+  const Eyebrow = longHeading ? "p" : "h2";
+  const Heading = longHeading ? "h2" : "p";
   return (
     <section className={bordered ? "section-py border-t border-line" : "section-py"}>
-      <div className="container-page mx-auto max-w-3xl text-center">
-        <Reveal><h2 className="eyebrow text-muted">/ {eyebrow ?? ui.freeConsultation}</h2></Reveal>
+      <div className={`container-page mx-auto text-center ${longHeading ? "max-w-6xl" : "max-w-3xl"}`}>
+        <Reveal><Eyebrow className="eyebrow text-muted">/ {eyebrow ?? ui.freeConsultation}</Eyebrow></Reveal>
         <Reveal delay={0.05}>
-          <p className="section-heading mx-auto mt-6">
-            {heading[0]}
-            {" "}<br />
-            <span className="text-accent">{heading[1]}</span>
-          </p>
+          <Heading className="section-heading mx-auto mt-6">
+            {/* A long heading balances each half on its own line box, so no word is left alone on a phone. */}
+            <span className={longHeading ? "block text-balance" : undefined}>{heading[0]}</span>
+            {" "}{longHeading ? null : <br />}
+            <span className={longHeading ? "block text-balance text-accent" : "text-accent"}>{heading[1]}</span>
+          </Heading>
         </Reveal>
         <Reveal delay={0.1}><p className="section-body mx-auto mt-6 max-w-md">{body}</p></Reveal>
         <Reveal delay={0.15}>
