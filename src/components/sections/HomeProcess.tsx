@@ -64,7 +64,7 @@ export default function HomeProcess({ lang = "en", dict = getDictionary(lang) }:
             );
           })}
           <Reveal delay={0.3}>
-            <Link href={localeHref(lang, "/contact")} className="button-pill mt-6 text-ink">
+            <Link href={localeHref(lang, "/contact")} data-quote="home-process" className="button-pill mt-6 text-ink">
               {c.cta}
             </Link>
           </Reveal>

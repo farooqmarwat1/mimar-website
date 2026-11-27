@@ -6,6 +6,9 @@ export type ContactLead = {
   service?: string;
   source?: string;
   message: string;
+  /** "quote" for the "Get a quote" pop-up; the contact page form otherwise. */
+  formType?: "contact" | "quote";
+  organisation?: string;
 };
 
 const NOT_GIVEN = "Not specified";
@@ -53,29 +56,33 @@ export function buildConfirmationEmail(lead: Pick<ContactLead, "firstName">, stu
 }
 
 export function buildLeadEmail(lead: ContactLead) {
+  const quote = lead.formType === "quote";
   const name = singleLine(`${lead.firstName} ${lead.lastName}`);
   const service = singleLine(lead.service ?? "");
   const rows: [string, string][] = [
     ["Name", name],
     ["Email", singleLine(lead.email)],
     ["Phone", singleLine(lead.phone ?? "") || NOT_GIVEN],
-    ["Service", service || NOT_GIVEN],
-    ["Heard about us via", singleLine(lead.source ?? "") || NOT_GIVEN],
+    ...(quote ? ([["Company", singleLine(lead.organisation ?? "") || NOT_GIVEN]] as [string, string][]) : []),
+    [quote ? "Services" : "Service", service || NOT_GIVEN],
+    ...(quote ? [] : ([["Heard about us via", singleLine(lead.source ?? "") || NOT_GIVEN]] as [string, string][])),
   ];
 
-  const subject = `New website enquiry from ${name}${service ? ` - ${service}` : ""}`;
+  const kind = quote ? "quote request" : "enquiry";
+  const subject = `New website ${kind} from ${name}${service ? ` - ${service}` : ""}`;
+  const heading = quote ? "New quote request (Get a quote pop-up)" : "New website enquiry";
 
   const text = [
     ...rows.map(([label, value]) => `${label}: ${value}`),
     "",
-    "Message:",
+    quote ? "Project description:" : "Message:",
     lead.message,
     "",
     "Reply to this email to answer the sender directly.",
   ].join("\n");
 
   const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;color:#111">
-<h2 style="margin:0 0 16px;font-size:18px">New website enquiry</h2>
+<h2 style="margin:0 0 16px;font-size:18px">${heading}</h2>
 <table style="border-collapse:collapse">
 ${rows
   .map(
@@ -84,7 +91,7 @@ ${rows
   )
   .join("\n")}
 </table>
-<p style="margin:20px 0 6px;color:#666">Message</p>
+<p style="margin:20px 0 6px;color:#666">${quote ? "Project description" : "Message"}</p>
 <div style="white-space:pre-wrap;border-left:3px solid #ccc;padding-left:12px">${escapeHtml(lead.message)}</div>
 <p style="margin:24px 0 0;color:#888;font-size:13px">Reply to this email to answer the sender directly.</p>
 </div>`;

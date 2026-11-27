@@ -1,20 +1,14 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-// TURNSTILE-DISABLED (no Cloudflare access yet): import TurnstileWidget from "@/components/TurnstileWidget";
+import { useRef, useState, type FormEvent } from "react";
 import PhoneField from "@/components/PhoneField";
+import ConsentCheckbox from "@/components/forms/ConsentCheckbox";
+import RecaptchaWidget, { RECAPTCHA_SITE_KEY, RecaptchaNotice, recaptchaFailed, type RecaptchaHandle } from "@/components/RecaptchaWidget";
 import { services } from "@/lib/site-config";
 import { isPlausiblePhone } from "@/lib/phone-country";
 import { trackLead } from "@/lib/track";
 import { isRtl, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-
-// TURNSTILE-DISABLED (no Cloudflare access yet). To switch the "I'm human" checkbox back on,
-// uncomment every line marked TURNSTILE-DISABLED in this file, plus the matching
-// code in src/app/api/contact/route.ts, next.config.mjs and .env.example.
-// Public key of the Cloudflare Turnstile widget (inlined at build time). When
-// it is unset - e.g. local development without keys - the checkbox is skipped.
-// const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || null;
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -91,6 +85,7 @@ export default function ContactForm({
   const rtl = isRtl(lang);
   const serviceChoices: Option[] = serviceOptions ?? services.map((s) => ({ value: s.title, label: s.title }));
   const sourceChoices: Option[] = SOURCE_VALUES.map((value, index) => ({ value, label: dict.sourceOptions[index] ?? value }));
+  const ph = dict.placeholders;
 
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -98,9 +93,7 @@ export default function ContactForm({
   const fieldMessages: FieldMessages = messages
     ? { required: messages.required, email: messages.email, phone: messages.phone }
     : DEFAULT_FIELD_MESSAGES;
-  // TURNSTILE-DISABLED (no Cloudflare access yet):
-  // const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  // const [turnstileReset, setTurnstileReset] = useState(0);
+  const captcha = useRef<RecaptchaHandle>(null);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -124,18 +117,28 @@ export default function ContactForm({
       return;
     }
 
-    setStatus("submitting");
     setErrorMsg(null);
 
-    const data = Object.fromEntries(new FormData(form).entries());
+    const { consent, ...data } = Object.fromEntries(new FormData(form).entries());
+    // The invisible check runs now, after the fields are valid: there is no checkbox to tick.
+    let recaptchaToken: string | undefined;
+    if (RECAPTCHA_SITE_KEY) {
+      const token = captcha.current ? await captcha.current.getToken() : null;
+      if (token === undefined) return; // a newer press of Send replaced this one
+      if (token === null) {
+        setErrorMsg(recaptchaFailed(lang));
+        setStatus("error");
+        return;
+      }
+      recaptchaToken = token;
+    }
+    setStatus("submitting");
 
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // TURNSTILE-DISABLED (no Cloudflare access yet): send the token with the form:
-        // body: JSON.stringify({ ...data, turnstileToken }),
-        body: JSON.stringify({ ...data, lang }),
+        body: JSON.stringify({ ...data, consent: consent === "on", formType: "contact", lang, recaptchaToken }),
       });
       if (!res.ok) {
         if (rtl && messages) throw new ArabicFormError(arabicErrorFor(res.status, messages));
@@ -152,9 +155,6 @@ export default function ContactForm({
       } else {
         setErrorMsg(err instanceof Error ? err.message : "Something went wrong.");
       }
-      // TURNSTILE-DISABLED (no Cloudflare access yet): a Turnstile token works once, so ask for a fresh check before the retry.
-      // setTurnstileToken(null);
-      // setTurnstileReset((n) => n + 1);
     }
   }
 
@@ -188,12 +188,12 @@ export default function ContactForm({
       <input type="text" name="company" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <Field label={dict.firstName} name="firstName" required error={fieldErrors.firstName} />
-        <Field label={dict.lastName} name="lastName" required error={fieldErrors.lastName} />
+        <Field label={dict.firstName} name="firstName" required placeholder={ph.firstName} autoComplete="given-name" error={fieldErrors.firstName} />
+        <Field label={dict.lastName} name="lastName" required placeholder={ph.lastName} autoComplete="family-name" error={fieldErrors.lastName} />
       </div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <Field label={dict.email} name="email" type="email" required ltr={rtl} error={fieldErrors.email} />
-        <PhoneField lang={lang} label={dict.phone} required error={fieldErrors.phone} />
+        <Field label={dict.email} name="email" type="email" required ltr={rtl} placeholder={ph.email} autoComplete="email" error={fieldErrors.email} />
+        <PhoneField lang={lang} label={dict.phone} required placeholder={ph.phone} id="contact-phone" error={fieldErrors.phone} />
       </div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <SelectField label={dict.pickService} name="service" options={serviceChoices} placeholder={dict.select} />
@@ -205,23 +205,20 @@ export default function ContactForm({
           name="message"
           required
           rows={5}
+          placeholder={ph.message}
           aria-invalid={fieldErrors.message ? true : undefined}
           aria-describedby={fieldErrors.message ? "message-error" : undefined}
-          className={`min-h-32 w-full resize-none border-b bg-transparent py-2 text-base outline-none transition-colors focus:border-ink ${fieldErrors.message ? "border-red-600" : "border-line"}`}
+          className={`min-h-32 w-full resize-none border-b bg-transparent py-2 text-base outline-none transition-colors placeholder:text-muted/50 focus:border-ink ${fieldErrors.message ? "border-red-600" : "border-line"}`}
         />
         <FieldError id="message-error" message={fieldErrors.message} />
       </label>
 
-      {/* TURNSTILE-DISABLED (no Cloudflare access yet):
-      {TURNSTILE_SITE_KEY && (
-        <TurnstileWidget siteKey={TURNSTILE_SITE_KEY} onToken={setTurnstileToken} resetSignal={turnstileReset} />
-      )}
-      */}
+      <ConsentCheckbox lang={lang} id="contact-consent" error={fieldErrors.consent} />
 
-      {status === "error" && <p className="text-sm text-red-600">{errorMsg}</p>}
+      {RECAPTCHA_SITE_KEY && <RecaptchaWidget ref={captcha} siteKey={RECAPTCHA_SITE_KEY} lang={lang} />}
 
-      {/* TURNSTILE-DISABLED (no Cloudflare access yet): with the checkbox on, Send is also locked until it is ticked:
-          disabled={status === "submitting" || (TURNSTILE_SITE_KEY !== null && !turnstileToken)} */}
+      {status === "error" && <p role="alert" className="text-sm text-red-600">{errorMsg}</p>}
+
       <button
         type="submit"
         disabled={status === "submitting"}
@@ -229,6 +226,7 @@ export default function ContactForm({
       >
         {status === "submitting" ? dict.sending : dict.send}
       </button>
+      <RecaptchaNotice lang={lang} />
     </form>
   );
 }
@@ -249,6 +247,8 @@ function Field({
   required,
   ltr,
   error,
+  placeholder,
+  autoComplete,
 }: {
   label: string;
   name: string;
@@ -257,6 +257,8 @@ function Field({
   /** Email and phone are typed left-to-right even on the Arabic form. */
   ltr?: boolean;
   error?: string;
+  placeholder?: string;
+  autoComplete?: string;
 }) {
   const errorId = `${name}-error`;
   return (
@@ -266,10 +268,12 @@ function Field({
         type={type}
         name={name}
         required={required}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
         dir={ltr ? "ltr" : undefined}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
-        className={`min-h-11 w-full border-b bg-transparent py-2 text-base outline-none transition-colors focus:border-ink ${error ? "border-red-600" : "border-line"}${ltr ? " text-end" : ""}`}
+        className={`min-h-11 w-full border-b bg-transparent py-2 text-base outline-none transition-colors placeholder:text-muted/50 focus:border-ink ${error ? "border-red-600" : "border-line"}${ltr ? " text-end" : ""}`}
       />
       <FieldError id={errorId} message={error} />
     </label>

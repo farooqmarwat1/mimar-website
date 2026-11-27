@@ -53,6 +53,14 @@ export type Lead = {
   message: string;
   lang: LeadLang;
   origin: LeadOrigin;
+  /** Which website form sent it: the contact page form or the "Get a quote" pop-up. Absent on older and manual leads. */
+  formType?: LeadFormType;
+  /** Every service ticked in the quote pop-up (`service` holds them joined, for the list and search). */
+  services?: string[];
+  /** Company name from the quote pop-up. */
+  organisation?: string;
+  /** When the visitor ticked "I agree to the Terms of Use and Privacy Policy". */
+  consentAt?: string;
   /** Whether the studio notification email went out (website leads only). */
   mailStatus?: MailStatus;
   status: LeadStatus;
@@ -85,11 +93,13 @@ export type LeadRow = Omit<Lead, "activities" | "client" | "visit"> & {
   visit?: Pick<Visit, "channel" | "landingPath" | "referrer" | "utm">;
 };
 
+export type LeadFormType = "contact" | "quote";
+
 // SITE_LEADS_COLLECTION is for local end-to-end tests only (so test leads never mix with real ones).
 const COLLECTION = process.env.SITE_LEADS_COLLECTION?.trim() || "siteLeads";
 
 const ROW_FIELDS = [
-  "firstName", "lastName", "email", "emailLower", "phone", "service", "source", "message", "lang", "origin",
+  "firstName", "lastName", "email", "emailLower", "phone", "service", "source", "message", "lang", "origin", "formType",
   "mailStatus", "status", "priority", "assignee", "tags", "value", "currency", "nextFollowUpAt",
   "firstContactedAt", "lastContactedAt", "lostReason", "createdAt", "updatedAt", "updatedBy",
   "jobSeeker", "jobSeekerReasons", "client.country", "client.city", "visit.channel", "visit.landingPath",
@@ -138,6 +148,11 @@ export type NewLeadInput = {
   source?: string;
   lang?: LeadLang;
   origin?: LeadOrigin;
+  formType?: LeadFormType;
+  services?: string[];
+  organisation?: string;
+  /** Website leads: the visitor ticked the terms and privacy checkbox. */
+  consent?: boolean;
   mailStatus?: MailStatus;
   assignee?: string;
   /** Staff email for manual leads. */
@@ -169,6 +184,10 @@ export async function createLead(input: NewLeadInput): Promise<string> {
     message: input.message,
     lang: input.lang ?? "en",
     origin,
+    formType: input.formType,
+    services: input.services?.length ? input.services : undefined,
+    organisation: input.organisation || undefined,
+    consentAt: input.consent ? now : undefined,
     mailStatus: input.mailStatus,
     status: "new",
     priority: "normal",
@@ -184,7 +203,11 @@ export async function createLead(input: NewLeadInput): Promise<string> {
     activities: [
       activity(
         "system",
-        origin === "manual" ? "Lead added manually." : "Enquiry received through the website contact form.",
+        origin === "manual"
+          ? "Lead added manually."
+          : input.formType === "quote"
+            ? "Quote request received through the website \"Get a quote\" pop-up."
+            : "Enquiry received through the website contact form.",
         input.by ?? "website",
         now,
       ),

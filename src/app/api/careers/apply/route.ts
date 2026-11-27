@@ -6,6 +6,7 @@ import { createApplication, setApplicationMailStatus } from "@/lib/applications"
 import { isFirebaseConfigured } from "@/lib/firebase/admin";
 import type { MailStatus } from "@/lib/lead-constants";
 import { getMailer } from "@/lib/mailer";
+import { checkHuman } from "@/lib/recaptcha";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { contact } from "@/lib/site-config";
 
@@ -17,7 +18,9 @@ import { contact } from "@/lib/site-config";
  * /admin/applications), then emailed to the careers address, then the applicant gets a short confirmation.
  *
  * Abuse protection, in the order a request meets it: per-IP rate limits, zod validation with caps on
- * every field (the CV/portfolio link must be http(s)), a hidden honeypot, then a per-email limit.
+ * every field (the CV/portfolio link must be http(s)), a hidden honeypot, Google reCAPTCHA v2
+ * (src/lib/recaptcha.ts, fails closed in production), then a per-email limit. The applicant must
+ * also tick "I agree to the Terms of Use and Privacy Policy".
  *
  * Environment: the same mail settings as the contact form (SMTP_* or RESEND_API_KEY, CONTACT_FROM_EMAIL),
  * plus CAREERS_TO_EMAIL (optional) to send applications somewhere other than hr@mim.archi, e.g. a test inbox.
@@ -39,6 +42,8 @@ const ApplySchema = z.object({
     .refine((value) => /^https?:\/\//i.test(value) && z.url().safeParse(value).success, "Enter a full http(s) link."),
   message: z.string().trim().min(1).max(3000),
   lang: z.enum(["en", "ar"]).optional().catch(undefined),
+  consent: z.literal(true),
+  recaptchaToken: z.string().max(4000).optional(),
   // Honeypot: real people never fill this in. Accepted by the schema so the handler can answer a bot with a quiet "ok".
   company: z.string().max(500).optional(),
 });
@@ -80,6 +85,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid form data.", issues: parsed.error.flatten() }, { status: 422 });
   }
   if (parsed.data.company) return NextResponse.json({ ok: true });
+
+  const human = await checkHuman(parsed.data.recaptchaToken, ip, "[apply]", contact.hrEmail);
+  if (!human.ok) return NextResponse.json({ error: human.error }, { status: human.status });
 
   const emailHash = createHash("sha256").update(parsed.data.email.toLowerCase()).digest("hex");
   const emailLimit = await checkRateLimit([{ key: `apply:email:${emailHash}`, ...EMAIL_HOURLY }]);

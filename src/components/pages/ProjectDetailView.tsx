@@ -91,7 +91,7 @@ export default function ProjectDetailView({
           <Reveal><p className="eyebrow mb-6 text-paper/70">/ {project.location}</p></Reveal>
           <Reveal delay={0.05}><h1 className={`max-w-6xl break-words text-[clamp(3rem,13vw,7.75rem)] font-medium uppercase leading-[.83] tracking-[-.065em]${arClass(lang, "rtl:leading-[1.2]")}`}>{project.title}</h1></Reveal>
           <Reveal delay={0.1}><p className="mt-6 max-w-xl text-lg leading-snug text-paper/90 md:text-xl">{heroText}</p></Reveal>
-          <Reveal delay={0.15}><Link href={localeHref(lang, "/contact")} className="button-pill mt-6 text-paper">{dict.common.requestQuote}</Link></Reveal>
+          <Reveal delay={0.15}><Link href={localeHref(lang, "/contact")} data-quote="project-hero" className="button-pill mt-6 text-paper">{dict.common.requestQuote}</Link></Reveal>
         </div>
       </section>
 

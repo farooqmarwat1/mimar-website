@@ -131,6 +131,22 @@ export default async function AdminLeadPage({
                 <dt className="text-xs text-muted">Found us through</dt>
                 <dd className="mt-0.5">{lead.source ?? <span className="text-muted">Not specified</span>}</dd>
               </div>
+              <div>
+                <dt className="text-xs text-muted">Sent from</dt>
+                <dd className="mt-0.5">{lead.formType === "quote" ? "\"Get a quote\" pop-up" : lead.origin === "manual" ? "Added by staff" : "Contact page form"}</dd>
+              </div>
+              {lead.organisation && (
+                <div>
+                  <dt className="text-xs text-muted">Company</dt>
+                  <dd className="mt-0.5">{lead.organisation}</dd>
+                </div>
+              )}
+              {lead.consentAt && (
+                <div>
+                  <dt className="text-xs text-muted">Agreed to terms and privacy policy</dt>
+                  <dd className="mt-0.5">{lead.consentAt.slice(0, 16).replace("T", " ")} UTC</dd>
+                </div>
+              )}
             </dl>
             {lead.mailStatus && (
               <p className={`mt-4 text-xs ${lead.mailStatus === "sent" ? "text-muted" : "text-amber-900"}`}>{MAIL_NOTE[lead.mailStatus]}</p>

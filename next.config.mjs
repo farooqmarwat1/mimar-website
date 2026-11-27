@@ -33,18 +33,17 @@ const googleTags = (...origins) => (hasGoogleTags ? ` ${origins.join(" ")}` : ""
 // and update it if new third-party origins (analytics, fonts, etc.) are added.
 const csp = [
   "default-src 'self'",
-  // TURNSTILE-DISABLED (no Cloudflare access yet): the contact form's Turnstile "I'm human"
-  // checkbox needs https://challenges.cloudflare.com added to script-src,
-  // connect-src and frame-src below. Left out while the checkbox is off so the
-  // policy doesn't allow an origin nothing uses.
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}${googleTags("https://www.googletagmanager.com")}`,
+  // Google reCAPTCHA v2 on the public forms (src/components/RecaptchaWidget.tsx) loads its script
+  // from www.google.com/recaptcha and www.gstatic.com/recaptcha, and draws the checkbox in a frame
+  // from www.google.com or recaptcha.google.com (origins as listed in Google's reCAPTCHA FAQ).
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/${googleTags("https://www.googletagmanager.com")}`,
   "style-src 'self' 'unsafe-inline'",
   // lh3.googleusercontent.com is where drive.google.com/thumbnail redirects
   // to - needed for DriveVideo's poster image (src/components/ui/DriveVideo.tsx).
   `img-src 'self' data: blob: https://cdn.sanity.io https://drive.google.com https://lh3.googleusercontent.com${googleTags("https://www.googletagmanager.com", "https://*.google-analytics.com")}`,
   "font-src 'self' data:",
-  `connect-src 'self' https://*.api.sanity.io https://*.sanity.io${googleTags("https://www.googletagmanager.com", "https://*.google-analytics.com", "https://*.analytics.google.com", "https://*.g.doubleclick.net")}`,
-  `frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://drive.google.com https://online.fliphtml5.com https://koalendar.com https://www.canva.com${googleTags("https://www.googletagmanager.com")}`,
+  `connect-src 'self' https://*.api.sanity.io https://*.sanity.io https://www.google.com/recaptcha/${googleTags("https://www.googletagmanager.com", "https://*.google-analytics.com", "https://*.analytics.google.com", "https://*.g.doubleclick.net")}`,
+  `frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://drive.google.com https://online.fliphtml5.com https://koalendar.com https://www.canva.com https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/${googleTags("https://www.googletagmanager.com")}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

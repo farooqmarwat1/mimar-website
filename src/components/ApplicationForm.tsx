@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "@/components/ui/Link";
-import { useState, type FormEvent, type InvalidEvent } from "react";
+import { useRef, useState, type FormEvent, type InvalidEvent } from "react";
 import PhoneField from "@/components/PhoneField";
+import ConsentCheckbox from "@/components/forms/ConsentCheckbox";
+import RecaptchaWidget, { RECAPTCHA_SITE_KEY, RecaptchaNotice, recaptchaFailed, type RecaptchaHandle } from "@/components/RecaptchaWidget";
 import { isRtl, type Locale } from "@/i18n/config";
 import type { ApplyFormCopy } from "@/content/pages/apply";
 
@@ -24,22 +26,36 @@ export default function ApplicationForm({
   const rtl = isRtl(lang);
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const captcha = useRef<RecaptchaHandle>(null);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setStatus("submitting");
     setErrorMsg(null);
 
     const form = e.currentTarget;
-    const data = Object.fromEntries(new FormData(form).entries());
+    const { consent, ...data } = Object.fromEntries(new FormData(form).entries());
     // The "general application" choice is sent under its English name so HR sees one consistent value.
     if (data.role === "") data.role = "General application";
+
+    // The invisible check runs now, not before: there is no checkbox for the visitor to tick.
+    let recaptchaToken: string | undefined;
+    if (RECAPTCHA_SITE_KEY) {
+      const token = captcha.current ? await captcha.current.getToken() : null;
+      if (token === undefined) return; // a newer press of Send replaced this one
+      if (token === null) {
+        setErrorMsg(recaptchaFailed(lang));
+        setStatus("error");
+        return;
+      }
+      recaptchaToken = token;
+    }
+    setStatus("submitting");
 
     try {
       const res = await fetch("/api/careers/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, lang }),
+        body: JSON.stringify({ ...data, consent: consent === "on", lang, recaptchaToken }),
       });
       if (!res.ok) {
         const { errors } = copy;
@@ -135,11 +151,20 @@ export default function ApplicationForm({
         <span className="text-xs text-muted">{copy.messageHint}</span>
       </label>
 
+      <ConsentCheckbox lang={lang} id="apply-consent" />
+
+      {RECAPTCHA_SITE_KEY && <RecaptchaWidget ref={captcha} siteKey={RECAPTCHA_SITE_KEY} lang={lang} />}
+
       {status === "error" && <p role="alert" className="text-sm text-red-600">{errorMsg}</p>}
 
-      <button type="submit" disabled={status === "submitting"} className="button-pill mt-4 border-accent text-accent disabled:opacity-50">
+      <button
+        type="submit"
+        disabled={status === "submitting"}
+        className="button-pill mt-4 border-accent text-accent disabled:opacity-50"
+      >
         {status === "submitting" ? copy.sending : copy.send}
       </button>
+      <RecaptchaNotice lang={lang} />
     </form>
   );
 }
